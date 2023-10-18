@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 화면크기 맞춤 메타태그 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+</head>
+
+<script>
+<!--    window.addEventListener("flutterInAppWebViewPlatformReady", function(event) {-->
+<!--        window.flutter_inappwebview.callHandler('goPayPage').then(function(result) {-->
+<!--            console.log(JSON.stringify(result));-->
+<!--&lt;!&ndash;            window.flutter_inappwebview.callHandler('handlerFooWithArgs', 1, true, ['bar', 5], {foo: 'baz'}, result);&ndash;&gt;-->
+<!--        });-->
+<!--    });-->
+
+    <!-- [html -> js -> app 방향으로 호출] -->
+    function goPayPage(msg) {
+        const args = 'pom,oiu,hu8';
+        window.flutter_inappwebview.callHandler('goPayPage', args);
+    }
+
+    function showToast(msg) {
+        window.flutter_inappwebview.callHandler('showAppToast').then(function(result) {
+
+        });
+    }
+
+    function funConsole(msg) {
+        console.log(msg);
+    }
+</script>
+
+
+TEST WEB PAGE <br/> 웹뷰 테스트
+<p id="message"></p>
+
+<!-- 테스트 버튼 -->
+<input id="goPayPage" type="button" value="goPayPage" onclick="goPayPage('No');" />
+<input id="consoleMsg" type="button" value="logMsg" onclick="funConsole('This is log message');" />
+<input id="toastMsg" type="button" value="showToastMsg" onclick="showToast('Toast message');" />
+<br/><br/><br/>
+
+<input id="getDeviceId" type="button" value="DeviceID" onclick="getDeviceId();" />
+<input id="getToken" type="button" value="Token" onclick="getToken();" />
+<input id="setLogoutS" type="button" value="SetLogout" onclick="setLogoutStatus();" />
+
+<input id="setLogoutSo" type="button" value="SetLogin" onclick="setLoginStatus();" />
+<br/><br/>
+<input id="showWeb" type="button" value="ShowPcWeb" onclick="showWeb('http://www.thinkpool.com/?mobile');" />
+<br/><br/>
+
+<input id="showToast" type="button" value="showToast" onclick="showAndroidToast('Show Toast !!!!!!');" />
+<br/><br/>
+
+<input type="text" id="url" value="http://www.google.com/" /><br /><br />
+<input id="changeWebView" type="button" value="Change WebView" onclick="changeWebView();" />
+<input id="setHomeUrl" type="button" value="SetHomeUrl" onclick="setButtonUrl('rassiro_home');" />
+<br/><br/>
+
+<!-- 테스트용 화면 URL 저장 -->
+<input id="setNaverUrl" type="button" value="SetUrlNaver" onclick="setButtonUrl('login_naver');" />
+<input id="setFacebUrl" type="button" value="SetUrlFaceb" onclick="setButtonUrl('login_faceb');" />
+<input id="setKakaoUrl" type="button" value="SetUrlKakao" onclick="setButtonUrl('login_kakao');" />
+<br/><br/>
+<input id="setInterestUrl" type="button" value=" SetInterest " onclick="setButtonUrl('menu_interest');" />
+<input id="setScrapUrl" type="button" value="SetUrlScrap" onclick="setButtonUrl('menu_scrap');" />
+<input id="setNoticeUrl" type="button" value="SetUrlNotice" onclick="setButtonUrl('menu_notice');" />
+<br/><br/>
+<input id="setUrlReception" type="button" value=" SetUrlRece " onclick="setButtonUrl('menu_reception');" />
+<input id="setUrlContents" type="button" value="SetUrlConts" onclick="setButtonUrl('menu_contents');" />
+<input id="setUrlMemInfo" type="button" value="SetUrlMem" onclick="setButtonUrl('menu_mem_info');" />
+<br/><br/>
+<br/><br/>
+
+<!--<input id="showAlertBtn" type="button" value="Show alert" onclick="showAlert();" />
+<input id="showToaseBtn" type="button" value="Show Toast" onclick="showAndroidToast('This is Toast~');" />-->
+<input id="putPrefBtn" type="button" value="Save Pref" onclick="putPrefString('str_key', 'str_value');" />
+<input id="getPrefBtn" type="button" value="Get  Pref" onclick="getPrefString('menu_interest');" />
+<input id="setLogin" type="button" value="LOG  IN" onclick="" />
+<input id="setLogout" type="button" value="LOG  OUT" onclick="setLogoutApp();" />
+<br/><br/>
+<br/><br/>
+
+</html>

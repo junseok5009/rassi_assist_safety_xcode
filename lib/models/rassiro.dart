@@ -1,0 +1,359 @@
+import 'package:flutter/material.dart';
+import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/models/pg_news.dart';
+import 'package:rassi_assist/models/tag_info.dart';
+import 'package:rassi_assist/ui/common/only_web_view.dart';
+import 'package:rassi_assist/ui/news/news_tag_page.dart';
+import 'package:rassi_assist/ui/news/news_viewer.dart';
+
+import '../common/custom_nv_route_class.dart';
+
+
+/// 라씨로 뉴스
+class Rassiro {
+  final String newsDiv;
+  final String newsSn;
+  final String newsCrtDate;
+  final String issueDttm;
+  final String title;
+  final String viewLinkYn;
+  final String stockCode;
+  final String stockName;
+  final String imageUrl;
+
+  // TR_RASSIRO06 땡정보 + 실시간 특징주 추가
+  final String linkUrl; // TR_RASSIRO06 땡정보 (태그별 AI속보 리스트 > 실시간 특징주) : 랜딩페이지 링크 주소
+  final String currentPrice; // 관련 종목 현재 가격
+  final fluctuationRate; // 관련 종목 등락
+
+  Rassiro({
+    this.newsDiv = '',
+      this.newsSn = '',
+      this.newsCrtDate = '',
+      this.issueDttm = '',
+      this.title = '',
+      this.viewLinkYn = '',
+      this.stockCode = '',
+      this.stockName = '',
+      this.imageUrl = '',
+      this.linkUrl = '',
+      this.currentPrice = '',
+      this.fluctuationRate = '',
+  });
+
+  bool isEmpty() {
+    return [
+      title,
+      newsCrtDate,
+      newsSn,
+    ].contains(null);
+  }
+
+  factory Rassiro.fromJson(Map<String, dynamic> json) {
+    return Rassiro(
+      newsDiv: json['newsDiv'],
+      newsSn: json['newsSn'],
+      newsCrtDate: json['newsCrtDate'],
+      issueDttm: json['issueDttm'],
+      title: json['title'],
+      viewLinkYn: json['viewLinkYn'],
+      stockCode: json['stockCode'] ?? '',
+      stockName: json['stockName'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      linkUrl: json['linkUrl'] ?? '',
+      currentPrice: json['currentPrice'] ?? '',
+      fluctuationRate: json['fluctuationRate'] ?? '',
+    );
+  }
+}
+
+//화면구성 (라씨로 뉴스 리스트)
+class TileRassiroList extends StatelessWidget {
+  final Rassiro item;
+
+  const TileRassiroList(this.item, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 70,
+      margin: const EdgeInsets.only(
+        left: 15.0,
+        right: 15.0,
+        top: 10.0,
+      ),
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: RColor.lineGrey,
+          width: 0.8,
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+      ),
+      child: InkWell(
+        splashColor: Colors.deepPurpleAccent.withAlpha(30),
+        child: Container(
+          width: double.infinity,
+          height: 70,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              // // FadeInImage(image: NetworkImage(item.imageUrl), placeholder: null,),
+              // // Image.network(item.imageUrl, ),
+              // _setNetImage(item.imageUrl),
+              // const SizedBox(width: 10.0,),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      TStyle.getDateTdFormat(item.issueDttm),
+                      style: TStyle.commonSPurple,
+                    ),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    Text(
+                      item.title,
+                      style: TStyle.subTitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+        onTap: () async {
+          // NewsViewer로 이동 > NewsViewer 페이지에서 관련태그 클릭하면 다시 NewsTagPage 이거 하나 더 떠서 중복으로 계속 스택 쌓임,
+          // NewsViewer _ 관련태그인 Tr_Rassi03 _ TileTags에서 클릭하면 NewsViewer 닫고 이 함수 호출해서 중복으로 안뜨고 갱신되게 함
+          dynamic result = await Navigator.push(
+            context,
+            CustomNvRouteClass.createRouteData(
+              NewsViewer(),
+              RouteSettings(
+                arguments: PgNews(
+                  stockCode: item.stockCode,
+                  stockName: item.stockName,
+                  newsSn: item.newsSn,
+                  createDate: item.newsCrtDate,
+                ),
+              ),
+            ),
+          );
+          if (context.mounted) {
+            if (result is Tag) {
+              NewsTagPageState? parent = context.findAncestorStateOfType<NewsTagPageState>();
+              Tag item = result;
+              parent?.tagName = item.tagName;
+              parent?.tagCode = item.tagCode;
+              parent?.pageNum = 0;
+              parent?.newsList.clear();
+              parent?.requestData();
+            } else if (result == true) {
+              Navigator.pop(context);
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _setNetImage(String sUrl) {
+    if (sUrl == null) {
+      return const Visibility(visible: false, child: Text(''));
+    } else {
+      return Image.network(
+        sUrl,
+        width: 45,
+      );
+    }
+  }
+
+  //페이지 전환 에니메이션 (데이터 전달)
+  Route _createRouteData(Widget instance, RouteSettings settings) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => instance,
+      settings: settings,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = const Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+}
+
+//화면구성 (라씨로 뉴스 리스트) 22.07.13 실시간특징주 추가
+class TileRassiroFeatureList extends StatelessWidget {
+  final Rassiro item;
+
+  TileRassiroFeatureList(this.item);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 84,
+      margin: const EdgeInsets.only(
+        left: 15.0,
+        right: 15.0,
+        top: 10.0,
+      ),
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: RColor.lineGrey,
+          width: 0.8,
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+      ),
+      child: InkWell(
+        splashColor: Colors.deepPurpleAccent.withAlpha(30),
+        child: Container(
+          width: double.infinity,
+          height: 84,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      TStyle.getDateTdFormat(item.issueDttm),
+                      style: TStyle.commonSPurple,
+                    ),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.title,
+                            style: TStyle.subTitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Visibility(
+                          visible: int.parse(DateTime.now()
+                                  .difference(DateTime.parse(
+                                      item.issueDttm.substring(0, 8)))
+                                  .inDays
+                                  .toString()) ==
+                              0,
+                          child: Image.asset(
+                            'images/main_icon_new_red_small.png',
+                            height: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    _setRelayInfo(context, item),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            _createRouteData(
+              OnlyWebView(),
+              RouteSettings(
+                arguments: PgNews(linkUrl: item.linkUrl),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _setRelayInfo(BuildContext context, Rassiro rassiro) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(2, 1, 2, 1),
+          color: RColor.bgWeakGrey,
+          child: Text(
+            TStyle.getLimitString(rassiro.stockName, 8),
+            style: TStyle.purpleThinStyle(),
+          ),
+        ),
+        const SizedBox(
+          width: 6,
+        ),
+        Visibility(
+          visible: rassiro.currentPrice.isNotEmpty,
+          child: Text(
+            TStyle.getMoneyPoint(rassiro.currentPrice),
+            style: TStyle.purpleThinStyle(),
+          ),
+        ),
+        const SizedBox(
+          width: 6,
+        ),
+        Visibility(
+          visible: rassiro.currentPrice.isNotEmpty &&
+              rassiro.fluctuationRate.isNotEmpty,
+          child: Text(
+            TStyle.getPercentString(rassiro.fluctuationRate),
+            style: TStyle.purpleThinStyle(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _setNetImage(String sUrl) {
+    if (sUrl == null) {
+      return const Visibility(visible: false, child: Text(''));
+    } else {
+      return Image.network(
+        sUrl,
+        width: 45,
+      );
+    }
+  }
+
+  //페이지 전환 에니메이션 (데이터 전달)
+  Route _createRouteData(Widget instance, RouteSettings settings) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => instance,
+      settings: settings,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = const Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+}

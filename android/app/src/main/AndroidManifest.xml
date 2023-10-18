@@ -1,0 +1,153 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mobile.thinkpool.trade">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<!--    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> --> <!-- push device id -->
+
+    <queries>
+        <package android:name="kvp.jjy.MispAndroid320"/><!-- ISP 계열카드 -->
+        <package android:name="com.hanaskcard.paycla"/><!-- 하나 앱카드 -->
+        <package android:name="kr.co.hanamembers.hmscustomer"/><!-- 하나 멤버스 -->
+        <package android:name="com.hanaskcard.rocomo.potal"/><!-- 하나 공인인증 -->
+        <package android:name="com.citibank.cardapp"/><!-- 시티 간편결제 -->
+        <package android:name="kr.co.citibank.citimobile"/><!-- 시티 공인인증관련 -->
+        <package android:name="com.wooricard.smartapp"/><!-- 우리 WON 카드 -->
+        <package android:name="com.wooribank.smart.npib"/><!-- 우리 WON 뱅크 -->
+        <package android:name="com.hyundaicard.appcard"/><!-- 현대 앱카드 -->
+        <package android:name="com.shcard.smartpay"/><!-- 신한 앱카드 -->
+        <package android:name="kr.co.samsungcard.mpocket"/><!-- 삼성 앱카드 -->
+        <package android:name="com.lcacApp"/><!-- 롯데 앱카드 -->
+        <package android:name="nh.smart.nhallonepay"/><!-- 농협 앱카드 -->
+        <package android:name="com.kbcard.cxh.appcard"/><!-- 국민 KBPay -->
+        <package android:name="com.kbcard.liivbank"/><!-- 국민 liiv(국민은행) -->
+        <package android:name="com.kbcard.reboot"/><!-- 국민 liiv next(국민은행) -->
+        <package android:name="com.kftc.bankpay.android"/><!-- 금결원 뱅크페이 -->
+        <package android:name="kr.co.kfcc.mobilebank"/><!-- 금결원 MG 새마을금고 -->
+        <package android:name="com.knb.psb"/><!-- 금결원 BNK 경남은행 -->
+        <package android:name="kr.danal.app.damoum"/><!-- 휴대폰 다날 -->
+        <package android:name="com.samsung.android.spay"/><!-- 삼성페이 -->
+        <package android:name="com.samsung.android.spaylite"/><!-- 삼성페이머니 -->
+        <package android:name="com.nhnent.payapp"/><!-- 페이코 -->
+        <package android:name="com.lge.lgpay"/><!-- 엘지페이 -->
+        <package android:name="com.ssg.serviceapp.android.egiftcertificate"/><!-- SSG Pay -->
+        <package android:name="com.lottemembers.android"/><!-- LPAY -->
+        <package android:name="viva.republica.toss"/><!-- 토스뱅크 -->
+        <package android:name="com.mysmilepay.app"/><!-- 스마일페이 -->
+        <package android:name="com.ahnlab.v3mobileplus"/><!-- V3mobile -->
+        <package android:name="com.TouchEn.mVaccine.webs"/><!-- TouchEn -->
+        <package android:name="kr.co.shiftworks.vguardweb"/><!-- v guard -->
+        <package android:name="com.nhn.android.search"/><!-- 네이버 -->
+        <package android:name="com.kakao.talk"/><!-- 카카오 -->
+
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
+    <!-- io.flutter.app.FlutterApplication is an android.app.Application that
+         calls FlutterMain.startInitialization(this); in its onCreate method.
+         In most cases you can leave this as-is, but you if you want to provide
+         additional functionality it is fine to subclass or reimplement
+         FlutterApplication and put your custom class here. -->
+    <application
+        android:name="com.example.rassi_assist.GlobalApplication"
+        android:label="라씨 매매비서"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:networkSecurityConfig="@xml/network_security_config">
+
+        <meta-data
+                android:name="com.naver.sdk.clientId"
+                android:value="@string/client_id" />
+        <meta-data
+                android:name="com.naver.sdk.clientSecret"
+                android:value="@string/client_secret" />
+        <meta-data
+                android:name="com.naver.sdk.clientName"
+                android:value="@string/client_name" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"/>
+            <!-- Displays an Android View that continues showing the launch screen
+                 Drawable until Flutter paints its first frame, then this splash
+                 screen fades out. A splash screen is useful to avoid any visual
+                 gap between the end of Android's launch screen and the painting of
+                 Flutter's first frame. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.SplashScreenDrawable"
+              android:resource="@drawable/launch_background" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+                android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
+                android:exported="true">
+            <intent-filter android:label="flutter_web_auth">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- Redirect URI, "kakao${YOUR_NATIVE_APP_KEY}://oauth" 형식 -->
+                <data android:scheme="kakao9581feb9ceb27a4206e30b1d02ed446f" android:host="oauth"/>
+            </intent-filter>
+        </activity>
+
+        <service android:name="com.example.rassi_assist.FirebaseMessageService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-4330001487160248~9662671442" />
+
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="true" />
+
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="true" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
+
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+
+    </application>
+</manifest>

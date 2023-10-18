@@ -1,0 +1,64 @@
+{
+  "project_info": {
+    "project_number": "1060216417920",
+    "firebase_url": "https://rassitradeassist.firebaseio.com",
+    "project_id": "rassitradeassist",
+    "storage_bucket": "rassitradeassist.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1060216417920:android:1974b5d097ba1148314065",
+        "android_client_info": {
+          "package_name": "com.thinkpool.mobile.trade"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1060216417920-q91uieue4anl9u85egojbl4tabq89b2p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thinkpool.mobile.trade",
+            "certificate_hash": "ee0a3fb30080367a3e779f3da9aa2e8d3c196258"
+          }
+        },
+        {
+          "client_id": "1060216417920-tru1do6ac14gmqdttm2h7t31orpb6ed1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thinkpool.mobile.trade",
+            "certificate_hash": "181ffd4c33e549f0e9e9e2fa021eb09edb53f4dd"
+          }
+        },
+        {
+          "client_id": "1060216417920-m0t0bnfc69nnqa32l43c9svucvierud7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbQURSFhCik8VSdb_FSy2WKnpDb7bCIB4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1060216417920-18s3pkdbarfjcf451i0760i4iljf0736.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1060216417920-d47a9sufq0edtb08p63v8ip44b11dv1d.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.thinkpool.rassitrade",
+                "app_store_id": "1542866202"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

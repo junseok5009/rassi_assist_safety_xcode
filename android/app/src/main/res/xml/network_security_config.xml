@@ -1,0 +1,39 @@
+<?xpml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">    <!-- 씽크풀서버 --> <!-- TRUE 일 경우만 연결가능-->
+        <domain includeSubdomains="true">olla.thinkpool.com</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">webchart.thinkpool.com</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">files.thinkpool.com</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">img.thinkpool.com</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">www.thinkpool.com</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">m.thinkpool.com</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">qbot.thinkpool.com</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">    <!-- QNA -->
+        <domain includeSubdomains="true">thinkpoolost.wixsite.com</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">    <!-- QNA -->
+        <domain includeSubdomains="true">pf.kakao.com</domain>
+    </domain-config>
+
+</network-security-config>
