@@ -16,7 +16,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import '../../../common/const.dart';
 import '../../../common/net.dart';
 import '../../common/common_swiper_pagination.dart';
-import '../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_search/tr_search10.dart';
 import '../../../models/tr_shome/tr_shome05.dart';
 import '../../main/base_page.dart';

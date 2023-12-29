@@ -1,4 +1,4 @@
-import 'package:rassi_assist/models/stock_group.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_group.dart';
 
 
 /// [종목비교] TR_COMPARE07 _ 파싱 클래스

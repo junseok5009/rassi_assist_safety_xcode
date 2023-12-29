@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/stock_compare02.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
 
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';

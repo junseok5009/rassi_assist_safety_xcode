@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/models/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 
 
 /// 2021.03.18

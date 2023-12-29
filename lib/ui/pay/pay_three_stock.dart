@@ -18,9 +18,9 @@ import 'package:rassi_assist/ui/sub/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/custom_firebase_class.dart';
-import '../../models/app_global.dart';
+import '../../models/none_tr/app_global.dart';
 import '../../models/tr_prom02.dart';
-import '../../models/tr_user04.dart';
+import '../../models/tr_user/tr_user04.dart';
 
 
 /// 2020.12.17

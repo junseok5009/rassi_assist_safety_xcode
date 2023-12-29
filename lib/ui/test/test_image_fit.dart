@@ -1,6 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 
 class TestImageFitPage extends StatelessWidget {
   //const TestImageFitPage({Key? key}) : super(key: key);

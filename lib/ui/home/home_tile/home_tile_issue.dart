@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 
 import '../../../common/const.dart';
-import '../../../common/d_log.dart';
 import '../../../common/strings.dart';
 import '../../../common/tstyle.dart';
+import '../../../models/none_tr/stock/stock.dart';
 import '../../../models/pg_data.dart';
-import '../../../models/stock.dart';
 import '../../../models/tr_issue03.dart';
 import '../../main/base_page.dart';
 import '../../news/issue_list_page.dart';

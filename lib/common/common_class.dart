@@ -4,14 +4,25 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rassi_assist/common/d_log.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/pg_data.dart';
+
 Future<void> commonLaunchURL(String url) async {
-  DLog.d('common_class.dart', 'commonLaunchURL : $url');
+  DLog.i('commonLaunchURL : $url');
   Uri uri = Uri.parse(url);
   await canLaunchUrl(uri)
-      ? await launchUrl(uri)
+      ? await launchUrl(
+          uri,
+        )
+      : DLog.d('tag', 'could_not_launch_this_url : $url');
+}
+
+Future<void> commonLaunchUrlAppOpen(String url) async {
+  DLog.i('commonLaunchURL : $url');
+  Uri uri = Uri.parse(url);
+  await canLaunchUrl(uri)
+      ? await launchUrl(uri, mode: LaunchMode.externalApplication)
       : DLog.d('tag', 'could_not_launch_this_url : $url');
 }
 

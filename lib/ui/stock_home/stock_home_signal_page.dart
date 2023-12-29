@@ -2,29 +2,31 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
-import 'package:rassi_assist/models/app_global.dart';
-import 'package:rassi_assist/models/chart_data.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/none_tr/chart_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal01.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal02.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal08.dart';
-import 'package:rassi_assist/models/tr_user04.dart';
+import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/pocket/pocket_page.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
+import 'package:rassi_assist/ui/pay/pay_three_stock.dart';
 import 'package:rassi_assist/ui/signal/signal_all_page.dart';
 import 'package:rassi_assist/ui/signal/signal_top_page.dart';
 import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
@@ -32,27 +34,25 @@ import 'package:rassi_assist/ui/tiles/card_require_pay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 
-import '../../common/my_stock_register.dart';
 import '../../provider/stock_home/stock_home_tab_name_provider.dart';
 import 'stock_home_tab.dart';
 
 class StockHomeSignalPage extends StatefulWidget {
   static const String TAG_NAME = '종목홈_매매신호';
-  static final GlobalKey<_StockHomeSignalPageState> globalKey = GlobalKey();
+  static final GlobalKey<StockHomeSignalPageState> globalKey = GlobalKey();
 
   StockHomeSignalPage({Key? key}) : super(key: globalKey);
 
   @override
-  State<StatefulWidget> createState() => _StockHomeSignalPageState();
+  State<StatefulWidget> createState() => StockHomeSignalPageState();
 }
 
-class _StockHomeSignalPageState extends State<StockHomeSignalPage>
+class StockHomeSignalPageState extends State<StockHomeSignalPage>
     with AutomaticKeepAliveClientMixin {
   final AppGlobal _appGlobal = AppGlobal();
   late SharedPreferences _prefs;
   String _userId = "";
   bool varWantKeepAlive = false;
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   late ScrollController _scrollController;
@@ -171,13 +171,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
         });
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  Future<void> _loadPrefData() async {
-    _prefs = await SharedPreferences.getInstance();
-    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-  }
-
-  requestTrAll() {
+  reload() {
     _fetchPosts(
         TR.USER04,
         jsonEncode(<String, String>{
@@ -185,10 +179,17 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
         }));
   }
 
+  // 저장된 데이터를 가져오는 것에 시간이 필요함
+  Future<void> _loadPrefData() async {
+    _prefs = await SharedPreferences.getInstance();
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+  }
+
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -197,8 +198,8 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
-      bottomSheet: _showBottomSheet
-          ? Provider.of<StockInfoProvider>(context, listen: false).getIsMyStock
+      bottomSheet: _showBottomSheet && _hasSellResults
+          ? Provider.of<StockInfoProvider>(context, listen: true).getIsMyStock
               ? BottomSheet(
                   builder: (bsContext) => InkWell(
                     onTap: () {
@@ -209,14 +210,8 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
                         Navigator.pop(context);
                       } else {
                         Navigator.pop(context);
-                        basePageState.callPageRouteUpData(
-                          const PocketPage(),
-                          PgData(
-                            pgSn: Provider.of<StockInfoProvider>(context,
-                                    listen: false)
-                                .getPockSn,
-                          ),
-                        );
+                        // [포켓 > 나의포켓 > 포켓선택]
+                        basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
                       }
                     },
                     child: Container(
@@ -321,15 +316,12 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
                       setState(() {
                         _showBottomSheet = false;
                       });
-                      MyStockRegister(
-                        buildContext: context,
-                        screenName: StockHomeSignalPage.TAG_NAME,
-                      ).startLogic();
+                      StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
                     },
                     child: Container(
                       width: double.infinity,
                       height: AppGlobal().isTablet ? 130 : 110,
-                      color: const Color(0xd92e70ff),
+                      color: RColor.lightSell_2e70ff,
                       margin: EdgeInsets.only(
                           bottom:
                               MediaQuery.of(_scaffoldKey.currentState!.context)
@@ -430,6 +422,10 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
             SliverList(
               delegate: SliverChildListDelegate(
                 [
+                  const SizedBox(
+                    height: 20,
+                  ),
+
                   _setSubTitle('$stkName의 매매신호'),
                   Visibility(
                     visible: _isFreeVisible,
@@ -469,29 +465,28 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
                   ),
 
                   Container(
-                    child: (
-                        (){
-                          bool isMyStock = Provider.of<StockInfoProvider>(context, listen: false)
+                    child: (() {
+                      bool isMyStock =
+                          Provider.of<StockInfoProvider>(context, listen: false)
                               .getIsMyStock;
-                          if(_appGlobal.isFreeUser){
-                            if(_isSignalTargetYn || !isMyStock){
-                              // 매매신호 실시간 받기
-                              return _setBtnRealtime();
-                            }else{
-                              // 실시간 수신중
-                              return _setBtnRegistered();
-                            }
-                          }else{
-                            if(isMyStock){
-                              // 실시간 수신중
-                              return _setBtnRegistered();
-                            }else{
-                              // 매매신호 실시간 받기
-                              return _setBtnRealtime();
-                            }
-                          }
+                      if (_appGlobal.isFreeUser) {
+                        if (_isSignalTargetYn || !isMyStock) {
+                          // 매매신호 실시간 받기
+                          return _setBtnRealtime();
+                        } else {
+                          // 실시간 수신중
+                          return _setBtnRegistered();
                         }
-                    )(),
+                      } else {
+                        if (isMyStock) {
+                          // 실시간 수신중
+                          return _setBtnRegistered();
+                        } else {
+                          // 매매신호 실시간 받기
+                          return _setBtnRealtime();
+                        }
+                      }
+                    })(),
                   ),
 
                   const SizedBox(
@@ -581,8 +576,12 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
     return InkWell(
       child: const CardReqPay(),
       onTap: () {
-        StockHomeTab.globalKey.currentState
-            ?.navigateAndGetResultPayPremiumPage();
+        Navigator.push(
+          context,
+          Platform.isIOS
+              ? CustomNvRouteClass.createRoute(const PayPremiumPage())
+              : CustomNvRouteClass.createRoute(PayPremiumAosPage()),
+        );
       },
     );
   }
@@ -803,7 +802,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
                             width: 4.0,
                           ),
                           Text(
-                            '$stkProfit',
+                            stkProfit,
                             style: TextStyle(
                               color: profitColor,
                               fontWeight: FontWeight.w600,
@@ -880,7 +879,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
                         children: [
                           const Text('발생 '),
                           Text(
-                            '${TStyle.getDateFormat(dateTime)}',
+                            TStyle.getDateFormat(dateTime),
                             style: TStyle.subTitle,
                           ),
                         ],
@@ -944,7 +943,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
                       height: 5,
                     ),
                     Text(
-                      '$stkProfit',
+                      stkProfit,
                       style: TextStyle(
                         color: profitColor,
                         fontWeight: FontWeight.w600,
@@ -972,7 +971,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
       ),
       child: Center(
         child: Text(
-          '$statTxt', style: TStyle.btnTextWht20,
+          statTxt, style: TStyle.btnTextWht20,
           // style: theme.textTheme.body.apply(color: textColor),
         ),
       ),
@@ -1019,11 +1018,12 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
       onTap: () {
         //기본 사용자일 경우에는 결제 페이지로 / 프리미엄 사용자일 경우에는 종목 등록
         if (_appGlobal.isFreeUser) {
-          if (Platform.isIOS) {
-            StockHomeTab.globalKey.currentState?.navigateAndGetResultPayPremiumPage();
-          } else {
-            StockHomeTab.globalKey.currentState?.navigateAndGetResultPayThreeStockPage();
-          }
+          Navigator.push(
+            context,
+            Platform.isIOS
+                ? CustomNvRouteClass.createRoute(const PayPremiumPage())
+                : CustomNvRouteClass.createRoute(const PayThreeStock()),
+          );
         } else {
           //종목 등록 안내
           _showDialogReg();
@@ -1126,7 +1126,12 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
         ),
         onTap: () {
           if (_isFreeVisible) {
-            StockHomeTab.globalKey.currentState?.navigateAndGetResultPayPremiumPage();
+            Navigator.push(
+              context,
+              Platform.isIOS
+                  ? CustomNvRouteClass.createRoute(const PayPremiumPage())
+                  : CustomNvRouteClass.createRoute(PayPremiumAosPage()),
+            );
           } else {
             basePageState.callPageRouteData(
               SignalAllPage(),
@@ -1158,7 +1163,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
               ),
               InkWell(
                 onTap: () {
-                  CommonPopup().showDialogTitleMsg(
+                  CommonPopup.instance.showDialogTitleMsg(
                       context,
                       '투자수익은?',
                       "* 수익금을 재투자하여 매매한 금액입니다.\n"
@@ -1274,7 +1279,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '$prc',
+            prc,
             style: tStyle,
           ),
           const SizedBox(
@@ -1291,7 +1296,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
 
   //AI 매매신호 성과
   Widget _setAchievements(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       // height: 280,
       child: ListView.builder(
@@ -1366,33 +1371,31 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
 
   //Custom Button
   Widget _setTopBtn(String title, String imgPath, String routeStr) {
-    return Container(
-      child: InkWell(
-        child: Column(
-          children: [
-            Image.asset(
-              imgPath,
-              fit: BoxFit.cover,
-              height: 45,
-            ),
-            const SizedBox(
-              height: 7.0,
-            ),
-            Text(
-              title,
-              style: TStyle.textSGrey,
-            ),
-            const Text(
-              'TOP',
-              style: TStyle.textSGrey,
-            ),
-          ],
-        ),
-        onTap: () {
-          basePageState.callPageRouteData(
-              SignalTopPage(), PgData(pgData: routeStr));
-        },
+    return InkWell(
+      child: Column(
+        children: [
+          Image.asset(
+            imgPath,
+            fit: BoxFit.cover,
+            height: 45,
+          ),
+          const SizedBox(
+            height: 7.0,
+          ),
+          Text(
+            title,
+            style: TStyle.textSGrey,
+          ),
+          const Text(
+            'TOP',
+            style: TStyle.textSGrey,
+          ),
+        ],
       ),
+      onTap: () {
+        basePageState.callPageRouteData(
+            SignalTopPage(), PgData(pgData: routeStr));
+      },
     );
   }
 
@@ -1411,192 +1414,184 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
 
   //MY 종목에 추가해 보세요.
   Widget _setPockBanner() {
-    if (Provider.of<StockInfoProvider>(context, listen: false).getIsMyStock) {
-      return InkWell(
-        onTap: () {
-          basePageState.callPageRouteUpData(
-              const PocketPage(),
-              PgData(
-                  pgSn: Provider.of<StockInfoProvider>(context, listen: false)
-                      .getPockSn));
-        },
-        child: Container(
-          width: double.infinity,
-          height: AppGlobal().isTablet ? 130 : 110,
-          color: const Color(0xd9a064e0),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 25,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '나의 종목 포켓에 등록된 종목입니다.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    Column(
+    return Provider.of<StockInfoProvider>(context, listen: false).getIsMyStock
+        ? InkWell(
+            onTap: () {
+              // [포켓 > 나의포켓 > 포켓선택]
+              basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
+            },
+            child: Container(
+              width: double.infinity,
+              height: AppGlobal().isTablet ? 130 : 110,
+              color: const Color(0xd9a064e0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 25,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          '보유중이시라면 회원님을 위한',
+                      children: [
+                        const Text(
+                          '나의 종목 포켓에 등록된 종목입니다.',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
-                        Text(
-                          '매도신호를 받아보세요!',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              '보유중이시라면 회원님을 위한',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              '매도신호를 받아보세요!',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 6,
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(20),
+                            ),
+                            border: Border.all(
+                              width: 0.8,
+                              color: Colors.white,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 1,
+                          ),
+                          child: const Text(
+                            '나의 종목 포켓으로 이동',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 6,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Image.asset(
+                      'images/icon_stock_home_signal_banner1.png',
+                      width: 55,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(20),
-                        ),
-                        border: Border.all(
-                          width: 0.8,
-                          color: Colors.white,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 1,
-                      ),
-                      child: const Text(
-                        '나의 종목 포켓으로 이동',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Image.asset(
-                  'images/icon_stock_home_signal_banner1.png',
-                  width: 55,
-                ),
+            ),
+          )
+        : InkWell(
+            onTap: () {
+              StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
+            },
+            child: Container(
+              width: double.infinity,
+              height: AppGlobal().isTablet ? 130 : 110,
+              color: RColor.lightSell_2e70ff,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 25,
               ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      return InkWell(
-        onTap: () {
-          MyStockRegister(
-            buildContext: context,
-            screenName: StockHomeSignalPage.TAG_NAME,
-          ).startLogic();
-        },
-        child: Container(
-          width: double.infinity,
-          height: AppGlobal().isTablet ? 130 : 110,
-          color: const Color(0xd92e70ff),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 25,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'MY 종목에 추가해 보세요.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    Column(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'AI매매신호, AI속보, 종목 이슈 알짜 정보를',
+                      children: [
+                        const Text(
+                          'MY 종목에 추가해 보세요.',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
-                        Text(
-                          '바로 확인 하실 수 있습니다.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'AI매매신호, AI속보, 종목 이슈 알짜 정보를',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              '바로 확인 하실 수 있습니다.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 6,
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(20),
+                            ),
+                            border: Border.all(
+                              width: 0.8,
+                              color: Colors.white,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 1,
+                          ),
+                          child: const Text(
+                            '바로가기',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 6,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Image.asset(
+                      'images/icon_stock_home_signal_banner1.png',
+                      width: 55,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(20),
-                        ),
-                        border: Border.all(
-                          width: 0.8,
-                          color: Colors.white,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 1,
-                      ),
-                      child: const Text(
-                        '바로가기',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Image.asset(
-                  'images/icon_stock_home_signal_banner1.png',
-                  width: 55,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+            ),
+          );
   }
 
   //종목추가 안내 다이얼로그
@@ -1651,10 +1646,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
                     ),
                     onPressed: () {
                       Navigator.pop(buildContext);
-                      MyStockRegister(
-                        buildContext: context,
-                        screenName: StockHomeTab.TAG_NAME,
-                      ).startLogic();
+                      StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
                     },
                   ),
                 ],
@@ -1807,12 +1799,11 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
           'Content-Type': 'application/json; charset=UTF-8',
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1822,10 +1813,10 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
     if (trStr == TR.USER04) {
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        User04? data = resData.retData;
+        User04 data = resData.retData;
 
         if (data != null && data.accountData != null) {
-          final AccountData accountData = data.accountData!;
+          final AccountData accountData = data.accountData;
           accountData.initUserStatus();
         } else {
           //회원정보 가져오지 못함
@@ -1956,8 +1947,8 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
             // 'symbol: \'arrow\', symbolRotate: 180, itemStyle: {color:\'blue\'}},';
           }
         }
-        tmpDate = tmpDate + ']';
-        tmpData = tmpData + ']';
+        tmpDate = '$tmpDate]';
+        tmpData = '$tmpData]';
         _dateStr = tmpDate;
         _dataStr = tmpData;
 
@@ -1969,7 +1960,7 @@ class _StockHomeSignalPageState extends State<StockHomeSignalPage>
 
   //성과 데이터 중 매도 데이터가 있는지 확인한다.
   bool _hasSellDataCheck(List<SignalAnal> dataList) {
-    if (dataList != null && dataList.length > 0) {
+    if (dataList != null && dataList.isNotEmpty) {
       int count = 0;
       for (int i = 0; i < dataList.length; i++) {
         if (dataList[i].analTarget == 'S' && dataList[i].analType != null) {

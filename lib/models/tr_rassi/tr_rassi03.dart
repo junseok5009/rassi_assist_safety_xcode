@@ -1,5 +1,5 @@
 import 'package:rassi_assist/models/opinion.dart';
-import 'package:rassi_assist/models/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tag_info.dart';
 
 

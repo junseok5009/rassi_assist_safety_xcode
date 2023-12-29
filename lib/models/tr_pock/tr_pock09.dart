@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/stock_pkt_chart.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
 
 
 /// 2022.05.13

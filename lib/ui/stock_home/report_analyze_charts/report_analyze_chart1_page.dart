@@ -18,7 +18,7 @@ import 'package:rassi_assist/models/tr_report01.dart';
 
 import '../../../common/const.dart';
 import '../../../common/net.dart';
-import '../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 
 
 /// 2023.02.21_HJS

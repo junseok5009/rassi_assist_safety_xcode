@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
 /// 2020.10.26 - JY

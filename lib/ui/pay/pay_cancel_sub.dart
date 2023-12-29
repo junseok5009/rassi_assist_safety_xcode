@@ -5,7 +5,7 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_pay.dart';
 import 'package:rassi_assist/ui/pay/pay_web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';

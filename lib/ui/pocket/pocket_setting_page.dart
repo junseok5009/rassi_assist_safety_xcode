@@ -1,689 +1,500 @@
-import 'dart:convert';
+import 'dart:io';
 
-import 'package:card_swiper/card_swiper.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:cupertino_will_pop_scope/cupertino_will_pop_scope.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/d_log.dart';
-import 'package:rassi_assist/common/net.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/rq_pocket_order.dart';
-import 'package:rassi_assist/models/tr_pock/tr_pock01.dart';
-import 'package:rassi_assist/models/tr_pock/tr_pock03.dart';
-import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/pocket.dart';
+import 'package:rassi_assist/provider/pocket_provider.dart';
+import 'package:rassi_assist/ui/common/common_layer.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/pocket/pocket_stock_setting_page.dart';
 
-/// 2021.01.25
-/// 포켓 설정 페이지
-class PocketSettingPage extends StatelessWidget {
+/// 2021.01.25 > 나의_종목_포켓_설정
+/// 2023.11.28 HJS 개편 > 포켓 설정
+
+class PocketSettingPage extends StatefulWidget {
+  const PocketSettingPage({Key? key}) : super(key: key);
+
   static const routeName = '/page_pocket_setting';
   static const String TAG = "[PocketSettingPage]";
-  static const String TAG_NAME = '나의_종목_포켓_설정';
+  static const String TAG_NAME = '포켓 설정';
 
   @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepStat,
-          elevation: 0,
-        ),
-        body: PocketSettingWidget(),
-      ),
-    );
-  }
+  State<StatefulWidget> createState() => PocketSettingPageState();
 }
 
-class PocketSettingWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => PocketSettingState();
-}
+class PocketSettingPageState extends State<PocketSettingPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  bool _isChangedOrder = false; // 순서 변경 여부
+  bool _isChangedTrash = false; // 삭제하기 변경 여부
 
-class PocketSettingState extends State<PocketSettingWidget> {
-  late SharedPreferences _prefs;
-  String _userId = "";
-  late PgData args;
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
-
-  late SwiperController controller;
-  List<Pock03> _pktList = []; //포켓리스트
-  int pageIdx = 0;
-
-  String stkName = '';
-  String stkCode = '';
-  String pock01Type = '';
+  late PocketProvider _pocketProvider;
+  List<Pocket> _pktList = []; //포켓리스트
 
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: PocketSettingPage.TAG_NAME,
-      screenClassOverride: PocketSettingPage.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      PocketSettingPage.TAG_NAME,
     );
-
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), () {
-      DLog.d(PocketSettingPage.TAG, "delayed user id : $_userId");
-      if (_userId != '') {
-        _fetchPosts(
-            TR.POCK03,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-            }));
-      }
-    });
-  }
-
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
-    _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    });
+    _pocketProvider = Provider.of<PocketProvider>(context, listen: false);
+    _pktList = _pocketProvider.getPocketList
+        .map((e) => Pocket.withStockList(e.pktSn, e.pktName, e.stkList))
+        .toList();
   }
 
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
-  }
-
-  void _popPrePage() {
-    _saveListOrder();
-    Future.delayed(const Duration(milliseconds: 500), () {
-      Navigator.of(context).pop(null);
-    });
-  }
-
-  void _saveListOrder() {
-    List<SeqItem> seqList = [];
-    for (int i = 0; i < _pktList.length; i++) {
-      seqList.add(SeqItem(_pktList[i].pocketSn, (i + 1).toString()));
-    }
-
-    PocketOrder order = PocketOrder(_userId, seqList);
-    if (_userId != '') {
-      _fetchPosts(TR.POCK02, jsonEncode(order));
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    return ConditionalWillPopScope(
+      onWillPop: () {
+        if (Platform.isAndroid) {
+          deleteProcess(true);
+        }
+        return Future.value(false);
+      },
+      shouldAddCallback: true,
+      child: Platform.isIOS
+          ? GestureDetector(
+              onHorizontalDragEnd: (details) {
+                if (details.velocity.pixelsPerSecond.dx > 20) {
+                  deleteProcess(true);
+                }
+              },
+              child: _pageChildWidget(),
+            )
+          : _pageChildWidget(),
+    );
+  }
+
+  Widget _pageChildWidget() {
     return Scaffold(
-      appBar: _setCustomAppBar(),
+      key: _scaffoldKey,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(50),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text(
+            '포켓 설정',
+            style: TStyle.commonTitle,
+          ),
+          leading: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              deleteProcess(true);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios_sharp,
+            ),
+          ),
+          actions: [
+            InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              onTap: () async {
+                var pocketProvider =
+                Provider.of<PocketProvider>(context, listen: false);
+                if (AppGlobal().isPremium) {
+                  if (pocketProvider.getPocketList.length >= 10) {
+                    commonShowToastCenter('생성 가능한 포켓의 개수는 최대 10개 입니다.');
+                  } else {
+                    String result = await CommonLayer.instance.showLayerAddPocket(context);
+                    if(result != null && result == CustomNvRouteResult.refresh){
+                      setState(() {
+                        _pktList = _pocketProvider.getPocketList
+                            .map((e) => Pocket.withStockList(e.pktSn, e.pktName, e.stkList))
+                            .toList();
+                      });
+                    }
+                  }
+                } else {
+                  // 프리미엄 팝업
+                  String result = await CommonPopup.instance.showDialogPremium(context);
+                  if (result == CustomNvRouteResult.landPremiumPage) {
+                    basePageState.navigateAndGetResultPayPremiumPage();
+                  }
+                }
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'images/icon_folder_plus.png',
+                    fit: BoxFit.cover,
+                    height: 18,
+                  ),
+                  const SizedBox(
+                    width: 7,
+                  ),
+                  const Text(
+                    '포켓 더 만들기',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                ],
+              ),
+            ),
+          ],
+          iconTheme: const IconThemeData(color: Colors.black),
+          elevation: 1,
+          centerTitle: false,
+          leadingWidth: 40,
+          titleSpacing: 5.0,
+        ),
+      ),
+      backgroundColor: RColor.bgBasic_fdfdfd,
       body: SafeArea(
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10,),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
               width: double.infinity,
               child: const Text(
-                '※ 터치 상태에서 상하로 움직여 순서를 변경하실 수 있습니다.',
+                '포켓명 부분을 터치한 상태에서 상하로 움직여 포켓의 순서를 변경하실 수 있습니다.',
                 style: TStyle.textMGrey,
               ),
             ),
-            Expanded(child: _setReorderableList(),),
+            Expanded(
+              child: _setReorderableList(),
+            ),
+            Visibility(
+              visible: _isChangedOrder || _isChangedTrash,
+              child: const SizedBox(
+                height: 60,
+              ),
+            ),
           ],
         ),
       ),
+      bottomSheet: _isChangedOrder || _isChangedTrash
+          ? BottomSheet(
+              backgroundColor: Colors.transparent,
+              builder: (bsContext) => InkWell(
+                onTap: () {
+                  deleteProcess(false);
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  //color: RColor.mainColor,
+                  decoration: const BoxDecoration(
+                    color: RColor.mainColor,
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                  ),
+                  margin: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 10,
+                    bottom: MediaQuery.of(_scaffoldKey.currentState!.context)
+                        .viewPadding
+                        .bottom + 10,
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    '저장하기',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              onClosing: () {},
+              enableDrag: false,
+            )
+          : null,
     );
   }
 
   //리스트 순서 변경 리스트
   Widget _setReorderableList() {
-    return ReorderableListView(
-      shrinkWrap: true,
-      onReorder: (int start, int current) {
-        //dragging from top to bottom
-        if (start < current) {
-          int end = current - 1;
-          Pock03 startItem = _pktList[start];
-          int i = 0;
-          int local = start;
-          do {
-            _pktList[local] = _pktList[++local];
-            i++;
-          } while (i < end - start);
-          _pktList[end] = startItem;
-        }
-        //dragging from bottom to top
-        else if (start > current) {
-          Pock03 startItem = _pktList[start];
-          for (int i = start; i > current; i--) {
-            _pktList[i] = _pktList[i - 1];
+    return Theme(
+      data: Theme.of(context).copyWith(
+        canvasColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+      ),
+      child: ReorderableListView(
+        shrinkWrap: true,
+        onReorder: (int start, int current) {
+          //dragging from top to bottom
+          if (start < current) {
+            int end = current - 1;
+            Pocket startItem = _pktList[start];
+            int i = 0;
+            int local = start;
+            do {
+              _pktList[local] = _pktList[++local];
+              i++;
+            } while (i < end - start);
+            _pktList[end] = startItem;
           }
-          _pktList[current] = startItem;
-        }
-        setState(() {});
-      },
-      children: _pktList.map((item) => _setListItem(item)).toList(),
+          //dragging from bottom to top
+          else if (start > current) {
+            Pocket startItem = _pktList[start];
+            for (int i = start; i > current; i--) {
+              _pktList[i] = _pktList[i - 1];
+            }
+            _pktList[current] = startItem;
+          }
+
+          if (areListsEqualOrder(_pktList, _pocketProvider.getPocketList)) {
+            _isChangedOrder = false;
+          } else {
+            _isChangedOrder = true;
+          }
+          setState(() {});
+        },
+        children: _pktList.map((item) => _setListItem(item)).toList(),
+      ),
     );
   }
 
+  bool areListsEqualOrder(List<Pocket> a, List<Pocket> b) {
+    if (a == b) {
+      return true;
+    }
+    if (a == null || b == null || a.length != b.length) {
+      return false;
+    }
+    for (int i = 0; i < a.length; i++) {
+      if (a[i].pktSn != b[i].pktSn) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   //리스트 아이템 설정
-  Widget _setListItem(Pock03 item) {
+  Widget _setListItem(Pocket item) {
     return Container(
-      key: Key(item.pocketSn),
-      width: double.infinity,
-      height: 60,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7,),
-      alignment: Alignment.centerLeft,
-      decoration: UIStyle.boxRoundLine15(),
+      key: Key(item.pktSn),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7.5,),
+      color: Colors.transparent,
       child: Container(
+        key: Key(item.pktSn),
         width: double.infinity,
-        height: 70,
-        padding: const EdgeInsets.all(10.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Row(
+        height: 65,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: UIStyle.boxShadowBasic(16),
+        child: SizedBox(
+          width: double.infinity,
+          height: 70,
+          child: Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'images/main_jm_icon_list_awtb.png',
+                      height: 19,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(
+                      width: 10.0,
+                    ),
+                    Flexible(
+                      child: Text(
+                        item.pktName,
+                        style: TStyle.commonTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
                 children: [
-                  const SizedBox(
-                    width: 5.0,
+                  InkWell(
+                    child: const Text(
+                      '종목관리',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        color: RColor.greyBasic_8c8c8c,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              PocketStockSettingPage(item.pktSn),
+                        ),
+                      );
+                    },
                   ),
-                  Text(
-                    item.pocketName,
-                    style: TStyle.commonTitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                   const SizedBox(
-                    width: 10.0,
+                    width: 15.0,
                   ),
                   InkWell(
-                    child: Container(
-                      padding: const EdgeInsets.all(3.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: RColor.mainColor,
-                          width: 1.0,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                      ),
-                      child: Row(
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            "  설정  ",
-                            style: TStyle.puplePlainStyle(),
+                          Image.asset(
+                            'images/icon_edit_pocket_name_grey.png',
+                            height: 20,
+                          ),
+                          const Text(
+                            '변경',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: RColor.greyBasic_8c8c8c,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    onTap: () {
-                      _setModalBottomSheet(
-                          context, item.pocketSn, item.pocketName);
+                    onTap: () async {
+                      var result =
+                          await CommonLayer.instance.showLayerChangePocketName(
+                        context,
+                        item,
+                      );
+                      if (result == CustomNvRouteResult.refresh) {
+/*                        Pocket findChangedPocket = _pocketProvider.getPocketList
+                            .firstWhere(
+                                (findPocket) => findPocket.pktSn == item.pktSn,
+                                orElse: () => null);
+                        if (findChangedPocket != null) {
+                          setState(() {
+                            item.pktName = findChangedPocket.pktName;
+                          });
+                        }*/
+                      } else {}
                     },
+                  ),
+                  InkWell(
+                    onTap: () {
+                      if (item.isDelete) {
+                        item.isDelete = false;
+                        if (!_pktList.any(
+                          (pocket) => pocket.isDelete == true,
+                        )) {
+                          _isChangedTrash = false;
+                        }
+                      } else {
+                        item.isDelete = true;
+                        _isChangedTrash = true;
+                      }
+                      setState(() {});
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            item.isDelete
+                                ? 'images/icon_trash_ok_purple.png'
+                                : 'images/icon_trash_grey.png',
+                            height: 20,
+                          ),
+                          Text(
+                            '삭제',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: item.isDelete
+                                  ? RColor.purpleBasic_6565ff
+                                  : RColor.greyBasic_8c8c8c,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-            Row(
-              children: [
-                const Text('보유'),
-                Text(
-                  item.holdCount,
-                  style: TStyle.commonSTitle,
-                ),
-                const SizedBox(
-                  width: 5.0,
-                ),
-                const Text('관심'),
-                Text(
-                  item.waitCount,
-                  style: TStyle.commonSTitle,
-                ),
-                const SizedBox(
-                  width: 10.0,
-                ),
-                Image.asset(
-                  'images/main_jm_icon_list_awtb.png',
-                  height: 17,
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // 타이틀바(AppBar)
-  PreferredSizeWidget _setCustomAppBar() {
-    return AppBar(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-              icon: const Icon(Icons.arrow_back_ios),
-              color: Colors.black,
-              onPressed: () => _popPrePage()),
-          const Text(
-            '종목 포켓 설정',
-            style: TStyle.commonTitle,
-          ),
-          const SizedBox(
-            width: 55.0,
-          ),
-        ],
-      ),
-      iconTheme: const IconThemeData(color: Colors.black),
-      automaticallyImplyLeading: false,
-      backgroundColor: Colors.white,
-      toolbarHeight: 50,
-      elevation: 1,
-    );
-  }
-
-  //소항목 타이틀
-  Widget _setSubTitle(String subTitle) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 7),
-      child: Text(
-        subTitle,
-        style: TStyle.commonTitle,
-        textScaleFactor: Const.TEXT_SCALE_FACTOR,
-      ),
-    );
-  }
-
-  // 다이얼로그
-  void _showDialogMsg(String message, String btnText) {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  Text(
-                    '$message',
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-
-                  InkWell(
-                    child: Container(
-                      width: 140,
-                      height: 36,
-                      decoration: UIStyle.roundBtnStBox(),
-                      child: Center(
-                        child: Text(
-                          btnText,
-                          style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                        ),
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  //종목 포켓 설정
-  void _setModalBottomSheet(context, String pktSn, String pktName) {
-    final nameController = TextEditingController();
-    bool isNaming = false;
-    String strHint = pktName;
-
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      builder: (BuildContext bc) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 10.0,
-                  ),
-
-                  //종목 포켓 설정
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _setSubTitle('종목 포켓 설정'),
-                      InkWell(
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.black,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-
-                  //종목 포켓명
-                  _setSubTitle('종목 포켓명'),
-                  Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: TextField(
-                          enabled: isNaming,
-                          controller: nameController,
-                          decoration: InputDecoration(hintText: strHint),
-                        ),
-                      ),
-                      Positioned(
-                        right: 10.0,
-                        top: 6,
-                        child: InkWell(
-                          child: Container(
-                            decoration: UIStyle.boxRoundLine6(),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 20),
-                            child: Stack(
-                              children: [
-                                Visibility(
-                                  visible: !isNaming,
-                                  child: const Text(
-                                    '변경',
-                                    style: TextStyle(fontSize: 14.0),
-                                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                                  ),
-                                ),
-                                Visibility(
-                                  visible: isNaming,
-                                  child: const Text(
-                                    '확인',
-                                    style: TextStyle(fontSize: 14.0),
-                                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            //이름 변경중
-                            if (isNaming) {
-                              String chName = nameController.text.trim();
-                              if (chName.length > 0) {
-                                Navigator.pop(context);
-                                requestPocket('U', pktSn, chName);
-                              } else {
-                                _showDialogMsg('포켓명을 입력해주세요', '확인');
-                              }
-                            } else {
-                              setModalState(() {
-                                isNaming = true;
-                                strHint = '포켓명을 입력해 주세요.';
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 25,
-                  ),
-
-                  //알림 설정
-                  InkWell(
-                    child: Container(
-                      width: double.infinity,
-                      height: 55,
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius:
-                            BorderRadius.all(Radius.circular(10)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'images/rassibs_btn_icon.png',
-                            height: 24,
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                '알림설정',
-                                style: TStyle.btnTextWht13,
-                                textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                              ),
-                              Text(
-                                '매매신호, 종목알림 동의',
-                                style: TStyle.btnSsTextWht,
-                                textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                              ),
-                              Text(
-                                '수신 설정 화면으로 이동합니다.',
-                                style: TStyle.btnSsTextWht,
-                                textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => NotificationSettingN()));
-                    },
-                  ),
-                  const SizedBox(
-                    height: 25,
-                  ),
-
-                  //종목 포켓 삭제
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Row(
-                        children: const [
-                          Text(
-                            '- 종목 포켓 삭제',
-                            style: TStyle.commonSTitle,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                          ),
-                          Text(
-                            '(등록된 모든 종목을 삭제하시겠습니까?)',
-                            style: TStyle.textSGrey,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                          ),
-                        ],
-                      ),
-
-                      //종목 삭제
-                      IconButton(
-                        icon: Image.asset(
-                          'images/main_my_icon_del.png',
-                          height: 17,
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showDelPocket(pktSn);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  //포켓 삭제 다이얼로그
-  void _showDelPocket(String pktSn) {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const Text(
-                    '포켓 및 등록된 모든 종목이 삭제됩니다.\n삭제하시겠습니까?',
-                    textAlign: TextAlign.center,
-                    style: TStyle.contentMGrey,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  InkWell(
-                    child: Container(
-                      width: 140,
-                      height: 36,
-                      decoration: UIStyle.roundBtnStBox(),
-                      child: const Center(
-                        child: Text(
-                          '확인',
-                          style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                        ),
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      requestPocket('D', pktSn, '');
-                    },
-                  ),
-
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  //포켓 업데이트/삭제
-  requestPocket(String type, String pktSn, String chName) {
-    setState(() {
-      pock01Type = type;
-    });
-
-    _fetchPosts(
-        TR.POCK01,
-        jsonEncode(<String, String>{
-          'userId': _userId,
-          'crudType': type,
-          'pocketSn': pktSn,
-          'pocketName': chName,
-        }));
-  }
-
-  // convert 패키지의 jsonDecode 사용
-  void _fetchPosts(String trStr, String json) async {
-    DLog.d(PocketSettingPage.TAG, trStr + ' ' + json);
-
-    var url = Uri.parse(Net.TR_BASE + trStr);
-    final http.Response response = await http.post(
-      url,
-      body: json,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
-
-    if (_bYetDispose) _parseTrData(trStr, response);
-  }
-
-  // parse
-  void _parseTrData(String trStr, final http.Response response) {
-    DLog.d(PocketSettingPage.TAG, response.body);
-
-    if (trStr == TR.USER04) {
-    } else if (trStr == TR.POCK03) {
-      final TrPock03 resData = TrPock03.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS) {
-        _pktList = resData.listData;
-        setState(() {});
+  int _getTrashPocketCount() {
+    if (_isChangedTrash) {
+      int count = 0;
+      for (var element in _pktList) {
+        if (element.isDelete) count++;
       }
-    } else if (trStr == TR.POCK01) {
-      final TrPock01 resData = TrPock01.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS) {
-        if (pock01Type == 'U') {
-          commonShowToast('포켓명이 변경 되었습니다.');
-        } else if (pock01Type == 'D') {
-          //포켓 삭제 완료
-        }
-        _fetchPosts(
-            TR.POCK03,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-            }));
-      } else {}
+      return count;
+    } else {
+      return 0;
     }
   }
+
+  deleteProcess(bool goBack) async {
+    if (_isChangedTrash || _isChangedOrder) {
+      String result = await CommonPopup.instance.showDialogCustomConfirm(context, '알림',
+          !_isChangedTrash
+              ? '포켓의 순서를 저장하시겠습니까?'
+              : '선택하신 ${_getTrashPocketCount()}개의 포켓을\n삭제하시겠습니까?\n포켓에 등록된 모든 종목이\n함께 삭제됩니다.',
+          !_isChangedTrash ? '저장하기' : '삭제하기',
+      );
+      if (context.mounted) {
+        if (result == CustomNvRouteResult.landing) {
+          if (_isChangedOrder) {
+            bool result = await _pocketProvider.changeOrderPocket(_pktList);
+            if (!result) {
+              if (context.mounted) {
+                CommonPopup.instance.showDialogBasic(
+                    context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+              }
+            }
+            _isChangedOrder = false;
+          }
+          if (_isChangedTrash) {
+            bool result = await _pocketProvider.deleteListPocket(_pktList);
+            if (!result) {
+              if (context.mounted) {
+                CommonPopup.instance.showDialogBasic(
+                    context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+              }
+            }
+            _isChangedTrash = false;
+          }
+          setState(() {
+            _pktList = _pocketProvider.getPocketList
+                .map((e) => Pocket.withStockList(e.pktSn, e.pktName, e.stkList))
+                .toList();
+          });
+        } else if (result == CustomNvRouteResult.cancel) {
+          if (goBack) {
+            Navigator.pop(context, CustomNvRouteResult.cancel);
+          }
+        } else {
+          Navigator.pop(context, CustomNvRouteResult.refresh);
+        }
+      }
+    } else {
+      Navigator.pop(context, CustomNvRouteResult.cancel);
+    }
+  }
+
 }

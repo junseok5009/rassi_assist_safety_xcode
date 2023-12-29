@@ -20,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/common_popup.dart';
 import '../../../models/pg_data.dart';
 import '../../../models/rassiro.dart';
-import '../../../models/stock.dart';
+import '../../../models/none_tr/stock/stock.dart';
 
 /// 2023.02.22_HJS
 /// AI(라씨로) 속보 리스트 페이지
@@ -361,7 +361,7 @@ class StockAiBreakingNewsListPageState
   _navigateAndWaitReturn(BuildContext context) async {
     // Navigator.push는 Future를 반환합니다. Future는 선택 창에서
     // Navigator.pop이 호출된 이후 완료될 것입니다.
-    final result = await Navigator.push(
+/*    final result = await Navigator.push(
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
@@ -395,7 +395,7 @@ class StockAiBreakingNewsListPageState
       _stockTotalPageSize = 19;
       _requestTrRassi02();
       _scrollController.jumpTo(_scrollController.position.minScrollExtent);
-    }
+    }*/
   }
 
   _checkAndRequestTrAnything() {

@@ -15,11 +15,11 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
-import 'package:rassi_assist/models/stock.dart';
-import 'package:rassi_assist/models/stock_info.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_info.dart';
 import 'package:rassi_assist/models/tr_catch01.dart';
 import 'package:rassi_assist/models/tr_find/tr_find01.dart';
 import 'package:rassi_assist/models/tr_find/tr_find02.dart';
@@ -30,7 +30,7 @@ import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_search/tr_search04.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal05.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal09.dart';
-import 'package:rassi_assist/models/tr_user04.dart';
+import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
@@ -727,12 +727,13 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
           ],
         ),
         onTap: () {
-          _navigateSearchData(
+          //@@@@@
+/*          _navigateSearchData(
               context,
               SearchPage(),
               PgData(
                 pgSn: '',
-              ));
+              ));*/
         },
       ),
     );

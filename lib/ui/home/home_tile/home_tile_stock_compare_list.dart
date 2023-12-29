@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rassi_assist/models/stock_group.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_group.dart';
 
 import '../../../common/const.dart';
 import '../../../common/tstyle.dart';

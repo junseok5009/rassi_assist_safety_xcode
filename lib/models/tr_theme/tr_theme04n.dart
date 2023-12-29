@@ -1,4 +1,4 @@
-import 'package:rassi_assist/models/chart_theme.dart';
+import 'package:rassi_assist/models/none_tr/chart_theme.dart';
 import 'package:rassi_assist/models/tr_atom.dart';
 
 

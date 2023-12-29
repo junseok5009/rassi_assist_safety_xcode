@@ -1,4 +1,4 @@
-import '../stock_fluct.dart';
+import '../none_tr/stock/stock_fluct.dart';
 
 
 /// [종목비교] TR_COMPARE05 _ 파싱 클래스

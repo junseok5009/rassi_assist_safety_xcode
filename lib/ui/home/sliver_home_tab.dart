@@ -5,7 +5,7 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';

@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/stock_pkt_chart.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/home/sliver_home_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
@@ -506,14 +506,15 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
   Widget _setAddStockBtn() {
     return InkWell(
       onTap: () async {
-        _navigatorResultCheck(
+        //TODO @@@@@
+/*        _navigatorResultCheck(
           await Navigator.push(
             context,
             CustomNvRouteClass.createRoute(
               const SearchPage(),
             ),
           ),
-        );
+        );*/
       },
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,

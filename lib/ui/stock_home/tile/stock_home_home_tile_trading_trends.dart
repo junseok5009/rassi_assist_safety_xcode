@@ -20,7 +20,7 @@ import 'package:rassi_assist/ui/stock_home/page/trading_trends_by_date_page.dart
 
 import '../../../common/const.dart';
 import '../../../common/net.dart';
-import '../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 import '../../main/base_page.dart';
 
 /// 2023.02.14_HJS
@@ -406,7 +406,7 @@ class _StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTradin
                 if (_isRightYAxisUpUnit) {
                   return TStyle.getMoneyPoint((measure! / 1000).round().toString());
                 }
-                return TStyle.getMoneyPoint(measure?.round().toString());
+                return TStyle.getMoneyPoint(measure!.round().toString());
               }),
             ),
             domainAxis: charts.OrdinalAxisSpec(

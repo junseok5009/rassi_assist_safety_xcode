@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/ui/pocket/pocket_board.dart';
 import 'package:rassi_assist/ui/pocket/pocket_page.dart';
 
 
@@ -185,8 +184,8 @@ class HeaderPocket extends StatelessWidget {
               ),
             ),
             onTap: (){    //해당 SN 포켓보드로 이동
-              Navigator.pushNamed(context, PocketBoard.routeName,
-                arguments: PgData(pgSn: item.pocketSn,),);
+              // Navigator.pushNamed(context, PocketBoard.routeName,
+              //   arguments: PgData(pgSn: item.pocketSn,),);
             },),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -13,7 +13,7 @@ import '../../../common/d_log.dart';
 import '../../../common/net.dart';
 import '../../../common/tstyle.dart';
 import '../../common/common_popup.dart';
-import '../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_search/tr_search10.dart';
 
 

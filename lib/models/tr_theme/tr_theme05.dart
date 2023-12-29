@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/stock_chart.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_chart.dart';
 import 'package:rassi_assist/models/tr_atom.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 

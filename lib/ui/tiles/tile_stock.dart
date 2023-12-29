@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/models/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
 import '../stock_home/stock_home_tab.dart';

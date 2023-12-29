@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/stock_52.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_52.dart';
 import 'package:rassi_assist/models/tr_compare/tr_compare06.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

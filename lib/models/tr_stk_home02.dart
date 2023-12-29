@@ -1,4 +1,4 @@
-import 'package:rassi_assist/models/stock_bell.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_bell.dart';
 
 
 /// 2020.11.11

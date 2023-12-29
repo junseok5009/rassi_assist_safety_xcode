@@ -12,7 +12,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/chart_data.dart';
+import 'package:rassi_assist/models/none_tr/chart_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal07.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal08.dart';

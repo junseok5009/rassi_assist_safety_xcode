@@ -5,20 +5,26 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/stock.dart';
-import 'package:rassi_assist/models/tr_user04.dart';
+import 'package:rassi_assist/models/tr_user/tr_user04.dart';
+import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
+import 'package:rassi_assist/ui/common/common_layer.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
-import 'package:rassi_assist/ui/pay/pay_three_stock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../provider/stock_home/stock_home_tab_name_provider.dart';
+import '../main/base_page.dart';
 import '../pay/pay_premium_aos_page.dart';
 import '../pay/pay_premium_page.dart';
 import 'stock_home_home_page.dart';
@@ -40,6 +46,8 @@ class StockHomeTab extends StatefulWidget {
 
 class StockHomeTabState extends State<StockHomeTab>
     with TickerProviderStateMixin {
+  late UserInfoProvider _userInfoProvider;
+
   late SharedPreferences _prefs;
   String _userId = "";
   final _appGlobal = AppGlobal();
@@ -53,6 +61,13 @@ class StockHomeTabState extends State<StockHomeTab>
   String stkCode = "";
   Color curColor = Colors.grey[500]!;
   late TabController _tabController;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
 
   @override
   void initState() {
@@ -69,11 +84,19 @@ class StockHomeTabState extends State<StockHomeTab>
         TabController(length: 2, vsync: this, initialIndex: tabIndex);
     _tabController.addListener(_handleTabSelection);
     Provider.of<StockTabNameProvider>(context, listen: false).setJustTopTrue();
+    _userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+    _userInfoProvider.addListener(refreshChild);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<StockInfoProvider>(context, listen: false)
           .postRequest(stkCode);
     });
     _loadPrefData();
+  }
+
+  @override
+  void dispose() {
+    _userInfoProvider.removeListener(refreshChild);
+    super.dispose();
   }
 
   @override
@@ -88,13 +111,16 @@ class StockHomeTabState extends State<StockHomeTab>
             leadingWidth: 40,
             //automaticallyImplyLeading: true,
             backgroundColor: Colors.white,
-            elevation: 0,
+            elevation: 1,
             leading: InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: () {
                 if (context != null && context.mounted) {
-                  Navigator.pop(context);
+                  Navigator.pop(
+                    context,
+                    CustomNvRouteResult.cancel,
+                  );
                 }
               },
               child: const Icon(
@@ -222,9 +248,9 @@ class StockHomeTabState extends State<StockHomeTab>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -236,8 +262,8 @@ class StockHomeTabState extends State<StockHomeTab>
       if (resData.retCode == RT.SUCCESS) {
         User04 data = resData.retData;
         if (data != null && data.accountData != null) {
-          final AccountData _accountData = data.accountData;
-          _accountData.initUserStatus();
+          final AccountData accountData = data.accountData;
+          accountData.initUserStatus();
         } else {
           AccountData().setFreeUserStatus();
         }
@@ -251,19 +277,39 @@ class StockHomeTabState extends State<StockHomeTab>
       physics: Platform.isAndroid ? const NeverScrollableScrollPhysics() : null,
       controller: _tabController,
       children: [
-        /*RefreshIndicator(
-          key: _refreshIndicatorKey,
-          color: Colors.white,
-          backgroundColor: Colors.blue,
-          strokeWidth: 4.0,
-          onRefresh: () {
-            //commonShowToast('dd');
-            return Future<void>.delayed(const Duration(seconds: 0));
+        RefreshIndicator(
+          color: RColor.greyBasic_8c8c8c,
+          backgroundColor: RColor.bgBasic_fdfdfd,
+          strokeWidth: 2.0,
+          onRefresh: () async {
+            if (StockHomeHomePage.globalKey.currentState != null) {
+              var childCurrentState = StockHomeHomePage.globalKey.currentState;
+              childCurrentState!.stkCode = _appGlobal.stkCode;
+              childCurrentState.stkName = _appGlobal.stkName;
+              childCurrentState.stkGrpCode = '';
+              Provider.of<StockInfoProvider>(context, listen: false)
+                  .postRequest(stkCode);
+              await childCurrentState.reload();
+            }
           },
           child: StockHomeHomePage(),
-        ),*/
-        StockHomeHomePage(),
-        StockHomeSignalPage(),
+        ),
+        /* StockHomeHomePage(),*/
+        RefreshIndicator(
+          color: RColor.greyBasic_8c8c8c,
+          backgroundColor: RColor.bgBasic_fdfdfd,
+          strokeWidth: 2.0,
+          onRefresh: () async {
+            if (StockHomeSignalPage.globalKey.currentState != null) {
+              var childCurrentState = StockHomeSignalPage.globalKey.currentState;
+              //Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
+              childCurrentState?.reload();
+              await Future.delayed(const Duration(milliseconds: 1000));
+            }
+          },
+          child: StockHomeSignalPage(),
+        ),
+        //StockHomeSignalPage(),
       ],
     );
   }
@@ -292,7 +338,7 @@ class StockHomeTabState extends State<StockHomeTab>
                         stockFluctuationRate == '0'
                     ? Colors.black
                     : stockFluctuationRate.contains('-')
-                        ? RColor.sigSell
+                        ? RColor.lightSell_2e70ff
                         : RColor.sigBuy,
               ),
             ),
@@ -328,11 +374,11 @@ class StockHomeTabState extends State<StockHomeTab>
   List<Widget> _setNormalTabView() {
     return [
       Consumer<StockTabNameProvider>(
-        builder: (context, _provider, _) {
+        builder: (context, provider, _) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 5),
             child: Text(
-              _provider.getIsTop
+              provider.getIsTop
                   ? '종목홈'
                   : stkName.length > 8
                       ? stkName.substring(0, 7)
@@ -347,7 +393,7 @@ class StockHomeTabState extends State<StockHomeTab>
         },
       ),
       Consumer<StockTabNameProvider>(
-        builder: (context, _provider, _) {
+        builder: (context, provider, _) {
           return Container(
             margin: const EdgeInsets.only(
               bottom: 5,
@@ -362,7 +408,7 @@ class StockHomeTabState extends State<StockHomeTab>
                     fontSize: 18,
                   ),
                 ),
-                if (_provider.getIsTop)
+                if (provider.getIsTop)
                   Container(
                     width: 40,
                     height: 40,
@@ -484,11 +530,8 @@ class StockHomeTabState extends State<StockHomeTab>
   _navigateAndGetResultSearchStockPage() async {
     final result = await Navigator.push(
       context,
-      commonPageRouteFromBottomToUpWithSettings(
-        SearchPage(),
-        PgData(
-          pgSn: '',
-        ),
+      CustomNvRouteClass.createRoute(
+        SearchPage.goStockHome(),
       ),
     );
     if (result != null &&
@@ -501,56 +544,12 @@ class StockHomeTabState extends State<StockHomeTab>
         //_appGlobal.tabIndex = Const.STK_INDEX_HOME;
         //Provider.of<StockHomeProvider>(context, listen: false).updateAll(stockCode, stockName, Const.STK_INDEX_HOME);
       }
-      funcStockTabUpdate();
-    }
-  }
-
-  // 종목홈에서 결제연동
-  navigateAndGetResultPayPremiumPage() async {
-    final result = await Navigator.push(
-      context,
-      Platform.isIOS
-          ? commonPageRouteFromBottomToUp(PayPremiumPage())
-          : commonPageRouteFromBottomToUp(PayPremiumAosPage()),
-    );
-
-    if (result == 'cancel') {
-      if (!mounted) return;
-      Provider.of<StockInfoProvider>(context, listen: false)
-          .postRequest(stkCode);
-    } else {
-      _fetchPosts(
-          TR.USER04,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-          }));
-      funcStockTabUpdate();
-    }
-  }
-
-  // 종목홈에서 3종목 결제연동
-  navigateAndGetResultPayThreeStockPage() async {
-    final result = await Navigator.push(
-      context,
-      commonPageRouteFromBottomToUp(PayThreeStock()),
-    );
-
-    if (result == 'cancel') {
-      if (!mounted) return;
-      Provider.of<StockInfoProvider>(context, listen: false)
-          .postRequest(stkCode);
-    } else {
-      _fetchPosts(
-          TR.USER04,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-          }));
-      funcStockTabUpdate();
+      refreshChild();
     }
   }
 
   // 자식 탭뷰 갱신시키기
-  funcStockTabUpdate() {
+  refreshChild() {
     setState(() {
       stkCode = _appGlobal.stkCode;
       stkName = _appGlobal.stkName;
@@ -558,19 +557,210 @@ class StockHomeTabState extends State<StockHomeTab>
     });
     if (StockHomeSignalPage.globalKey.currentState != null) {
       var childCurrentState = StockHomeSignalPage.globalKey.currentState;
-      childCurrentState?.stkCode = _appGlobal.stkCode;
-      childCurrentState?.stkName = _appGlobal.stkName;
-      childCurrentState?.requestTrAll();
+      childCurrentState!.stkCode = _appGlobal.stkCode;
+      childCurrentState.stkName = _appGlobal.stkName;
+      childCurrentState.reload();
     }
     if (StockHomeHomePage.globalKey.currentState != null) {
       var childCurrentState = StockHomeHomePage.globalKey.currentState;
-      childCurrentState?.stkCode = _appGlobal.stkCode;
-      childCurrentState?.stkName = _appGlobal.stkName;
-      childCurrentState?.stkGrpCode = '';
-      childCurrentState?.reload();
+      childCurrentState!.stkCode = _appGlobal.stkCode;
+      childCurrentState.stkName = _appGlobal.stkName;
+      childCurrentState.stkGrpCode = '';
+      childCurrentState.reload();
     }
     //_tabController.animateTo(tabIndex);
     Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
+  }
+
+  showAddStockLayerAndResult() async {
+    String result =
+        await CommonLayer.instance.showLayerAddStockWithAddSignalBtn(
+      context,
+      Stock(
+        stockName: stkName,
+        stockCode: stkCode,
+      ),
+    );
+    if (context.mounted && result != null) {
+      if (result == CustomNvRouteResult.refresh) {
+        Provider.of<StockInfoProvider>(context, listen: false)
+            .postRequest(stkCode);
+        _showBottomSheetMyStock();
+      } else if (result == CustomNvRouteResult.cancel) {
+        //
+      } else if (result == CustomNvRouteResult.landing) {
+        // 나만의 매도신호 만들기 레이어 띄우기 !
+        if (AppGlobal().isPremium) {
+          _showAddSignalLayerAndResult();
+        } else {
+          String result = await CommonPopup.instance.showDialogPremium(context);
+          if (result == CustomNvRouteResult.landPremiumPage &&
+              context.mounted) {
+            Navigator.push(
+              context,
+              Platform.isIOS
+                  ? CustomNvRouteClass.createRoute(const PayPremiumPage())
+                  : CustomNvRouteClass.createRoute(PayPremiumAosPage()),
+            );
+          }
+        }
+      } else if (result == CustomNvRouteResult.landPremiumPopup) {
+        String result = await CommonPopup.instance.showDialogPremium(context);
+        if (result == CustomNvRouteResult.landPremiumPage &&
+            context.mounted) {
+          Navigator.push(
+            context,
+            Platform.isIOS
+                ? CustomNvRouteClass.createRoute(const PayPremiumPage())
+                : CustomNvRouteClass.createRoute(PayPremiumAosPage()),
+          );
+        }
+      } else if (result == CustomNvRouteResult.fail) {
+        CommonPopup.instance.showDialogBasic(
+            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+      } else {
+        CommonPopup.instance.showDialogBasic(context, '알림', result);
+      }
+    } else {
+      //Navigator.pop(context, CustomNvRouteResult(false, CustomNvRouteResult.fail,),);
+    }
+  }
+
+  _showAddSignalLayerAndResult() async {
+    String result = await CommonLayer.instance.showLayerAddSignal(
+      context,
+      Stock(
+        stockName: stkName,
+        stockCode: stkCode,
+      ),
+    );
+    if (context.mounted && result != null) {
+      if (result == CustomNvRouteResult.refresh) {
+        // auto refresh
+      } else if (result == CustomNvRouteResult.cancel) {
+        // user cancel
+      } else if (result == CustomNvRouteResult.fail) {
+        CommonPopup.instance.showDialogBasic(
+            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+      } else {
+        CommonPopup.instance.showDialogBasic(context, '알림', result);
+      }
+    }
+  }
+
+  showDelStockPopupAndResult(
+    String pocketSn,
+  ) async {
+    String result = await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              InkWell(
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.black,
+                ),
+                onTap: () {
+                  Navigator.pop(context, CustomNvRouteResult.cancel);
+                },
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    '알림',
+                    style: TStyle.title18T,
+                  ),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                  const Text(
+                    '내 종목 포켓에서 해당 종목을 삭제하시겠습니까?',
+                    textAlign: TextAlign.center,
+                    style: TStyle.content15,
+                  ),
+                  const SizedBox(
+                    height: 30.0,
+                  ),
+                  InkWell(
+                    child: Container(
+                      height: 50,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 50,
+                      ),
+                      decoration: UIStyle.boxRoundFullColor50c(
+                        RColor.mainColor,
+                      ),
+                      child: const Text(
+                        '삭제하기',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context, CustomNvRouteResult.refresh);
+                    },
+                  ),
+                  const SizedBox(
+                    height: 20.0,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ).then(
+      (value) {
+        if (value != null) {
+          return value;
+        } else {
+          return CustomNvRouteResult.cancel;
+        }
+      },
+    );
+
+    if (context.mounted && result != null) {
+      if (result == CustomNvRouteResult.refresh) {
+        String result =
+            await Provider.of<PocketProvider>(context, listen: false)
+                .deleteStock(
+          Stock(
+            stockName: stkName,
+            stockCode: stkCode,
+          ),
+          pocketSn,
+        );
+        if (context.mounted && result != null) {
+          if (result == CustomNvRouteResult.refresh) {
+            Provider.of<StockInfoProvider>(context, listen: false)
+                .postRequest(stkCode);
+          } else if (result == CustomNvRouteResult.fail) {
+            CommonPopup.instance.showDialogBasic(
+                context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+          } else {
+            CommonPopup.instance.showDialogBasic(context, '안내', result);
+          }
+        }
+      } else if (result == CustomNvRouteResult.cancel) {
+      } else {}
+    }
   }
 
   // 자식에서 탭뷰 index 이동
@@ -581,5 +771,91 @@ class StockHomeTabState extends State<StockHomeTab>
         _tabController.animateTo(moveTabIndex);
       });
     }
+  }
+
+  // 관심 종목으로 등록 이후 바텀시트
+  _showBottomSheetMyStock() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(15.0),
+          topRight: Radius.circular(15.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '나의 종목 추가하기',
+                      style: TStyle.title18T,
+                    ),
+                    InkWell(
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.black,
+                        size: 30,
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+                Text(
+                  '${TStyle.getPostWord(AppGlobal().stkName, '이', '가')} 나의 종목으로 추가되었습니다.\n나의 종목 포켓에서 확인하시겠어요?',
+                  style: TStyle.content15,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+                InkWell(
+                  child: SizedBox(
+                    width: 240,
+                    //height: 40,
+                    child: Image.asset(
+                      'images/rassibs_btn_pk.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    var stockInfoProvider = Provider.of<StockInfoProvider>(
+                        context,
+                        listen: false);
+                    if (_appGlobal.isOnPocket) {
+                      Navigator.pop(context);
+                      _appGlobal.pocketSn = stockInfoProvider.getPockSn;
+                      _appGlobal.pktStockCode = stockInfoProvider.getStockCode;
+                      _appGlobal.pktStockName = stockInfoProvider.getStockName;
+                      _appGlobal.sendPageStatusRefresh('stk_change');
+                    } else {
+                      // 종목홈 나가기
+                      Navigator.pop(context);
+                      // [포켓 > 나의포켓 > 포켓선택]
+                      basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: stockInfoProvider.getPockSn);
+                    }
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

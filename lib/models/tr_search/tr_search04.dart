@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/stock_info.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_info.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
 /// 인기 종목 매매신호 리스트 조회 (관심종목 추가 건수 or 네이버 검색 상위)

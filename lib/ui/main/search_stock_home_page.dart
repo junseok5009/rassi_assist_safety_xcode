@@ -10,8 +10,8 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
-import 'package:rassi_assist/models/stock.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tr_search/tr_search02.dart';
 import 'package:rassi_assist/models/tr_search/tr_search05.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
@@ -22,7 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 /// 2023.09.12 검색 페이지
-/// 모든 족몽명 클릭 이벤트는 종목홈으로 이동합니다.
+/// 모든 족목명 클릭 이벤트는 종목홈으로 이동합니다.
 /// 종목홈 탭 어디로 갈지 결정은 APPGLOBAL.tabIndex 로 결정해야 합니다.
 /// 2023.09.07 포켓번호 필수 아니게 수정, 포켓 번호 없을때 TR로 포켓번호 가져오기
 class SearchStockHomePage extends StatefulWidget {

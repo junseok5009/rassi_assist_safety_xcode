@@ -8,7 +8,7 @@ import 'package:charts_flutter_new/src/text_style.dart' as charts_text_style;
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/user/naver_community_page.dart';
 

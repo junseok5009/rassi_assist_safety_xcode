@@ -3,21 +3,19 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/stock_compare02.dart';
-import 'package:rassi_assist/models/stock_sales_info.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_sales_info.dart';
 import 'package:rassi_assist/models/tr_compare/tr_compare04.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';
-import '../../../models/tr_compare/tr_compare04.dart';
 
 
 /// 2022.06. - JS

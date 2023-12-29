@@ -14,7 +14,7 @@ import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/stock_status.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
 import 'package:rassi_assist/models/tr_issue04.dart';
 import 'package:rassi_assist/models/tr_issue05.dart';
 import 'package:rassi_assist/ui/tiles/tile_stock_status.dart';

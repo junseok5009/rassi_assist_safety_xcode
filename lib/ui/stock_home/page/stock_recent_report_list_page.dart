@@ -15,7 +15,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tr_report04.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -383,7 +383,7 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
   _navigateAndWaitReturn(BuildContext context) async {
     // Navigator.push는 Future를 반환합니다. Future는 선택 창에서
     // Navigator.pop이 호출된 이후 완료될 것입니다.
-
+/*
     final result = await Navigator.push(
       context,
       commonPageRouteFromBottomToUpWithSettings(
@@ -407,7 +407,7 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
       _requestTrReport04();
       if (_scrollController.hasClients)
         _scrollController.jumpTo(_scrollController.position.minScrollExtent);
-    }
+    }*/
   }
 
   _checkAndRequestTrReport04() {

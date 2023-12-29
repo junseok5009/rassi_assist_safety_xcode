@@ -7,24 +7,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/routes.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
+import 'package:rassi_assist/provider/pocket_provider.dart';
+import 'package:rassi_assist/provider/signal_provider.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
+import 'package:rassi_assist/ui/common/inapp_webview_page.dart';
 import 'package:rassi_assist/ui/main/my_page.dart';
 import 'package:rassi_assist/ui/main/notification_page.dart';
-import 'package:rassi_assist/ui/main/trade_assist_page.dart';
-import 'package:rassi_assist/ui/pocket/pocket_page.dart';
+import 'package:rassi_assist/ui/main/search_page.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
+import 'package:rassi_assist/ui/pocket/sliver_pocket_tab.dart';
 import 'package:rassi_assist/ui/signal/signal_today_page.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/common_class.dart';
 import '../home/sliver_home_page.dart';
 import '../home/sliver_home_tab.dart';
-import '../pocket/pocket_board.dart';
 import '../signal/signal_top_m_page.dart';
 import '../signal/signal_top_page.dart';
 import '../stock_home/stock_home_tab.dart';
@@ -49,12 +55,14 @@ class BasePageState extends State<BasePage> {
   final StreamController<String> selectNotificationStream = StreamController<String>.broadcast();
   static const channel = MethodChannel(Const.METHOD_CHANNEL_PUSH);
 
+  late UserInfoProvider _userInfoProvider;
+
   DateTime? currentPressTime;
   int _selectedIndex = 0;
 
   static final List<Widget> _widgetOptions = <Widget>[
     const SliverHomeTabWidget(),
-    const TradeAssistPage(),
+    SliverPocketTab(),
     const NotificationPage(),
     MyPage(),
   ];
@@ -71,7 +79,7 @@ class BasePageState extends State<BasePage> {
     _setFcmForeground();
 
     // ===== 포그라운드 상태에서 받은 메시지 내용
-/*    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint('foreground message =====>');
 
       Map<String, dynamic> msgData = message.data;
@@ -83,7 +91,9 @@ class BasePageState extends State<BasePage> {
     });
 
     // ===== 앱이 종료된 상태에서 열릴때
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage message) {
+/*    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) {
       debugPrint('onBackgroundOpen =====>');
       if (message != null) {
         Map<String, dynamic> msgData = message.data;
@@ -94,7 +104,7 @@ class BasePageState extends State<BasePage> {
       } else {
         // _getAndroidBackgroundMessage();
       }
-    } as FutureOr Function(RemoteMessage? value));
+    });*/
 
     // ===== 백그라운드 상태 / 포그라운드 상태  메시지 선택했을 경우
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -106,7 +116,7 @@ class BasePageState extends State<BasePage> {
           _onSelectNotification(msgData);
         }
       }
-    });*/
+    });
 
     // 안드로이드 채널 생성
     // NOTE 위의 FirebaseMessaging 설정보다 나중에 설정되어야 적용됨
@@ -117,12 +127,19 @@ class BasePageState extends State<BasePage> {
       // _initAndroidNotificationChannel();
       // _configureSelectNotificationSubject();
     }
+
+    // 23.12.01 포켓 프로바이더 데이터 셋팅
+    Provider.of<UserInfoProvider>(context, listen: false).init();
+    Provider.of<PocketProvider>(context, listen: false).setList();
+    Provider.of<SignalProvider>(context, listen: false).setList();
+
+    _userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+    //_userInfoProvider.addListener(listenPayFunction);
   }
 
   //시작시 포그라운드 푸시 받기 설정
   void _setFcmForeground() async {
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
@@ -140,8 +157,7 @@ class BasePageState extends State<BasePage> {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: WillPopScope(
         onWillPop: _onWillPop,
         child: _setLayout(),
@@ -152,8 +168,7 @@ class BasePageState extends State<BasePage> {
   //뒤로가기 2번 종료 (IOS 에서는 필요없고 android 에서만 필요)
   Future<bool> _onWillPop() {
     DateTime now = DateTime.now();
-    if (currentPressTime == null ||
-        now.difference(currentPressTime ?? now) > const Duration(seconds: 2)) {
+    if (currentPressTime == null || now.difference(currentPressTime ?? now) > const Duration(seconds: 2)) {
       currentPressTime = now;
       commonShowToast('한번 더 뒤로가기를 누르면 앱이 종료됩니다.');
       return Future.value(false);
@@ -166,13 +181,6 @@ class BasePageState extends State<BasePage> {
   Widget _setLayout() {
     return Scaffold(
       body: _widgetOptions[_selectedIndex],
-
-      /// 모든 페이지 처음에 한번만 로딩할 경우 아래코드
-      // IndexedStack(
-      //   index: _selectedIndex,
-      //   children: _widgetOptions,
-      // ),
-
       bottomNavigationBar: BottomNavigationBar(
         // unselectedFontSize: 0.0,
         // selectedFontSize: 0.0,
@@ -184,18 +192,10 @@ class BasePageState extends State<BasePage> {
         backgroundColor: const Color.fromRGBO(249, 249, 249, 1),
 
         items: <BottomNavigationBarItem>[
-          _buildBottomNavigationItem(
-              activeIconPath: 'images/base_tab_home_on.png',
-              iconPath: 'images/base_tab_home_off.png'),
-          _buildBottomNavigationItem(
-              activeIconPath: 'images/base_tab_trade_on.png',
-              iconPath: 'images/base_tab_trade_off.png'),
-          _buildBottomNavigationItem(
-              activeIconPath: 'images/base_tab_notice_on.png',
-              iconPath: 'images/base_tab_notice_off.png'),
-          _buildBottomNavigationItem(
-              activeIconPath: 'images/base_tab_my_on.png',
-              iconPath: 'images/base_tab_my_off.png'),
+          _buildBottomNavigationItem(activeIconPath: 'images/base_tab_home_on.png', iconPath: 'images/base_tab_home_off.png'),
+          _buildBottomNavigationItem(activeIconPath: 'images/base_tab_trade_on.png', iconPath: 'images/base_tab_trade_off.png'),
+          _buildBottomNavigationItem(activeIconPath: 'images/base_tab_notice_on.png', iconPath: 'images/base_tab_notice_off.png'),
+          _buildBottomNavigationItem(activeIconPath: 'images/base_tab_my_on.png', iconPath: 'images/base_tab_my_off.png'),
         ],
         currentIndex: _selectedIndex,
         onTap: (index) => _onItemTapped(index),
@@ -203,8 +203,7 @@ class BasePageState extends State<BasePage> {
     );
   }
 
-  BottomNavigationBarItem _buildBottomNavigationItem(
-      {required String activeIconPath, required String iconPath}) {
+  BottomNavigationBarItem _buildBottomNavigationItem({required String activeIconPath, required String iconPath}) {
     return BottomNavigationBarItem(
       activeIcon: activeIconPath == null
           ? null
@@ -286,8 +285,7 @@ class BasePageState extends State<BasePage> {
   }
 
   //다른 페이지에서도 호출됨
-  goLandingPage(String landingCode, String stkCode, String stkName,
-      String bsType, String pktSn) async {
+  goLandingPage(String landingCode, String stkCode, String stkName, String bsType, String pktSn) async {
     switch (landingCode) {
       // [홈_홈]
       case LD.main_home:
@@ -308,30 +306,23 @@ class BasePageState extends State<BasePage> {
                           ? 3
                           : 0;
           if (SliverHomeWidget.globalKey.currentState == null) {
-            Provider.of<PageNotifier>(context, listen: false)
-                .setPageData(pageIndex);
+            Provider.of<PageNotifier>(context, listen: false).setPageData(pageIndex);
             setState(() {
               _selectedIndex = 0;
             });
           } else {
-            if(SliverHomeWidget.globalKey.currentContext != null) {
-              DefaultTabController.of(SliverHomeWidget.globalKey.currentContext!)
-                .animateTo(pageIndex);
-            }
+            DefaultTabController.of(SliverHomeWidget.globalKey.currentContext!).animateTo(pageIndex);
           }
           break;
         }
       // [오늘 발생한 매매신호(매수)]
       case LD.today_signal:
         {
-          final SharedPreferences prefs =
-              await SharedPreferences.getInstance();
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
           // 프리미엄 회원인지 아닌지 체크
           String? userCurProd0 = prefs.getString(Const.PREFS_CUR_PROD);
-          if (userCurProd0 != null &&
-              userCurProd0.toUpperCase().contains('AC_PR') && context.mounted) {
-
-              Navigator.push(
+          if (userCurProd0!.isNotEmpty && userCurProd0.toUpperCase().contains('AC_PR') && context.mounted) {
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => const SignalTodayPage(),
@@ -350,24 +341,37 @@ class BasePageState extends State<BasePage> {
                 _selectedIndex = 0;
               });
             } else {
-              if(SliverHomeWidget.globalKey.currentContext != null) {
-                DefaultTabController.of(
-                    SliverHomeWidget.globalKey.currentContext!)
-                    .animateTo(1);
-              }
+              DefaultTabController.of(SliverHomeWidget.globalKey.currentContext!).animateTo(1);
             }
           }
           break;
         }
-      // [메인_종목검색]
+
+      // [메인_종목검색] > (포켓 개편 이후) 포켓
       case LD.main_assist:
+      // [메인_포켓_TODAY]
+      case LD.pocket_today:
         {
-          setState(() {
-            _selectedIndex = 1;
-          });
+          goPocketPage(Const.PKT_INDEX_TODAY, pktSn: pktSn);
           break;
         }
-      // [메인_종목알림]
+
+      // [메인_MY_포켓 상세보기] > (포켓 개편 이후) 포켓
+      case LD.pocket_page:
+      // [포켓 대시보드] > (포켓 개편 이후) 포켓
+      case LD.pocket_board:
+      //[메인_포켓_나의 포켓)]
+      case LD.pocket_my:
+        {
+          goPocketPage(Const.PKT_INDEX_MY, pktSn: pktSn);
+          break;
+        }
+      //[메인_포켓_나만의 신호]
+      case LD.pocket_signal:
+        {
+          goPocketPage(Const.PKT_INDEX_SIGNAL, pktSn: pktSn);
+          break;
+        }
       case LD.main_info:
         {
           setState(() {
@@ -381,20 +385,6 @@ class BasePageState extends State<BasePage> {
           setState(() {
             _selectedIndex = 3;
           });
-          break;
-        }
-
-      // [메인_MY_포켓 상세보기]
-      case LD.pocket_page:
-        {
-          Navigator.of(context).pushNamed(
-            PocketPage.routeName,
-            arguments: PgData(
-              pgSn: pktSn,
-              stockCode: stkCode,
-              stockName: stkName,
-            ),
-          );
           break;
         }
       // [종목홈_홈]
@@ -433,6 +423,16 @@ class BasePageState extends State<BasePage> {
           goStockHomePage(stkCode, stkName, Const.STK_INDEX_HOME);
           break;
         }
+      case LD.LPC2:
+        {
+          Navigator.push(
+            context,
+            CustomNvRouteClass.createRoute(
+              SearchPage.goStockHome(),
+            ),
+          );
+          break;
+        }
       // [성과TOP_적중률]
       case LD.honor_winning_rate:
         {
@@ -445,166 +445,57 @@ class BasePageState extends State<BasePage> {
       // [조건별_매수후급]
       case LD.condition_cur_b:
         {
-          basePageState.callPageRouteData(
-              const SignalMTopPage(), PgData(pgData: 'CUR_B'));
+          basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: 'CUR_B'));
           break;
         }
       // [계정결제_프리미엄]
       case LD.payment_premium:
         {
-          final SharedPreferences prefs =
-              await SharedPreferences.getInstance();
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
           // 프리미엄 회원인지 아닌지 체크
           String? userCurProd = prefs.getString(Const.PREFS_CUR_PROD);
-          if (userCurProd != null &&
-              userCurProd.isNotEmpty &&
-              userCurProd.toUpperCase().contains('AC_PR')) {
+          if (userCurProd!.isNotEmpty && userCurProd.toUpperCase().contains('AC_PR')) {
             if (SliverHomeWidget.globalKey.currentState != null) {
-              SliverHomeWidget.globalKey.currentState?.navigateRefreshPay();
+              // SliverHomeWidget.globalKey.currentState.navigateRefreshPay();
             } else {
               // 추후에 하긴 해야함.. 어떤 화면에서 푸시를 받을지 몰라서 갱신을 못해줌
             }
           }
           break;
         }
-      // [웹페이지]
-      case LD.web_page:
+      // [인앱웹뷰페이지]
+      case LD.linkTypeUrl:
         {
+          // 인앱 웹뷰 페이지
           if (stkCode != null && stkCode.isNotEmpty) {
-            Platform.isIOS
-                ? commonLaunchURL(stkCode)
-                : commonLaunchUrlApp(stkCode);
+            String title = stkName ?? '';
+            Navigator.push(
+              context,
+              Platform.isAndroid
+                  ? CustomNvRouteClass.createRouteSlow1(
+                      InappWebviewPage(title, stkCode),
+                    )
+                  : CustomNvRouteClass.createRoute(
+                      InappWebviewPage(title, stkCode),
+                    ),
+            );
           }
           break;
         }
-      case LD.pocket_board:
+      // [외부링크]
+      case LD.linkTypeOutLink:
         {
-          Navigator.of(context).pushNamed(
-            PocketBoard.routeName,
-            arguments: PgData(
-              pgSn: pktSn,
-            ),
-          );
+          // 외부 링크 실행
+          if (stkCode != null && stkCode.isNotEmpty) {
+            commonLaunchUrlAppOpen(stkCode);
+          }
           break;
         }
     }
   }
 
-  goLandingPageTEST(BuildContext parentContext, String landingCode,
-      String stkCode, String stkName, String bsType, String pktSn) {
-    if (landingCode == LD.main_home) {
-      //홈_홈
-      Provider.of<PageNotifier>(context, listen: false).setPageData(0);
-      setState(() {
-        _selectedIndex = 0;
-      });
-    } else if (landingCode == LD.main_signal) {
-      //매매신호
-      Provider.of<PageNotifier>(context, listen: false).setPageData(1);
-      setState(() {
-        _selectedIndex = 0;
-      });
-    } else if (landingCode == LD.main_catch) {
-      //종목캐치
-      Provider.of<PageNotifier>(context, listen: false).setPageData(2);
-      setState(() {
-        _selectedIndex = 0;
-      });
-    } else if (landingCode == LD.market_page) {
-      //마켓뷰
-      Provider.of<PageNotifier>(context, listen: false).setPageData(3);
-      setState(() {
-        _selectedIndex = 0;
-      });
-    } else if (landingCode == 'LPB4') {
-      //오늘 발생한 매매신호
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const SignalTodayPage(),
-            settings: RouteSettings(
-              arguments: PgData(
-                  userId: '',
-                  flag: bsType.length > 0 ? bsType.substring(0, 1) : ''),
-            ),
-          ));
-    } else if (landingCode == 'LPB5') {
-      //인기종목 현황
-    } else if (landingCode == 'LPB6') {
-      //조건별 종목 탐색
-    } else if (landingCode == 'LPB7') {
-      //매매신호 종합보드
-    } else if (landingCode == 'LPB8') {
-      //매매신호 전체내역
-      DLog.d(BasePage.TAG, 'Landing Page : LPB8');
-    } else if (landingCode == 'LPB9') {
-      //보유중 상세보기
-    } else if (landingCode == 'LPC1') {
-      //매매비서
-      setState(() {
-        _selectedIndex = 1;
-      });
-    } else if (landingCode == 'LPD1') {
-      //알림
-      setState(() {
-        _selectedIndex = 2;
-      });
-    } else if (landingCode == 'LPE1') {
-      //MY
-      setState(() {
-        _selectedIndex = 3;
-      });
-    } else if (landingCode == 'LPE2') {
-      //포켓 상세
-      Navigator.of(context).pushNamed(
-        PocketPage.routeName,
-        arguments: PgData(pgSn: pktSn, stockCode: stkCode, stockName: stkName),
-      );
-    } else if (landingCode == 'LPF1') {
-      //종목홈
-      goStockHomePage(stkCode, stkName, Const.STK_INDEX_HOME);
-    } else if (landingCode == 'LPF2') {
-      //종목홈 AI매매신호
-      goStockHomePage(stkCode, stkName, Const.STK_INDEX_SIGNAL);
-    } else if (landingCode == 'LPF3') {
-      goStockHomePage(stkCode, stkName, Const.STK_INDEX_HOME);
-    } else if (landingCode == 'LPF4') {
-      //종목홈 소셜지수
-      goStockHomePage(stkCode, stkName, Const.STK_INDEX_HOME);
-    } else if (landingCode == 'LPF5') {
-      //종목홈 타임라인(종목소식)
-      goStockHomePage(stkCode, stkName, Const.STK_INDEX_HOME);
-    } else if (landingCode == 'LPF6') {
-      //종목홈 종목소식(여기도 타임라인)
-      goStockHomePage(stkCode, stkName, Const.STK_INDEX_HOME);
-    } else if (landingCode == 'LPG1') {
-      //성과 TOP 적중률
-    } else if (landingCode == 'LPGA') {
-      //조건별 매수후 급등
-    } else if (landingCode == 'LPH1') {
-      //계정 결제
-      //TODO 결제 페이지에 진입 이후 돌아왔을 경우 리프레시 되어야 하는지 처리
-    } else if (landingCode == 'LPH2') {
-      //3종목 결제
-      //TODO
-    } else if (landingCode == LD.web_page) {
-      //웹페이지
-      if (stkCode != null && stkCode.isNotEmpty) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WebPage(),
-              settings: RouteSettings(
-                arguments: PgData(pgData: stkCode),
-              ),
-            ));
-      }
-    } else {}
-  }
-
   //종목홈 안떠있으면 닫지 않고 열기, 종목홈 떠있으면 닫고 종목홈 갱신시키기
-  goStockHomePageCheck(BuildContext pageBuildContext, String stockCode,
-      String stockName, int pageIdx) {
+  goStockHomePageCheck(BuildContext pageBuildContext, String stockCode, String stockName, int pageIdx) {
     appGlobal.stkCode = stockCode;
     appGlobal.stkName = stockName;
     appGlobal.tabIndex = pageIdx;
@@ -617,24 +508,46 @@ class BasePageState extends State<BasePage> {
       );
     } else {
       Navigator.pop(pageBuildContext);
-      StockHomeTab.globalKey.currentState?.funcStockTabUpdate();
+      StockHomeTab.globalKey.currentState?.refreshChild();
     }
   }
 
   //종목홈으로 이동 or 갱신
-  goStockHomePage(String stockCode, String stockName, int pageIdx) {
+  Future<String> goStockHomePage(String stockCode, String stockName, int pageIdx) async {
     appGlobal.stkCode = stockCode;
     appGlobal.stkName = stockName;
     appGlobal.tabIndex = pageIdx;
+    String result = CustomNvRouteResult.cancel;
     if (StockHomeTab.globalKey.currentState == null) {
-      Navigator.push(
+      result = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => StockHomeTab(),
         ),
       );
     } else {
-      StockHomeTab.globalKey.currentState?.funcStockTabUpdate();
+      StockHomeTab.globalKey.currentState?.refreshChild();
+    }
+    return result;
+  }
+
+  //포켓탭으로 이동
+  goPocketPage(int tabIndex, {String pktSn = '', int todayIndex = 0}) {
+    if (tabIndex == Const.PKT_INDEX_TODAY) {
+      appGlobal.pocketTodayIndex = todayIndex;
+    } else if (tabIndex == Const.PKT_INDEX_MY) {
+      appGlobal.pocketSn = pktSn;
+      // appGlobal.pktStockCode = '';
+      // appGlobal.pktStockName = '';
+    }
+
+    if (SliverPocketTab.globalKey.currentState == null) {
+      Provider.of<PageNotifier>(context, listen: false).setPocketTab(tabIndex);
+      setState(() {
+        _selectedIndex = 1;
+      });
+    } else {
+      SliverPocketTab.globalKey.currentState?.refreshChild();
     }
   }
 
@@ -676,8 +589,7 @@ class BasePageState extends State<BasePage> {
 
   //탭에서 뉴스 페이지로 전환
   callPageRouteNews(Widget instance, PgNews pgData) {
-    Navigator.push(
-        context, _createRouteData(instance, RouteSettings(arguments: pgData)));
+    Navigator.push(context, _createRouteData(instance, RouteSettings(arguments: pgData)));
   }
 
   //아래에서 올라오는 페이지 교체
@@ -718,8 +630,7 @@ class BasePageState extends State<BasePage> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -738,8 +649,7 @@ class BasePageState extends State<BasePage> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(
           position: offsetAnimation,
@@ -747,6 +657,28 @@ class BasePageState extends State<BasePage> {
         );
       },
     );
+  }
+
+  // 23.11.27
+  // 베이스에서 글로벌하게 결제 연동
+  // 종목홈 - 진행중
+  // 홈 -
+  // 포켓 -
+  // 알림 -
+  // 마이 -
+  // etc
+  navigateAndGetResultPayPremiumPage() async {
+    final result = await Navigator.push(
+      context,
+      Platform.isIOS ? CustomNvRouteClass.createRoute(const PayPremiumPage()) : CustomNvRouteClass.createRoute( PayPremiumAosPage()),
+    );
+    if (result == 'cancel') {
+    } else {
+      if (StockHomeTab.globalKey.currentState != null) {
+        var child = StockHomeTab.globalKey.currentState;
+        child!.refreshChild();
+      }
+    }
   }
 
 /*  void _initAndroidNotificationChannel() async {

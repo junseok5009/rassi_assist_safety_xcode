@@ -10,6 +10,7 @@ import 'package:rassi_assist/des/tripledes.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal08.dart';
 
 
+
 class Net {
   // static const TR_BASE = "https://"+ Const.BASE +".thinkpool.com:56630/rassi_ios/";
   // static const TR_BASE = "https://"+ Const.BASE +".thinkpool.com:56620/rassi_and/";
@@ -120,6 +121,7 @@ class Net {
 class TR {
   static const APP01 = "TR_APP01";
   static const APP02 = "TR_APP02";
+  static const APP03 = "TR_APP03";
   static const ASK01 = "TR_ASK01";
   static const ASK02 = "TR_ASK02";
   static const NOTICE01 = "TR_NOTICE01";
@@ -148,6 +150,12 @@ class TR {
   static const POCK07 = "TR_POCK07";        //현재 포켓 매매신호, 매매상태 조회
   static const POCK08 = "TR_POCK08";        //포켓 종목 신호 상태
   static const POCK09 = "TR_POCK09";        //나의 포켓 종목의 현황 조회
+  static const POCK10 = "TR_POCK10";        //TODAY 나의 포켓의 종목별 현황 조회
+  static const POCK11 = "TR_POCK11";        //TODAY 나의 포켓의 종목별 현황 개수 조회
+  static const POCK12 = "TR_POCK12";        //3종목 알림 설정
+  static const POCK13 = "TR_POCK13";        //나만의 매도 신호 조회
+  static const POCK14 = "TR_POCK14";        //나만의 매도 신호 등록, 변경, 삭제
+  static const POCK15 = "TR_POCK15";        //전체 포켓과 포켓의 종목 리스트 조회
 
   static const PROM01 = "TR_PROM01";        //관리자 추천 상품
   static const PROM02 = "TR_PROM02";        //상품 홍보/안내
@@ -158,6 +166,8 @@ class TR {
   static const SHOME04 = "TR_SHOME04";      //종목 정보 및 주가 관련 상세 정보
   static const SHOME05 = "TR_SHOME05";      //기업 요약 정보 - 주요 지표 보기
   static const SHOME06 = "TR_SHOME06";      //오늘의 요약 - 챗 GPT 기업 개요
+  static const SHOME07 = "TR_SHOME07";      //이 회사는요?
+
   static const KWORD01 = "TR_KWORD01";      //종목 키워드 리스트
   static const KWORD02 = "TR_KWORD02";      //키워드 관련 종목 리스트
   static const KWORD03 = "TR_KWORD03";      //네이버 인기종목 키워드
@@ -233,6 +243,7 @@ class TR {
   static const SEARCH09 = "TR_SEARCH09";    // 종목의 일별 이벤트 조회
   static const SEARCH10 = "TR_SEARCH10";
   static const SEARCH11 = "TR_SEARCH11";
+  static const SEARCH12 = "TR_SEARCH12";
 
   static const DISCLOS01 = "TR_DISCLOS01";  // 공시 리시트 조회
   static const DISCLOS02 = "TR_DISCLOS02";  // 공시 리시트 상세 조회
@@ -258,6 +269,7 @@ class TR {
   static const SNS03 = "TR_SNS03";          //소셜지수 HOT 종목 조회
   static const SNS04 = "TR_SNS04";          //소셜지수 당일 히스토리
   static const SNS06 = "TR_SNS06";          //소셜지수 주가/글수/폭발 차트
+  static const SNS07 = "TR_SNS07";          //
 
   static const ORDER01 = "TR_ORDER01";      //주문 내역 조회(연도별)
   static const ORDER02 = "TR_ORDER02";      //정기결제 목록 조회
@@ -292,4 +304,66 @@ class RT {
   static const EXCEEDED_FREE_LOOK = "8021";     //무료 조회가능 종목수 초과
   static const ESSENTIAL_FIELD_MISSING = "0205";     //필수 입력 필드값 누락
   static const NOT_RASSI_USER = "0222"; // 등록된 회원이 아님 (TR_USER02 result)
+}
+
+/// 공통 네트워크를 위한 클래스
+class NetManager {
+
+  NetManager._();
+  static final NetManager _netManager = NetManager._();
+  //편하게 불러오기 위해 factory 로 가져온다.
+  factory NetManager() => _netManager;
+
+  //TODO @@@@@
+/*  Future<Signal08> fetchPost(String trStr, String json) async {
+    DLog.d('NetManager', '$trStr $json');
+
+    var url = Uri.parse(Net.TR_BASE + trStr);
+    try {
+      final http.Response response = await http.post(
+        url,
+        body: json,
+        headers: Net.headers,
+      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+
+      // if(_bYetDispose) _parseTrData(trStr, response);
+
+    } on TimeoutException catch (_) {
+      DLog.d('NetManager', 'ERR : TimeoutException (12 seconds)');
+      // _showDialogNetErr();
+    } on SocketException catch (_) {
+      DLog.d('NetManager', 'ERR : SocketException');
+      // _showDialogNetErr();
+    }
+  }*/
+
+
+  // static Database _database;
+  // //파일접근을 하게 되므로 Future 로 반환
+  // Future<Database> get database async {
+  //   if(_database != null) return _database;
+  //
+  //   _database = await initDB();
+  //   return _database;
+  // }
+  //
+  // initDB() async {
+  //   Directory docDirectory = await getApplicationDocumentsDirectory();
+  //   String path = join(docDirectory.path, Const.DB_NAME_TEST);
+  //
+  //   return openDatabase(
+  //     path,
+  //     version: 1,
+  //     onCreate: (db, versiong) async {
+  //       await db.execute('''
+  //       CREATE TABLE dogs(
+  //         id INTEGER PRIMARY KEY,
+  //         name TEXT,
+  //         age INTEGER
+  //       )
+  //       ''');
+  //     },
+  //     onUpgrade: (db, oldVersion, newVersion) {},
+  //   );
+  // }
 }

@@ -11,7 +11,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/stock_info.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_info.dart';
 import 'package:rassi_assist/models/tr_search/tr_search04.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';

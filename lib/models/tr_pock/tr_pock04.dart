@@ -1,5 +1,3 @@
-
-
 /// 2020.11.10
 /// 포켓 상세 조회
 class TrPock04 {
@@ -7,7 +5,7 @@ class TrPock04 {
   final String retMsg;
   final Pock04 retData;
 
-  TrPock04({this.retCode='', this.retMsg='', this.retData = defPock04});
+  TrPock04({this.retCode = '', this.retMsg = '', this.retData = defPock04});
 
   factory TrPock04.fromJson(Map<String, dynamic> json) {
     return TrPock04(
@@ -21,10 +19,13 @@ class TrPock04 {
 const defPock04 = Pock04();
 
 class Pock04 {
-  final PocketInfo pocketInfo;      //포켓정보
-  final List<PStock> stkList;       //포켓 안의 종목들
+  final PocketInfo pocketInfo; //포켓정보
+  final List<PStock> stkList; //포켓 안의 종목들
 
-  const Pock04({this.pocketInfo = defPocketInfo, this.stkList = const [],});
+  const Pock04({
+    this.pocketInfo = defPocketInfo,
+    this.stkList = const [],
+  });
 
   factory Pock04.fromJson(Map<String, dynamic> json) {
     var list = json['list_Stock'] as List;
@@ -39,13 +40,14 @@ class Pock04 {
 }
 
 const defPocketInfo = PocketInfo();
+
 //포켓 정보
 class PocketInfo {
   final String pocketSn;
   final String pocketName;
   final String pocketSize;
 
-  const PocketInfo({this.pocketSn='', this.pocketName='', this.pocketSize=''});
+  const PocketInfo({this.pocketSn = '', this.pocketName = '', this.pocketSize = ''});
 
   factory PocketInfo.fromJson(Map<String, dynamic> json) {
     return PocketInfo(
@@ -75,18 +77,25 @@ class PStock {
   final List<ListTalk> listTalk;
 
   PStock({
-    this.viewSeq='', this.stockCode='',
-    this.stockName='', this.tradeFlag='',
-    this.myTradeFlag='', this.buyPrice='',
-    this.sellDttm='', this.sellPrice='',
-    this.profitRate='', this.listTalk = const [],
+    this.viewSeq = '',
+    this.stockCode = '',
+    this.stockName = '',
+    this.tradeFlag = '',
+    this.myTradeFlag = '',
+    this.buyPrice = '',
+    this.sellDttm = '',
+    this.sellPrice = '',
+    this.profitRate = '',
+    this.listTalk = const [],
   });
 
   factory PStock.fromJson(Map<String, dynamic> json) {
     var list = json['list_Talk'] as List?;
     List<ListTalk>? rtList;
-    if(json['list_Talk'] == null) rtList = null;
-    else rtList = list?.map((i) => ListTalk.fromJson(i)).toList();
+    if (json['list_Talk'] == null)
+      rtList = null;
+    else
+      rtList = list?.map((i) => ListTalk.fromJson(i)).toList();
 
     return PStock(
       viewSeq: json['viewSeq'],
@@ -103,12 +112,12 @@ class PStock {
   }
 }
 
-
 class ListTalk {
   final String analTarget;
   final String achieveText;
 
-  ListTalk({this.analTarget='', this.achieveText=''});
+  ListTalk({this.analTarget = '', this.achieveText = ''});
+
   factory ListTalk.fromJson(Map<String, dynamic> json) {
     return ListTalk(
       analTarget: json['analTarget'],
@@ -116,7 +125,6 @@ class ListTalk {
     );
   }
 }
-
 
 //화면구성 - 포켓 상세 페이지
 // class TilePock04 extends StatelessWidget {
@@ -151,4 +159,3 @@ class ListTalk {
 //     );
 //   }
 // }
-

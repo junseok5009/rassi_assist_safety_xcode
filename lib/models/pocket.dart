@@ -1,35 +1,33 @@
-import 'package:rassi_assist/models/tr_pock/tr_pock08.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 
-/// MY 포켓 데이터   TODO 미완성
-class PocketData {
+/// MY 포켓 데이터
+/// 23.11.23 HJS
+class Pocket {
   String pktSn = '';
   String pktName = '';
-  String viewSeq = '';
-  String waitCount = '';
-  String holdCount = '';
-  final List<PtStock> _stkList = [];
+  bool isDelete = false;
+  final List<Stock> stkList = [];
 
-  void setPocketData(String pocketSn, String pocketName, String seq, String waitCnt, String holdCnt) {
+  Pocket(String pocketSn, String pocketName,) {
     pktSn = pocketSn;
     pktName = pocketName;
-    viewSeq = seq;
-    waitCount = waitCnt;
-    holdCount = holdCnt;
-
-    // notifyListeners();
   }
 
-  void addStock(PtStock stock) {
-    _stkList.add(stock);
+  Pocket.withStockList(String pocketSn, String pocketName, List<Stock> stockList) {
+    pktSn = pocketSn;
+    pktName = pocketName;
+    stkList.addAll(stockList);
   }
 
-  void removeAll() {
-    _stkList.clear();
+  Pocket.change(String pocketSn, String pocketName, bool isDelete){
+    pktSn = pocketSn;
+    pktName = pocketName;
+    isDelete = isDelete;
   }
 
   @override
   String toString() {
-    return '$pktName|$pktSn|$viewSeq';
+    return '$pktName|$pktSn';
   }
 }
 

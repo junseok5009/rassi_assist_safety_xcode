@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/stock_compare02.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
 
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';
@@ -254,12 +254,12 @@ class _StockCompareChart2DialogState extends State<StockCompareChart2Dialog> {
     TextStyle _stockDataStyle;
     return Container(
       decoration: UIStyle.boxWeakGrey(6),
-      padding: EdgeInsets.all(15),
+      padding: const EdgeInsets.all(15),
       //margin: EdgeInsets.only(left: 10,),
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: alStockCompare02.length,
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
           var _item = alStockCompare02[index];
           if(chartDiv == 3){

@@ -16,11 +16,10 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
-import 'package:rassi_assist/models/tr_user02.dart';
-import 'package:rassi_assist/models/tr_user04.dart';
+import 'package:rassi_assist/models/tr_user/tr_user02.dart';
+import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/ui/login/intro_search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 /// 2020.12.
 /// 회원정보 관리
@@ -111,8 +110,7 @@ class UserInfoState extends State<UserInfoWidget> {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: _setLayout(),
     );
   }
@@ -149,8 +147,7 @@ class UserInfoState extends State<UserInfoWidget> {
               "아이디",
             ),
             Padding(
-              padding: const EdgeInsets.only(
-                  left: 15, right: 10, top: 10, bottom: 15),
+              padding: const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -220,10 +217,8 @@ class UserInfoState extends State<UserInfoWidget> {
                             //변경중
                             if (_isChPass) {
                               String chPass = _passController.text.trim();
-                              if (_isPwCheck(chPass) ||
-                                  _passController.text.trim().length < 6) {
-                                _showDialogMsg(RString
-                                    .join_err_pw_rule); //6~12자리 영문, 숫자만 가능
+                              if (_isPwCheck(chPass) || _passController.text.trim().length < 6) {
+                                _showDialogMsg(RString.join_err_pw_rule); //6~12자리 영문, 숫자만 가능
                               } else {
                                 DLog.d('Pass Ch -> ', chPass);
                                 _requestChPass(chPass);
@@ -332,8 +327,7 @@ class UserInfoState extends State<UserInfoWidget> {
                       onPressed: () {
                         String strNum = _certController.text.trim();
                         if (strNum.length > 4) {
-                          _requestCertConfirm(
-                              _phoneController.text.trim(), strNum);
+                          _requestCertConfirm(_phoneController.text.trim(), strNum);
                         } else {
                           _showDialogMsg('인증번호를 입력해주세요');
                         }
@@ -407,8 +401,7 @@ class UserInfoState extends State<UserInfoWidget> {
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -434,8 +427,7 @@ class UserInfoState extends State<UserInfoWidget> {
                   const SizedBox(
                     height: 25.0,
                   ),
-                  const Text('로그아웃 하시겠어요?',
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                  const Text('로그아웃 하시겠어요?', textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 30.0,
                   ),
@@ -528,8 +520,7 @@ class UserInfoState extends State<UserInfoWidget> {
 
   //로그아웃 페이지 이동
   void makeRoutePage({required BuildContext context, required Widget desPage}) {
-    Navigator.pushAndRemoveUntil(context,
-        MaterialPageRoute(builder: (context) => desPage), (route) => false);
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => desPage), (route) => false);
   }
 
   //회원탈퇴 확인
@@ -764,13 +755,11 @@ class UserInfoState extends State<UserInfoWidget> {
       }
       //프리미엄 사용자 -> 탈퇴 불가
       else if (aData.prodName == '프리미엄') {
-        _showDialogMsg(
-            '현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+        _showDialogMsg('현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
       }
       //유료상품 사용자 -> 탈퇴 불가
       else if (aData.prodCode == 'AC_S3') {
-        _showDialogMsg(
-            '현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+        _showDialogMsg('현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
       }
       //사용 상품 없음
       else {
@@ -782,11 +771,7 @@ class UserInfoState extends State<UserInfoWidget> {
   //인증번호 요청
   _requestCertNum(String sPhone) {
     _certTime = TStyle.getTodayAllTimeString();
-    String strParam = "inputNum=" +
-        Net.getEncrypt(sPhone) +
-        "&pos=" +
-        _certTime +
-        '&posName=ollaJoin';
+    String strParam = "inputNum=" + Net.getEncrypt(sPhone) + "&pos=" + _certTime + '&posName=ollaJoin';
     _requestThink('cert_num', strParam);
   }
 
@@ -805,8 +790,7 @@ class UserInfoState extends State<UserInfoWidget> {
     });
 
     DLog.d(UserInfoPage.TAG, 'CH_Phone : $sPhone');
-    String strParam =
-        "userid=$_userId&encHpNo=$sPhone";
+    String strParam = "userid=$_userId&encHpNo=$sPhone";
     _requestThink('phone_change', strParam);
   }
 
@@ -820,8 +804,7 @@ class UserInfoState extends State<UserInfoWidget> {
   _requestAppClose() {
     DLog.d(UserInfoPage.TAG, '회원탈퇴 처리');
 
-    String strParam =
-        "userid=${Net.getEncrypt(_userId)}&memo=RassiAssistDismiss";
+    String strParam = "userid=${Net.getEncrypt(_userId)}&memo=RassiAssistDismiss";
     _requestThink('close', strParam);
 
     _fetchPosts(
@@ -854,8 +837,7 @@ class UserInfoState extends State<UserInfoWidget> {
     }
 
     var urls = Uri.parse(url);
-    final http.Response response =
-        await http.post(urls, headers: Net.think_headers, body: param);
+    final http.Response response = await http.post(urls, headers: Net.think_headers, body: param);
 
     DLog.d(UserInfoPage.TAG, '${response.statusCode}');
     DLog.d(UserInfoPage.TAG, response.body);

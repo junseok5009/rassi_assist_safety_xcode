@@ -7,13 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:provider/provider.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_tab_data.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
-import 'package:rassi_assist/models/pocket_list.dart';
-import 'package:rassi_assist/models/stock_tab_data.dart';
+import 'package:rassi_assist/provider/pocket_provider.dart';
+import 'package:rassi_assist/provider/signal_provider.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_tab_name_provider.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/login/intro_page.dart';
-
 
 void main() async {
   //flutter 엔진과 widget 바인딩 미리 완료(비동기 데이터 다룰 경우)
@@ -38,9 +39,11 @@ void main() async {
 
   runApp(MultiProvider(
     providers: [
+      ChangeNotifierProvider(create: (context) => UserInfoProvider()),
       ChangeNotifierProvider(create: (context) => StockTabData()),
       ChangeNotifierProvider(create: (context) => PageNotifier()),
-      ChangeNotifierProvider(create: (context) => PocketList()),
+      ChangeNotifierProvider(create: (context) => PocketProvider()),
+      ChangeNotifierProvider(create: (context) => SignalProvider()),
       ChangeNotifierProvider(create: (context) => StockInfoProvider()),
       ChangeNotifierProvider(create: (context) => StockTabNameProvider()),
     ],

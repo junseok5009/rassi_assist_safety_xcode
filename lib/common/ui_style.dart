@@ -1,10 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 
 /// UI 스타일
 ///
 class UIStyle {
+  /// DEFINE 개편 이후
+  // 기본적인 그림자 있는 박스
+  static BoxDecoration boxShadowBasic(double radius) {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.all(Radius.circular(radius)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.15),
+          spreadRadius: 0,
+          blurRadius: 10,
+          offset: const Offset(0, 2), //changes position of shadow
+        )
+      ],
+    );
+  }
+
+  static BoxDecoration boxShadowColor(double radius, Color bgColor) {
+    return BoxDecoration(
+      color: bgColor,
+      borderRadius: BorderRadius.all(Radius.circular(radius)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.15),
+          spreadRadius: 0,
+          blurRadius: 10,
+          offset: const Offset(0, 2), //changes position of shadow
+        )
+      ],
+    );
+  }
+
   //옅은 회색 라운드 배경 (Solid)
   static BoxDecoration boxWeakGrey(double rad) {
     return BoxDecoration(
@@ -64,9 +95,12 @@ class UIStyle {
         width: 1.2,
         color: RColor.btnUnSelectGreyStroke,
       ),
-      borderRadius: const BorderRadius.all(Radius.circular(5),),
+      borderRadius: const BorderRadius.all(
+        Radius.circular(5),
+      ),
     );
   }
+
   // new 선택 안된 네모 버튼 1
   static BoxDecoration boxNewUnSelectBtn1() {
     return BoxDecoration(
@@ -75,9 +109,12 @@ class UIStyle {
         width: 1.2,
         color: RColor.btnUnSelectGreyStroke,
       ),
-      borderRadius: const BorderRadius.all(Radius.circular(5),),
+      borderRadius: const BorderRadius.all(
+        Radius.circular(5),
+      ),
     );
   }
+
   // new 선택된 동그라미 버튼 2
   static BoxDecoration boxNewSelectBtn2() {
     return BoxDecoration(
@@ -86,9 +123,12 @@ class UIStyle {
         width: 1.2,
         color: RColor.btnUnSelectGreyStroke,
       ),
-      borderRadius: const BorderRadius.all(Radius.circular(20),),
+      borderRadius: const BorderRadius.all(
+        Radius.circular(20),
+      ),
     );
   }
+
   // new 선택 안된 동그라미 버튼 2
   static BoxDecoration boxNewUnSelectBtn2() {
     return BoxDecoration(
@@ -97,7 +137,9 @@ class UIStyle {
         width: 1.2,
         color: RColor.btnUnSelectGreyStroke,
       ),
-      borderRadius: const BorderRadius.all(Radius.circular(20),),
+      borderRadius: const BorderRadius.all(
+        Radius.circular(20),
+      ),
     );
   }
 
@@ -106,7 +148,7 @@ class UIStyle {
     return BoxDecoration(
       border: Border.all(
         color: RColor.lineGrey,
-        width: 0.8,
+        width: 1,
       ),
       borderRadius: const BorderRadius.all(Radius.circular(15.0)),
     );
@@ -126,8 +168,8 @@ class UIStyle {
     return BoxDecoration(
       color: bgColor,
       border: Border.all(
-        color: RColor.lineGrey,
-        width: 0.8,
+        color: RColor.greyBoxLine_c9c9c9,
+        width: 1,
       ),
       borderRadius: const BorderRadius.all(Radius.circular(6)),
     );
@@ -210,6 +252,13 @@ class UIStyle {
     );
   }
 
+  static BoxDecoration boxRoundFullColor8c(Color selColor) {
+    return BoxDecoration(
+      color: selColor,
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
+    );
+  }
+
   static BoxDecoration boxRoundFullColor10c(Color selColor) {
     return BoxDecoration(
       color: selColor,
@@ -228,6 +277,13 @@ class UIStyle {
     return BoxDecoration(
       color: selColor,
       borderRadius: const BorderRadius.all(Radius.circular(25.0)),
+    );
+  }
+
+  static BoxDecoration boxRoundFullColor50c(Color selColor) {
+    return BoxDecoration(
+      color: selColor,
+      borderRadius: const BorderRadius.all(Radius.circular(50.0)),
     );
   }
 
@@ -425,7 +481,7 @@ class UIStyle {
       borderRadius: const BorderRadius.all(Radius.circular(12)),
       boxShadow: [
         BoxShadow(
-          color: Colors.grey.withOpacity(0.3),
+          color: Colors.grey.withOpacity(0.2),
           spreadRadius: 4,
           blurRadius: 6,
           offset: const Offset(0, 3), //changes position of shadow
@@ -563,28 +619,6 @@ class UIStyle {
         color: Colors.black,
         width: 1.2,
       ),
-    );
-  }
-
-  static Route createRoute(
-    Widget instance,
-    PgData pgData,
-  ) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      settings: RouteSettings(arguments: pgData),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
     );
   }
 

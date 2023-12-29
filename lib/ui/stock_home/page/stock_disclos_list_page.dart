@@ -18,7 +18,7 @@ import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../models/pg_data.dart';
-import '../../../models/stock.dart';
+import '../../../models/none_tr/stock/stock.dart';
 
 /// 23.02.10 HJS
 /// 공시 리스트 화면
@@ -354,7 +354,7 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
   _navigateAndWaitReturn(BuildContext context) async {
     // Navigator.push는 Future를 반환합니다. Future는 선택 창에서
     // Navigator.pop이 호출된 이후 완료될 것입니다.
-    final result = await Navigator.push(
+ /*   final result = await Navigator.push(
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
@@ -388,7 +388,7 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
       _stockTotalPageSize = 0;
       _requestTrDisclos01();
       _scrollController.jumpTo(_scrollController.position.minScrollExtent);
-    }
+    }*/
   }
 
   _checkAndRequestTrDisclos01() {

@@ -2,20 +2,23 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/routes.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_issue03.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
@@ -25,8 +28,8 @@ import 'package:rassi_assist/models/tr_sns03.dart';
 import 'package:rassi_assist/models/tr_stk_catch03.dart';
 import 'package:rassi_assist/models/tr_today/tr_today01.dart';
 import 'package:rassi_assist/models/tr_today/tr_today05.dart';
-import 'package:rassi_assist/models/tr_user02.dart';
-import 'package:rassi_assist/models/tr_user04.dart';
+import 'package:rassi_assist/models/tr_user/tr_user02.dart';
+import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_ddinfo.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_hot_theme.dart';
@@ -110,10 +113,18 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   final List<Prom02> _listPrHgh = [];
   final List<Prom02> _listPrMid = [];
   final List<Prom02> _listPrLow = [];
+  final List<Prom02> _listPrPopup = [];
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String deviceModel = '';
   String deviceOsVer = '';
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
 
   @override
   void initState() {
@@ -172,21 +183,25 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           ),
           SliverList(
             delegate: SliverChildListDelegate([
+              const SizedBox(
+                height: 15,
+              ),
+
               // 땡정보
               HomeTileDdinfo(_today05),
 
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
 
-              // 라씨 매매비서의 매매종목은?
+              // 라씨의 종목은?
               HomeTileTradingStock(
                 listToday01Model: _listToday01Model,
               ),
 
               _setPrTop(),
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
 
               // 오늘의 AI매매신호는?
@@ -194,8 +209,8 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
 
               Container(
                 margin: const EdgeInsets.only(
-                  top: 20,
-                  bottom: 10,
+                  top: 25,
+                  bottom: 20,
                 ),
                 color: const Color(
                   0xffF5F5F5,
@@ -218,7 +233,15 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               const HomeTileHotTheme(),
 
               // 커뮤니티 활동 급상승
-              HomeTileSocial(_socialList),
+              const HomeTileSocial(),
+
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                color: const Color(
+                  0xffF5F5F5,
+                ),
+                height: 13,
+              ),
 
               // 라씨 매매비서가 캐치한 항목
               const HomeTileStockCatch(),
@@ -534,8 +557,272 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     );
   }
 
-  void _showMyBottomSheet(BuildContext context, Prom02 prItem, bool isImage) {
+  void _showMyBottomSheet() {
+    if (mounted) {
+      CustomFirebaseClass.logEvtScreenView('배너_마케팅_팝업_홈');
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        showModalBottomSheet<dynamic>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (BuildContext bc) {
+              return Wrap(
+                children: <Widget>[
+                  SizedBox(
+                    width: double.infinity,
+                    height: 40,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 5,
+                            ),
+                            child: const Text(
+                              '오늘 그만보기',
+                              style: TextStyle(
+                                color: Colors.white,
+                                shadows: <Shadow>[
+                                  Shadow(
+                                    offset: Offset(1.0, 1.0),
+                                    blurRadius: 1.0,
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(bc);
+                            _prefs.setString(
+                              Const.PREFS_DAY_CHECK_AD_HOME,
+                              _todayString,
+                            );
+                          },
+                        ),
+                        InkWell(
+                          highlightColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          onTap: () {
+                            Navigator.pop(bc);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 5,
+                            ),
+                            child: const Text(
+                              'X  닫기',
+                              style: TextStyle(
+                                color: Colors.white,
+                                shadows: <Shadow>[
+                                  Shadow(
+                                    offset: Offset(1.0, 1.0),
+                                    blurRadius: 1.0,
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: AppGlobal().isTablet
+                        ? MediaQuery.of(context).size.width / 2
+                        : MediaQuery.of(context).size.width / 1.219,
+                    decoration: const BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.0),
+                        topRight: Radius.circular(20.0),
+                      ),
+                    ),
+                    child: _listPrPopup.length == 1
+                        ? ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20.0),
+                              topRight: Radius.circular(20.0),
+                            ),
+                            child: _setImgWidget(_listPrPopup[0]),
+                          )
+                        : Swiper(
+                            itemCount: _listPrPopup.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(20.0),
+                                  topRight: Radius.circular(20.0),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    _setImgWidget(_listPrPopup[index]),
+                                    Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Container(
+                                        margin: const EdgeInsets.all(
+                                          20,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 4,
+                                        ),
+                                        decoration:
+                                            UIStyle.boxRoundFullColor25c(
+                                          Colors.black.withOpacity(0.5),
+                                        ),
+                                        child: Text(
+                                          '${index + 1} / ${_listPrPopup.length}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              );
+            });
+      });
+    }
+  }
+
+  Widget _setImgWidget(Prom02 item) {
+    BoxFit boxFit = BoxFit.fill;
+    int bgColorInteger = 0xffF3F4F8; // bgWeak
+    if (AppGlobal().isTablet) {
+      boxFit = BoxFit.fitHeight;
+      try {
+        int endSubStringInt = item.content.lastIndexOf('.');
+        String linkColorCode =
+            '0xff${item.content.substring(endSubStringInt - 6, endSubStringInt)}';
+        bgColorInteger = int.parse(linkColorCode);
+      } on FormatException {
+        bgColorInteger = 0xffF3F4F8;
+      } catch (_) {
+        bgColorInteger = 0xffF3F4F8;
+      }
+    }
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Container(
+        width: double.infinity,
+        color: Color(bgColorInteger),
+        constraints: const BoxConstraints(
+          minWidth: 1,
+          minHeight: 1,
+        ),
+        /*child: Image.asset(
+          'images/test_event_popup_img1.png',
+          fit: boxFit,
+        ),*/
+        /*child: Image.network(
+          item.content,
+          fit: boxFit,
+          errorBuilder:
+              (BuildContext context, Object exception, StackTrace stackTrace) {
+            return const Text(
+              'No Image',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: Color(0x70444444),
+              ),
+            );
+          },
+        ),*/
+        child: CachedNetworkImage(
+          imageUrl: item.content,
+          fit: boxFit,
+        ),
+      ),
+      onTap: () async {
+        if (_listPrPopup.length == 1) {
+          Navigator.pop(context);
+          await Future.delayed(const Duration(milliseconds: 500), () {});
+        }
+        _goLandingPage(item);
+      },
+    );
+  }
+
+  //공통적으로 랜딩페이지를 이용하기 위한 코드
+  void _goLandingPage(
+    Prom02 prItem,
+  ) {
+    if (prItem.linkType == 'APP') {
+      // 결제 페이지로 연결일 경우는 일단 따로 처리(결제 후 갱신 처리 필요)
+      if (prItem.linkPage == 'LPH1') {
+        navigateRefreshPay();
+      } else if (prItem.linkPage == 'LPH7') {
+        _navigateRefreshPayPromotion(
+          context,
+          Platform.isIOS
+              ? const PayPremiumPromotionPage()
+              : PayPremiumPromotionAosPage(),
+          PgData(data: 'ad5'),
+        );
+      } else if (prItem.linkPage == 'LPH8') {
+        _navigateRefreshPayPromotion(
+          context,
+          Platform.isIOS
+              ? const PayPremiumPromotionPage()
+              : PayPremiumPromotionAosPage(),
+          PgData(data: 'ad4'),
+        );
+      } else if (prItem.linkPage == 'LPH9') {
+        _navigateRefreshPayPromotion(
+          context,
+          Platform.isIOS
+              ? const PayPremiumPromotionPage()
+              : PayPremiumPromotionAosPage(),
+          PgData(data: 'ad3'),
+        );
+      } else if (prItem.linkPage == 'LPHA') {
+        _navigateRefreshPayPromotion(
+          context,
+          Platform.isIOS
+              ? const PayPremiumPromotionPage()
+              : PayPremiumPromotionAosPage(),
+          PgData(data: 'at1'),
+        );
+      } else if (prItem.linkPage == 'LPHB') {
+        _navigateRefreshPayPromotion(
+          context,
+          Platform.isIOS
+              ? const PayPremiumPromotionPage()
+              : PayPremiumPromotionAosPage(),
+          PgData(data: 'at2'),
+        );
+      } else {
+        basePageState.goLandingPage(prItem.linkPage, '', '', '', '');
+      }
+    } else if (prItem.linkType == LD.linkTypeUrl) {
+      basePageState.goLandingPage(
+          LD.linkTypeUrl, prItem.linkPage, prItem.title, '', '');
+    } else if (prItem.linkType == LD.linkTypeOutLink) {
+      basePageState.goLandingPage(
+          LD.linkTypeOutLink, prItem.linkPage, '', '', '');
+    } else {}
+  }
+
+  /* void _showMyBottomSheetOriginal(BuildContext context, Prom02 prItem, bool isImage) {
     CustomFirebaseClass.logEvtScreenView('배너_마케팅_팝업_홈');
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -549,24 +836,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           builder: (_, controller) {
             return Column(
               children: [
-                //===== 헤더
-                // Container(
-                //   padding: const EdgeInsets.all(10),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //     children: [
-                //       Text('', style: TStyle.defaultTitle,
-                //         textScaleFactor: Const.TEXT_SCALE_FACTOR,),
-                //       InkWell(
-                //         child: Icon(Icons.close, color: Colors.black,),
-                //         onTap: () {
-                //           Navigator.pop(context);
-                //         },
-                //       )
-                //     ],
-                //   ),
-                // ),
-
                 //===== 하단 내용부
                 Expanded(
                   child: ListView(
@@ -656,8 +925,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                               decoration: BoxDecoration(
                                 border: Border(
                                     right: BorderSide(
-                                        color: Colors.grey[300]!,
-                                        width: 1)),
+                                        color: Colors.grey[300], width: 1)),
                               ),
                               child: MaterialButton(
                                 child: const Text(
@@ -707,7 +975,8 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       var img = Image.network(
         sUrl,
         fit: BoxFit.contain,
-        errorBuilder: (BuildContext? context, Object? exception, StackTrace? stackTrace) {
+        errorBuilder:
+            (BuildContext context, Object exception, StackTrace stackTrace) {
           return const Text(
             'No Image',
             textAlign: TextAlign.center,
@@ -733,63 +1002,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         ],
       );
     }
-  }
-
-  //공통적으로 랜딩페이지를 이용하기 위한 코드
-  void _goLandingPage(
-    Prom02 prItem,
-  ) {
-    if (prItem.linkType == 'APP') {
-      // 결제 페이지로 연결일 경우는 일단 따로 처리(결제 후 갱신 처리 필요)
-      if (prItem.linkPage == 'LPH1') {
-        navigateRefreshPay();
-      } else if (prItem.linkPage == 'LPH7') {
-        _navigateRefreshPayPromotion(
-          context,
-          Platform.isIOS
-              ? PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
-          PgData(data: 'ad5'),
-        );
-      } else if (prItem.linkPage == 'LPH8') {
-        _navigateRefreshPayPromotion(
-          context,
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
-          PgData(data: 'ad4'),
-        );
-      } else if (prItem.linkPage == 'LPH9') {
-        _navigateRefreshPayPromotion(
-          context,
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
-          PgData(data: 'ad3'),
-        );
-      } else if (prItem.linkPage == 'LPHA') {
-        _navigateRefreshPayPromotion(
-          context,
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
-          PgData(data: 'at1'),
-        );
-      } else if (prItem.linkPage == 'LPHB') {
-        _navigateRefreshPayPromotion(
-          context,
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
-          PgData(data: 'at2'),
-        );
-      } else {
-        basePageState.goLandingPage(prItem.linkPage, '', '', '', '');
-      }
-    } else if (prItem.linkType == 'URL') {
-      basePageState.goLandingPage(LD.web_page, prItem.linkPage, '', '', '');
-    } else {}
-  }
+  }*/
 
   //마케팅 팝업 (팝업 형식이 필요할때)
   void _showDialogMarketing(
@@ -932,11 +1145,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
 
   navigateRefreshPay() async {
     final result = await Navigator.push(
-      context,
-      Platform.isIOS
-          ? _createRoute(PayPremiumPage())
-          : _createRoute(PayPremiumAosPage()),
-    );
+        context,
+        Platform.isIOS
+            ? CustomNvRouteClass.createRoute(const PayPremiumPage())
+            : CustomNvRouteClass.createRoute( PayPremiumAosPage()));
     if (result == 'cancel') {
       DLog.d(SliverHomeWidget.TAG, '*** navigete cancel ***');
     } else {
@@ -980,23 +1192,16 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     );
   }
 
-  //페이지 전환 에니메이션
-  Route _createRoute(Widget instance) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    );
+  reload() {
+    _fetchPosts(
+        TR.TODAY05,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+        }));
+    // if (HomeTileTodaySignal.globalKey.currentState != null) {
+    //   var childCurrentState = HomeTileTodaySignal.globalKey.currentState;
+    //   childCurrentState.initPage();
+    // }
   }
 
   //convert 패키지의 jsonDecode 사용
@@ -1012,8 +1217,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
             headers: Net.headers,
           )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(SliverHomeWidget.TAG, 'ERR : TimeoutException (12 seconds)');
       CommonPopup().showDialogNetErr(context);
@@ -1162,26 +1366,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           _listCatch03.addAll(resData.retData);
         }
       }
-
-      _fetchPosts(
-          TR.SNS03,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-            'selectCount': '3',
-          }));
-    }
-
-    //소셜 HOT
-    else if (trStr == TR.SNS03) {
-      _socialList.clear();
-      final TrSns03 resData = TrSns03.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS) {
-        if (resData.listData.isNotEmpty) {
-          _socialList.addAll(resData.listData);
-        }
-      }
-
-      setState(() {});
 
       _fetchPosts(
           TR.COMPARE01,
@@ -1411,11 +1595,11 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                 DLog.d('tag', '_todayString : $_todayString');
 
                 if (_dayCheckAD != _todayString) {
-                  _showMyBottomSheet(context, item, false);
+                  // _showMyBottomSheet(context, item, false);
                 }
               } else if (item.contentType == 'IMG') {
                 if (_dayCheckAD != _todayString) {
-                  _showMyBottomSheet(context, item, true);
+                  // _showMyBottomSheet(context, item, true);
                 }
               }
             }

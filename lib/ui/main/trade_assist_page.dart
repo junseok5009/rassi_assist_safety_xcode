@@ -12,13 +12,11 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_ask02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
-import 'package:rassi_assist/ui/main/search_page.dart';
-import 'package:rassi_assist/ui/pocket/pocket_board.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2020.10.06
@@ -250,12 +248,12 @@ class TradeAssistPageState extends State<TradeAssistPage> {
               ],
             ),
             onTap: () {
-              _navigateSearchData(
+/*              _navigateSearchData(
                   context,
                   SearchPage(),
                   PgData(
                     pgSn: '',
-                  ));
+                  ));*/
             },
           ),
         ),
@@ -276,14 +274,14 @@ class TradeAssistPageState extends State<TradeAssistPage> {
         ),
       ),
       onTap: () {
-        //포켓보드로 이동
-        Navigator.pushNamed(
-          context,
-          PocketBoard.routeName,
-          arguments: PgData(
-            pgSn: '',
-          ),
-        );
+        // //포켓보드로 이동
+        // Navigator.pushNamed(
+        //   context,
+        //   PocketBoard.routeName,
+        //   arguments: PgData(
+        //     pgSn: '',
+        //   ),
+        // );
       },
     );
   }

@@ -4,9 +4,9 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/ui/news/news_viewer.dart';
 
 import '../../ui/main/base_page.dart';
@@ -20,15 +20,11 @@ class TrSearch09 {
   final String retMsg;
   final Search09 retData;
 
-  TrSearch09({this.retCode='', this.retMsg='', this.retData = defSearch09});
+  TrSearch09({this.retCode = '', this.retMsg = '', this.retData = defSearch09});
 
   factory TrSearch09.fromJson(Map<String, dynamic> json) {
     return TrSearch09(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        retData: json['retData'] == null
-            ? defSearch09
-            : Search09.fromJson(json['retData']));
+        retCode: json['retCode'], retMsg: json['retMsg'], retData: json['retData'] == null ? defSearch09 : Search09.fromJson(json['retData']));
   }
 }
 
@@ -42,10 +38,10 @@ class Search09 {
   final List<Event> listEvent;
 
   const Search09({
-    this.issueDate='',
-    this.tradePrice='',
-    this.fluctuationRate='',
-    this.fluctuationAmt='',
+    this.issueDate = '',
+    this.tradePrice = '',
+    this.fluctuationRate = '',
+    this.fluctuationAmt = '',
     this.listEvent = const [],
   });
 
@@ -59,8 +55,7 @@ class Search09 {
 
   factory Search09.fromJson(Map<String, dynamic> json) {
     var list = json['list_Event'] as List;
-    List<Event> listData =
-        list == null ? [] : list.map((e) => Event.fromJson(e)).toList();
+    List<Event> listData = list == null ? [] : list.map((e) => Event.fromJson(e)).toList();
     return Search09(
       issueDate: json['issueDate'] ?? '',
       tradePrice: json['tradePrice'] ?? '',
@@ -85,14 +80,14 @@ class Event {
   final String concernGrade; // 소셜분석 - 관심 등급(지수) > 1:조용, 2:수군, 3:왁자지껄, 4:폭발
 
   const Event({
-    this.newsDiv='',
-    this.newsSn='',
-    this.issueSn='',
-    this.keyword='',
-    this.title='',
-    this.content='',
-    this.sbCategName='',
-    this.concernGrade='',
+    this.newsDiv = '',
+    this.newsSn = '',
+    this.issueSn = '',
+    this.keyword = '',
+    this.title = '',
+    this.content = '',
+    this.sbCategName = '',
+    this.concernGrade = '',
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -120,7 +115,8 @@ class TileSearch09ISS extends StatelessWidget {
   final Search09 search09;
   final Event event;
 
-  const TileSearch09ISS({Key? key,
+  const TileSearch09ISS({
+    Key? key,
     this.search09 = defSearch09,
     this.event = defEvent,
   }) : super(key: key);
@@ -144,7 +140,10 @@ class TileSearch09ISS extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _setTopView(search09, event,),
+            _setTopView(
+              search09,
+              event,
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +173,8 @@ class TileSearch09SND extends StatelessWidget {
   final Search09 search09;
   final Event event;
 
-  const TileSearch09SND({Key? key,
+  const TileSearch09SND({
+    Key? key,
     this.search09 = defSearch09,
     this.event = defEvent,
   }) : super(key: key);
@@ -203,7 +203,10 @@ class TileSearch09SND extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _setTopView(search09, event,),
+            _setTopView(
+              search09,
+              event,
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,7 +253,8 @@ class TileSearch09SCR extends StatelessWidget {
   final Search09 search09;
   final Event event;
 
-  const TileSearch09SCR({Key? key,
+  const TileSearch09SCR({
+    Key? key,
     this.search09 = defSearch09,
     this.event = defEvent,
   }) : super(key: key);
@@ -282,7 +286,10 @@ class TileSearch09SCR extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _setTopView(search09, event,),
+            _setTopView(
+              search09,
+              event,
+            ),
             Flexible(
               child: Align(
                 alignment: Alignment.centerLeft,
@@ -303,15 +310,20 @@ class TileSearch09SCR extends StatelessWidget {
 
 // 소셜분석
 class TileSearch09SNS extends StatelessWidget {
+  //const TileSearch09ISS({Key? key}) : super(key: key);
   final Stock stock;
   final Search09 search09;
-  final Event? event;
+  final Event event;
 
-  const TileSearch09SNS({Key? key,
-    this.stock = const Stock(stockCode: '', stockName: ''),
-    this.search09 = defSearch09,
-    this.event,
-  }) : super(key: key);
+  TileSearch09SNS({
+    Key? key,
+    Stock? stock,
+    Search09? search09,
+    Event? event,
+  })  : stock = stock ?? Stock(stockCode: '', stockName: ''),
+        search09 = search09 ?? defSearch09,
+        event = event ?? defEvent,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -336,54 +348,56 @@ class TileSearch09SNS extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _setTopView(search09, event,),
+            _setTopView(
+              search09,
+              event,
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  event?.concernGrade == '1'
+                  event.concernGrade == '1'
                       ? '#조용조용'
-                      : event?.concernGrade == '2'
-                      ? '#수군수군'
-                      : event?.concernGrade == '3'
-                      ? '#왁자지껄'
-                      : event?.concernGrade == '4'
-                      ? '#폭발'
-                      : '#조용조용',
+                      : event.concernGrade == '2'
+                          ? '#수군수군'
+                          : event.concernGrade == '3'
+                              ? '#왁자지껄'
+                              : event.concernGrade == '4'
+                                  ? '#폭발'
+                                  : '#조용조용',
                   maxLines: 1,
                   style: TStyle.purpleThin15Style(),
                 ),
-                (event?.concernGrade == '3' || event?.concernGrade == '4') &&
-                    (TStyle.getTodayString() == search09?.issueDate)
+                (event.concernGrade == '3' || event.concernGrade == '4') && (TStyle.getTodayString() == search09.issueDate)
                     ? const Text(
-                  '현재 커뮤니티 참여도가 매우 높습니다.',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TStyle.newBasicStrongGreyS15,
-                )
-                    : Html(
-                  data: event?.title,
-                  style: {
-                    "html": Style(
-                        fontSize: FontSize(15),
-                        textAlign: TextAlign.start,
-                        // padding: EdgeInsets.zero,
+                        '현재 커뮤니티 참여도가 매우 높습니다.',
                         maxLines: 1,
-                        margin: Margins.zero,
-                        textOverflow: TextOverflow.ellipsis,
-                        color: RColor.new_basic_text_color_strong_grey
-                      //lineHeight: LineHeight(1),
-                    ),
-                    "body": Style(
-                      margin: Margins.zero,
-                      // padding: EdgeInsets.only(
-                      //   top: 2,
-                      //   bottom: 2,
-                      // ),
-                    ),
-                  },
-                ),
+                        overflow: TextOverflow.ellipsis,
+                        style: TStyle.newBasicStrongGreyS15,
+                      )
+                    : Html(
+                        data: event.title,
+                        style: {
+                          "html": Style(
+                              fontSize: FontSize(15),
+                              textAlign: TextAlign.start,
+                              // padding: EdgeInsets.zero,
+                              maxLines: 1,
+                              // margin: Margins.zero,
+                              textOverflow: TextOverflow.ellipsis,
+                              color: RColor.new_basic_text_color_strong_grey
+                              //lineHeight: LineHeight(1),
+                              ),
+                          "body": Style(
+                              // margin: Margins.zero,
+                              // padding: EdgeInsets.only(
+                              //   top: 2,
+                              //   bottom: 2,
+                              // ),
+                              ),
+                        },
+                      ),
               ],
             ),
           ],
@@ -398,7 +412,8 @@ class TileSearch09DSC extends StatelessWidget {
   final Search09 search09;
   final Event event;
 
-  const TileSearch09DSC({Key? key,
+  const TileSearch09DSC({
+    Key? key,
     this.search09 = defSearch09,
     this.event = defEvent,
   }) : super(key: key);
@@ -419,7 +434,10 @@ class TileSearch09DSC extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _setTopView(search09, event,),
+            _setTopView(
+              search09,
+              event,
+            ),
             Flexible(
               child: Align(
                 alignment: Alignment.centerLeft,
@@ -447,7 +465,7 @@ class TileSearch09DSC extends StatelessWidget {
   }
 }
 
-Widget _setTopView(Search09 search09, Event? event){
+Widget _setTopView(Search09 search09, Event? event) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,7 +483,9 @@ Widget _setTopView(Search09 search09, Event? event){
                   shape: BoxShape.circle,
                   color: RColor.sigBuy,
                 ),
-                margin: const EdgeInsets.only(right: 4,),
+                margin: const EdgeInsets.only(
+                  right: 4,
+                ),
                 padding: const EdgeInsets.all(5),
                 child: const Text(
                   '오늘',
@@ -491,7 +511,9 @@ Widget _setTopView(Search09 search09, Event? event){
         ),
       ),
       Container(
-        margin: const EdgeInsets.only(left: 5,),
+        margin: const EdgeInsets.only(
+          left: 5,
+        ),
         padding: const EdgeInsets.symmetric(
           horizontal: 4,
           vertical: 1,
@@ -508,18 +530,17 @@ Widget _setTopView(Search09 search09, Event? event){
             ),
           ),
         ),
-        child: Text(
-            event?.newsDiv == 'ISS' ?
-            '이슈포착' :
-            event?.newsDiv == 'SND' ?
-            '수급포착' :
-            event?.newsDiv == 'SCR' ?
-            '실적발표' :
-            event?.newsDiv == 'SNS' ?
-            '소셜분석' :
-            event?.newsDiv == 'DSC' ?
-            '공시발생' : ''
-        ),
+        child: Text(event?.newsDiv == 'ISS'
+            ? '이슈포착'
+            : event?.newsDiv == 'SND'
+                ? '수급포착'
+                : event?.newsDiv == 'SCR'
+                    ? '실적발표'
+                    : event?.newsDiv == 'SNS'
+                        ? '소셜분석'
+                        : event?.newsDiv == 'DSC'
+                            ? '공시발생'
+                            : ''),
       ),
     ],
   );

@@ -3,8 +3,8 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/chart_theme.dart';
-import 'package:rassi_assist/models/stock_data.dart';
+import 'package:rassi_assist/models/none_tr/chart_theme.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/tr_atom.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 

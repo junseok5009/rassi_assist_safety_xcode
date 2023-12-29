@@ -1,4 +1,3 @@
-
 /// 2020.11.12
 /// 현재 포켓 매매신호, 매매상태 조회
 class TrPock07 {
@@ -6,17 +5,16 @@ class TrPock07 {
   final String retMsg;
   final Pock07? retData;
 
-  TrPock07({this.retCode='', this.retMsg='', this.retData});
+  TrPock07({this.retCode = '', this.retMsg = '', this.retData});
 
   factory TrPock07.fromJson(Map<String, dynamic> json) {
     return TrPock07(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        retData: Pock07.fromJson(json['retData']),
+      retCode: json['retCode'],
+      retMsg: json['retMsg'],
+      retData: Pock07.fromJson(json['retData']),
     );
   }
 }
-
 
 class Pock07 {
   final String noticeText;
@@ -26,11 +24,11 @@ class Pock07 {
   final String sellCount;
 
   Pock07({
-    this.noticeText='',
-    this.remainTime='',
-    this.stockCount='',
-    this.buyCount='',
-    this.sellCount=''
+    this.noticeText = '',
+    this.remainTime = '',
+    this.stockCount = '',
+    this.buyCount = '',
+    this.sellCount = '',
   });
 
   factory Pock07.fromJson(Map<String, dynamic> json) {
@@ -39,8 +37,7 @@ class Pock07 {
         remainTime: json['remainTime'] ?? '',
         stockCount: json['stockCount'],
         buyCount: json['buyCount'],
-        sellCount: json['sellCount']
-    );
+        sellCount: json['sellCount']);
   }
 
   @override

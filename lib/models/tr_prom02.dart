@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/home/sliver_signal_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_page.dart';

@@ -1,4 +1,4 @@
-import 'package:rassi_assist/models/stock_status.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
 
 
 /// 2020.11.19

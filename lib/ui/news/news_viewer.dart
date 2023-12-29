@@ -15,7 +15,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/opinion.dart';
 import 'package:rassi_assist/models/pg_news.dart';
-import 'package:rassi_assist/models/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tag_info.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi03.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';

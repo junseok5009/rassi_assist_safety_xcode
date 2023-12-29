@@ -87,10 +87,11 @@ class TileChip2 extends StatelessWidget {
         backgroundColor: bColor,
       ),
       onTap: (){
-        Navigator.of(context).push(UIStyle.createRoute(
+        //TODO @@@@@
+/*        Navigator.of(context).push(UIStyle.createRoute(
             IssueViewer(),
             PgData(userId: '', pgSn: item.newsSn))
-        );
+        );*/
       },
     );
   }

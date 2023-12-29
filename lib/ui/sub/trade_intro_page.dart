@@ -11,7 +11,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/chart_data.dart';
+import 'package:rassi_assist/models/none_tr/chart_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock05.dart';
 import 'package:rassi_assist/models/tr_search/tr_search01.dart';
@@ -1287,7 +1287,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
     if (trStr == TR.SEARCH01) {
       final TrSearch01 resData = TrSearch01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        Search01 data = resData.retData;
+        Search01 data = resData.retData!;
         DLog.d(TradeIntroPage.TAG, "SEARCH01 : ${data.stockName}|${data.isMyStock}");
         if (data.isMyStock == 'Y') {
           isMyPkt = true;

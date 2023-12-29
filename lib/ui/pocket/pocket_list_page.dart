@@ -20,7 +20,7 @@ import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:rassi_assist/ui/pocket/pocket_setting_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../models/app_global.dart';
+import '../../models/none_tr/app_global.dart';
 import '../pay/pay_premium_aos_page.dart';
 
 
@@ -112,14 +112,14 @@ class PocketListState extends State<PocketListWidget> {
           ],
         ),
 
-        body: SafeArea(
+/*        body: SafeArea(
           child: ListView.builder(
               scrollDirection: Axis.vertical,
               itemCount: _pktList.length,
               itemBuilder: (context, index) {
                 return TilePocketLst(_pktList[index]);
               }),
-        ),
+        ),*/
 
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(8.0),

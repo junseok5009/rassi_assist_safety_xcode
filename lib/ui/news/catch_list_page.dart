@@ -10,7 +10,7 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/tr_catch03.dart';
 import 'package:rassi_assist/ui/common/common_date_picker.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';

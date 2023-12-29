@@ -385,10 +385,10 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
                             // 웹뷰로 띄우기
                           } */
                           else if (item.contentDiv == 'SCH') {
-                            // 개별 이슈 페이지로
-                            basePageState.callPageRouteUP(
+                            // 개별 이슈 페이지로 TODO @@@@@
+                         /*   basePageState.callPageRouteUP(
                               const SearchPage(),
-                            );
+                            );*/
                           } else {
                             // 종목홈으로
                             basePageState.goStockHomePage(

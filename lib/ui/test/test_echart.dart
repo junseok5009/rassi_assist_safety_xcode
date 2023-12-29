@@ -12,11 +12,11 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/chart_data.dart';
+import 'package:rassi_assist/models/none_tr/chart_data.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal08.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
+// import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 
 /// EChart Page
@@ -103,7 +103,7 @@ class EChartState extends State<EChartWidget> {
         ),
         body: Column(children: [
           //Initialize the chart widget
-          SfCartesianChart(
+/*          SfCartesianChart(
               primaryXAxis: CategoryAxis(),
               // Chart title
               title: ChartTitle(text: 'Half yearly sales analysis'),
@@ -119,8 +119,8 @@ class EChartState extends State<EChartWidget> {
                     name: 'Sales',
                     // Enable data label
                     dataLabelSettings: const DataLabelSettings(isVisible: true))
-              ]),
-          Expanded(
+              ]),*/
+/*          Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               //Initialize the spark charts widget
@@ -138,7 +138,7 @@ class EChartState extends State<EChartWidget> {
                 dataCount: 5,
               ),
             ),
-          )
+          )*/
         ]));
   }
 

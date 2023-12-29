@@ -1,4 +1,4 @@
-import 'package:rassi_assist/models/chart_data.dart';
+import 'package:rassi_assist/models/none_tr/chart_data.dart';
 
 
 ///

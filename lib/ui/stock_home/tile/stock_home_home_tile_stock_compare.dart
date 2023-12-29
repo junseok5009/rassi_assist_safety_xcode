@@ -8,15 +8,15 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/models/stock_compare02.dart';
-import 'package:rassi_assist/models/stock_group.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_group.dart';
 import 'package:rassi_assist/models/tr_compare/tr_compare02.dart';
 import 'package:rassi_assist/models/tr_compare/tr_compare07.dart';
 
 import '../../../../common/const.dart';
 import '../../../../common/ui_style.dart';
 import '../../common/common_popup.dart';
-import '../../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 import '../../../../models/pg_data.dart';
 import '../../main/base_page.dart';
 import '../page/stock_compare_page.dart';

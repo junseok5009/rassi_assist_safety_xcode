@@ -12,12 +12,11 @@ import '../../../common/d_log.dart';
 import '../../../common/net.dart';
 import '../../../common/tstyle.dart';
 import '../../../common/ui_style.dart';
-import '../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_stk_catch03.dart';
 import '../../common/common_popup.dart';
 import '../../common/common_swiper_pagination.dart';
 import '../../main/base_page.dart';
-
 
 /// 라씨 매매비서가 캐치한 종목 (종목캐치)
 class HomeTileStockCatch extends StatefulWidget {

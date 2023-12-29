@@ -13,7 +13,7 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 
 import '../../../common/net.dart';
-import '../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_report03.dart';
 
 

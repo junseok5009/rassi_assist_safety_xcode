@@ -25,6 +25,14 @@ class TStyle {
     );
   }
 
+  static TextStyle pupleRegularStyle() {
+    return baseTextStyle().copyWith(
+      color: RColor.mainColor,
+      // fontWeight: FontWeight.bold,
+      fontSize: 15,
+    );
+  }
+
   static TextStyle puplePlain17() {
     return baseTextStyle().copyWith(
       color: RColor.mainColor,
@@ -131,7 +139,7 @@ class TStyle {
     //공통 중간 타이틀
     fontWeight: FontWeight.w600,
     fontSize: 18,
-    color: Color(0xff111111),
+    color: RColor.blackTitle_141414,
   );
 
   //이용약관,
@@ -152,7 +160,7 @@ class TStyle {
 
   static const commonTitle = TextStyle(
     //공통 소항목 타이틀 (bold)
-    fontWeight: FontWeight.w800,
+    fontWeight: FontWeight.w600,
     fontSize: 16,
     color: Color(0xff111111),
   );
@@ -299,8 +307,8 @@ class TStyle {
 
   static const listItem = TextStyle(
     //본문 내용 - 기준
-    fontWeight: FontWeight.w400,
-    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    fontSize: 15,
     color: Color(0xff111111),
   );
 
@@ -562,7 +570,7 @@ class TStyle {
   static const ulTextGrey = TextStyle(
     fontWeight: FontWeight.w400,
     fontSize: 15,
-    color: Color(0xff333333),
+    color: RColor.greyBasic_8c8c8c,
     decoration: TextDecoration.underline,
   );
 
@@ -663,9 +671,7 @@ class TStyle {
   static String getDateFormat(String date) {
     String rtStr = '';
     if (date.length > 8) {
-      rtStr = '${date.substring(0, 4)}.${date.substring(4, 6)}.'
-          '${date.substring(6, 8)}  ${date.substring(8, 10)}:'
-          '${date.substring(10, 12)}';
+      rtStr = '${date.substring(0, 4)}.${date.substring(4, 6)}.${date.substring(6, 8)}  ${date.substring(8, 10)}:${date.substring(10, 12)}';
       return rtStr;
     }
     return '';
@@ -783,15 +789,7 @@ class TStyle {
   static String getDateTimeFormat(String date) {
     String rtStr = '';
     if (date.length > 7) {
-      rtStr = date.substring(0, 4) +
-          '.' +
-          date.substring(4, 6) +
-          '.' +
-          date.substring(6, 8) +
-          '   ' +
-          date.substring(8, 10) +
-          ':' +
-          date.substring(10, 12);
+      rtStr = '${date.substring(0, 4)}.${date.substring(4, 6)}.${date.substring(6, 8)}   ${date.substring(8, 10)}:${date.substring(10, 12)}';
       return rtStr;
     }
     return '';
@@ -801,13 +799,7 @@ class TStyle {
   static String getDateTdFormat(String date) {
     String rtStr = '';
     if (date.length > 8) {
-      rtStr = date.substring(4, 6) +
-          '/' +
-          date.substring(6, 8) +
-          '  ' +
-          date.substring(8, 10) +
-          ':' +
-          date.substring(10, 12);
+      rtStr = '${date.substring(4, 6)}/${date.substring(6, 8)}  ${date.substring(8, 10)}:${date.substring(10, 12)}';
       return rtStr;
     }
     return '';
@@ -817,7 +809,7 @@ class TStyle {
   static String getDateDivFormat(String date) {
     String rtStr = '';
     if (date.length > 5) {
-      rtStr = date.substring(4, 6) + '/' + date.substring(6, 8);
+      rtStr = '${date.substring(4, 6)}/${date.substring(6, 8)}';
       return rtStr;
     }
     return '';
@@ -837,7 +829,7 @@ class TStyle {
   static String getDateDivFormat3(String date) {
     String rtStr = '';
     if (date.length > 5) {
-      rtStr = date.substring(4, 6) + '.' + date.substring(6, 8);
+      rtStr = '${date.substring(4, 6)}.${date.substring(6, 8)}';
       return rtStr;
     }
     return '';
@@ -847,7 +839,7 @@ class TStyle {
   static String getDtTimeFormat(String tm) {
     String rtStr = '';
     if (tm.length >= 11) {
-      rtStr = tm.substring(8, 10) + ':' + tm.substring(10, 12);
+      rtStr = '${tm.substring(8, 10)}:${tm.substring(10, 12)}';
       return rtStr;
     }
     return '';
@@ -857,7 +849,7 @@ class TStyle {
   static String getDtTimeFormat1(String tm) {
     String rtStr = '';
     if (tm.length > 7) {
-      rtStr = tm.substring(8, 10) + '시';
+      rtStr = '${tm.substring(8, 10)}시';
       return rtStr;
     }
     return '';
@@ -867,14 +859,14 @@ class TStyle {
   static String getTimeFormat(String tm) {
     String rtStr = '';
     if (tm.length > 3) {
-      rtStr = tm.substring(0, 2) + ':' + tm.substring(2, 4);
+      rtStr = '${tm.substring(0, 2)}:${tm.substring(2, 4)}';
       return rtStr;
     }
     return '';
   }
 
   //가격 형식 표시
-  static String getMoneyPoint(String? sText) {
+  static String getMoneyPoint(String sText) {
     if (sText != null && sText.isNotEmpty) {
       if (double.tryParse(sText) == null) {
         return sText;
@@ -957,7 +949,7 @@ class TStyle {
   }
 
   //값에 -면 ▼, +면 ▲ 붙여주고 값에는 콤마 찍어주기
-  static String getTriangleStringWithMoneyPoint(String? value) {
+  static String getTriangleStringWithMoneyPoint(String value) {
     if (value != null && value.isNotEmpty) {
       if (value.contains('-')) {
         return '▼${TStyle.getMoneyPoint(value.substring(1))}';
@@ -967,7 +959,7 @@ class TStyle {
         return '▲${TStyle.getMoneyPoint(value)}';
       }
     } else {
-      return '';
+      return value;
     }
   }
 
@@ -1019,14 +1011,46 @@ class TStyle {
     return '';
   }
 
-  static Color getMinusPlusColor(String? sName) {
-    if (sName != null && sName.isNotEmpty) {
-      if (sName == '0') {
+  // 0 = black
+  static Color getMinusPlusColor(String sCount) {
+    if (sCount != null && sCount.isNotEmpty) {
+      double dCount = double.tryParse(sCount) ?? 0;
+      if (dCount == 0) {
         return Colors.black;
-      } else if (sName.contains('-')) {
+      } else if (dCount < 0) {
         return RColor.sigSell;
       } else {
         return RColor.sigBuy;
+      }
+    } else {
+      return Colors.black;
+    }
+  }
+
+  // 박스에 사용하는 +-0 컬러, 0 = grey
+  static Color getMinusPlusColorBox(String sCount) {
+    if (sCount != null && sCount.isNotEmpty) {
+      double dCount = double.tryParse(sCount) ?? 0;
+      if (dCount == 0) {
+        return RColor.greyBox_dcdfe2;
+      } else if (dCount < 0) {
+        return RColor.lightSell_2e70ff;
+      } else {
+        return RColor.sigBuy;
+      }
+    } else {
+      return Colors.black;
+    }
+  }
+
+  // getMinusPlusColorBox 와 함께 사용하는 텍스트 컬러, +- = 흰, 0 = 블랙
+  static Color getIsZeroBlackNotWhite(String sCount) {
+    if (sCount != null && sCount.isNotEmpty) {
+      double dCount = double.tryParse(sCount) ?? 0;
+      if (dCount == 0) {
+        return Colors.black;
+      } else {
+        return Colors.white;
       }
     } else {
       return Colors.black;

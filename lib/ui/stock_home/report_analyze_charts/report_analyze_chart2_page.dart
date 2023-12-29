@@ -12,7 +12,7 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 
 import '../../../../../common/const.dart';
 import '../../../../../common/net.dart';
-import '../../../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 import '../../../../../models/tr_report02.dart';
 
 /// 2023.02.21_HJS

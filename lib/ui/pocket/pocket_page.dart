@@ -14,7 +14,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/app_global.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock01.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock04.dart';
@@ -24,13 +24,11 @@ import 'package:rassi_assist/models/tr_search/tr_search01.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal01.dart';
 import 'package:rassi_assist/models/tr_sns01.dart';
 import 'package:rassi_assist/models/tr_stk_home02.dart';
-import 'package:rassi_assist/models/tr_user04.dart';
+import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
-import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
-import 'package:rassi_assist/ui/pocket/pocket_board.dart';
 import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -1511,23 +1509,24 @@ class PocketPageState extends State<PocketPage> {
         ),
         onTap: () {
           if (_appGlobal.isPremium) {
-            _navigateSearchData(
+/*            _navigateSearchData(
                 context,
                 const SearchPage(),
                 PgData(
                   pgSn: pktSn,
-                ));
+                ));*/
           } else {
             if (stkList.length > 2) {
               _showSuggestPremium('베이직 계정에서는 3종목까지 이용이 가능합니다.\n'
                   '종목추가와 포켓을 마음껏 이용할 수 있는 프리미엄 계정으로 업그레이드 해보세요.');
             } else {
-              _navigateSearchData(
+              //todo @@@@@
+/*              _navigateSearchData(
                   context,
                   const SearchPage(),
                   PgData(
                     pgSn: pktSn,
-                  ));
+                  ));*/
             }
           }
         },
@@ -1537,12 +1536,6 @@ class PocketPageState extends State<PocketPage> {
 
   //해당 포켓보드의 Sn 인덱스 페이지로 이동
   void goPocketBoard() {
-    Navigator.of(context).pushReplacementNamed(
-      PocketBoard.routeName,
-      arguments: PgData(
-        pgSn: pktSn,
-      ),
-    );
   }
 
   //종목홈 탭이동 타이틀
@@ -2697,8 +2690,8 @@ class PocketPageState extends State<PocketPage> {
           DLog.d(PocketPage.TAG, data.accountData.toString());
 
           if (data != null && data.accountData != null) {
-            final AccountData? accountData = data.accountData;
-            accountData?.initUserStatus();
+            final AccountData accountData = data.accountData;
+            accountData.initUserStatus();
           } else {
             //회원정보 가져오지 못함
             AccountData().setFreeUserStatus();
@@ -2788,11 +2781,11 @@ class PocketPageState extends State<PocketPage> {
           _hasSignal = true;
           _isSignalTargetYn = true;
           _isSignalIssueYn = true;
-          if (data.signalData?.signalTargetYn == "N") {
+          if (data.signalData.signalTargetYn == "N") {
             setState(() {
               _isSignalTargetYn = false;
             });
-          } else if (data.signalData?.signalIssueYn == "N") {
+          } else if (data.signalData.signalIssueYn == "N") {
             setState(() {
               _isSignalIssueYn = false;
             });
@@ -2822,13 +2815,13 @@ class PocketPageState extends State<PocketPage> {
     else if (trStr == TR.RASSI04) {
       final TrRassi04 resData = TrRassi04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        Rassi04? data = resData.retData;
-        if(data != null) {
-          stkBriefing = data.content.replaceAll('<br>', '\n');
-          rassiCnt = data.todayNewsCount;
-          rassiCnt30 = data.monthNewsCount;
-          setState(() {});
-        }
+        // Rassi04 data = resData.retData;
+        // if(data != null) {
+        //   stkBriefing = data.content.replaceAll('<br>', '\n');
+        //   rassiCnt = data.todayNewsCount;
+        //   rassiCnt30 = data.monthNewsCount;
+        //   setState(() {});
+        // }
       }
       _fetchPosts(
           TR.SNS01,

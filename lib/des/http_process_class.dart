@@ -10,8 +10,8 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/des/utils.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
-import 'package:rassi_assist/models/tr_user01.dart';
-import 'package:rassi_assist/models/tr_user02.dart';
+import 'package:rassi_assist/models/tr_user/tr_user01.dart';
+import 'package:rassi_assist/models/tr_user/tr_user02.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /*

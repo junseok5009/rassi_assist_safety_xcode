@@ -13,14 +13,14 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest21.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest22.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/stock_home/page/loan_transaction_list_page.dart';
 
 import '../../../../common/const.dart';
 import '../../../../common/net.dart';
-import '../../../../models/app_global.dart';
+import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_invest/tr_invest23.dart';
 import '../../main/base_page.dart';
 
@@ -536,7 +536,7 @@ class _StockHomeHomeTileLoanTransactionState
             if (_isRightYAxisUpUnit) {
               return TStyle.getMoneyPoint((measure! / 1000).round().toString());
             }
-            return TStyle.getMoneyPoint(measure?.round().toString());
+            return TStyle.getMoneyPoint(measure!.round().toString());
           }),
         ),
         domainAxis: charts.NumericAxisSpec(
