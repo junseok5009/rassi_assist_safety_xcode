@@ -1218,12 +1218,12 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                   ],
                 ),
                 onTap: () {
-                  basePageState.callPageRouteNews(
-                    const OnlyWebView(),
-                    PgNews(
-                      linkUrl: 'https://www.thinkpool.com/policy/privacy',
-                    ),
-                  );
+                  // basePageState.callPageRouteNews(
+                  //   OnlyWebView(),
+                  //   PgNews(
+                  //     linkUrl: 'https://www.thinkpool.com/policy/privacy',
+                  //   ),
+                  // );
                 },
               ),
             ],
@@ -1440,12 +1440,13 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                   ],
                 ),
                 onTap: () {
-                  basePageState.callPageRouteNews(
-                    OnlyWebView(),
-                    PgNews(
-                      linkUrl: 'https://www.thinkpool.com/policy/privacy',
-                    ),
-                  );
+                  //TODO @@@@@
+                  // basePageState.callPageRouteNews(
+                  //   OnlyWebView(),
+                  //   PgNews(
+                  //     linkUrl: 'https://www.thinkpool.com/policy/privacy',
+                  //   ),
+                  // );
                 },
               ),
             ],

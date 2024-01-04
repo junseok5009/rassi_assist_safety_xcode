@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 
-
 /// Made by HJS 23.08.24
 /// 전체 파일에서 써야할 공통 앱바 클래스
+
 class CommonAppbar{
   CommonAppbar.privateConstructor();
   static final CommonAppbar _instance = CommonAppbar.privateConstructor();
@@ -25,6 +25,7 @@ class CommonAppbar{
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: color,
           statusBarIconBrightness: Platform.isAndroid ? Brightness.dark : Brightness.light,
+          statusBarBrightness: (Platform.isIOS) ? Brightness.light : Brightness.light, //<-- For iOS SEE HERE (dark icons)
         ),
         leading: null,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -33,6 +34,7 @@ class CommonAppbar{
       ),
     );
   }
+
 
 
 
@@ -69,6 +71,7 @@ class CommonAppbar{
 
 
 
+
   /*DEFINE - basicColor
      [ < 버튼 + 타이틀 ] 형태의 앱바 입니다. 컬러를 변수로 받습니다.
      -title : 메뉴명
@@ -81,6 +84,9 @@ class CommonAppbar{
       preferredSize: const Size.fromHeight(50),
       child: AppBar(
         backgroundColor: bgColor,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarBrightness: (Platform.isIOS && bgColor != Colors.white) ? Brightness.dark : Brightness.light, //<-- For iOS SEE HERE (dark icons)
+        ),
         title: Text(
           title,
           style: TextStyle(
@@ -258,6 +264,7 @@ class CommonAppbar{
      -titleColor : 메뉴명 텍스트 컬러
      -bgColor : 앱바의 바탕 컬러
      -iconColor : x버튼의 컬러
+     -isCenterTitle : true : 타이틀 센터, false : 타이틀 좌측 정렬
      x 버튼으로 닫는 앱바는 기본적으로 구분선(elevation) 없이 구현합니다.
      */
   static PreferredSizeWidget simpleWithExit(BuildContext buildContext, String title, Color titleColor, Color bgColor, Color iconColor){

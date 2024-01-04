@@ -1,22 +1,16 @@
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:rassi_assist/common/d_log.dart';
 
 class CustomFirebaseClass{
-
-  static final String tag = 'CustomFirebaseClass';
-
   CustomFirebaseClass._privateConstructor();
-
-  static final CustomFirebaseClass _instance = CustomFirebaseClass._privateConstructor();
-
-  factory CustomFirebaseClass() {
-    return _instance;
-  }
+  static final fInstance = FirebaseAnalytics.instance;
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static final FirebaseAnalyticsObserver observer =
+  FirebaseAnalyticsObserver(analytics: analytics);
 
   // DEFINE screen_view 이벤트
   static void logEvtScreenView(String screenName) async {
-    await FirebaseAnalytics.instance.logScreenView(
+    await fInstance.logScreenView(
       screenName: screenName,
       screenClass: screenName,
     );
@@ -24,7 +18,6 @@ class CustomFirebaseClass{
 
   // DEFINE 로그인 이벤트
   static Future<void> logEvtLogin(String loginPlatform) async {
-    DLog.d(tag, 'logEvtLogin _loginPlatform : $loginPlatform');
     await FirebaseAnalytics.instance.logEvent(
       name: 'login',
       parameters: <String, dynamic>{
@@ -35,7 +28,6 @@ class CustomFirebaseClass{
 
   // DEFINE 회원가입 이벤트
   static Future<void> logEvtSignUp(String loginPlatform) async {
-    DLog.d(tag, 'logEvtSignUp _loginPlatform : $loginPlatform');
     await FirebaseAnalytics.instance.logEvent(
       name: 'sign_up',
       parameters: <String, dynamic>{
@@ -74,7 +66,6 @@ class CustomFirebaseClass{
 
   //FB 관심 종목 등록 : 23.03.03
   static Future<void> logEvtMyPocketAdd(String screenName, String stockName, String stockCode,) async {
-    DLog.w('logEvtMyPocketAdd() : _screenName :$screenName / _stockName : $stockName / _stockCode : $stockCode');
     await FirebaseAnalytics.instance.logEvent(
       name: 'my_pocket_add',
       parameters: <String, dynamic>{
@@ -87,13 +78,11 @@ class CustomFirebaseClass{
   }
 
   static void setUserProperty(String name, String value) async {
-    DLog.d(tag, 'setUserProperty _name : $name, _value : $value');
     await FirebaseAnalytics.instance.setUserProperty(name: name, value: value);
   }
 
-  // 홈_홈 화면 땡정보 클릭 이벤트
+  // 홈_홈 화면 라씨데스크[땡정보] 클릭 이벤트
   static Future<void> logEvtDdInfo(String time,) async {
-    DLog.d(tag, 'logEvtDdInfo time : $time');
     await FirebaseAnalytics.instance.logEvent(
       name: 'click_ddinfo',
       parameters: <String, dynamic>{

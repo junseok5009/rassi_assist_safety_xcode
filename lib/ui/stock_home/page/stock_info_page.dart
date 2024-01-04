@@ -732,10 +732,11 @@ class _StockInfoPageState extends State<StockInfoPage> {
           InkWell(
             onTap: () {
               Navigator.pop(context);
-              basePageState.callPageRouteNews(
-                OnlyWebView(),
-                PgNews(linkUrl: 'https://m.thinkpool.com/item/$_stkCode/chart'),
-              );
+              //TODO @@@@@
+              // basePageState.callPageRouteNews(
+              //   OnlyWebView(),
+              //   PgNews(linkUrl: 'https://m.thinkpool.com/item/$_stkCode/chart'),
+              // );
             },
             child: Container(
               width: double.infinity,

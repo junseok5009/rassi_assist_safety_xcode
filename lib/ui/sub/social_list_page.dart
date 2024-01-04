@@ -238,17 +238,18 @@ class SocialListPageState extends State<SocialListPage> {
                                     ),
                                     InkWell(
                                       onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          _createRouteData(
-                                            OnlyWebView(),
-                                            RouteSettings(
-                                              arguments: PgNews(
-                                                  linkUrl:
-                                                      subList[index].linkUrl),
-                                            ),
-                                          ),
-                                        );
+                                        //TODO @@@@@
+                                        // Navigator.push(
+                                        //   context,
+                                        //   _createRouteData(
+                                        //     OnlyWebView(),
+                                        //     RouteSettings(
+                                        //       arguments: PgNews(
+                                        //           linkUrl:
+                                        //               subList[index].linkUrl),
+                                        //     ),
+                                        //   ),
+                                        // );
                                       },
                                       child: Text(
                                         subList[index].title,

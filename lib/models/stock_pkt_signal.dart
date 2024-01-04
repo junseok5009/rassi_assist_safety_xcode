@@ -37,9 +37,9 @@ class StockPktSignal {
   });
 
   factory StockPktSignal.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Talk'] as List;
+    var list = json['list_Talk'] as List<dynamic>?;
     List<ListTalk> rtList;
-    if (json['list_Talk'] == null) {
+    if (list == null) {
       rtList = [];
     } else {
       rtList = list.map((i) => ListTalk.fromJson(i)).toList();

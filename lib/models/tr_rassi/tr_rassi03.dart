@@ -44,25 +44,24 @@ class Rassi03 {
   });
 
   factory Rassi03.fromJson(Map<String, dynamic> json) {
-    // List<Tag>? rtTagList;
-    // List<Stock>? rtStkList;
-    // List<Opinion>? rtOpnList;
-
-    var listT = json['list_Tag'] as List;
-    // listT == null ? rtTagList = null : rtTagList = listT.map((i) => Tag.fromJson(i)).toList();
-    var listS = json['list_Stock'] as List;
-    // listS == null ? rtStkList = null : rtStkList = listS.map((i) => Stock.fromJson(i)).toList();
-    var listO = json['list_Opinion'] as List;
-    // listO == null ? rtOpnList = null : rtOpnList = listO.map((i) => Opinion.fromJson(i)).toList();
+    List<Tag> rtTagList;
+    List<Stock> rtStkList;
+    List<Opinion> rtOpnList;
+    var listT = json['list_Tag'] as List<dynamic>?;
+    listT == null ? rtTagList = [] : rtTagList = listT.map((i) => Tag.fromJson(i)).toList();
+    var listS = json['list_Stock'] as List<dynamic>?;
+    listS == null ? rtStkList = [] : rtStkList = listS.map((i) => Stock.fromJson(i)).toList();
+    var listO = json['list_Opinion'] as List<dynamic>?;
+    listO == null ? rtOpnList = [] : rtOpnList = listO.map((i) => Opinion.fromJson(i)).toList();
 
     return Rassi03(
       newsDiv: json['newsDiv'] ?? '',
       issueDttm: json['issueDttm'] ?? '',
       title: json['title'] ?? '',
       content: json['content'] ?? '',
-      listTag: listT.map((i) => Tag.fromJson(i)).toList(),
-      listStock: listS.map((i) => Stock.fromJson(i)).toList(),
-      listOpinion: listO.map((i) => Opinion.fromJson(i)).toList(),
+      listTag: rtTagList,
+      listStock: rtStkList,
+      listOpinion: rtOpnList,
     );
   }
 }

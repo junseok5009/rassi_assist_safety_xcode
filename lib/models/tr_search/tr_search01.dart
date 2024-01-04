@@ -65,15 +65,15 @@ class Search01 {
 
   factory Search01.fromJson(Map<String, dynamic> json) {
     return Search01(
-      stockCode: json['stockCode'],
-      stockName: json['stockName'],
-      isMyStock: json['isMyStock'],
+      stockCode: json['stockCode'] ?? '',
+      stockName: json['stockName'] ?? '',
+      isMyStock: json['isMyStock'] ?? '',
       myTradeFlag: json['myTradeFlag'] ?? '',
-      pocketSn: json['pocketSn'],
-      tradeDate: json['tradeDate'],
-      tradeTime: json['tradeTime'],
-      timeDivTxt: json['timeDivTxt'],
-      currentPrice: json['currentPrice'],
+      pocketSn: json['pocketSn'] ?? '',
+      tradeDate: json['tradeDate'] ?? '',
+      tradeTime: json['tradeTime'] ?? '',
+      timeDivTxt: json['timeDivTxt'] ?? '',
+      currentPrice: json['currentPrice'] ?? '',
       fluctuationRate: json['fluctuationRate'],
       fluctuationAmt: json['fluctuationAmt'],
       tradingHaltYn: json['tradingHaltYn'],

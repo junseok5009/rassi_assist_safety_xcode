@@ -27,7 +27,7 @@ class CommonSwiperPagenation {
         activeSize: size,
         space: 4,
         color: RColor.bgGrey,
-        activeColor: Colors.deepPurpleAccent,
+        activeColor: Colors.black,
       ),
     );
   }
@@ -45,5 +45,20 @@ class CommonSwiperPagenation {
       ),
     );
   }
+
+  static SwiperPagination getNormalSpWithMargin2(double size, double margin, Color activeColor) {
+    return SwiperPagination(
+      alignment: Alignment.bottomCenter,
+      margin: EdgeInsets.only(bottom: margin),
+      builder: DotSwiperPaginationBuilder(
+        size: size,
+        activeSize: size,
+        space: 4,
+        color: RColor.bgGrey,
+        activeColor: activeColor,
+      ),
+    );
+  }
+
 
 }

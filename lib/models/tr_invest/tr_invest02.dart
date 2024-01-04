@@ -12,6 +12,7 @@ class TrInvest02 {
       retData: json['retData'] == null ? defInvest02 : Invest02.fromJson(json['retData']),
     );
   }
+
   factory TrInvest02.fromJsonWithIndex(Map<String, dynamic> json) {
     return TrInvest02(
       retCode: json['retCode'],
@@ -42,9 +43,7 @@ class Invest02 {
 
   factory Invest02.fromJson(Map<String, dynamic> json) {
     var list = json['list_Chart'] as List;
-    List<Invest02ChartData> dataList = list == null
-        ? []
-        : list.map((i) => Invest02ChartData.fromJson(i)).toList();
+    List<Invest02ChartData> dataList = list == null ? [] : list.map((i) => Invest02ChartData.fromJson(i)).toList();
     return Invest02(
       stockCode: json['stockCode'] ?? '',
       stockName: json['stockName'] ?? '',
@@ -54,12 +53,12 @@ class Invest02 {
       listChartData: dataList,
     );
   }
+
   factory Invest02.fromJsonWithIndex(Map<String, dynamic> json) {
     var list = json['list_Chart'] as List;
 
-    List<Invest02ChartData> dataList = list == null
-        ? []
-        : list.asMap().entries.map((e) =>  Invest02ChartData.fromJsonWithIndex(e.value, e.key)).toList();
+    List<Invest02ChartData> dataList =
+        list == null ? [] : list.asMap().entries.map((e) => Invest02ChartData.fromJsonWithIndex(e.value, e.key)).toList();
     return Invest02(
       stockCode: json['stockCode'] ?? '',
       stockName: json['stockName'] ?? '',
@@ -74,11 +73,20 @@ class Invest02 {
 class Invest02ChartData {
   final String td; // 날짜
   final String tp; // 가격
-  late final String afv; // [외인] 누적 수량
-  late final String aov; // [기관] 누적 수량
+  String afv = ''; // [외인] 누적 수량
+  String aov = ''; // [기관] 누적 수량
   final String apv; // [개인] 누적 수량
   final int index;
-  Invest02ChartData({this.td='', this.tp='', this.afv='', this.aov='', this.apv='', this.index=0});
+
+  Invest02ChartData({
+    this.td = '',
+    this.tp = '',
+    this.afv = '',
+    this.aov = '',
+    this.apv = '',
+    this.index = 0,
+  });
+
   factory Invest02ChartData.fromJson(Map<String, dynamic> json) {
     return Invest02ChartData(
       td: json['td'] ?? '',
@@ -89,6 +97,7 @@ class Invest02ChartData {
       index: 0,
     );
   }
+
   factory Invest02ChartData.fromJsonWithIndex(Map<String, dynamic> json, int vIndex) {
     return Invest02ChartData(
       td: json['td'] ?? '',

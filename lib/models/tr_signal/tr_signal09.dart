@@ -66,11 +66,11 @@ class Signal09 {
 
   factory Signal09.fromJson(Map<String, dynamic> json) {
     return Signal09(
-      noticeCode: json['noticeCode'],
-      noticeText: json['noticeText'],
-      processText: json['processText'],
-      remainTime: json['remainTime'],
-      updateDttm: json['updateDttm'],
+      noticeCode: json['noticeCode'] ?? '',
+      noticeText: json['noticeText'] ?? '',
+      processText: json['processText'] ?? '',
+      remainTime: json['remainTime'] ?? '',
+      updateDttm: json['updateDttm'] ?? '',
       buyCount: json['buyCount'] ?? '0',
       sellCount: json['sellCount'] ?? '0',
       listData: (json['list_Signal'] == null)

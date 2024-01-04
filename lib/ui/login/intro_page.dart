@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/routes.dart';
@@ -25,7 +25,8 @@ import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-/// 2020.08
+/// 2020.08.
+/// --- 수정 기록 ---
 /// 2022.08.03 : 로그인 하지 않은 사용자가 호출하는 전문에는 userId에 'RASSI_APP' 넣어서 호출
 /// 인트로
 class IntroPage extends StatelessWidget {
@@ -34,10 +35,6 @@ class IntroPage extends StatelessWidget {
   static const String TAG_NAME = '앱_인트로';
 
   const IntroPage({Key? key}) : super(key: key);
-
-  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  static final FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
-
 
   @override
   Widget build(BuildContext context) {
@@ -66,22 +63,18 @@ class IntroPage extends StatelessWidget {
         brightness: Brightness.light,
         primaryColor: RColor.mainColor,
       ),
-      navigatorObservers: <NavigatorObserver>[observer],
+      navigatorObservers: <NavigatorObserver>[CustomFirebaseClass.observer],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context)
-            .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+        data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
         child: child!,
       ),
-      home: Scaffold(
-        body: IntroWidget(
-          analytics: analytics,
-          observer: observer,
-        ),
+      home: const Scaffold(
+        body: IntroWidget(),
       ),
       routes: routes,
     );
@@ -89,29 +82,23 @@ class IntroPage extends StatelessWidget {
 }
 
 class IntroWidget extends StatefulWidget {
-  const IntroWidget({Key? key, required this.analytics, this.observer}) : super(key: key);
-
-  final FirebaseAnalytics analytics;
-  final FirebaseAnalyticsObserver? observer;
+  const IntroWidget({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => IntroState();
 }
 
-class IntroState extends State<IntroWidget>
-    with SingleTickerProviderStateMixin {
+class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin {
   var appGlobal = AppGlobal();
   static const platform = MethodChannel(Const.METHOD_CHANNEL_NAME);
 
-  final String _appEnv =
-      Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
+  final String _appEnv = Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
   final int _appVer = Platform.isIOS ? Const.VER_CODE : Const.VER_CODE_AOS;
 
   late SharedPreferences _prefs;
   String _userId = "";
-
-  bool _initialized = false; //firebase 초기화
-  bool _error = false; //firebase 에러
   bool _isSendTr = false; //2번 호출되는 내용 방지
 
   // late Uri _latestUri;
@@ -121,24 +108,27 @@ class IntroState extends State<IntroWidget>
 
   @override
   void initState() {
-    initFlutterFire();
     super.initState();
-    _loadPrefData();
+    _loadPrefData().then((_) {
+      Future.delayed(Duration.zero, () async {
+        appGlobal.deviceWidth = MediaQuery.of(context).size.width;
+        appGlobal.deviceHeight = MediaQuery.of(context).size.height;
+        appGlobal.deviceStatusBarHeight = MediaQuery.of(context).padding.top;
 
-    Future.delayed(Duration.zero, () async {
-      AppGlobal().deviceStatusBarHeight = MediaQuery.of(context).padding.top;
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      if (Platform.isAndroid) {
-        var shortestSide = MediaQuery.of(context).size.shortestSide;
-        AppGlobal().isTablet = shortestSide > 600;
-      } else if (Platform.isIOS) {
-        IosDeviceInfo info = await deviceInfo.iosInfo;
-        if (info.model != null && info.model!.toLowerCase().contains("ipad")) {
-          AppGlobal().isTablet = true;
-        } else {
-          AppGlobal().isTablet = false;
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        if (Platform.isAndroid) {
+          var shortestSide = MediaQuery.of(context).size.shortestSide;
+          appGlobal.isTablet = shortestSide > 600;
+        } else if (Platform.isIOS) {
+          IosDeviceInfo info = await deviceInfo.iosInfo;
+          if (info.model != null && info.model!.toLowerCase().contains("ipad")) {
+            appGlobal.isTablet = true;
+          } else {
+            appGlobal.isTablet = false;
+          }
         }
-      }
+        _requestVersionCheck();
+      });
     });
 
     initDynamicLinks();
@@ -151,32 +141,15 @@ class IntroState extends State<IntroWidget>
     super.dispose();
   }
 
-  //Firebase 초기화
-  void initFlutterFire() async {
-    try {
-      await Firebase.initializeApp();
-      setState(() {
-        _initialized = true;
-      });
-    } catch (e) {
-      _error = true;
-    }
-  }
-
   // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-
-    //TODO  TEST  TEST   TEST  TEST
-    _prefs.setString(Const.PREFS_USER_ID, 'developtest');
-    //TODO  TEST  TEST   TEST  TEST
 
     if (Platform.isAndroid) {
       DLog.d(IntroPage.TAG, '##### Platform Android');
       //Android Native 사용자를 위한 코드
       try {
         final String result = await platform.invokeMethod('getPrefUserId');
-
         if (result.isNotEmpty) {
           _prefs.setString(Const.PREFS_USER_ID, result);
           _userId = result;
@@ -189,10 +162,8 @@ class IntroState extends State<IntroWidget>
       _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
     }
 
-    setState(() {
-      appGlobal.userId = _userId;
-      _prefs.setString(Const.PREFS_DEVICE_ID, Uuid().v4());
-    });
+    appGlobal.userId = _userId;
+    _prefs.setString(Const.PREFS_DEVICE_ID, const Uuid().v4());
   }
 
   Future<void> initDynamicLinks() async {
@@ -209,29 +180,18 @@ class IntroState extends State<IntroWidget>
 
   @override
   Widget build(BuildContext context) {
-    // final queryParams = _latestUri.queryParametersAll.entries.toList();
+    // final queryParams = _latestUri?.queryParametersAll?.entries?.toList();
     // DLog.d(IntroPage.TAG, 'queryParams : $queryParams');
 
-    if (_error) {
-      DLog.d(IntroPage.TAG, '##### firebase initialize error');
+    /*if (!_isSendTr) {
+      _isSendTr = true;
+      DLog.d(IntroPage.TAG, 'firebase initialize complete');
       Future.delayed(const Duration(seconds: 3), () {
-        DLog.d(IntroPage.TAG, 'goNextRoute err: $_userId');
+        DLog.d(IntroPage.TAG, 'goNextRoute init: $_userId');
         // _goNextRoute(_userId);
         _requestVersionCheck();
       });
-    }
-
-    if (_initialized) {
-      if (!_isSendTr) {
-        _isSendTr = true;
-        DLog.d(IntroPage.TAG, 'firebase initialize complete');
-        Future.delayed(const Duration(seconds: 3), () {
-          DLog.d(IntroPage.TAG, 'goNextRoute init: $_userId');
-          // _goNextRoute(_userId);
-          _requestVersionCheck();
-        });
-      }
-    }
+    }*/
 
     return setIntroUi();
   }
@@ -265,8 +225,7 @@ class IntroState extends State<IntroWidget>
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context)
-            .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+        data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
         child: child!,
       ),
       home: Scaffold(
@@ -290,13 +249,9 @@ class IntroState extends State<IntroWidget>
               const SizedBox(
                 height: 20,
               ),
-              const Text(
-                '라씨 매매비서',
-                style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
+              Image.asset(
+                'images/img_rassi_title_white.png',
+                height: 25,
               ),
             ],
           ),
@@ -304,24 +259,35 @@ class IntroState extends State<IntroWidget>
       ),
       routes: routes,
       navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: widget.analytics),
+        FirebaseAnalyticsObserver(analytics: CustomFirebaseClass.analytics),
       ],
     );
   }
 
+  //앱 버전체크
+  void _requestVersionCheck() {
+    _fetchPosts(
+        TR.APP01,
+        jsonEncode(<String, String>{
+          'userId': _userId.isEmpty ? 'RASSI_APP' : _userId,
+          'appEnv': _appEnv,
+        }));
+  }
+
+  //업데이트가 필요한 앱버전 비교
+  void _compareVerCode(String minVer) {}
+
   // 다음 페이지로 이동
   _goNextRoute(String userId) {
     if (userId != '') {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const BasePage()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BasePage()));
     } else {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => IntroSearchPage()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => IntroSearchPage()));
     }
   }
 
   //강제 업데이트 팝업
-  void _showVersion() {
+  void _showVersion(String url) {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -339,16 +305,12 @@ class IntroState extends State<IntroWidget>
                   const SizedBox(
                     height: 5.0,
                   ),
-                  const Text('업데이트 알림',
-                      style: TStyle.defaultTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                  const Text('업데이트 알림', style: TStyle.defaultTitle, textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 25.0,
                   ),
                   const Text(RString.need_to_app_update,
-                      textAlign: TextAlign.center,
-                      style: TStyle.defaultContent,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                      textAlign: TextAlign.center, style: TStyle.defaultContent, textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 30.0,
                   ),
@@ -359,15 +321,13 @@ class IntroState extends State<IntroWidget>
                         height: 40,
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
-                          child: Text('확인',
-                              style: TStyle.btnTextWht16,
-                              textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                          child: Text('확인', style: TStyle.btnTextWht16, textScaleFactor: Const.TEXT_SCALE_FACTOR),
                         ),
                       ),
                     ),
                     onPressed: () {
                       // Navigator.pop(context);
-                      commonLaunchURL(getStoreUrl());
+                      commonLaunchUrlAppOpen(url);
                     },
                   ),
                 ],
@@ -375,46 +335,6 @@ class IntroState extends State<IntroWidget>
             ),
           );
         });
-  }
-
-  /// https://apps.apple.com/us/app/라씨-매매비서/id1542866202
-  /// https://apps.apple.com/kr/app/%EB%9D%BC%EC%94%A8-%EB%A7%A4%EB%A7%A4%EB%B9%84%EC%84%9C/id1542866202
-  String getStoreUrl() {
-    if (Platform.isAndroid) {
-      return "https://play.google.com/store/apps/details?id=packageName";
-    } else if (Platform.isIOS) {
-      return "https://apps.apple.com/kr/app/%EB%9D%BC%EC%94%A8-%EB%A7%A4%EB%A7%A4%EB%B9%84%EC%84%9C/id1542866202";
-    } else {
-      return '';
-    }
-  }
-
-  //업데이트가 필요한 앱버전 비교
-  void _compareVerCode(String? minVer) {
-    var intVer = 0;
-    if (minVer != null && minVer.length > 0) {
-      intVer = int.parse(minVer);
-      DLog.d(IntroPage.TAG, 'int version : $intVer');
-    }
-
-    //앱 버전이 서버에 설정된 최소버전보다 작다면 강제 업데이트
-    if (_appVer < intVer) {
-      DLog.d(IntroPage.TAG, '강제 업데이트 버전 : $minVer');
-      _showVersion();
-    } else {
-      DLog.d(IntroPage.TAG, '일반적인 업데이트 버전 : $minVer');
-      _goNextRoute(_userId);
-    }
-  }
-
-  //앱 버전체크
-  void _requestVersionCheck() {
-    _fetchPosts(
-        TR.APP01,
-        jsonEncode(<String, String>{
-          'userId': _userId.isEmpty ? 'RASSI_APP' : _userId,
-          'appEnv': _appEnv,
-        }));
   }
 
   //네트워크 에러 알림
@@ -521,34 +441,27 @@ class IntroState extends State<IntroWidget>
       final TrApp01 resData = TrApp01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         DLog.d(IntroPage.TAG, 'APP01 => ${resData.resData.toString()}');
-        _compareVerCode(resData.resData?.versionMin);
+
+        var intVer = 0;
+        var minVer = resData.resData?.versionMin;
+        if (minVer != null && minVer.isNotEmpty) {
+          intVer = int.parse(minVer);
+          DLog.d(IntroPage.TAG, 'int version : $intVer');
+        }
+
+        //앱 버전이 서버에 설정된 최소버전보다 작다면 강제 업데이트
+        if (_appVer < intVer) {
+          DLog.d(IntroPage.TAG, '강제 업데이트 버전 : $minVer');
+          if (resData.resData != null) {
+            _showVersion(resData.resData!.redirectUrl);
+          }
+        } else {
+          DLog.d(IntroPage.TAG, '일반적인 업데이트 버전 : $minVer');
+          _goNextRoute(_userId);
+        }
       } else {
         _goNextRoute(_userId);
       }
     }
   }
-
-// _timerDelay() async {
-//   // var duration = new Duration(seconds: 4);
-//   // return new Timer(duration, _routeNext);
-// }
-//
-// void _routeNext() {
-//   Navigator.pushReplacement(context, MaterialPageRoute(
-//       builder: (context) => HomePage()));
-// }
-
-/* TODO 추후에 아래 코드 테스트
-  const delay = 3;
-  widget.countdown = delay;
-
-  StreamSubscription sub;
-  sub = new Stream.periodic(const Duration(seconds: 1), (count) {
-  setState(() => widget.countdown--);
-  if(widget.countdown <= 0) {
-    sub.cancel();
-    Navigator.pushNamed(context, '/login');
-  }
-  });
-   */
 }

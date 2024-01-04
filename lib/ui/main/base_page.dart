@@ -513,11 +513,11 @@ class BasePageState extends State<BasePage> {
   }
 
   //종목홈으로 이동 or 갱신
-  Future<String> goStockHomePage(String stockCode, String stockName, int pageIdx) async {
+  Future<String?> goStockHomePage(String stockCode, String stockName, int pageIdx) async {
     appGlobal.stkCode = stockCode;
     appGlobal.stkName = stockName;
     appGlobal.tabIndex = pageIdx;
-    String result = CustomNvRouteResult.cancel;
+    String? result = CustomNvRouteResult.cancel;
     if (StockHomeTab.globalKey.currentState == null) {
       result = await Navigator.push(
         context,

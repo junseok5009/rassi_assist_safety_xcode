@@ -42,13 +42,13 @@ class SHome01 {
   });
 
   factory SHome01.fromJson(Map<String, dynamic> json) {
-    var listLink = json['list_Link'] as List;
-    List<LinkData>? linkList;
-    listLink == null ? linkList = null : linkList = listLink.map((i) => LinkData.fromJson(i)).toList();
+    var listLink = json['list_Link'] as List<dynamic>?;
+    List<LinkData> linkList;
+    listLink == null ? linkList = [] : linkList = listLink.map((i) => LinkData.fromJson(i)).toList();
 
-    var listRas = json['list_Rassiro'] as List;
-    List<RassiroH>? rasList;
-    listRas == null ? rasList = null : rasList = listRas.map((i) => RassiroH.fromJson(i)).toList();
+    var listRas = json['list_Rassiro'] as List<dynamic>?;
+    List<RassiroH> rasList;
+    listRas == null ? rasList = [] : rasList = listRas.map((i) => RassiroH.fromJson(i)).toList();
 
     var stkBell = json['struct_SbCount'];
     if(stkBell == null) {
@@ -101,12 +101,12 @@ class LinkData {
 
   factory LinkData.fromJson(Map<String, dynamic> json) {
     return LinkData(
-      stockCode: json['stockCode'],
-      stockName: json['stockName'],
-      tradeFlag: json['tradeFlag'],
-      newsSn: json['newsSn'],
-      newsDiv: json['newsDiv'],
-      issueDate: json['issueDate'],
+      stockCode: json['stockCode'] ?? '',
+      stockName: json['stockName'] ?? '',
+      tradeFlag: json['tradeFlag'] ?? '',
+      newsSn: json['newsSn'] ?? '',
+      newsDiv: json['newsDiv'] ?? '',
+      issueDate: json['issueDate'] ?? '',
     );
   }
 
@@ -136,14 +136,14 @@ class RassiroH {
 
   factory RassiroH.fromJson(Map<String, dynamic> json) {
     return RassiroH(
-      newsDiv: json['newsDiv'],
-      newsSn: json['newsSn'],
-      newsCrtDate: json['newsCrtDate'],
-      issueDttm: json['issueDttm'],
-      elapsedTmTx: json['elapsedTmTx'],
-      title: json['title'],
-      imageUrl: json['imageUrl'],
-      viewLinkYn: json['viewLinkYn'],
+      newsDiv: json['newsDiv'] = '',
+      newsSn: json['newsSn'] = '',
+      newsCrtDate: json['newsCrtDate'] = '',
+      issueDttm: json['issueDttm'] = '',
+      elapsedTmTx: json['elapsedTmTx'] = '',
+      title: json['title'] = '',
+      imageUrl: json['imageUrl'] = '',
+      viewLinkYn: json['viewLinkYn'] = '',
     );
   }
 

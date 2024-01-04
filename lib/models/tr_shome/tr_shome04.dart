@@ -11,7 +11,8 @@ class TrShome04 {
         retMsg: json['retMsg'],
         retData: json['retData'] == null
             ? defShome04
-            : Shome04.fromJson(json['retData']));
+            : Shome04.fromJson(json['retData'])
+    );
   }
 }
 

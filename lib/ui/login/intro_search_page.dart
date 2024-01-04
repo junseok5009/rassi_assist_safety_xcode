@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
@@ -22,7 +21,7 @@ import 'package:rassi_assist/ui/main/keyboard_page.dart';
 import 'package:rassi_assist/ui/sub/trade_intro_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 2020.10.14 - JY
+/// 2020.10.14
 /// --- 수정 기록 ---
 /// 2022.08.03 : 로그인 하지 않은 사용자가 호출하는 전문에는 userId에 'RASSI_APP' 넣어서 호출
 /// Intro Search
@@ -36,12 +35,9 @@ class IntroSearchPage extends StatefulWidget {
 }
 
 class IntroSearchPageState extends State<IntroSearchPage> {
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   late SharedPreferences _prefs;
-
   List<Search03> _stkList = [];
   List<String> _searchList = []; //무료 5종목 검색
-
   String deepLinkData = '';
 
   @override
@@ -131,18 +127,11 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                       style: TStyle.content15,
                     ),
                     const SizedBox(
-                      height: 30,
-                    ),
-                    const Text(
-                      '종목검색',
-                      style: TStyle.title18T,
-                    ),
-                    const SizedBox(
                       height: 10,
                     ),
                     _setSearchBox(),
                     const SizedBox(
-                      height: 40,
+                      height: 30,
                     ),
                     const Text(
                       '오늘의 인기종목',
@@ -278,7 +267,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                 Navigator.push(
                   context,
                   _createRouteData(
-                    TradeIntroPage(),
+                    const TradeIntroPage(),
                     RouteSettings(
                       arguments: PgData(
                         userId: '',
@@ -312,7 +301,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
   _goNextRoute(String userId) {
     if (userId != '') {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => BasePage()));
+          context, MaterialPageRoute(builder: (context) => const BasePage()));
     } else {}
   }
 
@@ -330,7 +319,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               InkWell(
-                child: Icon(
+                child: const Icon(
                   Icons.close,
                   color: Colors.black,
                 ),
@@ -419,7 +408,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => instance,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(0.0, 1.0);
+        var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
         var tween =
             Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
@@ -439,7 +428,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
       pageBuilder: (context, animation, secondaryAnimation) => instance,
       settings: settings,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(0.0, 1.0);
+        var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
         var tween =
             Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
@@ -489,7 +478,8 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                     height: 5.0,
                   ),
                   const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
+                    padding:
+                        EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,

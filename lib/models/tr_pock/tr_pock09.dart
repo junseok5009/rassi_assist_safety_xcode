@@ -5,39 +5,39 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
 
-
 /// 2022.05.13
 /// 나의 포켓 종목의 현황 조회
 class TrPock09 {
   final String retCode;
   final String retMsg;
-  final Pock09 retData;
+  final Pock09? retData;
 
-  TrPock09({this.retCode='', this.retMsg='', this.retData = defPock09});
+  TrPock09({this.retCode = '', this.retMsg = '', this.retData});
 
   factory TrPock09.fromJson(Map<String, dynamic> json) {
     return TrPock09(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        retData: json['retData'] == null
-            ? defPock09
-            : Pock09.fromJson(json['retData']));
+      retCode: json['retCode'],
+      retMsg: json['retMsg'],
+      retData: json['retData'] == null ? null : Pock09.fromJson(json['retData']),
+    );
   }
 }
 
-const defPock09 = Pock09();
+// const defPock09 = Pock09();
 
 class Pock09 {
-  final String selectDiv;
-  final String beforeOpening;
-  final String stockCount;
-  final List<StockPktChart> stockList;
-  final List<StockPushInfo> pushList;
+  String selectDiv = '';
+  String beforeOpening = '';
+  String stockCount = '';
+  String pocketSn = '';
+  List<StockPktChart> stockList = [];
+  List<StockPushInfo> pushList = [];
 
-  const Pock09({
-    this.selectDiv='',
-    this.beforeOpening='',
-    this.stockCount='',
+  Pock09({
+    this.selectDiv = '',
+    this.beforeOpening = '',
+    this.stockCount = '',
+    this.pocketSn = '',
     this.stockList = const [],
     this.pushList = const [],
   });
@@ -47,34 +47,25 @@ class Pock09 {
       selectDiv: json['selectDiv'] ?? '',
       beforeOpening: json['beforeOpening'] ?? '',
       stockCount: json['stockCount'] ?? '0',
-      stockList: json['list_Stock'] == null
-          ? []
-          : (json['list_Stock'] as List)
-              .map((i) => StockPktChart.fromJson(i))
-              .toList(),
-      pushList: json['list_Push'] == null
-          ? []
-          : (json['list_Push'] as List)
-              .map((i) => StockPushInfo.fromJson(i))
-              .toList(),
+      pocketSn: json['pocketSn'] ?? '',
+      stockList: json['list_Stock'] == null ? [] : (json['list_Stock'] as List).map((i) => StockPktChart.fromJson(i)).toList(),
+      pushList: json['list_Push'] == null ? [] : (json['list_Push'] as List).map((i) => StockPushInfo.fromJson(i)).toList(),
     );
   }
 
-/*  Pock09.emptyWithSelectDiv(String getSelectDiv) {
+  Pock09.emptyWithSelectDiv(String getSelectDiv) {
     selectDiv = getSelectDiv;
     stockList = [];
     pushList = [];
-  }*/
+  }
 
   bool isEmpty() {
     if (selectDiv.isEmpty) {
       return true;
     } else {
-      if ((selectDiv == 'UP' || selectDiv == 'DN' || selectDiv == 'TS') &&
-          (stockList.isNotEmpty)) {
+      if ((selectDiv == 'UP' || selectDiv == 'DN' || selectDiv == 'TS') && (stockList.isNotEmpty)) {
         return false;
-      } else if ((selectDiv == 'SB' || selectDiv == 'RN') &&
-          (pushList.isNotEmpty)) {
+      } else if ((selectDiv == 'SB' || selectDiv == 'RN') && (pushList.isNotEmpty)) {
         return false;
       } else {
         return true;
@@ -109,16 +100,20 @@ class StockPushInfo {
   final String pushTitle;
   final String pushContent;
   final String regDttm;
+  final String newsCrtDate;
+  final String newsSn;
 
   StockPushInfo({
-    this.pushDiv2='',
-    this.pushDiv2Name='',
-    this.pushDiv3='',
-    this.stockCode='',
-    this.stockName='',
-    this.pushTitle='',
-    this.pushContent='',
-    this.regDttm='',
+    this.pushDiv2 = '',
+    this.pushDiv2Name = '',
+    this.pushDiv3 = '',
+    this.stockCode = '',
+    this.stockName = '',
+    this.pushTitle = '',
+    this.pushContent = '',
+    this.regDttm = '',
+    this.newsCrtDate = '',
+    this.newsSn = '',
   });
 
   factory StockPushInfo.fromJson(Map<String, dynamic> json) {
@@ -131,6 +126,8 @@ class StockPushInfo {
       pushTitle: json['pushTitle'] ?? '',
       pushContent: json['pushContent'] ?? '',
       regDttm: json['regDttm'] ?? '',
+      newsCrtDate: json['newsCrtDate'] ?? '',
+      newsSn: json['newsSn'] ?? '',
     );
   }
 
@@ -141,10 +138,12 @@ class StockPushInfo {
 }
 
 // 홈_홈 - 상승, 하락 타일
-class TileUpAndDown extends StatelessWidget {
+/*class TileUpAndDown extends StatelessWidget {
   const TileUpAndDown(
     this.item,
-    this.chartItem, {Key? key,}) : super(key: key);
+    this.chartItem, {
+    Key key,
+  }) : super(key: key);
   final StockPktChart item;
   final Pock09ChartModel chartItem;
 
@@ -153,7 +152,10 @@ class TileUpAndDown extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13,),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 13,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -186,7 +188,7 @@ class TileUpAndDown extends StatelessWidget {
                     Expanded(
                       flex: 1,
                       child: Text(
-                        item.stockName,
+                        ' ${item.stockName}',
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -199,10 +201,14 @@ class TileUpAndDown extends StatelessWidget {
                       flex: 1,
                       child: Center(
                         child: Text(
-                          TStyle.getPercentString(item.fluctuationRate,),
+                          TStyle.getPercentString(
+                            item.fluctuationRate,
+                          ),
                           style: TextStyle(
                             fontSize: 16,
-                            color: TStyle.getMinusPlusColor(item.fluctuationRate,),
+                            color: TStyle.getMinusPlusColor(
+                              item.fluctuationRate,
+                            ),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -240,7 +246,7 @@ class TileUpAndDown extends StatelessWidget {
               ),
               extraLinesData: ExtraLinesData(horizontalLines: [
                 HorizontalLine(
-                  y: chartItem.chartMarkLineYAxis,
+                  y: chartItem.chartMarkLineYAxis - 0.000001,
                   //color: Colors.black.withOpacity(0.8),
                   strokeWidth: 1.5,
                   dashArray: [5, 2],
@@ -288,13 +294,251 @@ class TileUpAndDown extends StatelessWidget {
               ),
               borderData: FlBorderData(show: false),
             ),
-            //swapAnimationDuration: Duration(milliseconds: 10000),
+            swapAnimationDuration: Duration(milliseconds: 2000),
+            swapAnimationCurve: Curves.linear, // Optional
+
+          ),
+        ),
+        Text(
+          item.listingYn == 'Y' ? 'New' : '1 Month',
+          style: const TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 10,
+            color: Color(0xdd555555),
+          ),
+        ),
+      ],
+    );
+  }
+
+}*/
+
+class TileUpAndDown extends StatefulWidget {
+  const TileUpAndDown(
+    this.item,
+    this.chartItem, {
+    Key? key,
+  }) : super(key: key);
+  final StockPktChart item;
+  final Pock09ChartModel chartItem;
+
+  @override
+  State<TileUpAndDown> createState() => _TileUpAndDownState();
+}
+
+class _TileUpAndDownState extends State<TileUpAndDown> {
+  /*Timer timer;
+  int count = 3;
+  Pock09ChartModel chartItem = Pock09ChartModel(
+    listChartData: const [],
+    chartLineColor: Colors.black,
+    chartMarkLineYAxis: 2,
+    chartYAxisMin: 0,
+  );*/
+
+  @override
+  void initState() {
+    super.initState();
+    /*if (widget.chartItem.listChartData.length > 5) {
+      Pock09ChartModel beforeChartItem = Pock09ChartModel(
+        listChartData: widget.chartItem.listChartData.sublist(0, 3),
+        chartYAxisMin: widget.chartItem.chartYAxisMin,
+        chartMarkLineYAxis: widget.chartItem.chartMarkLineYAxis,
+        chartLineColor: Colors.transparent,
+      );
+      chartItem = beforeChartItem;
+      chartItem.chartLineColor = widget.chartItem.chartLineColor;
+      timer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
+        setState(() {
+          //beforeChartItem.listChartData.removeAt(0);
+          beforeChartItem.listChartData
+              .add(widget.chartItem.listChartData[count]);
+          if (count == widget.chartItem.listChartData.length - 1) {
+            timer.cancel();
+            setState(() {});
+          } else {
+            count++;
+          }
+        });
+      });
+    } else {
+      setState(() {
+        chartItem = widget.chartItem;
+      });
+    }*/
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
+  void dispose() {
+    //if (timer != null) timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        width: double.infinity,
+        height: 80,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 13,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: UIStyle.boxRoundFullColor25c(
+                      const Color(0xffDCDFE2),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    child: Text(
+                      widget.item.pocketName,
+                      style: const TextStyle(
+                        fontSize: 11,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          ' ${widget.item.stockName}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Center(
+                          child: Text(
+                            TStyle.getPercentString(
+                              widget.item.fluctuationRate,
+                            ),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: TStyle.getMinusPlusColor(
+                                widget.item.fluctuationRate,
+                              ),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: _setChartView(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _setChartView() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          width: 50,
+          height: 38,
+          alignment: Alignment.center,
+          child: LineChart(
+            LineChartData(
+              lineTouchData: LineTouchData(
+                enabled: false,
+              ),
+              extraLinesData: ExtraLinesData(horizontalLines: [
+                HorizontalLine(
+                  y: widget.chartItem.chartMarkLineYAxis - 0.000001,
+                  //color: Colors.black.withOpacity(0.8),
+                  strokeWidth: 1.5,
+                  dashArray: [5, 2],
+                ),
+              ]),
+              lineBarsData: [
+                LineChartBarData(
+                  color: widget.chartItem.chartLineColor,
+                  spots: widget.chartItem.listChartData,
+                  isCurved: true,
+                  isStrokeCapRound: true,
+                  barWidth: 1.5,
+                  belowBarData: BarAreaData(
+                    show: false,
+                  ),
+                  dotData: FlDotData(show: false),
+                ),
+              ],
+              minY: widget.chartItem.chartYAxisMin,
+              //maxY: 10,
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: false,
+                  ),
+                ),
+                rightTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: false,
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: false,
+                  ),
+                ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: false,
+                  ),
+                ),
+              ),
+              gridData: FlGridData(
+                show: false,
+              ),
+              borderData: FlBorderData(show: false),
+            ),
+            swapAnimationDuration: const Duration(milliseconds: 180),
+            swapAnimationCurve: Curves.fastLinearToSlowEaseIn,
             //swapAnimationCurve: Curves.linear, // Optional
           ),
         ),
-        const Text(
-          '1 Month',
-          style: TextStyle(
+        Text(
+          widget.item.listingYn == 'Y' ? 'New' : '1 Month',
+          style: const TextStyle(
             fontWeight: FontWeight.w400,
             fontSize: 10,
             color: Color(0xdd555555),
@@ -306,15 +550,15 @@ class TileUpAndDown extends StatelessWidget {
 }
 
 class Pock09ChartModel {
-  final List<FlSpot>? listChartData;
-  double? chartYAxisMin;
+  final List<FlSpot> listChartData;
+  double chartYAxisMin;
   double chartMarkLineYAxis;
   Color? chartLineColor;
 
   Pock09ChartModel({
-    this.listChartData,
-    this.chartYAxisMin,
-    this.chartMarkLineYAxis=0.0,
+    this.listChartData = const [],
+    this.chartYAxisMin = 0,
+    this.chartMarkLineYAxis = 0,
     this.chartLineColor,
   });
 }
@@ -322,13 +566,18 @@ class Pock09ChartModel {
 // 홈_홈 - 매매신호 타일
 class TilePocketSig extends StatelessWidget {
   final StockPktChart item;
+
   const TilePocketSig(this.item, {Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13,),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 13,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -442,13 +691,18 @@ class TilePocketSig extends StatelessWidget {
 // 홈_홈 - 종목소식 타일 (Push 정보)
 class TileStockPush extends StatelessWidget {
   final StockPushInfo item;
+
   const TileStockPush(this.item, {Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13,),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 13,
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,7 +769,7 @@ class TileStockPush extends StatelessWidget {
             ],
           ),
           Text(
-            item.pushContent.replaceAll('\n', ''),
+            item.pushTitle,
             style: TStyle.contentGrey14,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -529,7 +783,9 @@ class TileStockPush extends StatelessWidget {
 // 홈_홈 - AI속보 타일
 class TileStockNews extends StatelessWidget {
   final StockPushInfo item;
+
   const TileStockNews(this.item, {Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(

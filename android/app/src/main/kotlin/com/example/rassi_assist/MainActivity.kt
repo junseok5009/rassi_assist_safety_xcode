@@ -34,6 +34,7 @@ import android.content.pm.PackageManager;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
 import androidx.core.app.ActivityCompat
+import com.example.rassi_assist.OllaSeedUtil
 
 
 class MainActivity: FlutterFragmentActivity() {
@@ -86,7 +87,8 @@ class MainActivity: FlutterFragmentActivity() {
                 token = task.result
             }
 
-        if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.TIRAMISU && PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            && PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)){
             // 푸쉬 권한 없음
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQ_PERMISSION_PUSH)
         }
@@ -171,6 +173,20 @@ class MainActivity: FlutterFragmentActivity() {
                     setPrefLogout()
                 }
 
+                // 암호화 ================================================
+                else if(call.method == "getSeedEncodeData") {
+//                    Log.w("MainActivity", "### getSeedEncodeData")
+                    val encodeData = call.argument<String>("data_code")
+                    if (encodeData != null) {
+                        val encResult = getSeedEncodeData(encodeData)
+                        if (encResult != null) {
+                            result.success(encResult)
+                        } else {
+                            result.error("UNAVAILABLE", "getSeedEncodeData not available.", null)
+                        }
+                    }
+                }
+
                 // 결제 ================================================
                 // [BillingClient] 초기화
                 else if(call.method == "initBillingClient") {
@@ -241,6 +257,9 @@ class MainActivity: FlutterFragmentActivity() {
         }
     }
 
+    private fun getSeedEncodeData(userId: String): String? {
+        return OllaSeedUtil.setSeedEncodeData(userId)
+    }
 
     //TODO [ 결제처리 ]
     // ===============================================================================

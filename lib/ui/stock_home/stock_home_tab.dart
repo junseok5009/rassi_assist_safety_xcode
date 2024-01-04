@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
@@ -71,6 +72,7 @@ class StockHomeTabState extends State<StockHomeTab>
 
   @override
   void initState() {
+    DLog.d('@@@@@@@@', 'STOCK_HOME initState()');
     super.initState();
     if (_appGlobal.stkCode.isEmpty || _appGlobal.stkName.isEmpty) {
       Navigator.pop(context);
@@ -95,6 +97,7 @@ class StockHomeTabState extends State<StockHomeTab>
 
   @override
   void dispose() {
+    DLog.d('@@@@@@@@', 'STOCK_HOME dispose()');
     _userInfoProvider.removeListener(refreshChild);
     super.dispose();
   }

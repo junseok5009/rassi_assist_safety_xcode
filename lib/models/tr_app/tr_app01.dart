@@ -1,6 +1,6 @@
 /// 2020.09.07
 /// 앱 버전 정보 확인
-
+///
 class TrApp01 {
   final String retCode;
   final String retMsg;
@@ -20,6 +20,7 @@ class TrApp01 {
     );
   }
 }
+
 
 class App01 {
   final String versionMin;
@@ -48,6 +49,7 @@ class App01 {
     return '$versionMin|$versionLast|$lastUpdated';
   }
 }
+
 
 class SignalData {
   final String tradeTime;

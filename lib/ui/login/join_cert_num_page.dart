@@ -44,6 +44,7 @@ class JoinCertWidget extends StatefulWidget {
 }
 
 class JoinCertState extends State<JoinCertWidget> {
+
   final _authController = TextEditingController();
   late PgData args;
   String _reqType = '';
@@ -61,7 +62,11 @@ class JoinCertState extends State<JoinCertWidget> {
         //인증번호 발송
         _reqType = 'phone_check';
         _strOnTime = TStyle.getTimeString();
-        _reqParam = 'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&posName=ollaJoin';
+        _reqParam = 'inputNum=' +
+            Net.getEncrypt(_strPhone) +
+            '&pos=' +
+            _strOnTime +
+            '&posName=ollaJoin';
         _requestThink();
       }
     });
@@ -178,7 +183,11 @@ class JoinCertState extends State<JoinCertWidget> {
     if (data.length > 0) {
       //인증번호 확인
       _reqType = 'phone_confirm';
-      _reqParam = 'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&smsAuthNum=$data';
+      _reqParam = 'inputNum=' +
+          Net.getEncrypt(_strPhone) +
+          '&pos=' +
+          _strOnTime +
+          '&smsAuthNum=$data';
       _requestThink();
     } else {
       _showDialogMsg('인증번호를 입력해 주세요');

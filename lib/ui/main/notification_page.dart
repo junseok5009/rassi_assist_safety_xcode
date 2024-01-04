@@ -17,7 +17,6 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_push_list01.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/pocket/pocket_page.dart';
 import 'package:rassi_assist/ui/sub/notification_list.dart';
 import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 import 'package:rassi_assist/ui/sub/stk_catch_big.dart';
@@ -275,7 +274,7 @@ class NotificationPageState extends State<NotificationPage> {
       width: 250,
       decoration: item.pushDiv2 == 'USER'
           ? UIStyle.boxRoundLine6bgColor(RColor.bgSkyBlue)
-          : UIStyle.boxRoundLine6bgColor(Colors.white,),
+          : UIStyle.boxRoundLine6bgColor(Colors.white),
       child: _setListItem(div, item),
     );
   }
@@ -387,15 +386,8 @@ class NotificationPageState extends State<NotificationPage> {
         if (div == 'TS') {
           //나의종목-AI매매신호 -> 포켓SN 있으면 포켓으로 이동, 없으면 종목홈_시그널
           if (item.pushDiv2 == 'USER') {
-            Navigator.pushNamed(
-              context,
-              PocketPage.routeName,
-              arguments: PgData(
-                pgSn: item.pocketSn,
-                stockCode: item.stockCode,
-                stockName: item.stockName,
-              ),
-            );
+            // [포켓 > 나만의 신호 탭]
+            basePageState.goPocketPage(Const.PKT_INDEX_SIGNAL,);
           } else {
             basePageState.goStockHomePage(
               item.stockCode,
@@ -404,16 +396,16 @@ class NotificationPageState extends State<NotificationPage> {
             );
           }
         }
-        /* else if(div == 'RN') {        //나의종목-AI속보 -> 종목홈 AI속보
-          goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_NEWS);
+         else if(div == 'RN' || div == 'SN' || div == 'SB') {
+           //나의종목-AI속보 -> 종목홈 AI속보
+           //나의종목-소셜지수 -> 종목홈 소셜지수
+           //나의종목-종목소식 -> 종목홈 종목소식
+          basePageState.goStockHomePage(
+            item.stockCode,
+            item.stockName,
+            Const.STK_INDEX_HOME,
+          );
         }
-        else if(div == 'SN') {        //나의종목-소셜지수 -> 종목홈 소셜지수
-          goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_SOCIAL);
-        }
-        else if(div == 'SB') {        //나의종목-종목소식 -> 종목홈 종목소식
-          goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_TIMELINE);
-        }*/
-
         else if (div == 'IS') {
           //종목캐치-이슈&이슈 -> 마켓뷰로 이동
           basePageState.goLandingPage(LD.market_page, '', '', '', '');
@@ -775,9 +767,9 @@ class NotificationPageState extends State<NotificationPage> {
 
       if (_bYetDispose) _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

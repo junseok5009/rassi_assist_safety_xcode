@@ -21,7 +21,7 @@ class StockStatus {
   });
 
   factory StockStatus.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Keyword'] as List;
+    var list = json['list_Keyword'] as List<dynamic>?;
     List<Keyword> rtList;
     list == null ? rtList = [] : rtList = list.map((i) => Keyword.fromJson(i)).toList();
 

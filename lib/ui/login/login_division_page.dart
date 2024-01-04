@@ -28,7 +28,6 @@ import 'package:rassi_assist/ui/login/login_rassi_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/sub/web_page.dart';
 
-
 /// 2021.03.11
 /// 로그인 구분
 class LoginDivisionPage extends StatefulWidget {
@@ -55,7 +54,6 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'in_login_select');
     WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((_) => _requestAppTracking());
-
   }
 
   @override
@@ -355,13 +353,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
                         style: TStyle.btnTextWht15,
                       ),
                       onPressed: () {
-                        // Navigator.pushNamed(context, RassiLoginPage.routeName);
-
-                        // TODO ===== 테스트 ===== //TODO  TEST  TEST   TEST  TEST
-                        _goNextRoute('developtest');
-                        //TODO  TEST  TEST   TEST  TEST
-
-
+                        Navigator.pushNamed(context, RassiLoginPage.routeName);
                       },
                     ),
                   ),
@@ -633,6 +625,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     }
     if (userId != '') {
       if (basePageState != null) {
+        //TODO @@@@@
         // basePageState = null;
         basePageState = BasePageState();
       }

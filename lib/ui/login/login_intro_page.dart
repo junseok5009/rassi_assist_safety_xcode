@@ -1,7 +1,7 @@
 import 'package:card_swiper/card_swiper.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/ui/login/login_division_page.dart';
 
@@ -20,10 +20,8 @@ class LoginIntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: LoginIntroPage.TAG_NAME,
-      screenClassOverride: LoginIntroPage.TAG_NAME,);
-    _setUserProperty('login_status', 'in_intro_info');
+    CustomFirebaseClass.logEvtScreenView(LoginIntroPage.TAG_NAME,);
+    CustomFirebaseClass.setUserProperty('login_status', 'in_intro_info');
 
     return MediaQuery(
       data: MediaQuery.of(context)
@@ -80,10 +78,9 @@ class LoginIntroPage extends StatelessWidget {
       color: Colors.white,
       // color: RColor.bgWeakGrey,
       child: Swiper(
-        pagination: const SwiperPagination(
-          builder: DotSwiperPaginationBuilder(
-              color: RColor.lineGrey,
-              activeColor: RColor.mainColor),
+        pagination: SwiperPagination(
+          builder: new DotSwiperPaginationBuilder(
+              color: RColor.lineGrey, activeColor: RColor.mainColor),
         ),
         autoplay: true,
         loop: false,
@@ -96,15 +93,11 @@ class LoginIntroPage extends StatelessWidget {
     );
   }
 
-  void _setUserProperty(String name, String value) async {
-    await FirebaseAnalytics.instance.setUserProperty(name: name, value: value);
-  }
-
 }
 
 class TileIntro extends StatelessWidget {
   final IntroItem item;
-  const TileIntro(this.item, {super.key});
+  TileIntro(this.item);
 
   @override
   Widget build(BuildContext context) {

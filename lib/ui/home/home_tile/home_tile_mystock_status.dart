@@ -8,13 +8,13 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
+import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/home/sliver_home_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
-import 'package:rassi_assist/ui/pocket/pocket_page.dart';
+import 'package:rassi_assist/ui/news/news_viewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 
@@ -31,6 +31,7 @@ class HomeTileMystockStatus extends StatefulWidget {
   const HomeTileMystockStatus({
     Key? key,
   }) : super(key: key);
+
   @override
   State<HomeTileMystockStatus> createState() => HomeTileMystockStatusState();
 }
@@ -44,6 +45,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
 
   late Pock09 _pock09;
   int _stockCount = 0; // 회원의 모든 포켓 안에 담겨 있는 종목의 개수
+  String _pocketSn = '';
 
   int _currentTabIndex = 0; // 현재 탭뷰 인덱스
   late TabController _tabController;
@@ -74,8 +76,6 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
   _handleTabSelection() {
     if (_tabController.indexIsChanging &&
         _tabController.index != _tabController.previousIndex) {
-      DLog.e(
-          '_handleTabSelection() > _tabController.index ${_tabController.index}');
       setState(() {
         _currentTabIndex = _tabController.index;
         _isLoading = true;
@@ -83,6 +83,9 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
       _requestTrPock09();
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -109,12 +112,12 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
     super.dispose();
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  /*@override
+  bool get wantKeepAlive => true;*/
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    //super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -129,33 +132,19 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
             children: [
               const Text(
                 '내 종목 현황',
-                style: TStyle.commonTitle,
+                style: TStyle.title18T,
               ),
               InkWell(
                 onTap: () async {
-                  _navigatorResultCheck(
-                    await Navigator.push(
-                      context,
-                      CustomNvRouteClass.createRouteData(
-                        const PocketPage(),
-                        RouteSettings(
-                          arguments: PgData(
-                            pgSn: '',
-                            stockCode: '',
-                            stockName: '',
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
+                  // [포켓 > TODAY > 같은 상승, 하락 ... 탭으로 이동]
+                  basePageState.goPocketPage(Const.PKT_INDEX_TODAY, todayIndex: 0,);
                 },
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 child: const Text(
                   '더보기',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xff999999),
+                    color: RColor.greyMore_999999,
                   ),
                 ),
               ),
@@ -164,15 +153,20 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
           const SizedBox(
             height: 15.0,
           ),
-          TabBar(
-            isScrollable: true,
-            indicatorColor: Colors.transparent,
-            controller: _tabController,
-            tabs: _makeTabs(),
-            padding: EdgeInsets.zero,
-            labelPadding: EdgeInsets.zero,
+          Center(
+            child: TabBar(
+              isScrollable: true,
+              indicatorColor: Colors.transparent,
+              controller: _tabController,
+              tabs: _makeTabs(),
+              padding: EdgeInsets.zero,
+              labelPadding: EdgeInsets.zero,
+            ),
           ),
-          SizedBox(
+          Container(
+            margin: const EdgeInsets.only(
+              top: 10,
+            ),
             child: (() {
               if (_isLoading) {
                 if (_stockCount == 0) {
@@ -245,7 +239,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
                 style: const TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -258,7 +252,9 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
             child: Container(
               width: 90,
               height: 40,
-              decoration: UIStyle.boxRoundLine25c(RColor.new_basic_line_grey),
+              decoration: UIStyle.boxRoundLine25c(
+                RColor.greyBoxLine_c9c9c9,
+              ),
               margin: EdgeInsets.only(
                 left: key == 0 ? 0 : 10,
               ),
@@ -338,9 +334,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
     return Container(
       width: double.infinity,
       decoration: UIStyle.boxRoundFullColor16c(
-        const Color(
-          0xffF7F7F8,
-        ),
+        RColor.greyBox_f5f5f5,
       ),
       margin: const EdgeInsets.only(
         top: 15.0,
@@ -363,9 +357,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
           highlightColor: const Color(
             0xffffffff,
           ),
-          baseColor: const Color(
-            0xffF7F7F8,
-          ),
+          baseColor: RColor.greyBox_f5f5f5,
           direction: SkeletonDirection.ltr,
           builder: Container(
             width: double.infinity,
@@ -373,9 +365,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
             margin: EdgeInsets.zero,
             padding: EdgeInsets.zero,
             decoration: UIStyle.boxRoundFullColor16c(
-              const Color(
-                0xffF7F7F8,
-              ),
+              RColor.greyBox_f5f5f5,
             ),
             child: const SizedBox(
               height: 0,
@@ -396,22 +386,10 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
         ),
         onTap: () async {
           if (_pock09.stockList[idx] != null) {
+            // [포켓 > TODAY > 같은 상승, 하락 ... 탭으로 이동]
+            // > 종목홈으로 이동
             StockPktChart item = _pock09.stockList[idx];
-            _navigatorResultCheck(
-              await Navigator.push(
-                context,
-                CustomNvRouteClass.createRouteData(
-                  const PocketPage(),
-                  RouteSettings(
-                    arguments: PgData(
-                      pgSn: item.pocketSn,
-                      stockCode: item.stockCode,
-                      stockName: item.stockName,
-                    ),
-                  ),
-                ),
-              ),
-            );
+            basePageState.goStockHomePage(item.stockCode, item.stockName,  Const.STK_INDEX_HOME,);
           }
         },
       );
@@ -421,22 +399,10 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
         onTap: () async {
           //포켓상세로 이동
           if (_pock09.stockList[idx] != null) {
+            // [포켓 > TODAY > 같은 상승, 하락 ... 탭으로 이동]
+            // > 종목홈으로 이동
             StockPktChart item = _pock09.stockList[idx];
-            _navigatorResultCheck(
-              await Navigator.push(
-                context,
-                CustomNvRouteClass.createRouteData(
-                  const PocketPage(),
-                  RouteSettings(
-                    arguments: PgData(
-                      pgSn: item.pocketSn,
-                      stockCode: item.stockCode,
-                      stockName: item.stockName,
-                    ),
-                  ),
-                ),
-              ),
-            );
+            basePageState.goStockHomePage(item.stockCode, item.stockName,  Const.STK_INDEX_SIGNAL,);
           }
         },
       );
@@ -455,10 +421,15 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
       return InkWell(
         child: TileStockNews(_pock09.pushList[idx]),
         onTap: () {
-          basePageState.goStockHomePage(
-            _pock09.pushList[idx].stockCode,
-            _pock09.pushList[idx].stockName,
-            Const.STK_INDEX_HOME,
+          var item = _pock09.pushList[idx];
+          basePageState.callPageRouteNews(
+            const NewsViewer(),
+            PgNews(
+              stockCode: item.stockCode,
+              stockName: item.stockName,
+              newsSn: item.newsSn,
+              createDate: item.newsCrtDate,
+            ),
           );
         },
       );
@@ -506,22 +477,22 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
   Widget _setAddStockBtn() {
     return InkWell(
       onTap: () async {
-        //TODO @@@@@
-/*        _navigatorResultCheck(
+        _navigatorResultCheck(
           await Navigator.push(
             context,
             CustomNvRouteClass.createRoute(
-              const SearchPage(),
-            ),
+                SearchPage.goLayer(SearchPage.landAddPocketLayer, _pocketSn)),
           ),
-        );*/
+        );
       },
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       child: Container(
         width: double.infinity,
         alignment: Alignment.center,
-        margin: const EdgeInsets.only(top: 10,),
+        margin: const EdgeInsets.only(
+          top: 10,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -532,7 +503,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
                   color: Colors.white,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xffCDCDCD),
+                    color: RColor.greyTitle_cdcdcd,
                     width: 1.4,
                   ),
                 ),
@@ -545,7 +516,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
                     '+',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Color(0xffCDCDCD),
+                      color: RColor.greyTitle_cdcdcd,
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
                     ),
@@ -557,7 +528,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
               width: 10,
             ),
             const Text(
-              '종목 추가',
+              '종목추가',
             )
           ],
         ),
@@ -569,56 +540,63 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
   Widget _setBannerRobot() {
     return Visibility(
       visible: _appGlobal.isFreeUser,
-      child: Container(
-        margin: const EdgeInsets.only(top: 20.0),
-        child: InkWell(
-          child: Container(
-            width: double.infinity,
-            height: 110.0,
-            padding: const EdgeInsets.all(15.0),
-            decoration: UIStyle.boxRoundFullColor6c(
-              const Color(
-                0xffE7E7FF,
-              ),
+      //visible: false,
+      child: InkWell(
+        child: Container(
+          width: double.infinity,
+          height: 110.0,
+          margin: const EdgeInsets.only(top: 20.0),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 25,
+            vertical: 15,
+          ),
+          decoration: UIStyle.boxRoundFullColor6c(
+            const Color(
+              0xffE7E7FF,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        '종목 제한없이',
-                        style: TextStyle(
-                          color: RColor.mainColor,
-                          fontSize: 12,
-                        ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      '종목 제한없이',
+                      style: TextStyle(
+                        color: RColor.mainColor,
+                        fontSize: 12,
                       ),
-                      Text(
+                    ),
+                    FittedBox(
+                      child: Text(
                         'AI매매신호 실시간 알림 받기',
                         style: TextStyle(
                           fontSize: 16,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Image.asset(
-                  'images/img_robot.png',
-                  fit: BoxFit.cover,
-                  scale: 4,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Image.asset(
+                'images/img_robot.png',
+                fit: BoxFit.cover,
+                scale: 4,
+              ),
+            ],
           ),
-          onTap: () {
-            SliverHomeWidgetState? parent =
-                context.findAncestorStateOfType<SliverHomeWidgetState>();
-            parent?.showDialogPremium();
-          },
         ),
+        onTap: () {
+          SliverHomeWidgetState? parent =
+              context.findAncestorStateOfType<SliverHomeWidgetState>();
+          parent?.showDialogPremium();
+        },
       ),
     );
   }
@@ -654,9 +632,9 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -665,14 +643,14 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
     if (trStr == TR.POCK09) {
       final TrPock09 resData = TrPock09.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _pock09 = resData.retData;
+        _pock09 = resData.retData!;
         if (resData.retData != null) {
-          _stockCount = int.parse(resData.retData.stockCount);
+          _stockCount = int.parse(_pock09.stockCount);
+          _pocketSn = _pock09.pocketSn;
           //_tabSelectDiv[_currentTabIndex] = _pock09.selectDiv;
         }
       } else {
-        _pock09 = Pock09(selectDiv: _tabSelectDiv[_currentTabIndex]);
-        // _pock09 = Pock09.emptyWithSelectDiv(_tabSelectDiv[_currentTabIndex]);
+        _pock09 = Pock09.emptyWithSelectDiv(_tabSelectDiv[_currentTabIndex]);
       }
       setState(() {
         _isLoading = false;

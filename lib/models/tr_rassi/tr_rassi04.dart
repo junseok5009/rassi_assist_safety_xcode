@@ -30,12 +30,12 @@ class Rassi04 {
   });
 
   factory Rassi04.fromJson(Map<String, dynamic> json) {
-    var jsonList = json['list_Rassiro'] as List;
+    var jsonList = json['list_Rassiro'] as List<dynamic>?;
     List<Rassi04News> list;
-    if (jsonList == null) {
-      list = [];
-    } else {
+    if (jsonList != null) {
       list = jsonList.map((i) => Rassi04News.fromJson(i)).toList();
+    } else {
+      list = [];
     }
     return Rassi04(
       content: json['content'] ?? '',

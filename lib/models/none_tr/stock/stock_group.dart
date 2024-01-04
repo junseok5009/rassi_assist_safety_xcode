@@ -35,16 +35,20 @@ class StockGroup {
   }
 
   factory StockGroup.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Stock'] as List;
+    var list = json['list_Stock'] as List<dynamic>?;
     List<StockData> rtList;
-    if (list != null) rtList = list.map((i) => StockData.fromJson(i)).toList();
+    if (list != null) {
+      rtList = list.map((i) => StockData.fromJson(i)).toList();
+    } else {
+      rtList = [];
+    }
 
     return StockGroup(
       stockGrpCd: json['stockGrpCd'] ?? '',
       stockGrpNm: json['stockGrpNm'] ?? '',
       groupfluctRate: json['groupfluctRate'] ?? '',
       groupStockCnt: json['groupStockCnt'] ?? '',
-      listStock: list.map((i) => StockData.fromJson(i)).toList(),
+      listStock: rtList,
     );
   }
 

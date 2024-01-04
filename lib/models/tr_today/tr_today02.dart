@@ -1,5 +1,5 @@
 
-/// 2020.09.07 - JY
+/// 2020.09.07
 /// 오늘의 내 종목 소식
 class TrToday02 {
   final String retCode;
@@ -9,14 +9,14 @@ class TrToday02 {
   TrToday02({this.retCode='', this.retMsg='', this.listData = const []});
 
   factory TrToday02.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    // List<Today02> rtList;
-    // list == null ? rtList = null : rtList = list.map((i) => Today02.fromJson(i)).toList();
+    var list = json['retData'] as List<dynamic>?;
+    List<Today02> rtList;
+    list == null ? rtList = [] : rtList = list.map((i) => Today02.fromJson(i)).toList();
 
     return TrToday02(
         retCode: json['retCode'],
         retMsg: json['retMsg'],
-        listData: list.map((i) => Today02.fromJson(i)).toList(),
+        listData: rtList
     );
   }
 }

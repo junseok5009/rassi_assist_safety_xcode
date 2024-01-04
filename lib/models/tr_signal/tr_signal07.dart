@@ -70,10 +70,10 @@ class ChartDataR {
 
   factory ChartDataR.fromJson(Map<String, dynamic> json) {
     return ChartDataR(
-      tradeDate: json['td'],
-      tradePrc: json['tp'],
-      flag: json['tf'],
-      profitRate: json['pr'],
+      tradeDate: json['td'] ?? '',
+      tradePrc: json['tp'] ?? '',
+      flag: json['tf'] ?? '',
+      profitRate: json['pr'] ?? '',
     );
   }
 

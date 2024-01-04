@@ -47,7 +47,8 @@ class CommonDatePicker {
   }
 
   // 년도만 선택가능함
-  static Future<DateTime> showYearPicker(BuildContext context, DateTime initDateTime) async {
+  static Future<DateTime> showYearPicker(
+      BuildContext context, DateTime initDateTime) async {
     final dateFormat = DateFormat('yyyy');
     late DateTime returnDateTime;
 
