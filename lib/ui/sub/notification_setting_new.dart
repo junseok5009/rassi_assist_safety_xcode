@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -65,12 +64,9 @@ class NotificationSettingNState extends State<NotificationSettingN> {
   @override
   void initState() {
     super.initState();
-
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: NotificationSettingN.TAG_NAME,
-      screenClassOverride: NotificationSettingN.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      NotificationSettingN.TAG_NAME,
     );
-
     _loadPrefData().then(
       (value) {
         if (_userId != '') {
@@ -99,7 +95,11 @@ class NotificationSettingNState extends State<NotificationSettingN> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, '알림설정'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '알림설정',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: ListView(
           children: [

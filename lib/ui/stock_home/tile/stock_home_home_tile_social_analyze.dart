@@ -19,27 +19,26 @@ import '../../main/base_page.dart';
 import '../../user/community_page.dart';
 import '../page/recent_social_list_page.dart';
 
-
 /// 2023.02.14_HJS
 /// 종목홈(개편)_홈_소셜분석
+
 class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
-  StockHomeHomeTileSocialAnalyze(this.sns06);
+  StockHomeHomeTileSocialAnalyze(this.sns06, {Key? key}) : super(key: key);
   final AppGlobal appGlobal = AppGlobal();
   final Sns06 sns06;
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 원, true 이면 만원
   String _socialGrade = '';
-  List<SNS06ChartData> _listChartData = [];
-  List<charts.TickSpec<num>> _tickSpecList = [];
-  List<charts.Series<SNS06ChartData, int>> _seriesListData = [];
+  final List<SNS06ChartData> _listChartData = [];
+  final List<charts.TickSpec<num>> _tickSpecList = [];
+  final List<charts.Series<SNS06ChartData, int>> _seriesListData = [];
   final List<charts.RangeAnnotationSegment> _optionListBombData = [];
   final List<int> _optionListBombSoloData = [];
   final List<int> _optionListBombLastData = [];
-  bool animate = false;
   final _secondaryMeasureAxisId = 'secondaryMeasureAxisId';
   final String _socialPopupMsg =
-      '라씨 매매비서는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집합니다.\n'
-      '수집된 양을 이전기간과 비교하여 참여도의 증가와 감소를 수치화하여 참여 정도를 알려드립니다.\n'
-      '커뮤니티 참여도가 높아지면 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
+      '라씨 매매비서는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집합니다.'
+      '\n수집된 양을 이전기간과 비교하여 참여도의 증가와 감소를 수치화하여 참여 정도를 알려드립니다.'
+      '\n커뮤니티 참여도가 높아지면 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +79,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () {
-                        CommonPopup().showDialogTitleMsg(
+                        CommonPopup.instance.showDialogTitleMsg(
                             context, '소셜지수란?', _socialPopupMsg);
                       },
                       splashColor: Colors.transparent,
@@ -192,7 +191,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                if (sns06.listPriceChart.length > 0) _setChart(context),
+                if (sns06.listPriceChart.isNotEmpty) _setChart(context),
                 const SizedBox(
                   height: 16,
                 ),
@@ -496,29 +495,30 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
     _optionListBombData.clear();
     _optionListBombSoloData.clear();
     _optionListBombLastData.clear();
-    _listChartData = sns06.listPriceChart;
+    _listChartData.clear();
+    _listChartData.addAll(sns06.listPriceChart);
     _isRightYAxisUpUnit = _findMinValue >= 100000;
 
-    bool _isStartBomb = false;
-    int _isStartBombIndex = 0;
+    bool isStartBomb = false;
+    int isStartBombIndex = 0;
 
-    if (sns06.listPriceChart.length > 0) {
+    if (sns06.listPriceChart.isNotEmpty) {
       if (sns06.listPriceChart[0].cg == '4') {
-        _isStartBomb = true;
+        isStartBomb = true;
       } else {
-        _isStartBomb = false;
+        isStartBomb = false;
       }
 
       _listChartData.asMap().forEach(
         (index, item) {
           if (item.cg == '4') {
-            if (!_isStartBomb) {
+            if (!isStartBomb) {
               // 폭발 시작 index
-              _isStartBomb = true;
-              _isStartBombIndex = index;
-            }else if(_isStartBomb && index == _listChartData.length-1){
+              isStartBomb = true;
+              isStartBombIndex = index;
+            } else if (isStartBomb && index == _listChartData.length - 1) {
               _optionListBombData.add(
-                charts.RangeAnnotationSegment(_isStartBombIndex, index,
+                charts.RangeAnnotationSegment(isStartBombIndex, index,
                     charts.RangeAnnotationAxisType.domain,
                     middleLabel: '폭발',
                     labelStyleSpec: charts.TextStyleSpec(
@@ -526,15 +526,15 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                       fontSize: 11,
                     ),
                     labelPosition: charts.AnnotationLabelPosition.margin,
-                    color: charts.Color(r: 255, g: 80, b: 80, a: 35),
+                    color: const charts.Color(r: 255, g: 80, b: 80, a: 35),
                     labelDirection: charts.AnnotationLabelDirection.horizontal),
               );
             }
           } else {
-            if (_isStartBomb) {
-              _isStartBomb = false;
+            if (isStartBomb) {
+              isStartBomb = false;
               _optionListBombData.add(
-                charts.RangeAnnotationSegment(_isStartBombIndex, index - 1,
+                charts.RangeAnnotationSegment(isStartBombIndex, index - 1,
                     charts.RangeAnnotationAxisType.domain,
                     middleLabel: '폭발',
                     labelStyleSpec: charts.TextStyleSpec(
@@ -542,7 +542,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                       fontSize: 11,
                     ),
                     labelPosition: charts.AnnotationLabelPosition.margin,
-                    color: charts.Color(r: 255, g: 80, b: 80, a: 35),
+                    color: const charts.Color(r: 255, g: 80, b: 80, a: 35),
                     labelDirection: charts.AnnotationLabelDirection.horizontal),
               );
             }
@@ -550,11 +550,15 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
         },
       );
 
-      _optionListBombData.forEach((element) {
-        if(element.startValue == element.endValue) _optionListBombSoloData.add(element.startValue); else _optionListBombLastData.add(element.endValue);
-      });
+      for (var element in _optionListBombData) {
+        if (element.startValue == element.endValue)
+          _optionListBombSoloData.add(element.startValue);
+        else
+          _optionListBombLastData.add(element.endValue);
+      }
 
-      _seriesListData = [
+      _seriesListData.clear();
+      _seriesListData.addAll([
         charts.Series<SNS06ChartData, int>(
           id: '주가(원)',
           colorFn: (_, __) => charts.Color.fromHex(code: '#454A63'),
@@ -582,12 +586,14 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           id: '소셜지수',
           colorFn: (v1, v2) {
             if (v1.cg == '4') {
-              if(_optionListBombSoloData.length > 0 && _optionListBombSoloData.contains(v2)){
+              if (_optionListBombSoloData.isNotEmpty &&
+                  _optionListBombSoloData.contains(v2)) {
                 return charts.Color.fromHex(code: '#5DD68D');
-              }else if(_optionListBombLastData.length > 0 && _optionListBombLastData.contains(v2)){
+              } else if (_optionListBombLastData.isNotEmpty &&
+                  _optionListBombLastData.contains(v2)) {
                 return charts.Color.fromHex(code: '#5DD68D');
-              }else
-              return charts.Color.fromHex(code: '#FA8383');
+              } else
+                return charts.Color.fromHex(code: '#FA8383');
             } else {
               return charts.Color.fromHex(code: '#5DD68D');
             }
@@ -596,10 +602,12 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           measureFn: (SNS06ChartData yAxisItem, _) => int.parse(yAxisItem.cg),
           data: _listChartData,
         ),
-      ];
-      _tickSpecList = [
+      ]);
+
+      _tickSpecList.clear();
+      _tickSpecList.addAll([
         charts.TickSpec(
-          _listChartData[0].index as num,
+          _listChartData[0].index,
           label: TStyle.getDateSlashFormat3(_listChartData[0].td),
         ),
         charts.TickSpec(
@@ -616,7 +624,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           _listChartData.last.index,
           label: TStyle.getDateSlashFormat3(_listChartData.last.td),
         ),
-      ];
+      ]);
     }
   }
 
@@ -633,7 +641,6 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                 : next);
     return double.parse(item.tp);
   }
-
 }
 
 class CustomCircleSymbolRenderer extends charts_common.CircleSymbolRenderer {

@@ -11,9 +11,9 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/des/http_process_class.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/login/join_route_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 

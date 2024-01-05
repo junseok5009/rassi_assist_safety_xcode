@@ -8,12 +8,13 @@ import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/models/tr_disclos01.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,10 +24,9 @@ import '../../../models/none_tr/stock/stock.dart';
 /// 23.02.10 HJS
 /// 공시 리스트 화면
 class StockDisclosListPage extends StatefulWidget {
-  //const StockDisclosListPage({Key? key}) : super(key: key);
   static const String TAG_NAME = '종목_공시_리스트';
 
-  const StockDisclosListPage({super.key});
+  const StockDisclosListPage({Key? key}) : super(key: key);
 
   @override
   State<StockDisclosListPage> createState() => _StockDisclosListPageState();
@@ -35,7 +35,6 @@ class StockDisclosListPage extends StatefulWidget {
 class _StockDisclosListPageState extends State<StockDisclosListPage> {
   late SharedPreferences _prefs;
   String _userId = "";
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   String _isNoData = '';
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String deviceModel = '';
@@ -78,12 +77,12 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
               _pageSize = '30',
             },
           Future.delayed(Duration.zero, () {
-            PgData _pgData = ModalRoute.of(context)!.settings.arguments as PgData;
+            PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
             if (_userId != '' &&
-                _pgData.stockCode != null &&
-                _pgData.stockCode.isNotEmpty) {
-              _stkName = _pgData.stockName;
-              _stkCode = _pgData.stockCode;
+                pgData.stockCode != null &&
+                pgData.stockCode.isNotEmpty) {
+              _stkName = pgData.stockName;
+              _stkCode = pgData.stockCode;
               _requestTrDisclos01();
             } else {
               Navigator.pop(context);
@@ -96,15 +95,19 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    if (_bYetDispose) {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      deviceModel = (iosInfo.model) ?? '';
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    // deviceModel = iosInfo.model;
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
     }
   }
 
   @override
   void dispose() {
-    _bYetDispose = false;
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -114,38 +117,10 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Row(
-          children: [
-            /*Flexible(
-              child: Text(
-                '$_stkName',
-                style: TStyle.title18T,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),*/
-            Text(
-              _stkName.length > 8
-                  ? '${_stkName.substring(0, 8)} 공시'
-                  : '$_stkName 공시',
-              style: TStyle.title18T,
-            ),
-          ],
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: _stkName.length > 8 ? '${_stkName.substring(0, 8)} 공시' : '$_stkName 공시',
         elevation: 1,
-        centerTitle: false,
-        leadingWidth: 20,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -354,28 +329,12 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
   _navigateAndWaitReturn(BuildContext context) async {
     // Navigator.push는 Future를 반환합니다. Future는 선택 창에서
     // Navigator.pop이 호출된 이후 완료될 것입니다.
- /*   final result = await Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const SearchPage(),
-          settings: RouteSettings(
-            arguments: PgData(
-              pgSn: '',
-            ),
-          ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            var begin = const Offset(0.0, 1.0);
-            var end = Offset.zero;
-            var tween = Tween(begin: begin, end: end)
-                .chain(CurveTween(curve: Curves.ease));
-            var offsetAnimation = animation.drive(tween);
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-        ));
+    final result = await Navigator.push(
+      context,
+      CustomNvRouteClass.createRoute(
+        SearchPage.goStockHome(),
+      ),
+    );
     if (result != null &&
         result is Stock &&
         result.stockName.isNotEmpty &&
@@ -388,7 +347,7 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
       _stockTotalPageSize = 0;
       _requestTrDisclos01();
       _scrollController.jumpTo(_scrollController.position.minScrollExtent);
-    }*/
+    }
   }
 
   _checkAndRequestTrDisclos01() {
@@ -423,12 +382,11 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -448,8 +406,9 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
             _stockDisclosList.addAll(
               disclos01.listDisclos,
             );
-            if (_stockPageNo < _stockTotalPageSize)
+            if (_stockPageNo < _stockTotalPageSize) {
               _stockDisclosList.add(Disclos());
+            }
           }
         } else {
           _allPageNo++;

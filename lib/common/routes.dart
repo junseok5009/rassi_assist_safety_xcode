@@ -6,7 +6,6 @@ import 'package:rassi_assist/ui/login/join_cert_num_page.dart';
 import 'package:rassi_assist/ui/login/join_phone_page.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
 import 'package:rassi_assist/ui/login/join_rassi_page.dart';
-import 'package:rassi_assist/ui/login/join_route_page.dart';
 import 'package:rassi_assist/ui/login/login_division_page.dart';
 import 'package:rassi_assist/ui/login/login_intro_page.dart';
 import 'package:rassi_assist/ui/login/login_rassi_page.dart';
@@ -61,18 +60,27 @@ import 'package:rassi_assist/ui/user/user_info_page.dart';
 import 'package:rassi_assist/ui/user/write_qna_page.dart';
 
 import '../ui/main/search_page.dart';
+import '../ui/pocket/sliver_pocket_tab.dart';
 import '../ui/sub/trade_intro_page.dart';
 
 final routes = {
-//  '/': (BuildContext context) => TestPage(),
-  '/page_base': (BuildContext context) => const BasePage(),
-  //HomeTab.routeName: (BuildContext context) => HomeTab(),
-  //HomePage.routeName: (BuildContext context) => HomePage(),
-  SliverHomeTabWidget.routeName: (BuildContext context) => const SliverHomeTabWidget(),
+  '/base': (BuildContext context) => const BasePage(),
+
+  // 메인_홈
+  '/main_home': (BuildContext context) => const SliverHomeTabWidget(),
+  // 메인_포켓
+  '/main_pocket': (BuildContext context) => SliverPocketTab(),
+
+  // 메인_알림
+  '/main_notification': (BuildContext context) => const NotificationPage(),
+
+  // 메인_MY
+  '/main_my': (BuildContext context) => MyPage(),
+
   TradeAssistPage.routeName: (BuildContext context) => const TradeAssistPage(),
   MyPage.routeName: (BuildContext context) => MyPage(),
   KeyboardPage.routeName: (BuildContext context) => KeyboardPage(),
-  // SearchPage.routeName: (BuildContext context) => SearchPage(),
+  //SearchPage.routeName: (BuildContext context) => SearchPage(),
   //SearchStockPage.routeName: (BuildContext context) => SearchStockPage(),
   //StockCatchPage.routeName: (BuildContext context) => StockCatchPage(),
 
@@ -103,14 +111,13 @@ final routes = {
   //SsgJoinPage.routeName: (BuildContext context) => SsgJoinPage(),
   //JoinNaverPage.routeName: (BuildContext context) => JoinNaverPage(),
   //JoinKakaoPage.routeName: (BuildContext context) => JoinKakaoPage(),
-  JoinRoutePage.routeName: (BuildContext context) => const JoinRoutePage(),
   JoinPhonePage.routeName: (BuildContext context) => const JoinPhonePage(),
   JoinCertPage.routeName: (BuildContext context) => JoinCertPage(),
   JoinPreUserPage.routeName: (BuildContext context) => JoinPreUserPage(),
 
   SignalTopPage.routeName: (BuildContext context) => SignalTopPage(),
   SignalTodayPage.routeName: (BuildContext context) => const SignalTodayPage(),
-  SignalBoardPage.routeName: (BuildContext context) => const SignalBoardPage(),
+  SignalBoardPage.routeName: (BuildContext context) => SignalBoardPage(),
   SignalPopListPage.routeName: (BuildContext context) => const SignalPopListPage(),
   SignalAllPage.routeName: (BuildContext context) => SignalAllPage(),
   SignalMTopPage.routeName: (BuildContext context) => const SignalMTopPage(),
@@ -123,7 +130,7 @@ final routes = {
   SocialListPage.routeName: (BuildContext context) => SocialListPage(),
   CatchListPage.routeName: (BuildContext context) => const CatchListPage(),
   NewsListPage.routeName: (BuildContext context) => NewsListPage(),
-  NewsViewer.routeName: (BuildContext context) => NewsViewer(),
+  NewsViewer.routeName: (BuildContext context) => const NewsViewer(),
   IssueListPage.routeName: (BuildContext context) => const IssueListPage(),
 
   WebPage.routeName: (BuildContext context) => WebPage(),
@@ -132,14 +139,14 @@ final routes = {
   AiVersionPage.routeName: (BuildContext context) => const AiVersionPage(),
   UserInfoPage.routeName: (BuildContext context) => UserInfoPage(),
   CommunityPage.routeName: (BuildContext context) => CommunityPage(),
-  UserCenterPage.routeName: (BuildContext context) => UserCenterPage(),
+  UserCenterPage.routeName: (BuildContext context) => const UserCenterPage(),
   WriteQnaPage.routeName: (BuildContext context) => WriteQnaPage(),
 
   PayHistoryPage.routeName: (BuildContext context) => const PayHistoryPage(),
   PayManagePage.routeName: (BuildContext context) => PayManagePage(),
-  PayWebPage.routeName: (BuildContext context) => PayWebPage(),
+  PayWebPage.routeName: (BuildContext context) => const PayWebPage(),
   PayCancelPage.routeName: (BuildContext context) => PayCancelPage(),
-  PaySubCancelPage.routeName: (BuildContext context) => PaySubCancelPage(),
+  PaySubCancelPage.routeName: (BuildContext context) => const PaySubCancelPage(),
   PayTestPage.routeName: (BuildContext context) => PayTestPage(),
   //PayPremiumPage.routeName: (BuildContext context) => PayPremiumPage(),
   BillingPage.routeName: (BuildContext context) => BillingPage(),
@@ -153,32 +160,32 @@ final routes = {
 
 // 랜딩코드
 class LD {
-
   // A 인트로
 
   // B 홈
-  static const String main_home = "LPB1";         //홈_홈
-  static const String main_signal = "LPB2";       //AI 매매신호
-  static const String market_page = "LPB3";       //마켓뷰
+  static const String main_home = "LPB1"; //홈_홈
+  static const String main_signal = "LPB2"; //AI 매매신호
+  static const String market_page = "LPB3"; //마켓뷰
   static const String signal_page1 = "LPB3";
   static const String signal_page2 = "LPB3";
   static const String signal_page3 = "LPB3";
   static const String signal_page4 = "LPB3";
-  static const String today_signal = "LPB4";      //오늘 발생한 매매신호(매수)
+  static const String today_signal = "LPB4"; //오늘 발생한 매매신호(매수)
 
   // C 매매비서 : 23.12.26 포켓 개편으로 인해 해당 랜딩은 다시 정의합니다.
-  static const String main_assist = "LPC1";       //홈_매매비서(검색) > 23.12.26 포켓 개편 : 포켓
-  static const String LPC2 = "LPC2";              //종목검색
+  static const String main_assist = "LPC1"; //홈_매매비서(검색) > 23.12.26 포켓 개편 : 포켓
+  static const String LPC2 = "LPC2"; //종목검색
 
   // D 알림
   static const String main_info = "LPD1"; //메인_알림
 
   // E MY
-  static const String main_my = "LPE1";           //메인_MY켓
-  static const String pocket_page = "LPE2";       //포켓 상세 > 23.12.26 포켓 개편 : 포켓으로 이동
-  static const String pocket_add = "LPE4";        //포켓 종목 추가 > 23.12.26 포켓 개편 : 포켓으로 이동
-  static const String pocket_setting = "LPE5";    //포켓 설정 > 23.12.26 포켓 개편 : 포켓으로 이동
-  static const String pocket_board = "LPEF";      //포켓 보드 > 23.12.26 포켓 개편 : 포켓으로 이동
+  static const String main_my = "LPE1"; //메인_MY켓
+  static const String pocket_page = "LPE2"; //포켓 상세 > 23.12.26 포켓 개편 : 포켓으로 이동
+  static const String pocket_add = "LPE4"; //포켓 종목 추가 > 23.12.26 포켓 개편 : 포켓으로 이동
+  static const String pocket_setting =
+      "LPE5"; //포켓 설정 > 23.12.26 포켓 개편 : 포켓으로 이동
+  static const String pocket_board = "LPEF"; //포켓 보드 > 23.12.26 포켓 개편 : 포켓으로 이동
   static const String main_my_service_center_11_inquiry = "LPEB";
   static const String main_my_service_center_user_private = "LPEC";
 
@@ -208,7 +215,7 @@ class LD {
   static const String catch_list = "LPJ2"; //캐치 히스토리
 
   // L 종목캐치
-  static const String main_catch = "LPL1";          //메인_종목캐치
+  static const String main_catch = "LPL1"; //메인_종목캐치
 
   // P 포켓
   static const String pocket_today = "LPP1"; //포켓_TODAY ==
@@ -219,7 +226,6 @@ class LD {
   static const String linkTypeApp = "APP";
   static const String linkTypeUrl = "URL";
   static const String linkTypeOutLink = "OUTLINK";
-
 }
 
 // TODO 미완성 페이지 전환 에니메이션

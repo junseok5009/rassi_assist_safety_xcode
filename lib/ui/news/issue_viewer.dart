@@ -13,13 +13,12 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
+import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_issue04.dart';
 import 'package:rassi_assist/models/tr_issue05.dart';
 import 'package:rassi_assist/ui/tiles/tile_stock_status.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 /// 2020.11.19
 /// 이슈 상세 페이지
@@ -27,6 +26,8 @@ class IssueViewer extends StatelessWidget {
   static const routeName = '/page_issue_detail';
   static const String TAG = "[IssueViewer]";
   static const String TAG_NAME = '이슈상세보기';
+
+  const IssueViewer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +37,14 @@ class IssueViewer extends StatelessWidget {
         backgroundColor: RColor.deepStat,
         elevation: 0,
       ),
-      body: IssueDetailWidget(),
+      body: const IssueDetailWidget(),
     );
   }
 }
 
 class IssueDetailWidget extends StatefulWidget {
+  const IssueDetailWidget({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => IssueDetailState();
 }

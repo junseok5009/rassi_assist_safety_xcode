@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/tr_report04.dart';
 
@@ -9,14 +8,11 @@ import 'package:rassi_assist/models/tr_report04.dart';
 /// 최신 리포트 상세 페이지
 
 class RecentReportDetailPage extends StatelessWidget {
-  //const RecentReportDetailPage({Key? key}) : super(key: key);
-  RecentReportDetailPage(this.item);
+  const RecentReportDetailPage(this.item, {Key? key}) : super(key: key);
   final Report04Report item;
   static const String TAG_NAME = '최신_리포트_상세';
-
   @override
   Widget build(BuildContext context) {
-    DLog.w('build');
     CustomFirebaseClass.logEvtScreenView(
       RecentReportDetailPage.TAG_NAME,
     );
@@ -86,5 +82,4 @@ class RecentReportDetailPage extends StatelessWidget {
       ),
     );
   }
-
 }

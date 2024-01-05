@@ -27,7 +27,6 @@ import '../main/base_page.dart';
 import '../news/news_tag_page.dart';
 import '../news/news_tag_sum_page.dart';
 
-
 class RassiDeskTimeLinePage extends StatefulWidget {
   const RassiDeskTimeLinePage({Key? key}) : super(key: key);
   static const String TAG = "[RassiDeskTimeLinePage]";
@@ -78,7 +77,11 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
     _nowHourMinute = DateFormat('HHmm').format(DateTime.now());
     return Scaffold(
       backgroundColor: RColor.bgWeakGrey,
-      appBar: CommonAppbar.basic(context, '라씨데스크'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '라씨데스크',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: CustomScrollView(
           scrollDirection: Axis.vertical,

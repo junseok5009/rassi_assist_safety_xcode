@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -34,7 +34,6 @@ import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:rassi_assist/ui/news/catch_list_page.dart';
 import 'package:rassi_assist/ui/news/catch_viewer.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
@@ -62,12 +61,9 @@ class SliverSignalWidget extends StatefulWidget {
 
 class SliverSignalWidgetState extends State<SliverSignalWidget> {
   var appGlobal = AppGlobal();
-
-  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   late SharedPreferences _prefs;
   String _userId = '';
   String _curProd = '';
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
 
   String _emptyString = '매매신호를 수신중 입니다.';
   String _strBuy = '';
@@ -89,11 +85,14 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   bool _isBeforeTime = false;
   bool _isVisibleTimer = false;
   final List<String> _preStartStr = [
-    '장시작 대기, 전일 미거래 종목 필터 중',
-    '매수 금지 종목 필터링 작업중, 거래 정지 종목 업데이트',
-    '트레이딩 종목 리스트 확정',
-    '시세 마스터 생성, Signal bong 생성',
-    '종목별 상하한가 생성, 대시보드 초기화, 모니터링 종목 리스트업',
+    '학습 정보 Update',
+    'Today 시세마스터 생성',
+    '미거래/매매금지 종목 Filtering',
+    '신규 종목 Confirm',
+    '거래 종목 fixed',
+    '종목 정보/분석 Update',
+    'Dashboard Reset',
+    'Start Trading Standby',
   ];
   Timer? countTimer;
   int minute = 0;
@@ -119,46 +118,31 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   @override
   void initState() {
     super.initState();
-
-    _firebaseSetScreen();
-    _loadPrefData();
-
-    Future.delayed(const Duration(milliseconds: 400), () {
-      DLog.d(SliverSignalWidget.TAG, "delayed user id : $_userId");
-      if (_userId != '') {
-        _fetchPosts(
-            TR.USER04,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-            }));
-      }
+    CustomFirebaseClass.logEvtScreenView(
+      SliverSignalWidget.TAG_NAME,
+    );
+    _loadPrefData().then((_) {
+      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+      _curProd = _prefs.getString(Const.PREFS_CUR_PROD) ?? '';
+      reload();
     });
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    if (_bYetDispose) {
-      setState(() {
-        _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-        _curProd = _prefs.getString(Const.PREFS_CUR_PROD) ?? '';
-      });
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
     }
   }
 
   @override
   void dispose() {
-    DLog.d(SliverSignalWidget.TAG, 'signal page dispose');
-    _bYetDispose = false;
     countTimer?.cancel();
     super.dispose();
-  }
-
-  Future<void> _firebaseSetScreen() async {
-    await analytics.setCurrentScreen(
-      screenName: SliverSignalWidget.TAG_NAME,
-      screenClassOverride: SliverSignalWidget.TAG_NAME,
-    );
   }
 
   @override
@@ -201,12 +185,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   child: const Text(''),
                 ),
               ),
-              const SizedBox(
-                height: 20.0,
-              ),
-
-              // 종목검색
-              _setSearchBox(),
 
               _setPrTop(),
 
@@ -435,8 +413,11 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   basePageState.callPageRouteData(
                       const SignalMTopPage(), PgData(pgData: type));
                 } else {
-                  _navigateRefresh(context,
-                      Platform.isIOS ? PayPremiumPage() : PayPremiumAosPage());
+                  _navigateRefresh(
+                      context,
+                      Platform.isIOS
+                          ? const PayPremiumPage()
+                          : const PayPremiumAosPage());
                 }
               } else {
                 if (type == 'CUR_B') {
@@ -470,9 +451,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
 
   //오늘의 AI 매매신호 현황
   Widget _setStatus() {
-
-    DLog.e('_setStatus() / honorList.length : ${honorList.length}');
-
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 30, bottom: 20),
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -586,7 +564,12 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         child: Center(
           child: Text(
             cnt,
-            style: TStyle.btnTextWht20,
+            style: const TextStyle(
+              //버튼 화이트 텍스트 20
+              fontWeight: FontWeight.w800,
+              fontSize: 22,
+              color: Color(0xffEFEFEF),
+            ),
           ),
         ),
       ),
@@ -692,50 +675,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
       onTap: () {
         _showDialogProcess(_engineStatus);
       },
-    );
-  }
-
-  //검색 Box
-  Widget _setSearchBox() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(
-        left: 20.0,
-        right: 20.0,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-      decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
-      child: InkWell(
-        child: Stack(
-          alignment: Alignment.centerLeft,
-          children: const [
-            Text(
-              '내 종목 AI매매신호를 바로 확인해 보세요.',
-              textAlign: TextAlign.left,
-              style: TStyle.content15,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Icon(
-                Icons.search,
-                size: 26,
-                color: RColor.mainColor,
-              ),
-            ),
-          ],
-        ),
-        onTap: () {
-          //@@@@@
-/*          _navigateSearchData(
-              context,
-              SearchPage(),
-              PgData(
-                pgSn: '',
-              ));*/
-        },
-      ),
     );
   }
 
@@ -1452,13 +1391,13 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
             headers: Net.headers,
           ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(SliverSignalWidget.TAG, 'ERR : TimeoutException (12 seconds)');
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
       DLog.d(SliverSignalWidget.TAG, 'ERR : SocketException');
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1496,6 +1435,10 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     } else if (trStr == TR.PROM02) {
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
+        _listPrTop.clear();
+        _listPrHgh.clear();
+        _listPrMid.clear();
+        _listPrLow.clear();
         if (resData.retData.isNotEmpty) {
           for (int i = 0; i < resData.retData.length; i++) {
             Prom02 item = resData.retData[i];
@@ -1526,16 +1469,13 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
       final TrSignal05 resData = TrSignal05.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         final Signal05 data = resData.retData;
-        _bIsTrading = false;
+
         honorList.clear();
         if (data != null) {
-          _bIsTrading = true;
           _strBuy = data.buyCount;
           _strSell = data.sellCount;
-          _strTime = "${data.updateDttm.substring(4, 6)}/"
-              "${data.updateDttm.substring(6, 8)}  "
-              "${data.updateDttm.substring(8, 10)}:"
-              "${data.updateDttm.substring(10, 12)}";
+          _strTime =
+              "${data.updateDttm.substring(4, 6)}/${data.updateDttm.substring(6, 8)}  ${data.updateDttm.substring(8, 10)}:${data.updateDttm.substring(10, 12)}";
           honorList.addAll(data.listHonor);
         }
 
@@ -1553,7 +1493,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     else if (trStr == TR.SIGNAL09) {
       final TrSignal09 resData = TrSignal09.fromJson(jsonDecode(response.body));
       countTimer?.cancel();
-
+      _bIsTrading = false;
       if (resData.retCode == RT.SUCCESS) {
         Signal09 item = resData.resData;
         _setParseSigStatus(item);
@@ -1664,8 +1604,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     }
   }
 
-  // 23.01.26 JS 추가 > prom02 > tileprom02 (배너) 에서 결제하고 돌아오면 화면 갱신
-  requestTrUser04() {
+  reload() {
     _fetchPosts(
       TR.USER04,
       jsonEncode(
@@ -1699,6 +1638,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     if (item != null) {
       _isReqComplete = true; //기본값 노출방지
       _isVisibleTimer = false;
+      _bIsTrading = (item.noticeCode != 'TIME_BEFORE' && item.noticeCode.isNotEmpty);
 
       //장시작 대기, 전일 미거래 종목 필터링중(08시 ~ 개장전)
       if (item.noticeCode == 'TIME_BEFORE') {
@@ -1742,7 +1682,11 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
       _strBuy = item.buyCount ?? '0';
       _strSell = item.sellCount ?? '0';
       if (_strBuy == '0' && _strSell == '0') {
-        _emptyString = '오늘 새로 발생된 매매신호가 없습니다.';
+        if (item.noticeCode == 'TIME_BEFORE') {
+          _emptyString = '장 시작 전 입니다.';
+        } else if (item.noticeCode != 'TIME_OPEN') {
+          _emptyString = '오늘 새로 발생된 매매신호가 없습니다.';
+        }
       }
       // _processTxt = item.processText;
 

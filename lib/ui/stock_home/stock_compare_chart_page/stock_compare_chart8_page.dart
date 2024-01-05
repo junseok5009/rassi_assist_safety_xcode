@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_52.dart';
@@ -22,21 +21,22 @@ import '../../../common/tstyle.dart';
 
 class StockCompareChart8Page extends StatefulWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트8';
-  int chartDiv = 8; // 8 > 최고가  9 > 최저가
-  String groupCode = '';
-  String stockCode = '';
+  final int chartDiv; // 8 > 최고가  9 > 최저가
+  final String groupCode;
+  final String stockCode;
 
-  StockCompareChart8Page(int vChartDiv, String vGroupCode, String vStockCode) {
-    this.chartDiv = vChartDiv;
-    this.groupCode = vGroupCode;
-    this.stockCode = vStockCode;
-  }
+  const StockCompareChart8Page({
+    Key? key,
+    this.chartDiv = 8,
+    this.groupCode = '',
+    this.stockCode = '',
+  }) : super(key: key);
 
   @override
-  _StockCompareChart8PageState createState() => _StockCompareChart8PageState();
+  StockCompareChart8PageState createState() => StockCompareChart8PageState();
 }
 
-class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
+class StockCompareChart8PageState extends State<StockCompareChart8Page> {
   late SharedPreferences _prefs;
   String _userId = '';
   int chartDiv = 8;
@@ -57,15 +57,22 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
   void onClickTv() {}
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart8Page.TAG_NAME,
-      screenClassOverride: StockCompareChart8Page.TAG_NAME,
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart8Page.TAG_NAME,
     );
     _loadPrefData();
   }
 
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -86,11 +93,13 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
     DLog.d(StockCompareChart8Page.TAG_NAME, "_fetchPosts()");
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
+      final http.Response response = await http
+          .post(
             url,
             body: json,
             headers: Net.headers,
-          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
@@ -101,12 +110,10 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
   }
 
   void _parseTrData(String trStr, final http.Response response) {
-    DLog.d(
-        StockCompareChart8Page.TAG_NAME, "_parseTrData() // trStr : $trStr, ");
+    DLog.d(StockCompareChart8Page.TAG_NAME, "_parseTrData() // trStr : $trStr, ");
     // DEFINE TR.COMPARE06 52주 최고가 최저가 대비 변동률
     if (trStr == TR.COMPARE06) {
-      final TrCompare06 resData =
-          TrCompare06.fromJson(jsonDecode(response.body));
+      final TrCompare06 resData = TrCompare06.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
         DLog.d(StockCompareChart8Page.TAG_NAME, resData.retData.toString());
@@ -136,11 +143,11 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
           Container(
             alignment: Alignment.centerRight,
             child: IconButton(
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               padding: EdgeInsets.zero,
               alignment: Alignment.topRight,
               color: Colors.black,
-              constraints: BoxConstraints(),
+              constraints: const BoxConstraints(),
               onPressed: () => Navigator.of(context).pop(null),
             ),
           ),
@@ -148,12 +155,14 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
             chartDivName,
             style: TStyle.title19T,
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _makeChartView(),
           _makeListView(),
-          const SizedBox(height: 20,),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
@@ -162,7 +171,7 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
   Widget _makeChartView() {
     _setChartData();
     return Container(
-      margin: EdgeInsets.only(top: 10),
+      margin: const EdgeInsets.only(top: 10),
       width: double.infinity,
       height: 240,
       child: Echarts(
@@ -265,12 +274,11 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
         chartData = item.top52FluctRate;
       }
 
-      if (chartData.isNotEmpty &&
-          double.parse(chartData) > double.parse(_xAxisMaxValueStr)) {
+      if (chartData.isNotEmpty && double.parse(chartData) > double.parse(_xAxisMaxValueStr)) {
         _xAxisMaxValueStr = chartData;
       }
 
-      if(chartData.isEmpty){
+      if (chartData.isEmpty) {
         chartData = '0';
       }
 
@@ -311,7 +319,7 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
       _title = '52주 최고가';
     }
     return Container(
-      padding: EdgeInsets.all(15),
+      padding: const EdgeInsets.all(15),
       decoration: UIStyle.boxWeakGrey(6),
       child: Column(
         children: [
@@ -322,12 +330,14 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
               style: TStyle.commonTitle,
             ),
           ),
-          const SizedBox(height: 4,),
+          const SizedBox(
+            height: 4,
+          ),
           ListView.builder(
             padding: EdgeInsets.zero,
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: alStock.length,
             itemBuilder: (BuildContext context, int index) {
               return _makeListItemView(index);
@@ -374,7 +384,9 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
 
     return Column(
       children: [
-        const SizedBox(height: 6,),
+        const SizedBox(
+          height: 6,
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -409,7 +421,9 @@ class _StockCompareChart8PageState extends State<StockCompareChart8Page> {
                     date,
                     style: dateStyle,
                   ),
-                  const SizedBox(width: 4,),
+                  const SizedBox(
+                    width: 4,
+                  ),
                   Visibility(
                     visible: isLow,
                     child: Image.asset(

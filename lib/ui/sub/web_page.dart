@@ -32,7 +32,7 @@ class WebWidget extends StatefulWidget {
 
 class WebState extends State<WebWidget> {
   late PgData args;
-  String sUrl = '';
+  String sUrl = 'https://www.thinkpool.com/policy/service';
   late final WebViewController _controller;
 
   @override

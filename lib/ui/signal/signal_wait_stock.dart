@@ -114,14 +114,14 @@ class SignalWaitState extends State<SignalWaitWidget> {
 
   Widget _setLayout() {
     return Scaffold(
-      // appBar: CustomAppBar(
-      //   height: Const.HEIGHT_APP_BAR,
-      //   child: Column(
-      //     children: [
-      //       _setAppBar(),
-      //     ],
-      //   ),
-      // ),
+/*      appBar: CustomAppBar(
+        height: Const.HEIGHT_APP_BAR,
+        child: Column(
+          children: [
+            _setAppBar(),
+          ],
+        ),
+      ),*/
       body: ListView.builder(
         controller: _scrollController,
         itemCount: _listData.length,

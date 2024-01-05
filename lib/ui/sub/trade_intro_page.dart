@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -13,7 +13,8 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/chart_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_pock/tr_pock05.dart';
+import 'package:rassi_assist/models/tr_no_retdata.dart';
+
 import 'package:rassi_assist/models/tr_search/tr_search01.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal01.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal02.dart';
@@ -95,12 +96,9 @@ class TradeIntroPageState extends State<TradeIntroPage> {
   @override
   void initState() {
     super.initState();
-
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: TradeIntroPage.TAG_NAME,
-      screenClassOverride: TradeIntroPage.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      TradeIntroPage.TAG_NAME,
     );
-
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 400), () {
       _fetchPosts(
@@ -764,7 +762,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
               ),
               InkWell(
                 onTap: () {
-                  CommonPopup().showDialogTitleMsg(
+                  CommonPopup.instance.showDialogTitleMsg(
                       context,
                       '투자수익은?',
                       "* 수익금을 재투자하여 매매한 금액입니다.\n"
@@ -1427,7 +1425,8 @@ class TradeIntroPageState extends State<TradeIntroPage> {
       }
     } else if (trStr == TR.POCK05) {
       //포켓 종목 등록/해제
-      final TrPock05 resData = TrPock05.fromJson(jsonDecode(response.body));
+      final TrNoRetData resData =
+          TrNoRetData.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         if (!isMyPkt) {
           isMyPkt = true;

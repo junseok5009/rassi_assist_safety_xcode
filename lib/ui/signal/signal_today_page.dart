@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -58,10 +58,7 @@ class SignalTodayPageState extends State<SignalTodayPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: SignalTodayPage.TAG_NAME,
-      screenClassOverride: SignalTodayPage.TAG_NAME,
-    );
+    CustomFirebaseClass.logEvtScreenView(SignalTodayPage.TAG_NAME,);
 
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
@@ -162,17 +159,11 @@ class SignalTodayPageState extends State<SignalTodayPage> {
 
     return Scaffold(
       backgroundColor: RColor.bgWeakGrey,
-      /*appBar: CustomAppBar(
-        height: 120,
-        child: Column(
-          children: [
-            _setTitleBar(),
-            _setFlagBar(),
-          ],
-        ),
-      ),*/
-      appBar: CommonAppbar.basic(context, '오늘 발생한 AI매매신호'),
-
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '오늘 발생한 AI매매신호',
+        elevation: 1,
+      ),
       //타임라인 리스트
       body: SafeArea(
         child: Column(
@@ -188,8 +179,7 @@ class SignalTodayPageState extends State<SignalTodayPage> {
                   if (index == 0) {
                     return _buildHeader();
                   } else {
-                    return _buildOneItem(
-                        _listData[index - 1].elapsedTmTx,
+                    return _buildOneItem(_listData[index - 1].elapsedTmTx,
                         _listData[index - 1].listData);
                   }
                 },

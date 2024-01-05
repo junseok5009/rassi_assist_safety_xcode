@@ -80,7 +80,7 @@ class RColor {
   // 회색
   static const bgBasic_fdfdfd = Color(0xffFDFDFD);  // 바탕색
   static const greyBox_f5f5f5 = Color(0xffF5F5F5); // 박스, 뷰와 뷰 사이 구분선
-  static const greyBasicStrong_777777 = Color(0xff777777); // 강한 텍스트
+  static const greyBasicStrong_666666 = Color(0xff666666); // 강한 텍스트
   static const greyBasic_8c8c8c = Color(0xff8C8C8C); // 보통 텍스트
   static const greyMore_999999 = Color(0xff999999);  // 더보기
   static const greyTitle_cdcdcd = Color(0xffCDCDCD);  // 메뉴명, 타이틀, 회색박스 위의 회색
@@ -141,8 +141,8 @@ class RColor {
   static const jinbora_tran = Color(0xb37774f7); //진보라(투명도 추가)
   static const btnAllView = Color(0xff2fccaf); //모든 매매내역 보기
   static const sigBuy = Color(0xffFC525B); //매수
-  static const sigSell = Color(0xff6A86E7); //매도
-  static const sigHolding = Color(0xff2fccaf); //보유중
+  static const sigSell = Color(0xff5886FE); //매도
+  static const sigHolding = Color(0xff2FCCAF); //보유중
   static const sigWatching = Color(0xff7d81a0); //관망중
   static const bgSolidSky = Color(0xffd5ebff); //하늘색 (종목 추가)
   static const bgMustard = Color(0xffffcfa5); //머스타드(겨자색)

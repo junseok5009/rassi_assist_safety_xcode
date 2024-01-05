@@ -1,8 +1,7 @@
 import 'dart:io';
-
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -23,6 +22,7 @@ class ConditionPage extends StatefulWidget {
   static const String TAG = "[ConditionPage]";
   static const String TAG_NAME = '조건탐색캐치_목록';
 
+  const ConditionPage({Key? key}) : super(key: key);
   @override
   State<StatefulWidget> createState() => ConditionPageState();
 }
@@ -34,10 +34,7 @@ class ConditionPageState extends State<ConditionPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: ConditionPage.TAG_NAME,
-      screenClassOverride: ConditionPage.TAG_NAME,
-    );
+    CustomFirebaseClass.logEvtScreenView(ConditionPage.TAG_NAME,);
     if (!appGlobal.isPremium) _isFreeVisible = true;
   }
 
@@ -47,7 +44,11 @@ class ConditionPageState extends State<ConditionPage> {
       data: MediaQuery.of(context)
           .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: Scaffold(
-        appBar: CommonAppbar.basic(context, '조건 탐색 캐치'),
+        appBar: CommonAppbar.basic(
+          buildContext: context,
+          title: '조건 탐색 캐치',
+          elevation: 1,
+        ),
         backgroundColor: Colors.white,
         body: SafeArea(
           child: ListView(

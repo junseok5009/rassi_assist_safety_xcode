@@ -55,6 +55,13 @@ class HomeTileSocialState extends State<HomeTileSocial>
     });
   }
 
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
+
   void _requestTr() {
     _fetchPosts(
         TR.SNS07,
@@ -65,6 +72,7 @@ class HomeTileSocialState extends State<HomeTileSocial>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       children: [
         Container(
@@ -253,9 +261,9 @@ class HomeTileSocialState extends State<HomeTileSocial>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

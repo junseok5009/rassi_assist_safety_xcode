@@ -5,28 +5,28 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_shome/tr_shome04.dart';
-import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../common/custom_firebase_class.dart';
 import '../../../../common/net.dart';
 import '../../../../common/tstyle.dart';
-import '../../common/common_popup.dart';
-import '../../../../models/pg_news.dart';
 import '../../../models/tr_shome/tr_shome06.dart';
+import '../../common/common_popup.dart';
 import '../../common/only_web_view.dart';
-
 
 /// 2023.02.22_HJS
 /// 종목정보 페이지
 class StockInfoPage extends StatefulWidget {
   static const String TAG = "[StockInfoPage]";
   static const String TAG_NAME = '종목정보';
+
   const StockInfoPage({Key? key}) : super(key: key);
+
   @override
   State<StockInfoPage> createState() => _StockInfoPageState();
 }
@@ -95,18 +95,26 @@ class _StockInfoPageState extends State<StockInfoPage> {
     CustomFirebaseClass.logEvtScreenView(
       StockInfoPage.TAG_NAME,
     );
-    _loadPrefData().then((_) => {
-          Future.delayed(Duration.zero, () {
-            PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
-            if (_userId != '' &&
-                pgData.stockCode != null &&
-                pgData.stockCode.isNotEmpty) {
-              _stkName = pgData.stockName;
-              _stkCode = pgData.stockCode;
-              _requestTrAll();
-            }
-          }),
-        });
+    _loadPrefData().then((_) =>
+    {
+      Future.delayed(Duration.zero, () {
+        PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
+        if (_userId != '' &&
+            pgData.stockCode != null &&
+            pgData.stockCode.isNotEmpty) {
+          _stkName = pgData.stockName;
+          _stkCode = pgData.stockCode;
+          _requestTrAll();
+        }
+      }),
+    });
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   _loadPrefData() async {
@@ -120,13 +128,14 @@ class _StockInfoPageState extends State<StockInfoPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        toolbarHeight: _shome04stock.bizOverview.isNotEmpty && _shome06.content.isNotEmpty
+        toolbarHeight:
+        _shome04stock.bizOverview.isNotEmpty && _shome06.content.isNotEmpty
             ? 130
             : _shome06.content.isNotEmpty
-              ? 110
-              : _shome04stock.bizOverview.isNotEmpty
-                ? 80
-                : 50,
+            ? 110
+            : _shome04stock.bizOverview.isNotEmpty
+            ? 80
+            : 50,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -139,7 +148,8 @@ class _StockInfoPageState extends State<StockInfoPage> {
             IconButton(
               highlightColor: Colors.transparent,
               splashColor: Colors.transparent,
-              constraints: const BoxConstraints(), // constraints
+              constraints: const BoxConstraints(),
+              // constraints
               onPressed: () {
                 Navigator.of(context).pop(null);
               },
@@ -356,7 +366,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
                     ),*/
         children: List.generate(
           _marketPriceTitle.length,
-          (index) => _setMarketConditionTableRows(index),
+              (index) => _setMarketConditionTableRows(index),
         ),
       ),
     );
@@ -367,7 +377,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
     return TableRow(
       children: List.generate(
         2,
-        (index) => _setMarketConditionTableViews(row, index),
+            (index) => _setMarketConditionTableViews(row, index),
       ),
     );
   }
@@ -438,7 +448,8 @@ class _StockInfoPageState extends State<StockInfoPage> {
           if (column == 0) {
             //전일대비(원)
             textView = Text(
-              TStyle.getTriangleStringWithMoneyPoint(_shome04price.fluctuationAmt),
+              TStyle.getTriangleStringWithMoneyPoint(
+                  _shome04price.fluctuationAmt),
               style: TextStyle(
                 color: TStyle.getMinusPlusColor(_shome04price.fluctuationAmt),
               ),
@@ -599,7 +610,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             '종목차트',
             style: TStyle.title18T,
           ),
@@ -624,7 +635,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                         color: TStyle.getMinusPlusColor(
-                            _shome04price.fluctuationRate,
+                          _shome04price.fluctuationRate,
                         ),
                       ),
                     ),
@@ -633,34 +644,42 @@ class _StockInfoPageState extends State<StockInfoPage> {
                 const SizedBox(
                   height: 5,
                 ),
-                SliderTheme(
+  //TODO @@@@@
+  /*              SliderTheme(
                   data: SliderThemeData(
                     activeTrackColor: RColor.lineGrey3,
                     inactiveTrackColor: RColor.lineGrey3,
                     thumbColor: RColor.lineGrey2,
                     overlayShape: SliderComponentShape.noOverlay,
                     showValueIndicator: ShowValueIndicator.always,
-                    /*thumbShape: RoundSliderThumbShape(
+                    *//*thumbShape: RoundSliderThumbShape(
                       enabledThumbRadius: enabledThumbRadius,
                       elevation: elevation,
-                    ),*/
+                    ),*//*
                     trackShape: const RectangularSliderTrackShape(),
                     //valueIndicatorShape: PaddleSliderValueIndicatorShape(),
                     trackHeight: 7,
                   ),
                   child: Slider(
-                    value: double.tryParse(_shome04price.currentPrice) != null && double.tryParse(_shome04price.top52Price) != null
-                        ? double.parse(_shome04price.currentPrice) > double.tryParse(_shome04price.top52Price)!
-                        ? double.tryParse(_shome04price.top52Price)! : double.parse(_shome04price.currentPrice) : 0,
-                    min: double.tryParse(_shome04price.low52Price) != null
-                        ? double.parse(_shome04price.low52Price)
+                    value: double.tryParse(_shome04price.currentPrice) != null &&
+                        double.tryParse(_shome04price.top52Price) != null
+                        ? double.parse(_shome04price.currentPrice) >
+                        double.tryParse(_shome04price.top52Price)
+                        ? double.tryParse(_shome04price.top52Price)
+                        : double.parse(_shome04price.currentPrice)
                         : 0,
+                    min: double.tryParse(_shome04price.low52Price) != null &&
+                        (double.parse(_shome04price.low52Price) > (double.tryParse(_shome04price.currentPrice) ?? 0)) ?
+                    (double.tryParse(_shome04price.currentPrice) ?? 0) :
+                    (double.parse(_shome04price.low52Price) ?? 0) ,
+
+                    //((double.tryParse(_shome04price.currentPrice) ?? 0) : double.parse(_shome04price.low52Price) : 0,,
                     max: double.tryParse(_shome04price.top52Price) != null
                         ? double.parse(_shome04price.top52Price)
                         : 0,
                     onChanged: (double value) {},
                   ),
-                ),
+                ),*/
                 const SizedBox(
                   height: 5,
                 ),
@@ -710,20 +729,18 @@ class _StockInfoPageState extends State<StockInfoPage> {
           const SizedBox(
             height: 10,
           ),
-          Container(
+          SizedBox(
             width: double.infinity,
-            color: Colors.red,
-            //height: 260,
             child: Image.network(
               _divIndex == 0
                   ? 'https://webchart.thinkpool.com/2022Mobile/Stock1Day/A$_stkCode.png'
                   : _divIndex == 1
-                      ? 'https://webchart.thinkpool.com/2022Mobile/Stock1Week/A$_stkCode.png'
-                      : _divIndex == 2
-                          ? 'https://webchart.thinkpool.com/2022Mobile/StockMonth/A$_stkCode.png'
-                          : _divIndex == 3
-                              ? 'https://webchart.thinkpool.com/2022Mobile/Stock5Min/A$_stkCode.png'
-                              : 'https://webchart.thinkpool.com/2022Mobile/Stock1Day/A$_stkCode.png',
+                  ? 'https://webchart.thinkpool.com/2022Mobile/Stock1Week/A$_stkCode.png'
+                  : _divIndex == 2
+                  ? 'https://webchart.thinkpool.com/2022Mobile/StockMonth/A$_stkCode.png'
+                  : _divIndex == 3
+                  ? 'https://webchart.thinkpool.com/2022Mobile/Stock5Min/A$_stkCode.png'
+                  : 'https://webchart.thinkpool.com/2022Mobile/Stock1Day/A$_stkCode.png',
             ),
           ),
           const SizedBox(
@@ -732,11 +749,14 @@ class _StockInfoPageState extends State<StockInfoPage> {
           InkWell(
             onTap: () {
               Navigator.pop(context);
-              //TODO @@@@@
-              // basePageState.callPageRouteNews(
-              //   OnlyWebView(),
-              //   PgNews(linkUrl: 'https://m.thinkpool.com/item/$_stkCode/chart'),
-              // );
+              Navigator.push(
+                context,
+                CustomNvRouteClass.createRoute(
+                  OnlyWebViewPage(
+                      title: '',
+                      url: 'https://m.thinkpool.com/item/$_stkCode/chart'),
+                ),
+              );
             },
             child: Container(
               width: double.infinity,
@@ -763,7 +783,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: List.generate(
         4,
-        (index) {
+            (index) {
           return Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 15,
@@ -818,7 +838,10 @@ class _StockInfoPageState extends State<StockInfoPage> {
               topRight: Radius.circular(20.0),
             ),
           ),
-          height: MediaQuery.of(context).size.height * 3 / 4,
+          height: MediaQuery
+              .of(context)
+              .size
+              .height * 3 / 4,
           child: Column(
             children: [
               Container(
@@ -848,7 +871,9 @@ class _StockInfoPageState extends State<StockInfoPage> {
                           width: 24,
                           height: 24,
                         ),
-                        const SizedBox(width: 10,),
+                        const SizedBox(
+                          width: 10,
+                        ),
                         Expanded(
                           child: Text(
                             '챗GPT가 요약한 $_stkName의 사업 개요',
@@ -863,7 +888,8 @@ class _StockInfoPageState extends State<StockInfoPage> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '${TStyle.getDateSlashFormat3(_shome06.updateDate)} 업데이트',
+                        '${TStyle.getDateSlashFormat3(
+                            _shome06.updateDate)} 업데이트',
                       ),
                     ),
                     const SizedBox(
@@ -876,7 +902,9 @@ class _StockInfoPageState extends State<StockInfoPage> {
                       width: double.infinity,
                       height: 1,
                       color: RColor.new_basic_line_grey,
-                      margin: const EdgeInsets.symmetric(vertical: 10,),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 10,
+                      ),
                     ),
                     const Text(
                       '※ ChatGPT를 이용한 사업개요 요약은 DART 자료를 바탕으로 수집되며, 기술적 방법에 따라 일부 내용에 오류가 있을 수 있습니다.',
@@ -951,9 +979,9 @@ class _StockInfoPageState extends State<StockInfoPage> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

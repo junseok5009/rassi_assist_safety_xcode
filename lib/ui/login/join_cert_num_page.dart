@@ -99,7 +99,7 @@ class JoinCertState extends State<JoinCertWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     '인증번호를\n확인해 주세요.',
                     style: TStyle.title22m,
                   ),
@@ -165,7 +165,7 @@ class JoinCertState extends State<JoinCertWidget> {
             ),
             color: RColor.mainColor,
             textColor: Colors.white,
-            child: Text(
+            child: const Text(
               '확인',
               style: TStyle.btnTextWht17,
             ),

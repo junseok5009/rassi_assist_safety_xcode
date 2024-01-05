@@ -20,22 +20,17 @@ import '../../../common/const.dart';
 import '../../../common/net.dart';
 import '../../../models/none_tr/app_global.dart';
 
-
 /// 2023.02.21_HJS
 /// 종목홈(개편)_홈_리포트분석_목표가
 class ReportAnalyzeChart1Page extends StatefulWidget {
-  //const ReportAnalyzeChart1Page({Key? key}) : super(key: key);
-  static final GlobalKey<_ReportAnalyzeChart1PageState> globalKey = GlobalKey();
-
+  static final GlobalKey<ReportAnalyzeChart1PageState> globalKey = GlobalKey();
   ReportAnalyzeChart1Page() : super(key: globalKey);
-
   @override
   State<ReportAnalyzeChart1Page> createState() =>
-      _ReportAnalyzeChart1PageState();
+      ReportAnalyzeChart1PageState();
 }
 
-class _ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
-  //with AutomaticKeepAliveClientMixin<ReportAnalyzeChart1Page> {
+class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
   final AppGlobal _appGlobal = AppGlobal();
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 주, true 이면 천주
   bool _is6Month = true;
@@ -52,8 +47,12 @@ class _ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
     _requestTrReport01();
   }
 
-  /*@override
-  bool get wantKeepAlive => true;*/
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
 
   @override
   void initState() {
@@ -144,7 +143,9 @@ class _ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
         ],
       );
     } else {
-      return const SizedBox(height: 100,);
+      return const SizedBox(
+        height: 100,
+      );
     }
   }
 
@@ -500,9 +501,9 @@ class _ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

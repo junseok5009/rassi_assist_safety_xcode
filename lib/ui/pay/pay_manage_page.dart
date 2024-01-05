@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -31,15 +31,13 @@ class PayManagePage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(toolbarHeight: 0,
           backgroundColor: RColor.deepStat, elevation: 0,),
-        body: const PayManageWidget(),
+        body: PayManageWidget(),
       ),
     );
   }
 }
 
 class PayManageWidget extends StatefulWidget {
-  const PayManageWidget({super.key});
-
   @override
   State<StatefulWidget> createState() => PayManageState();
 }
@@ -55,9 +53,7 @@ class PayManageState extends State<PayManageWidget> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: PayManagePage.TAG_NAME,
-      screenClassOverride: PayManagePage.TAG_NAME,);
+    CustomFirebaseClass.logEvtScreenView(PayManagePage.TAG_NAME,);
 
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 400), (){
@@ -271,7 +267,7 @@ class PayManageState extends State<PayManageWidget> {
 
                     Visibility(
                       visible: isClosed,
-                      child: Text( '해지된 상품입니다', style: TStyle.textGrey14,),
+                      child: const Text( '해지된 상품입니다', style: TStyle.textGrey14,),
                     ),
 
                   ],
@@ -286,7 +282,7 @@ class PayManageState extends State<PayManageWidget> {
   }
 
   void _goRefundPage(String orderSn, String nextPayDay, String usePeriod, String tid ) {
-    _navigateRefresh(context, PaySubCancelPage(), RouteSettings(
+    _navigateRefresh(context, const PaySubCancelPage(), RouteSettings(
       arguments: PgPay(orderSn: orderSn, nextPayDay: nextPayDay, period: usePeriod, lgTid: tid)
     ));
   }

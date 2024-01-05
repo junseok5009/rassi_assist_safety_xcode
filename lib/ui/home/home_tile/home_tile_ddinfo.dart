@@ -32,9 +32,9 @@ class HomeTileDdinfo extends StatelessWidget {
   final Today05 today05;
   final SwiperController _swiperController = SwiperController();
   int _startIndex = 0;
-
   @override
   Widget build(BuildContext context) {
+
     if (today05 != null && today05.listRassiroNewsDdInfo.isNotEmpty) {
       today05.listRassiroNewsDdInfo.asMap().forEach((key, value) {
         if (value.representYn == 'Y') {
@@ -117,7 +117,7 @@ class HomeTileDdinfo extends StatelessWidget {
       highlightColor: Colors.transparent,
       onTap: () {
         if (item.displayYn == 'N') {
-          CommonPopup().showDialogTitleMsg(
+          CommonPopup.instance.showDialogTitleMsg(
               context, '알림', '발생 전 입니다.\n정보 발생 시간에 확인해 주세요.');
         } else {
           if (item.contentDiv == 'MKT2' || item.contentDiv == 'MKT') {
@@ -144,8 +144,7 @@ class HomeTileDdinfo extends StatelessWidget {
               ),
             );
           } else if (item.contentDiv == 'SCH' || item.contentDiv == 'SCH2') {
-            //TODO @@@@@
-            // basePageState.callPageRoute(const SearchPage());
+            basePageState.callPageRoute(SearchPage.goStockHome(),);
           }
         }
       },
@@ -235,10 +234,9 @@ class HomeTileDdinfo extends StatelessWidget {
                             // 웹뷰로 띄우기
                           } */
                         else if (item.contentDiv == 'SCH') {
-                          //TODO @@@@@
-                          // basePageState.callPageRouteUP(
-                          //   const SearchPage(),
-                          // );
+                          basePageState.callPageRouteUP(
+                            SearchPage.goStockHome(),
+                          );
                         } else {
                           // 종목홈으로
                           basePageState.goStockHomePage(
@@ -341,10 +339,10 @@ class HomeTileDdinfo extends StatelessWidget {
         if (rassi17.stockList.isNotEmpty) {
           basePageState.callPageRoute(const RassiDeskPage());
         } else {
-          CommonPopup().showDialogTitleMsg(context, '알림', '데이터 업데이트 중입니다.');
+          CommonPopup.instance.showDialogTitleMsg(context, '알림', '데이터 업데이트 중입니다.');
         }
       } else {
-        CommonPopup().showDialogTitleMsg(context, '알림', '데이터 업데이트 중입니다.');
+        CommonPopup.instance.showDialogTitleMsg(context, '알림', '데이터 업데이트 중입니다.');
       }
     }
   }

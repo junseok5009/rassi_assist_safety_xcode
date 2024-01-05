@@ -41,7 +41,9 @@ class CommonAppbar{
   /*DEFINE - basic
      [ < 버튼 + 타이틀 ] 형태의 앱바 입니다.
      기본 컬러는 Colors.white 입니다. */
-  static PreferredSizeWidget basic(BuildContext buildContext, String title){
+  static PreferredSizeWidget basic({
+    required BuildContext buildContext, required String title, required double elevation
+  }){
     return PreferredSize(
       preferredSize: const Size.fromHeight(50),
       child: AppBar(
@@ -61,7 +63,7 @@ class CommonAppbar{
           child: const Icon(Icons.arrow_back_ios_sharp,),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
-        elevation: 1,
+        elevation: elevation,
         centerTitle: false,
         leadingWidth: 40,
         titleSpacing: 5.0,
@@ -78,8 +80,11 @@ class CommonAppbar{
      -bgColor : 앱바의 바탕 컬러
      -titleColor : 메뉴명 텍스트 컬러
      -elevation : 앱바와 body 사이의 회색 구분선의 높이 (구분이 필요없다면 0 / 구분이 필요하다면 1)*/
-  static PreferredSizeWidget basicColor(BuildContext buildContext, String title,
-      Color bgColor, Color titleColor, Color iconColor, double elevation){
+  static PreferredSizeWidget basicColor({
+    required BuildContext buildContext, required String title,
+    required Color bgColor, required Color titleColor,
+    required Color iconColor, required double elevation,
+  }){
     return PreferredSize(
       preferredSize: const Size.fromHeight(50),
       child: AppBar(
@@ -209,7 +214,7 @@ class CommonAppbar{
      [ 타이틀 ] 형태의 앱바 입니다.
      기본 컬러는 Colors.white 입니다.
      */
-  static Widget simple(String title){
+  static PreferredSizeWidget simple(String title){
     return PreferredSize(
       preferredSize: const Size.fromHeight(50),
       child: AppBar(
@@ -267,7 +272,7 @@ class CommonAppbar{
      -isCenterTitle : true : 타이틀 센터, false : 타이틀 좌측 정렬
      x 버튼으로 닫는 앱바는 기본적으로 구분선(elevation) 없이 구현합니다.
      */
-  static PreferredSizeWidget simpleWithExit(BuildContext buildContext, String title, Color titleColor, Color bgColor, Color iconColor){
+  static PreferredSizeWidget simpleWithExit(BuildContext buildContext, String title, Color titleColor, Color bgColor, Color iconColor,){
     return PreferredSize(
       preferredSize: const Size.fromHeight(50),
       child: AppBar(

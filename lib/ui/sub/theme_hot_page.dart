@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -51,9 +51,8 @@ class ThemeHotPageState extends State<ThemeHotPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: ThemeHotPage.TAG_NAME,
-      screenClassOverride: ThemeHotPage.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      ThemeHotPage.TAG_NAME,
     );
     _loadPrefData().then(
       (_) => _fetchPosts(
@@ -85,7 +84,11 @@ class ThemeHotPageState extends State<ThemeHotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, '핫테마 전체 보기'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '핫테마 전체 보기',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: ListView(
           children: [
@@ -131,7 +134,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
                           controller: _swiperWController,
                           pagination: _tmList.length < 2
                               ? null
-                              : CommonSwiperPagenation.getNormalSP(9),
+                              : CommonSwiperPagenation.getNormalSP(8),
                           itemCount: _tmList.length,
                           itemBuilder: (BuildContext context, int index) {
                             return TileTheme02(_tmList[index], '${index + 1}');
@@ -275,17 +278,19 @@ class ThemeHotPageState extends State<ThemeHotPage> {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
+      final http.Response response = await http
+          .post(
             url,
             body: json,
             headers: Net.headers,
-          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

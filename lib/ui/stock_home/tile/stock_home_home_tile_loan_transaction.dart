@@ -13,9 +13,9 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest21.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest22.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/stock_home/page/loan_transaction_list_page.dart';
 
 import '../../../../common/const.dart';
@@ -28,22 +28,18 @@ import '../../main/base_page.dart';
 /// 종목홈(개편)_홈_대차거래와 공매
 
 class StockHomeHomeTileLoanTransaction extends StatefulWidget {
-  //const StockHomeHomeTileLoanTransaction({Key? key}) : super(key: key);
-  static final GlobalKey<_StockHomeHomeTileLoanTransactionState> globalKey =
+  static final GlobalKey<StockHomeHomeTileLoanTransactionState> globalKey =
       GlobalKey();
-
   StockHomeHomeTileLoanTransaction() : super(key: globalKey);
-
   @override
   State<StockHomeHomeTileLoanTransaction> createState() =>
-      _StockHomeHomeTileLoanTransactionState();
+      StockHomeHomeTileLoanTransactionState();
 }
 
-class _StockHomeHomeTileLoanTransactionState
+class StockHomeHomeTileLoanTransactionState
     extends State<StockHomeHomeTileLoanTransaction>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileLoanTransaction> {
   final AppGlobal _appGlobal = AppGlobal();
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
 
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 주, true 이면 천주
   int _divIndex = 0; // 0 : 대차거래 / 1 : 공매 / 2 : 신용융자
@@ -82,9 +78,10 @@ class _StockHomeHomeTileLoanTransactionState
   }
 
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   @override
@@ -901,12 +898,11 @@ class _StockHomeHomeTileLoanTransactionState
           'Content-Type': 'application/json; charset=UTF-8',
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -989,7 +985,7 @@ class _StockHomeHomeTileLoanTransactionState
           double.parse(curr.bl).abs() > double.parse(next.bl).abs()
               ? curr
               : next);
-      return double.parse(item.bl).abs() ?? 0;
+      return double.parse(item.bl).abs();
     }
 
     // 공매도
@@ -1001,7 +997,7 @@ class _StockHomeHomeTileLoanTransactionState
           double.parse(curr.asv).abs() > double.parse(next.asv).abs()
               ? curr
               : next);
-      return double.parse(item.asv).abs() ?? 0;
+      return double.parse(item.asv).abs();
     }
 
     // 공매도

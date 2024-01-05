@@ -40,18 +40,19 @@ class SliverStockCatchWidget extends StatefulWidget {
   static const String TAG = "[SliverStockCatchWidget] ";
   static const String TAG_NAME = '홈_종목캐치';
 
-  const SliverStockCatchWidget({Key? key}) : super(key: key);
+  static final GlobalKey<SliverStockCatchWidgetState> globalKey = GlobalKey();
+
+  SliverStockCatchWidget({Key? key}) : super(key: globalKey);
 
   @override
   State<StatefulWidget> createState() => SliverStockCatchWidgetState();
 }
 
 class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
-  var appGlobal = AppGlobal();
+  final _appGlobal = AppGlobal();
 
   late SharedPreferences _prefs;
   String _userId = '';
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   bool _bInitFirst = true;
 
   final SwiperController _swiperBigController = SwiperController();
@@ -75,7 +76,6 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
   int _topIndex = 0;
   String _topDiv = 'AVG';
   String _bsType = 'B';
-  bool _isTopEmpty = false;
 
   final List<Find01> _listFind01 = [];
   final List<Find07> _listFind07 = [];
@@ -85,30 +85,27 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
   void initState() {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(SliverStockCatchWidget.TAG_NAME);
-    _userId = appGlobal.userId;
-    _loadPrefData();
+    _userId = _appGlobal.userId;
+    _loadPrefData().then((_) {
+      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+      _fetchPosts(
+          TR.STKCATCH01,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'selectDiv': 'FRN',
+          }));
+    });
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    if (_bYetDispose) {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      if (_userId != '') {
-        _fetchPosts(
-            TR.STKCATCH01,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-              'selectDiv': 'FRN',
-            }));
-      }
-    }
   }
 
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   @override
@@ -137,21 +134,21 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                             height: 10,
                           ),
                           _setBigHeader(),
-
-                          appGlobal.isPremium ?
-                          _setBigHList() :
-                          Column(
-                            children: [
-                              _stkCatchBigList.isNotEmpty
-                                  ? TileStkCatch01M.gen(
-                                      _stkCatchBigList[0], _bigDiv,
-                              )
-                                  : _setFreeCard(),
-                              _setFreeCard(),
-                              _setFreeCard(),
-                              _setFreeCard(),
-                            ],
-                          ),
+                          _appGlobal.isPremium
+                              ? _setBigHList()
+                              : Column(
+                                  children: [
+                                    _stkCatchBigList.isNotEmpty
+                                        ? TileStkCatch01M.gen(
+                                            _stkCatchBigList[0],
+                                            _bigDiv,
+                                          )
+                                        : _setFreeCard(),
+                                    _setFreeCard(),
+                                    _setFreeCard(),
+                                    _setFreeCard(),
+                                  ],
+                                ),
                         ],
                       ),
                     ],
@@ -173,13 +170,9 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                       ),
                     ],
                     () {
-                      if (appGlobal.isPremium) {
-                        appGlobal.pageData = _bigDiv;
-                        Navigator.pushNamed(context, StkCatchBigPage.routeName,
-                            arguments: PgData(pgSn: ''));
-                      } else {
-                        _showDialogPremium();
-                      }
+                      _appGlobal.pageData = _bigDiv;
+                      Navigator.pushNamed(context, StkCatchBigPage.routeName,
+                          arguments: PgData(pgSn: ''));
                     },
                   ),
 
@@ -204,18 +197,18 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                           const SizedBox(
                             height: 10,
                           ),
-                          appGlobal.isPremium ?
-                          _setCatchTopList(context) :
-                          Column(
-                            children: [
-                              _stkCatchTopList.isNotEmpty
-                                  ? TileStkCatch02(_stkCatchTopList[0])
-                                  : _setFreeCard(),
-                              _setFreeCard(),
-                              _setFreeCard(),
-                              _setFreeCard(),
-                            ],
-                          ),
+                          _appGlobal.isPremium
+                              ? _setCatchTopList(context)
+                              : Column(
+                                  children: [
+                                    _stkCatchTopList.isNotEmpty
+                                        ? TileStkCatch02(_stkCatchTopList[0])
+                                        : _setFreeCard(),
+                                    _setFreeCard(),
+                                    _setFreeCard(),
+                                    _setFreeCard(),
+                                  ],
+                                ),
                         ],
                       ),
                     ],
@@ -235,13 +228,24 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                       ),
                     ],
                     () {
-                      if (appGlobal.isPremium) {
-                        Navigator.pushNamed(context, StkCatchTopPage.routeName,
-                            arguments: PgData(pgSn: ''),
-                        );
-                      } else {
-                        _showDialogPremium();
+                      switch (_topIndex) {
+                        case 0:
+                          _appGlobal.pageData = 'AVG';
+                          break;
+                        case 1:
+                          _appGlobal.pageData = 'SUM';
+                          break;
+                        case 2:
+                          _appGlobal.pageData = 'WIN';
+                          break;
+                        default:
+                          _appGlobal.pageData = 'AVG';
                       }
+                      Navigator.pushNamed(
+                        context,
+                        StkCatchTopPage.routeName,
+                        arguments: PgData(pgSn: ''),
+                      );
                     },
                   ),
                   const SizedBox(
@@ -306,8 +310,10 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                                         style: TStyle.commonSTitle,
                                       ),
                                     ],
-                                        () {
-                                      Navigator.pushNamed(context, ConditionPage.routeName,
+                                    () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        ConditionPage.routeName,
                                         arguments: PgData(pgSn: ''),
                                       );
                                     },
@@ -360,10 +366,18 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'images/logo_circle_icon.png',
+                    Container(
+                      width: 70,
                       height: 70,
-                      fit: BoxFit.contain,
+                      decoration: const BoxDecoration(
+                        color: RColor.purpleBasic_6565ff,
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      child: Image.asset(
+                        'images/icon_rassi_logo_white.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     const SizedBox(
                       width: 10,
@@ -380,7 +394,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                       width: 10,
                     ),
                     //Swiper 영역
-                    Container(
+                    const SizedBox(
                       width: 73,
                       height: 70,
                     ),
@@ -451,9 +465,9 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                   _swiperBigController.previous(animation: true);
                 },
               ),
-              Container(
+              const SizedBox(
                 height: 175,
-                child: const Text(''),
+                child: Text(''),
               ),
               IconButton(
                 icon: Image.asset('images/main_jm_aw_r_g.png'),
@@ -500,7 +514,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
   }
 
   void _selectDialogPush(bool onoff, String title) {
-    appGlobal.isPremium
+    _appGlobal.isPremium
         ? _showDialogPushStatus(onoff, title)
         : _showDialogPremium();
   }
@@ -857,34 +871,44 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                 onTap: () {
                   if (type == 'CUR_B') {
                     // FIND01 - 3일내에 매수 후 급등
-                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(
+                        const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'CUR_B') {
                     // FIND01 - 3일내에 매수 후 급등
-                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(
+                        const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'HIT_H') {
                     // FIND02 - 적중률 높은 최근 매수
-                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(
+                        const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'HIT_W') {
                     // FIND03 - 적중률 높은 최근 관망
-                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(
+                        const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'AVG_H') {
                     // FIND04 - 평균수익률 높은 최근 매수
-                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(
+                        const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'AVG_W') {
                     // FIND05 - 평균수익률 높은 관망
-                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(
+                        const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'SHT_S') {
                     // FIND07 - 평균보유 기간이 찗은 종목
-                    if (appGlobal.isPremium) {
-                      basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
-                    } else
+                    if (_appGlobal.isPremium) {
+                      basePageState.callPageRouteData(
+                          const SignalMTopPage(), PgData(pgData: type));
+                    } else {
                       _showDialogPremium();
+                    }
                   } else if (type == 'TPC_S') {
                     // FIND09 - 주간 토픽중 최근 매수 종목
-                    if (appGlobal.isPremium) {
-                      basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
-                    } else
+                    if (_appGlobal.isPremium) {
+                      basePageState.callPageRouteData(
+                          const SignalMTopPage(), PgData(pgData: type));
+                    } else {
                       _showDialogPremium();
+                    }
                   }
                 },
               ),
@@ -925,7 +949,9 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
     return Container(
       width: double.infinity,
       height: 150,
-      padding: const EdgeInsets.symmetric(horizontal: 10,),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
       child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.zero,
@@ -941,7 +967,9 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
     return Container(
       width: double.infinity,
       height: 150,
-      padding: const EdgeInsets.symmetric(horizontal: 10,),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
       child: ListView.builder(
           padding: EdgeInsets.zero,
           scrollDirection: Axis.horizontal,
@@ -958,9 +986,14 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
       splashColor: Colors.deepPurpleAccent.withAlpha(30),
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 7,),
+        margin: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 7,
+        ),
         padding: const EdgeInsets.all(20.0),
-        decoration: UIStyle.boxRoundLine6bgColor(Colors.white,),
+        decoration: UIStyle.boxRoundLine6bgColor(
+          Colors.white,
+        ),
         child: Column(
           children: [
             Image.asset(
@@ -980,9 +1013,10 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
       ),
       onTap: () {
         if (Platform.isIOS) {
-          _navigateRefreshPay(context, PayPremiumPage());
-        } else
-          _navigateRefreshPay(context, PayPremiumAosPage());
+          _navigateRefreshPay(context, const PayPremiumPage());
+        } else {
+          _navigateRefreshPay(context, const PayPremiumAosPage());
+        }
       },
     );
   }
@@ -1000,17 +1034,13 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
       child: Container(
         width: double.infinity,
         height: 200,
+        alignment: Alignment.center,
         margin: const EdgeInsets.only(top: 7.0, bottom: 7.0),
         padding: const EdgeInsets.all(10.0),
         decoration: UIStyle.boxWithOpacity(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              '발생한 종목이 없습니다.',
-              style: TStyle.content17T,
-            ),
-          ],
+        child: const Text(
+          '발생한 종목이 없습니다.',
+          style: TStyle.content17T,
         ),
       ),
     );
@@ -1143,10 +1173,11 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                   ),
                   onPressed: () {
                     Navigator.pop(context);
-                    if (Platform.isIOS)
+                    if (Platform.isIOS) {
                       _navigateRefreshPay(context, PayPremiumPage());
-                    else
+                    } else {
                       _navigateRefreshPay(context, PayPremiumAosPage());
+                    }
                   },
                 ),
               ],
@@ -1257,8 +1288,8 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                     ),
                     onPressed: () {
                       Navigator.pop(context);
-                      _navigateDataRefresh(
-                          context, NotificationSettingN(), PgData(pgData: ''));
+                      _navigateDataRefresh(context,
+                          const NotificationSettingN(), PgData(pgData: ''));
                     },
                   ),
                 ],
@@ -1268,25 +1299,36 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
         });
   }
 
+  reload() {
+    _fetchPosts(
+        TR.STKCATCH01,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'selectDiv': 'FRN',
+        }));
+  }
+
   //convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
     DLog.d(SliverStockCatchWidget.TAG, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
+      final http.Response response = await http
+          .post(
             url,
             body: json,
             headers: Net.headers,
-          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(SliverStockCatchWidget.TAG, 'ERR : TimeoutException (12 seconds)');
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
       DLog.d(SliverStockCatchWidget.TAG, 'ERR : SocketException');
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1295,6 +1337,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
     DLog.d(SliverStockCatchWidget.TAG, response.body);
 
     if (trStr == TR.STKCATCH01) {
+      _stkCatchBigList.clear();
       final TrStkCatch01 resData =
           TrStkCatch01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
@@ -1325,25 +1368,21 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
         _requestStkCatch02('AVG', 'S');
       }
     } else if (trStr == TR.STKCATCH02) {
+      _stkCatchTopList.clear();
       final TrStkCatch02 resData =
           TrStkCatch02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        StkCatch02? topData = resData.retData;
-        if(topData != null) {
-          if (topData.stkList.length > 0) {
-            if (topData.stkList.length > 5) {
-              _stkCatchTopList.addAll(topData.stkList.getRange(0, 5));
-            } else {
-              _stkCatchTopList.addAll(topData.stkList);
-            }
+        StkCatch02 topData = resData.retData;
+        if (topData.stkList.isNotEmpty) {
+          if (topData.stkList.length > 5) {
+            _stkCatchTopList.addAll(topData.stkList.getRange(0, 5));
+          } else {
+            _stkCatchTopList.addAll(topData.stkList);
           }
         }
-        _isTopEmpty = false;
-        setState(() {});
-      } else {
-        _isTopEmpty = true;
-        setState(() {});
       }
+
+      setState(() {});
 
       _fetchPosts(TR.FIND01,
           jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));

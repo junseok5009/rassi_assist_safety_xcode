@@ -23,18 +23,15 @@ import '../report_analyze_charts/report_analyze_chart3_page.dart';
 /// 종목홈(개편)_홈_외국인/기관 매매동향
 
 class StockHomeHomeTileReportAnalyze extends StatefulWidget {
-  //const StockHomeHomeTileReportAnalyze({Key? key}) : super(key: key);
-  static final GlobalKey<_StockHomeHomeTileReportAnalyzeState> globalKey =
+  static final GlobalKey<StockHomeHomeTileReportAnalyzeState> globalKey =
       GlobalKey();
-
   StockHomeHomeTileReportAnalyze() : super(key: globalKey);
-
   @override
   State<StockHomeHomeTileReportAnalyze> createState() =>
-      _StockHomeHomeTileReportAnalyzeState();
+      StockHomeHomeTileReportAnalyzeState();
 }
 
-class _StockHomeHomeTileReportAnalyzeState
+class StockHomeHomeTileReportAnalyzeState
     extends State<StockHomeHomeTileReportAnalyze>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileReportAnalyze> {
   int _divIndex = 0; // 0 : 목표가 / 1 : 발생트렌드 / 2 : 발행증권사
@@ -62,6 +59,13 @@ class _StockHomeHomeTileReportAnalyzeState
   }
 
   @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     return Column(
@@ -85,8 +89,8 @@ class _StockHomeHomeTileReportAnalyzeState
               _divIndex == 0
                   ? ReportAnalyzeChart1Page()
                   : _divIndex == 1
-                      ? ReportAnalyzeChart2Page()
-                      : ReportAnalyzeChart3Page(),
+                      ? const ReportAnalyzeChart2Page()
+                      : const ReportAnalyzeChart3Page(),
               const SizedBox(
                 height: 20,
               ),
@@ -94,7 +98,7 @@ class _StockHomeHomeTileReportAnalyzeState
                 onTap: () {
                   // 최신 종목 리포트 리스트 페이지
                   basePageState.callPageRouteData(
-                    StockRecentReportListPage(),
+                    const StockRecentReportListPage(),
                     PgData(
                       stockName: AppGlobal().stkName,
                       stockCode: AppGlobal().stkCode,

@@ -8,6 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -17,17 +18,16 @@ import 'package:rassi_assist/models/tr_rassi/tr_rassi02.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../common/common_popup.dart';
 import '../../../models/pg_data.dart';
 import '../../../models/rassiro.dart';
 import '../../../models/none_tr/stock/stock.dart';
+import '../../common/common_popup.dart';
 
 /// 2023.02.22_HJS
 /// AI(라씨로) 속보 리스트 페이지
 class StockAiBreakingNewsListPage extends StatefulWidget {
-  //const StockAiBreakingNewsListPage({Key? key}) : super(key: key);
   static const String TAG_NAME = '종목_AI속보_리스트';
-  //static final GlobalKey<StockAiBreakingNewsListPageState> globalKey = GlobalKey();
+
   const StockAiBreakingNewsListPage({Key? key}) : super(key: key);
 
   @override
@@ -39,7 +39,6 @@ class StockAiBreakingNewsListPageState
     extends State<StockAiBreakingNewsListPage> {
   late SharedPreferences _prefs;
   String _userId = "";
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   String _isNoData = '';
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String deviceModel = '';
@@ -96,19 +95,23 @@ class StockAiBreakingNewsListPageState
         });
   }
 
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   // 저장된 데이터를 가져오는 것에 시간이 필요함
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    if (_bYetDispose) {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      deviceModel = iosInfo.model!;
-    }
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    // deviceModel = iosInfo.model;
   }
 
   @override
   void dispose() {
-    _bYetDispose = false;
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -180,11 +183,10 @@ class StockAiBreakingNewsListPageState
                 _isDivStock = false;
               });
               SchedulerBinding.instance.addPostFrameCallback((_) {
-                if (_allPageNo == 0) {
+                if (_allPageNo == 0)
                   _requestTrRassi01();
-                } else if (_scrollController.position.atEdge) {
+                else if (_scrollController.position.atEdge)
                   _checkAndRequestTrAnything();
-                }
               });
             },
             splashColor: Colors.transparent,
@@ -206,11 +208,10 @@ class StockAiBreakingNewsListPageState
                         _isDivStock = false;
                       });
                       SchedulerBinding.instance.addPostFrameCallback((_) {
-                        if (_allPageNo == 0) {
+                        if (_allPageNo == 0)
                           _requestTrRassi01();
-                        } else if (_scrollController.position.atEdge) {
+                        else if (_scrollController.position.atEdge)
                           _checkAndRequestTrAnything();
-                        }
                       });
                     },
                   ),
@@ -361,28 +362,12 @@ class StockAiBreakingNewsListPageState
   _navigateAndWaitReturn(BuildContext context) async {
     // Navigator.push는 Future를 반환합니다. Future는 선택 창에서
     // Navigator.pop이 호출된 이후 완료될 것입니다.
-/*    final result = await Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              SearchPage(),
-          settings: RouteSettings(
-            arguments: PgData(
-              pgSn: '',
-            ),
-          ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            var begin = const Offset(0.0, 1.0);
-            var end = Offset.zero;
-            var tween = Tween(begin: begin, end: end)
-                .chain(CurveTween(curve: Curves.ease));
-            var offsetAnimation = animation.drive(tween);
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-        ));
+    final result = await Navigator.push(
+      context,
+      CustomNvRouteClass.createRoute(
+        SearchPage.goStockHome(),
+      ),
+    );
     if (result != null &&
         result is Stock &&
         result.stockName.isNotEmpty &&
@@ -395,7 +380,7 @@ class StockAiBreakingNewsListPageState
       _stockTotalPageSize = 19;
       _requestTrRassi02();
       _scrollController.jumpTo(_scrollController.position.minScrollExtent);
-    }*/
+    }
   }
 
   _checkAndRequestTrAnything() {
@@ -441,12 +426,11 @@ class StockAiBreakingNewsListPageState
           'Content-Type': 'application/json; charset=UTF-8',
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -31,8 +30,6 @@ class SignalBoardPage extends StatelessWidget {
   static const String TAG = "[SignalBoardPage]";
   static const String TAG_NAME = '매매신호_종합보드';
 
-  const SignalBoardPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
@@ -40,15 +37,13 @@ class SignalBoardPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(toolbarHeight: 0,
           backgroundColor: RColor.deepStat, elevation: 0,),
-        body: const SignalBoardWidget(),
+        body: SignalBoardWidget(),
       ),
     );
   }
 }
 
 class SignalBoardWidget extends StatefulWidget {
-  const SignalBoardWidget({super.key});
-
   @override
   State<StatefulWidget> createState() => SignalBoardState();
 }
@@ -87,10 +82,7 @@ class SignalBoardState extends State<SignalBoardWidget> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: SignalBoardPage.TAG_NAME,
-      screenClassOverride: SignalBoardPage.TAG_NAME,);
-
+    CustomFirebaseClass.logEvtScreenView(SignalBoardPage.TAG_NAME,);
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 500), (){
       DLog.d(SignalBoardPage.TAG, "delayed user id : $_userId");

@@ -16,6 +16,7 @@ import '../common/common_appbar.dart';
 
 /// 2021.08.02
 /// 현재 보유중인 종목
+
 class SignalHoldPage extends StatefulWidget {
   static const routeName = '/page_signal_hold';
   static const String TAG = "[SignalHoldPage] ";
@@ -101,15 +102,18 @@ class SignalHoldPageState extends State<SignalHoldPage> {
 
   Widget _setLayout() {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, '현재 보유중인 종목'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '현재 보유중인 종목',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: ListView.builder(
           controller: _scrollController,
           itemCount: _listData.length,
           itemBuilder: (context, index) {
             return _buildOneItem(
-                _listData[index].elapsedTmTx,
-                _listData[index].listData);
+                _listData[index].elapsedTmTx, _listData[index].listData);
           },
         ),
       ),

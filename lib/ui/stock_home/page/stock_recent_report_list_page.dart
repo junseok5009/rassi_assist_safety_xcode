@@ -6,17 +6,17 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
-import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tr_report04.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,6 +24,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// 종목홈_리포트 분석_최신 리포트 리스트 화면
 class StockRecentReportListPage extends StatefulWidget {
   static const String TAG_NAME = '종목_최신_리포트_리스트';
+
+  const StockRecentReportListPage({Key? key}) : super(key: key);
 
   @override
   State<StockRecentReportListPage> createState() =>
@@ -33,7 +35,6 @@ class StockRecentReportListPage extends StatefulWidget {
 class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
   late SharedPreferences _prefs;
   String _userId = '';
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String deviceModel = '';
 
@@ -94,18 +95,22 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    if (_bYetDispose) {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      deviceModel = iosInfo.model!;
-    }
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    // deviceModel = iosInfo.model;
   }
 
   @override
   void dispose() {
-    _bYetDispose = false;
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -220,8 +225,9 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
               });
               SchedulerBinding.instance.addPostFrameCallback((_) {
                 if (_scrollController.hasClients &&
-                    _scrollController.position.atEdge)
+                    _scrollController.position.atEdge) {
                   _checkAndRequestTrReport04();
+                }
               });
             },
             splashColor: Colors.transparent,
@@ -246,8 +252,9 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
                         });
                         SchedulerBinding.instance.addPostFrameCallback((_) {
                           if (_scrollController.hasClients &&
-                              _scrollController.position.atEdge)
+                              _scrollController.position.atEdge) {
                             _checkAndRequestTrReport04();
+                          }
                         });
                       },
                     ),
@@ -311,8 +318,8 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
     return Expanded(
       child: Column(
         children: [
-          if (((_isDivStock && _stockReportList.length < 1) ||
-              (!_isDivStock && _allReportList.length < 1)))
+          if (((_isDivStock && _stockReportList.isEmpty) ||
+              (!_isDivStock && _allReportList.isEmpty)))
             /* Expanded(
               child: Center(
                 child: Text('최신 리포트가 없습니다.'),
@@ -383,14 +390,11 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
   _navigateAndWaitReturn(BuildContext context) async {
     // Navigator.push는 Future를 반환합니다. Future는 선택 창에서
     // Navigator.pop이 호출된 이후 완료될 것입니다.
-/*
+
     final result = await Navigator.push(
       context,
-      commonPageRouteFromBottomToUpWithSettings(
-        SearchPage(),
-        PgData(
-          pgSn: '',
-        ),
+      CustomNvRouteClass.createRoute(
+        SearchPage.goStockHome(),
       ),
     );
 
@@ -405,9 +409,10 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
       _stockPageNo = 0;
       _stockTotalPageSize = 0;
       _requestTrReport04();
-      if (_scrollController.hasClients)
+      if (_scrollController.hasClients) {
         _scrollController.jumpTo(_scrollController.position.minScrollExtent);
-    }*/
+      }
+    }
   }
 
   _checkAndRequestTrReport04() {
@@ -442,12 +447,11 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -461,23 +465,25 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
           _stockPageNo++;
           _stockTotalPageSize = int.parse(report04.totalPageSize);
           //if(_stockPageNo == 0) _stockPageNo++;
-          if (report04.listReport.length > 0) {
+          if (report04.listReport.isNotEmpty) {
             _stockReportList.addAll(
               report04.listReport,
             );
-            if (_stockPageNo < _stockTotalPageSize)
+            if (_stockPageNo < _stockTotalPageSize) {
               _stockReportList.add(Report04Report());
+            }
           }
         } else {
           _allPageNo++;
           _allTotalPageSize = int.parse(report04.totalPageSize);
           //if(_allPageNo == 0) _allPageNo++;
-          if (report04.listReport.length > 0) {
+          if (report04.listReport.isNotEmpty) {
             _allReportList.addAll(
               report04.listReport,
             );
-            if (_allPageNo < _allTotalPageSize)
+            if (_allPageNo < _allTotalPageSize) {
               _allReportList.add(Report04Report());
+            }
           }
         }
         setState(() {});

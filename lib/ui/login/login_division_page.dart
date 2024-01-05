@@ -745,12 +745,12 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
               }
             case 400:
               {
-                CommonPopup().showDialogNetErr(context);
+                CommonPopup.instance.showDialogNetErr(context);
                 break;
               }
             default:
               {
-                CommonPopup().showDialogMsg(context, value.appDialogMsg);
+                CommonPopup.instance.showDialogMsg(context, value.appDialogMsg);
               }
           }
         });

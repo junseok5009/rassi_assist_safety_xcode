@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
-import 'package:rassi_assist/common/common_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
+import 'package:rassi_assist/common/routes.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/home/sliver_signal_page.dart';
@@ -177,17 +178,18 @@ class _CardProm02State extends State<CardProm02> {
         ),
       ),
       onTap: () async {
-        DLog.d('TileProm02', 'Promotion -> ${item.title}');
+        DLog.d('TileProm02', 'Promotion -> ' + item.title);
         DLog.d('TileProm02', 'item.linkPage : ${item.linkPage}');
 
-        if (item.linkType == 'APP') {
+        if (item.linkType == LD.linkTypeApp) {
           // 앱 내 이동
           _navigateAndGetResultPayPremiumPage(context, item);
-        } else if (item.linkType == 'URL') {
-          // commonLaunchURL(item.linkPage);
-          Platform.isIOS
-              ? commonLaunchURL(item.linkPage)
-              : commonLaunchUrlApp(item.linkPage);
+        } else if (item.linkType == LD.linkTypeUrl) {
+          basePageState.goLandingPage(
+              LD.linkTypeUrl, item.linkPage, item.title, '', '');
+        } else if (item.linkType == LD.linkTypeOutLink) {
+          basePageState.goLandingPage(
+              LD.linkTypeOutLink, item.linkPage, '', '', '');
         }
       },
     );
@@ -204,8 +206,8 @@ class _CardProm02State extends State<CardProm02> {
           result = await Navigator.push(
             buildContext,
             Platform.isIOS
-                ? commonPageRouteFromBottomToUp(PayPremiumPage())
-                : commonPageRouteFromBottomToUp(PayPremiumAosPage()),
+                ? CustomNvRouteClass.createRoute(const PayPremiumPage())
+                : CustomNvRouteClass.createRoute( PayPremiumAosPage()),
           );
           break;
         }
@@ -214,13 +216,17 @@ class _CardProm02State extends State<CardProm02> {
           result = await Navigator.push(
             buildContext,
             Platform.isIOS
-                ? commonPageRouteFromBottomToUpWithSettings(
+                ? CustomNvRouteClass.createRouteData(
                     const PayPremiumPromotionPage(),
-                    PgData(data: 'ad5'),
+                    RouteSettings(
+                      arguments: PgData(data: 'ad5'),
+                    ),
                   )
-                : commonPageRouteFromBottomToUpWithSettings(
-                    PayPremiumPromotionAosPage(),
-                    PgData(data: 'ad5'),
+                : CustomNvRouteClass.createRouteData(
+                     PayPremiumPromotionAosPage(),
+                    RouteSettings(
+                      arguments: PgData(data: 'ad5'),
+                    ),
                   ),
           );
           break;
@@ -230,16 +236,19 @@ class _CardProm02State extends State<CardProm02> {
           result = await Navigator.push(
             buildContext,
             Platform.isIOS
-                ? commonPageRouteFromBottomToUpWithSettings(
-                    PayPremiumPromotionPage(),
-                    PgData(data: 'ad4'),
+                ? CustomNvRouteClass.createRouteData(
+                    const PayPremiumPromotionPage(),
+                    RouteSettings(
+                      arguments: PgData(data: 'ad4'),
+                    ),
                   )
-                : commonPageRouteFromBottomToUpWithSettings(
-                    PayPremiumPromotionAosPage(),
-                    PgData(data: 'ad4'),
+                : CustomNvRouteClass.createRouteData(
+                     PayPremiumPromotionAosPage(),
+                    RouteSettings(
+                      arguments: PgData(data: 'ad4'),
+                    ),
                   ),
           );
-
           break;
         }
       case 'LPH9':
@@ -247,13 +256,17 @@ class _CardProm02State extends State<CardProm02> {
           result = await Navigator.push(
             buildContext,
             Platform.isIOS
-                ? commonPageRouteFromBottomToUpWithSettings(
-                    PayPremiumPromotionPage(),
-                    PgData(data: 'ad3'),
+                ? CustomNvRouteClass.createRouteData(
+                    const PayPremiumPromotionPage(),
+                    RouteSettings(
+                      arguments: PgData(data: 'ad3'),
+                    ),
                   )
-                : commonPageRouteFromBottomToUpWithSettings(
-                    PayPremiumPromotionAosPage(),
-                    PgData(data: 'ad3'),
+                : CustomNvRouteClass.createRouteData(
+                     PayPremiumPromotionAosPage(),
+                    RouteSettings(
+                      arguments: PgData(data: 'ad3'),
+                    ),
                   ),
           );
           break;
@@ -263,13 +276,17 @@ class _CardProm02State extends State<CardProm02> {
           result = await Navigator.push(
             buildContext,
             Platform.isIOS
-                ? commonPageRouteFromBottomToUpWithSettings(
-                    PayPremiumPromotionPage(),
-                    PgData(data: 'at1'),
+                ? CustomNvRouteClass.createRouteData(
+                    const PayPremiumPromotionPage(),
+                    RouteSettings(
+                      arguments: PgData(data: 'at1'),
+                    ),
                   )
-                : commonPageRouteFromBottomToUpWithSettings(
-                    PayPremiumPromotionAosPage(),
-                    PgData(data: 'at1'),
+                : CustomNvRouteClass.createRouteData(
+                     PayPremiumPromotionAosPage(),
+                    RouteSettings(
+                      arguments: PgData(data: 'at1'),
+                    ),
                   ),
           );
           break;
@@ -279,13 +296,17 @@ class _CardProm02State extends State<CardProm02> {
           result = await Navigator.push(
             buildContext,
             Platform.isIOS
-                ? commonPageRouteFromBottomToUpWithSettings(
+                ? CustomNvRouteClass.createRouteData(
                     const PayPremiumPromotionPage(),
-                    PgData(data: 'at2'),
+                    RouteSettings(
+                      arguments: PgData(data: 'at2'),
+                    ),
                   )
-                : commonPageRouteFromBottomToUpWithSettings(
-                    PayPremiumPromotionAosPage(),
-                    PgData(data: 'at2'),
+                : CustomNvRouteClass.createRouteData(
+                     PayPremiumPromotionAosPage(),
+                    RouteSettings(
+                      arguments: PgData(data: 'at2'),
+                    ),
                   ),
           );
           break;
@@ -304,7 +325,8 @@ class _CardProm02State extends State<CardProm02> {
       } else if (SliverSignalWidget.globalKey.currentState != null) {
         // 홈_AI매매신호 화면 결제 후 갱신
         var childCurrentState0 = SliverSignalWidget.globalKey.currentState;
-        childCurrentState0?.requestTrUser04();
+        //TODO @@@@@
+        // childCurrentState0.reload();
       }
     }
   }

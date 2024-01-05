@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tr_sns03.dart';
 import 'package:rassi_assist/models/tr_sns04.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
@@ -17,8 +17,7 @@ import 'package:rassi_assist/ui/common/only_web_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-/// 2021.02.15
+/// 2021.02.15 - JY
 /// 소셜지수 핫 종목 리스트
 class SocialListPage extends StatefulWidget {
   static const routeName = '/page_social_list';
@@ -85,7 +84,11 @@ class SocialListPageState extends State<SocialListPage> {
   Widget _setLayout() {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: CommonAppbar.basic(context, '오늘의 소셜지수 핫 종목'),
+        appBar: CommonAppbar.basic(
+          buildContext: context,
+          title: '오늘의 소셜지수 핫 종목',
+          elevation: 1,
+        ),
         body: SafeArea(
           child: ListView.builder(
             itemCount: _dataList.length + 1,
@@ -93,10 +96,8 @@ class SocialListPageState extends State<SocialListPage> {
               if (index == 0) {
                 return _setHeaderView();
               } else {
-                return _buildOneItem(
-                    _dataList[index - 1].issueTime,
-                    _dataList[index - 1].listData
-                );
+                return _buildOneItem(_dataList[index - 1].issueTime,
+                    _dataList[index - 1].listData);
               }
             },
           ),
@@ -121,38 +122,6 @@ class SocialListPageState extends State<SocialListPage> {
         //   ),
         // ),
         );
-  }
-
-  Widget _setAppBar() {
-    return Container(
-      height: Const.HEIGHT_APP_BAR,
-      decoration: const BoxDecoration(
-          border: Border(
-        bottom: BorderSide(color: RColor.lineGrey, width: 1),
-      )),
-      child: Row(
-        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            padding: const EdgeInsets.only(
-              left: 12,
-              right: 3,
-            ),
-            constraints: const BoxConstraints(),
-            icon: const Icon(Icons.arrow_back_ios),
-            // iconSize: 20,
-            onPressed: () => Navigator.of(context).pop(null),
-          ),
-          const Text(
-            '오늘의 소셜지수 핫 종목',
-            style: TStyle.commonTitle,
-          ),
-          const SizedBox(
-            width: 40,
-          )
-        ],
-      ),
-    );
   }
 
   //타임라인 리스트
@@ -238,18 +207,15 @@ class SocialListPageState extends State<SocialListPage> {
                                     ),
                                     InkWell(
                                       onTap: () {
-                                        //TODO @@@@@
-                                        // Navigator.push(
-                                        //   context,
-                                        //   _createRouteData(
-                                        //     OnlyWebView(),
-                                        //     RouteSettings(
-                                        //       arguments: PgNews(
-                                        //           linkUrl:
-                                        //               subList[index].linkUrl),
-                                        //     ),
-                                        //   ),
-                                        // );
+                                        Navigator.push(
+                                          context,
+                                          CustomNvRouteClass.createRoute(
+                                            OnlyWebViewPage(
+                                              title: '',
+                                              url: subList[index].linkUrl,
+                                            ),
+                                          ),
+                                        );
                                       },
                                       child: Text(
                                         subList[index].title,

@@ -18,7 +18,6 @@ import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/test/theme_viewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 /// 2021.07
 /// 테마 검색
 class ThemeSearch extends StatelessWidget {
@@ -26,15 +25,16 @@ class ThemeSearch extends StatelessWidget {
   static const String TAG = "[ThemeSearch]";
   static const String TAG_NAME = '테마검색';
 
-  const ThemeSearch({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: Scaffold(
-        appBar: AppBar(toolbarHeight: 0,
-          backgroundColor: RColor.deepStat, elevation: 0,),
+        appBar: AppBar(
+          toolbarHeight: 0,
+          backgroundColor: RColor.deepStat,
+          elevation: 0,
+        ),
         body: ThemeSearchWidget(),
       ),
     );
@@ -42,8 +42,6 @@ class ThemeSearch extends StatelessWidget {
 }
 
 class ThemeSearchWidget extends StatefulWidget {
-  const ThemeSearchWidget({super.key});
-
   @override
   State<StatefulWidget> createState() => ThemeSearchState();
 }
@@ -53,11 +51,11 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
   String _userId = "";
 
   bool isSearching = false;
-  final List<ThemeInfo> _listData = [];   //검색어 입력하여 검색된 리스트
+  final List<ThemeInfo> _listData = []; //검색어 입력하여 검색된 리스트
 
   bool isMyKeyword = true;
   final List<Stock> _recentMyList = [];
-  bool recentEmpty = false;           //최근 검색 종목이 없음
+  bool recentEmpty = false; //최근 검색 종목이 없음
 
   @override
   void initState() {
@@ -89,21 +87,28 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-/*      appBar: CustomAppBar(
+      appBar: CustomAppBar(
         height: 110,
         child: Column(
           children: [
             AppBar(
-              title: const Text('테마검색', style: TStyle.title20,),
+              title: const Text(
+                '테마검색',
+                style: TStyle.title20,
+              ),
               automaticallyImplyLeading: false,
               backgroundColor: Colors.white,
               shadowColor: Colors.white,
               elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 6.0,
               actions: [
-                IconButton(icon: const Icon(Icons.close),
+                IconButton(
+                  icon: const Icon(Icons.close),
                   color: Colors.black,
-                  onPressed: () => Navigator.of(context).pop(null),),
-                const SizedBox(width: 10.0,),
+                  onPressed: () => Navigator.of(context).pop(null),
+                ),
+                const SizedBox(
+                  width: 10.0,
+                ),
               ],
             ),
 
@@ -111,15 +116,13 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
             _setSearchField(),
           ],
         ),
-      ),*/
-
+      ),
       body: SafeArea(
         child: Stack(
           children: [
-
             // 인기 검색어 ------------------------------------------
             Visibility(
-              visible: false,  //!isSearching,
+              visible: false, //!isSearching,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -132,11 +135,13 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
                         child: Wrap(
                           spacing: 30.0,
                           runSpacing: 14.0,
-                          children: List.generate(_recentMyList.length, (index){
+                          children: List.generate(_recentMyList.length, (index) {
                             return InkWell(
-                              child: Text(_recentMyList[index].stockName, style: TStyle.content15,),
-                              onTap: (){
-                              },
+                              child: Text(
+                                _recentMyList[index].stockName,
+                                style: TStyle.content15,
+                              ),
+                              onTap: () {},
                             );
                           }),
                         ),
@@ -152,12 +157,12 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15.0,),
-
+                  const SizedBox(
+                    height: 15.0,
+                  ),
                 ],
               ),
             ),
-
 
             // 유저 검색어 ------------------------------------------
             Visibility(
@@ -168,7 +173,6 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
                 itemBuilder: (BuildContext context, index) => _tileSearch(_listData[index]),
               ),
             ),
-
           ],
         ),
       ),
@@ -179,7 +183,10 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
   Widget _setSearchField() {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(left: 15.0, right: 15.0,),
+      margin: const EdgeInsets.only(
+        left: 15.0,
+        right: 15.0,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
       decoration: UIStyle.roundBtnLineBox(RColor.mainColor),
       child: Stack(
@@ -187,8 +194,8 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
           TextField(
             decoration: const InputDecoration.collapsed(hintText: '테마명을 입력하세요.'),
             controller: null,
-            onChanged: (text){
-              if(text.length > 1) {
+            onChanged: (text) {
+              if (text.length > 1) {
                 _handleSubmit(text.toString());
               } else {
                 setState(() {
@@ -197,22 +204,25 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
               }
             },
           ),
-
           const Positioned(
             right: 1.0,
-            child: Icon(Icons.search, size: 22, color: RColor.mainColor,),
+            child: Icon(
+              Icons.search,
+              size: 22,
+              color: RColor.mainColor,
+            ),
           ),
         ],
       ),
     );
   }
 
-
   // 검색버튼 선택시 TODO 짧은 시간에 중복된 요청이 일어날 경우 처리는??
   void _handleSubmit(String keyword) {
     DLog.d(ThemeSearch.TAG, keyword.toString());
 
-    _fetchPosts(TR.THEME02,
+    _fetchPosts(
+        TR.THEME02,
         jsonEncode(<String, String>{
           'userId': _userId,
           'keyword': keyword,
@@ -223,9 +233,11 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
   Widget _tileSearch(ThemeInfo item) {
     return ListTile(
       title: Text(item.themeName),
-      onTap: (){
-        basePageState.callPageRouteUpData(const ThemeViewer(),
-            PgData(userId: '', pgSn: item.themeCode));
+      onTap: () {
+        basePageState.callPageRouteUpData(
+          const ThemeViewer(),
+          PgData(userId: '', pgSn: item.themeCode),
+        );
       },
     );
   }
@@ -234,7 +246,8 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
   Widget _setSubTitle(String subTitle) {
     return Padding(
       padding: const EdgeInsets.only(top: 15, left: 10, right: 10),
-      child: Text(subTitle,
+      child: Text(
+        subTitle,
         style: const TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 16,
@@ -257,7 +270,10 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
-                  child: const Icon(Icons.close, color: Colors.black,),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                   },
@@ -267,16 +283,31 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
             content: SingleChildScrollView(
               child: Column(
                 children: [
-                  Image.asset('images/rassibs_img_infomation.png',
-                    height: 60, fit: BoxFit.contain,),
-                  const SizedBox(height: 5.0,),
+                  Image.asset(
+                    'images/rassibs_img_infomation.png',
+                    height: 60,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(
+                    height: 5.0,
+                  ),
                   const Padding(
                     padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text('안내', style: TStyle.commonTitle,),
+                    child: Text(
+                      '안내',
+                      style: TStyle.commonTitle,
+                    ),
                   ),
-                  const SizedBox(height: 25.0,),
-                  const Text(RString.err_network, textAlign: TextAlign.center,),
-                  const SizedBox(height: 30.0,),
+                  const SizedBox(
+                    height: 25.0,
+                  ),
+                  const Text(
+                    RString.err_network,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: 30.0,
+                  ),
                   MaterialButton(
                     child: Center(
                       child: Container(
@@ -284,10 +315,14 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
                         height: 40,
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
-                          child: Text('확인', style: TStyle.btnTextWht16,),),
+                          child: Text(
+                            '확인',
+                            style: TStyle.btnTextWht16,
+                          ),
+                        ),
                       ),
                     ),
-                    onPressed: (){
+                    onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
@@ -295,8 +330,7 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   //convert 패키지의 jsonDecode 사용
@@ -305,14 +339,15 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
-
     } on TimeoutException catch (_) {
       DLog.d(ThemeSearch.TAG, 'ERR : TimeoutException (12 seconds)');
       _showDialogNetErr();
@@ -326,9 +361,9 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(ThemeSearch.TAG, response.body);
 
-    if(trStr == TR.THEME02) {
+    if (trStr == TR.THEME02) {
       final TrTheme02 resData = TrTheme02.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         // List<ThemeStk> list = resData.retData;
         //
         // if(list != null && list.length > 0) {
@@ -343,8 +378,7 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
         //     isSearching = false;
         //   });
         // }
-      }
-      else {
+      } else {
         //오류
         setState(() {
           isSearching = false;
@@ -354,22 +388,24 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
   }
 }
 
-// class CustomAppBar extends PreferredSizeWidget {
-//   final Widget child;
-//   final double height;
-//
-//   CustomAppBar({@required this.child, this.height = kToolbarHeight});
-//
-//   @override
-//   Size get preferredSize => Size.fromHeight(height);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       height: preferredSize.height,
-//       alignment: Alignment.center,
-//       child: child,
-//     );
-//   }
-// }
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final Widget child;
+  final double height;
 
+  CustomAppBar({
+    required this.child,
+    this.height = kToolbarHeight,
+  });
+
+  @override
+  Size get preferredSize => Size.fromHeight(height);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: preferredSize.height,
+      alignment: Alignment.center,
+      child: child,
+    );
+  }
+}

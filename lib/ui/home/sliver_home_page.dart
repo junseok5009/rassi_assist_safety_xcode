@@ -24,7 +24,6 @@ import 'package:rassi_assist/models/tr_issue03.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi15.dart';
-import 'package:rassi_assist/models/tr_sns03.dart';
 import 'package:rassi_assist/models/tr_stk_catch03.dart';
 import 'package:rassi_assist/models/tr_today/tr_today01.dart';
 import 'package:rassi_assist/models/tr_today/tr_today05.dart';
@@ -107,7 +106,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   final List<StkCatch03> _listCatch03 = []; //이 시간 종목캐치
 
   List<TagNew> _listTagN = []; //이 시간 추천태그
-  final List<Sns03> _socialList = [];
 
   final List<Prom02> _listPrTop = [];
   final List<Prom02> _listPrHgh = [];
@@ -133,49 +131,38 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       SliverHomeWidget.TAG_NAME,
     );
     _userId = appGlobal.userId;
-    _loadPrefData();
+    _loadPrefData().then((value) {
+      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+      _dayCheckPush = _prefs.getString(Const.PREFS_DAY_CHECK_PUSH) ?? '';
+      _dayCheckAD = _prefs.getString(Const.PREFS_DAY_CHECK_AD_HOME) ?? '';
+      appGlobal.userId = _userId;
+      _fetchPosts(
+          TR.TODAY05,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+          }));
+    });
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
-    _token = (await FirebaseMessaging.instance.getToken()) ?? '';
+  Future<void> _loadPrefData() async {
+    _token = (await _messaging.getToken())!;
     _todayString = TStyle.getTodayString();
     _prefs = await SharedPreferences.getInstance();
     if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       DLog.d(SliverHomeWidget.TAG, 'Device Model : ${iosInfo.utsname.machine}');
       DLog.d(SliverHomeWidget.TAG, 'OS Ver : ${iosInfo.systemVersion}');
-      deviceModel = iosInfo.utsname.machine!;
-      deviceOsVer = iosInfo.systemVersion!;
+      // deviceModel = iosInfo.utsname.machine;
+      // deviceOsVer = iosInfo.systemVersion;
     } else if (Platform.isAndroid) {
       inAppBilling = PaymentAosService();
     }
-
-    if (_bYetDispose) {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      _dayCheckPush = _prefs.getString(Const.PREFS_DAY_CHECK_PUSH) ?? '';
-      _dayCheckAD = _prefs.getString(Const.PREFS_DAY_CHECK_AD_HOME) ?? '';
-      appGlobal.userId = _userId;
-      if (_userId != '') {
-        _fetchPosts(
-            TR.TODAY05,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-            }));
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: RColor.bgBasic_fdfdfd,
       child: CustomScrollView(
         slivers: [
           SliverOverlapInjector(
@@ -205,7 +192,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               ),
 
               // 오늘의 AI매매신호는?
-              const HomeTileTodaySignal(),
+              HomeTileTodaySignal(),
 
               Container(
                 margin: const EdgeInsets.only(
@@ -222,7 +209,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               const HomeTileMystockStatus(),
 
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
+                margin: const EdgeInsets.symmetric(vertical: 20),
                 color: const Color(
                   0xffF5F5F5,
                 ),
@@ -261,8 +248,17 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               ),
               _setPrMid(),
 
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 20),
+                color: const Color(
+                  0xffF5F5F5,
+                ),
+                height: 13,
+              ),
+
               // 오늘의 이슈
-              if (_listIssue03.isNotEmpty) HomeTileIssue(_listIssue03),
+              if (_listIssue03.isNotEmpty)
+                HomeTileIssue(listIssue03: _listIssue03),
               const SizedBox(
                 height: 15.0,
               ),
@@ -283,17 +279,19 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 15.0,
-            margin: const EdgeInsets.only(top: 25),
-            color: RColor.new_basic_grey,
+            margin: const EdgeInsets.only(top: 30),
+            color: const Color(
+              0xffF5F5F5,
+            ),
+            height: 13,
           ),
           _setSubTitle("이 시간 추천 태그"),
           Container(
             width: double.infinity,
             margin:
-                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: UIStyle.boxWithOpacityNew(),
+                const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            decoration: UIStyle.boxShadowBasic(16),
             child: Wrap(
               spacing: 7.0,
               alignment: WrapAlignment.center,
@@ -313,7 +311,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(
-          top: 10,
+          top: 20,
         ),
         height:
             appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
@@ -364,10 +362,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   //소항목 타이틀
   Widget _setSubTitle(String subTitle) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+      padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
       child: Text(
         subTitle,
-        style: TStyle.commonTitle,
+        style: TStyle.title18T,
       ),
     );
   }
@@ -725,26 +723,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           minWidth: 1,
           minHeight: 1,
         ),
-        /*child: Image.asset(
-          'images/test_event_popup_img1.png',
-          fit: boxFit,
-        ),*/
-        /*child: Image.network(
-          item.content,
-          fit: boxFit,
-          errorBuilder:
-              (BuildContext context, Object exception, StackTrace stackTrace) {
-            return const Text(
-              'No Image',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Color(0x70444444),
-              ),
-            );
-          },
-        ),*/
         child: CachedNetworkImage(
           imageUrl: item.content,
           fit: boxFit,
@@ -773,7 +751,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           context,
           Platform.isIOS
               ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
+              : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad5'),
         );
       } else if (prItem.linkPage == 'LPH8') {
@@ -781,7 +759,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           context,
           Platform.isIOS
               ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
+              : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad4'),
         );
       } else if (prItem.linkPage == 'LPH9') {
@@ -789,7 +767,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           context,
           Platform.isIOS
               ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
+              : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad3'),
         );
       } else if (prItem.linkPage == 'LPHA') {
@@ -797,7 +775,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           context,
           Platform.isIOS
               ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
+              : const PayPremiumPromotionAosPage(),
           PgData(data: 'at1'),
         );
       } else if (prItem.linkPage == 'LPHB') {
@@ -805,7 +783,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           context,
           Platform.isIOS
               ? const PayPremiumPromotionPage()
-              : PayPremiumPromotionAosPage(),
+              : const PayPremiumPromotionAosPage(),
           PgData(data: 'at2'),
         );
       } else {
@@ -1198,10 +1176,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         jsonEncode(<String, String>{
           'userId': _userId,
         }));
-    // if (HomeTileTodaySignal.globalKey.currentState != null) {
-    //   var childCurrentState = HomeTileTodaySignal.globalKey.currentState;
-    //   childCurrentState.initPage();
-    // }
+    if (HomeTileTodaySignal.globalKey.currentState != null) {
+      var childCurrentState = HomeTileTodaySignal.globalKey.currentState;
+      childCurrentState?.initPage();
+    }
   }
 
   //convert 패키지의 jsonDecode 사용
@@ -1220,10 +1198,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(SliverHomeWidget.TAG, 'ERR : TimeoutException (12 seconds)');
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
       DLog.d(SliverHomeWidget.TAG, 'ERR : SocketException');
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1232,11 +1210,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     DLog.d(SliverHomeWidget.TAG, response.body);
 
     if (trStr == TR.TODAY05) {
+      _today05 = defToday05;
       final TrToday05 resData = TrToday05.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _today05 = resData.retData;
-      } else {
-        _today05 = defToday05;
       }
       setState(() {});
       _fetchPosts(
@@ -1244,11 +1221,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
-    }
-
-    else if (trStr == TR.TODAY01) {
+    } else if (trStr == TR.TODAY01) {
       final TrToday01 resData = TrToday01.fromJson(jsonDecode(response.body));
-      _listToday01Model.clear;
+      _listToday01Model.clear();
+
       if (resData.retCode == RT.SUCCESS) {
         List<Today01> list = resData.listData;
         final List<Today01> listToday01SSIG = [];
@@ -1323,11 +1299,11 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           }));
     } else if (trStr == TR.ISSUE03) {
       final TrIssue03 resData = TrIssue03.fromJson(jsonDecode(response.body));
+      _listIssue03.clear();
       if (resData.retCode == RT.SUCCESS) {
         List<Issue03> list = resData.listData;
 
         setState(() {
-          _listIssue03.clear();
           _listIssue03.addAll(list);
         });
       }
@@ -1390,194 +1366,15 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
 
     //홍보
     else if (trStr == TR.PROM02) {
+      _listPrTop.clear();
+      _listPrHgh.clear();
+      _listPrMid.clear();
+      _listPrLow.clear();
+      _listPrPopup.clear();
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
 
-      /* resData.retCode = RT.SUCCESS;
-      resData.retData.add(
-        Prom02(
-          promoSn: "261",
-          viewPage: "LPE1",
-          viewPosition: "HGH",
-          promoDiv: "BANNER",
-          contentType: "IMG",
-          title: "테스트테스트",
-          content:
-              "http://files.thinkpool.com/rassiPrm/0106eldercall_F9EDD7.jpg",
-          linkType: "APP",
-          linkPage: "LPHA",
-          popupBlockTime: "1D",
-        ),
-      );
-
-      resData.retData.add(
-        Prom02(
-          promoSn: "261",
-          viewPage: "LPE1",
-          viewPosition: "TOP",
-          promoDiv: "BANNER",
-          contentType: "IMG",
-          title: "테스트테스트",
-          content:
-              "http://files.thinkpool.com/rassiPrm/0106eldercall_F9EDD7.jpg",
-          linkType: "APP",
-          linkPage: "LPHA",
-          popupBlockTime: "1D",
-        ),
-      );
-
-      resData.retData.add(
-        Prom02(
-          promoSn: "261",
-          viewPage: "LPE1",
-          viewPosition: "MID",
-          promoDiv: "BANNER",
-          contentType: "IMG",
-          title: "테스트테스트",
-          content:
-              "http://files.thinkpool.com/rassiPrm/0106eldercall_F9EDD7.jpg",
-          linkType: "APP",
-          linkPage: "LPHA",
-          popupBlockTime: "1D",
-        ),
-      );
-
-      resData.retData.add(
-        Prom02(
-          promoSn: "261",
-          viewPage: "LPE1",
-          viewPosition: "LOW",
-          promoDiv: "BANNER",
-          contentType: "IMG",
-          title: "테스트테스트",
-          content:
-              "http://files.thinkpool.com/rassiPrm/0106eldercall_F9EDD7.jpg",
-          linkType: "APP",
-          linkPage: "LPHA",
-          popupBlockTime: "1D",
-        ),
-      );*/
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData.isNotEmpty) {
-          /*resData.retData.add(Prom02(promoSn: "261", viewPage: "LPE1", viewPosition: "", promoDiv: "POPUP", contentType: "IMG", title: "테스트테스트",
-              content: "http://files.thinkpool.com/rassiPrm/0106eldercall_F9EDD7.jpg",
-              linkType: "APP",
-              linkPage: "LPHA",
-              popupBlockTime: "1D",
-            buttonTxt: '이동하기'
-            ),);*/
-
-          resData.retData.add(
-            Prom02(
-              promoSn: "328",
-              viewPage: "LPB1",
-              viewPosition: "HGH",
-              promoDiv: "BANNER",
-              contentType: "IMG",
-              title: "알림 설정 안내",
-              content: "http://files.thinkpool.com/rassiPrm/app1_DBBD6F.png",
-              linkType: "URL",
-              linkPage:
-                  "https://thinkpoolost.wixsite.com/moneybot/aosalarmsetting",
-              popupBlockTime: "1D",
-            ),
-          );
-
-          resData.retData.add(
-            Prom02(
-              promoSn: "328",
-              viewPage: "LPB1",
-              viewPosition: "HGH",
-              promoDiv: "BANNER",
-              contentType: "IMG",
-              title: "알림 설정 안내",
-              content: "http://files.thinkpool.com/rassiPrm/9_1_B8E9FF.png",
-              linkType: "URL",
-              linkPage:
-                  "https://thinkpoolost.wixsite.com/moneybot/aosalarmsetting",
-              popupBlockTime: "1D",
-            ),
-          );
-
-          resData.retData.add(
-            Prom02(
-              promoSn: "328",
-              viewPage: "LPB1",
-              viewPosition: "HGH",
-              promoDiv: "BANNER",
-              contentType: "IMG",
-              title: "알림 설정 안내",
-              content: "http://files.thinkpool.com/rassiPrm/wb005_E6D9CD.jpg",
-              linkType: "URL",
-              linkPage:
-                  "https://thinkpoolost.wixsite.com/moneybot/aosalarmsetting",
-              popupBlockTime: "1D",
-            ),
-          );
-
-          resData.retData.add(
-            Prom02(
-              promoSn: "328",
-              viewPage: "LPB1",
-              viewPosition: "TOP",
-              promoDiv: "BANNER",
-              contentType: "IMG",
-              title: "알림 설정 안내",
-              content: "http://files.thinkpool.com/rassiPrm/soso_EFD9FF.jpg",
-              linkType: "URL",
-              linkPage:
-                  "https://thinkpoolost.wixsite.com/moneybot/aosalarmsetting",
-              popupBlockTime: "1D",
-            ),
-          );
-
-          resData.retData.add(
-            Prom02(
-              promoSn: "328",
-              viewPage: "LPB1",
-              viewPosition: "TOP",
-              promoDiv: "BANNER",
-              contentType: "IMG",
-              title: "알림 설정 안내",
-              content: "http://files.thinkpool.com/rassiPrm/st3_232327.png",
-              linkType: "URL",
-              linkPage:
-                  "https://thinkpoolost.wixsite.com/moneybot/aosalarmsetting",
-              popupBlockTime: "1D",
-            ),
-          );
-
-          resData.retData.add(
-            Prom02(
-              promoSn: "328",
-              viewPage: "LPB1",
-              viewPosition: "MID",
-              promoDiv: "BANNER",
-              contentType: "IMG",
-              title: "알림 설정 안내",
-              content: "http://files.thinkpool.com/rassiPrm/wb005_E6D9CD.jpg",
-              linkType: "URL",
-              linkPage:
-                  "https://thinkpoolost.wixsite.com/moneybot/aosalarmsetting",
-              popupBlockTime: "1D",
-            ),
-          );
-
-          resData.retData.add(
-            Prom02(
-              promoSn: "328",
-              viewPage: "LPB1",
-              viewPosition: "MID",
-              promoDiv: "BANNER",
-              contentType: "IMG",
-              title: "알림 설정 안내",
-              content: "http://files.thinkpool.com/rassiPrm/app1_DBBD6F.png",
-              linkType: "URL",
-              linkPage:
-                  "https://thinkpoolost.wixsite.com/moneybot/aosalarmsetting",
-              popupBlockTime: "1D",
-            ),
-          );
-
           for (int i = 0; i < resData.retData.length; i++) {
             Prom02 item = resData.retData[i];
             DLog.e('item : ${item.toString()}');
@@ -1588,21 +1385,13 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                 if (item.viewPosition == 'MID') _listPrMid.add(item);
                 if (item.viewPosition == 'LOW') _listPrLow.add(item);
               }
+            } else if (item.promoDiv == 'POPUP' && item.contentType == 'IMG') {
+              _listPrPopup.add(item);
             }
-            if (item.promoDiv == 'POPUP') {
-              if (item.contentType == 'TXT') {
-                DLog.d('tag', '_dayCheckAD : $_dayCheckAD');
-                DLog.d('tag', '_todayString : $_todayString');
-
-                if (_dayCheckAD != _todayString) {
-                  // _showMyBottomSheet(context, item, false);
-                }
-              } else if (item.contentType == 'IMG') {
-                if (_dayCheckAD != _todayString) {
-                  // _showMyBottomSheet(context, item, true);
-                }
-              }
-            }
+          }
+          if (_listPrPopup.isNotEmpty && (_dayCheckAD != _todayString)) {
+            _showMyBottomSheet();
+            //_showMyBottomSheetOriginal(context, _listPrPopup[0], true,);
           }
         }
 
@@ -1633,13 +1422,12 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           }
         } else {
           //회원정보 가져오지 못함
-          const AccountData().setFreeUserStatus();
+          AccountData().setFreeUserStatus();
         }
-        setState(() {});
       } else {
-        const AccountData().setFreeUserStatus();
+        AccountData().setFreeUserStatus();
       }
-
+      setState(() {});
       //푸시 재등록 여부(개발모드에서 제외)
       if (!Const.isDebuggable) {
         if (_dayCheckPush != _todayString) {

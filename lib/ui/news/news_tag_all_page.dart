@@ -9,10 +9,8 @@ import 'package:rassi_assist/ui/news/news_tag_page.dart';
 
 
 class NewsTagAllPage extends StatelessWidget {
+  //const NewsTagAllPage({Key? key}) : super(key: key);
   static const String TAG_NAME = '라씨로_태그_전체보기';
-
-  const NewsTagAllPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +31,14 @@ class NewsTagAllPage extends StatelessWidget {
           'AI속보 태그 전체보기',
           style: TStyle.commonTitle,
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        /*    Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('AI속보 태그 전체보기', style: TStyle.commonTitle,),
+            const SizedBox(width: 55.0,),
+          ],
+        ),*/
+        iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
         toolbarHeight: 50,
         elevation: 1,

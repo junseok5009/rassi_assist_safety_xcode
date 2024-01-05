@@ -55,8 +55,6 @@ class BasePageState extends State<BasePage> {
   final StreamController<String> selectNotificationStream = StreamController<String>.broadcast();
   static const channel = MethodChannel(Const.METHOD_CHANNEL_PUSH);
 
-  late UserInfoProvider _userInfoProvider;
-
   DateTime? currentPressTime;
   int _selectedIndex = 0;
 
@@ -133,13 +131,14 @@ class BasePageState extends State<BasePage> {
     Provider.of<PocketProvider>(context, listen: false).setList();
     Provider.of<SignalProvider>(context, listen: false).setList();
 
-    _userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+    //_userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
     //_userInfoProvider.addListener(listenPayFunction);
   }
 
   //시작시 포그라운드 푸시 받기 설정
   void _setFcmForeground() async {
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
@@ -190,12 +189,19 @@ class BasePageState extends State<BasePage> {
         selectedItemColor: RColor.mainColor,
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color.fromRGBO(249, 249, 249, 1),
-
         items: <BottomNavigationBarItem>[
-          _buildBottomNavigationItem(activeIconPath: 'images/base_tab_home_on.png', iconPath: 'images/base_tab_home_off.png'),
-          _buildBottomNavigationItem(activeIconPath: 'images/base_tab_trade_on.png', iconPath: 'images/base_tab_trade_off.png'),
-          _buildBottomNavigationItem(activeIconPath: 'images/base_tab_notice_on.png', iconPath: 'images/base_tab_notice_off.png'),
-          _buildBottomNavigationItem(activeIconPath: 'images/base_tab_my_on.png', iconPath: 'images/base_tab_my_off.png'),
+          _buildBottomNavigationItem(
+              activeIconPath: 'images/base_tab_home_on.png',
+              iconPath: 'images/base_tab_home_off.png'),
+          _buildBottomNavigationItem(
+              activeIconPath: 'images/base_tab_trade_on.png',
+              iconPath: 'images/base_tab_trade_off.png'),
+          _buildBottomNavigationItem(
+              activeIconPath: 'images/base_tab_notice_on.png',
+              iconPath: 'images/base_tab_notice_off.png'),
+          _buildBottomNavigationItem(
+              activeIconPath: 'images/base_tab_my_on.png',
+              iconPath: 'images/base_tab_my_off.png'),
         ],
         currentIndex: _selectedIndex,
         onTap: (index) => _onItemTapped(index),

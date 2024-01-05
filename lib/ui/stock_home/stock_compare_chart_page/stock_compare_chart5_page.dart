@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
@@ -17,29 +17,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';
 
-
 /// 2022.06. - JS
 /// 종목홈_종목비교_차트 5 매출액증가율 or 6 영업이익 증가율
 class StockCompareChart5Page extends StatefulWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트5or6';
-  String groupCode = '';
-  String stockCode = '';
-  int chartDiv = 5; //  // 2 > 매출액 증가율 3 > 영업이익 증가율
-  List<YearQuarterClass> _listYQClass = [];
+  final String groupCode;
+  final String stockCode;
+  final int chartDiv; //  // 2 > 매출액 증가율 3 > 영업이익 증가율
+  final List<YearQuarterClass> listYQClass;
 
-  StockCompareChart5Page(int vChartDiv, String vGroupCode, String vStockCode,
-      List<YearQuarterClass> vListYQClass) {
-    this.chartDiv = vChartDiv;
-    this.groupCode = vGroupCode;
-    this.stockCode = vStockCode;
-    this._listYQClass = vListYQClass;
-  }
+  const StockCompareChart5Page({
+    Key? key,
+    this.groupCode = '',
+    this.stockCode = '',
+    this.chartDiv = 2,
+    this.listYQClass = const [],
+  }) : super(key: key);
 
   @override
-  _StockCompareChart5PageState createState() => _StockCompareChart5PageState();
+  StockCompareChart5PageState createState() => StockCompareChart5PageState();
 }
 
-class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
+class StockCompareChart5PageState extends State<StockCompareChart5Page> {
   late SharedPreferences _prefs;
   String _userId = '';
   String _groupCode = '';
@@ -60,22 +59,18 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
 
   @override
   void initState() {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart5Page.TAG_NAME,
-      screenClassOverride: StockCompareChart5Page.TAG_NAME,
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart5Page.TAG_NAME,
     );
     _loadPrefData();
   }
 
   _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      _groupCode = widget.groupCode;
-      _stockCode = widget.stockCode;
-    });
-
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    _groupCode = widget.groupCode;
+    _stockCode = widget.stockCode;
     _fetchPosts(
         TR.COMPARE04,
         jsonEncode(<String, String>{
@@ -85,7 +80,6 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
   }
 
   void _fetchPosts(String trStr, String json) async {
-    DLog.d(StockCompareChart5Page.TAG_NAME, "_fetchPosts()");
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
       final http.Response response = await http
@@ -105,12 +99,10 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
   }
 
   void _parseTrData(String trStr, final http.Response response) {
-    DLog.d(
-        StockCompareChart5Page.TAG_NAME, "_parseTrData() // trStr : $trStr, ");
+    DLog.d(StockCompareChart5Page.TAG_NAME, "_parseTrData() // trStr : $trStr, ");
     // DEFINE TR.COMPARE04 매출액 증가율 조회
     if (trStr == TR.COMPARE04) {
-      final TrCompare04 resData =
-          TrCompare04.fromJson(jsonDecode(response.body));
+      final TrCompare04 resData = TrCompare04.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
         setState(() {
@@ -127,7 +119,7 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
   @override
   Widget build(BuildContext context) {
     chartDiv = widget.chartDiv;
-    _listYQClass = widget._listYQClass;
+    _listYQClass = widget.listYQClass;
     if (chartDiv == 6) {
       chartDivName = '영업이익증가율';
     } else {
@@ -139,11 +131,11 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
           Container(
             alignment: Alignment.centerRight,
             child: IconButton(
-              icon: const Icon(Icons.close),
+              icon: Icon(Icons.close),
               padding: EdgeInsets.zero,
               alignment: Alignment.topRight,
               color: Colors.black,
-              constraints: const BoxConstraints(),
+              constraints: BoxConstraints(),
               onPressed: () => Navigator.of(context).pop(null),
             ),
           ),
@@ -180,12 +172,14 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
             padding: const EdgeInsets.all(15),
             child: TileYearQuarterListView(_listYQClass),
           ),
-          const SizedBox(height: 20,),
+          const SizedBox(
+            height: 20,
+          ),
           /*Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  
+
                 ],
               ),
             ),
@@ -220,8 +214,8 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
     } else {
       return InkWell(
         onTap: () {
-            _onClickSelectBox(item.stockCode);
-          },
+          _onClickSelectBox(item.stockCode);
+        },
         child: Container(
           margin: const EdgeInsets.only(top: 10),
           padding: const EdgeInsets.fromLTRB(6, 1, 6, 1),
@@ -312,9 +306,7 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
     for (int i = 0; i < alStock.length; i++) {
       var item = alStock[i];
 
-      int smallLastYear = item.listSalesInfo.last.year.isEmpty
-          ? 0
-          : int.parse(item.listSalesInfo.last.year);
+      int smallLastYear = item.listSalesInfo.last.year.isEmpty ? 0 : int.parse(item.listSalesInfo.last.year);
 
       if (_lastYear < smallLastYear) {
         _lastYear = smallLastYear;
@@ -329,8 +321,7 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
 
       for (int k = 0; k < 4; k++) {
         tmpDataCategory += '0,';
-        if (item.listSalesInfo.length > 0 &&
-            yearIndex < item.listSalesInfo.length) {
+        if (item.listSalesInfo.length > 0 && yearIndex < item.listSalesInfo.length) {
           var smallItem = item.listSalesInfo[yearIndex];
 
           if (int.parse(smallItem.year) == (smallLastYear - 3 + k)) {
@@ -427,8 +418,7 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
     _upChartDataStrCategory = tmpDataCategory;
     _upChartDataStr = tmpData;
 
-    DLog.d(
-        StockCompareChart5Page.TAG_NAME, "_upChartDataStr : $_upChartDataStr");
+    DLog.d(StockCompareChart5Page.TAG_NAME, "_upChartDataStr : $_upChartDataStr");
   }
 
 /*  Widget _makeDnChartView() {
@@ -655,5 +645,4 @@ class _StockCompareChart5PageState extends State<StockCompareChart5Page> {
     _dnChartDataStrCategory = tmpDataCategory;
     _dnChartDataStr = tmpData;
   }*/
-
 }

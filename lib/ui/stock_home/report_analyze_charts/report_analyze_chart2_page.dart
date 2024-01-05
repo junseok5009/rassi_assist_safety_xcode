@@ -18,12 +18,13 @@ import '../../../../../models/tr_report02.dart';
 /// 2023.02.21_HJS
 /// 종목홈(개편)_홈_리포트분석_발생트렌드
 class ReportAnalyzeChart2Page extends StatefulWidget {
+  const ReportAnalyzeChart2Page({Key? key}) : super(key: key);
   @override
   State<ReportAnalyzeChart2Page> createState() =>
-      _ReportAnalyzeChart2PageState();
+      ReportAnalyzeChart2PageState();
 }
 
-class _ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
+class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
     with AutomaticKeepAliveClientMixin<ReportAnalyzeChart2Page> {
   final AppGlobal _appGlobal = AppGlobal();
   bool _isQuart = true;
@@ -41,6 +42,13 @@ class _ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
   void initState() {
     super.initState();
     _requestTrReport02();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   @override
@@ -124,7 +132,7 @@ class _ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
         ],
       );
     } else {
-      return SizedBox(
+      return const SizedBox(
         height: 100,
       );
     }
@@ -134,7 +142,7 @@ class _ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
     return Container(
       width: double.infinity,
       height: 200,
-      margin: EdgeInsets.only(
+      margin: const EdgeInsets.only(
         top: 20,
       ),
       decoration: UIStyle.boxRoundLine6(),
@@ -465,9 +473,9 @@ class _ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

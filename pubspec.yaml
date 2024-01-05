@@ -40,6 +40,7 @@ dependencies:
   flutter_html: ^3.0.0-beta.2
   flutter_html_table: ^3.0.0-beta.2
   cupertino_will_pop_scope: ^1.2.1
+  gif: ^2.2.0
 
   cross_scroll: ^0.0.76
   cached_network_image: ^3.0.0
@@ -107,6 +108,9 @@ flutter:
       - asset: assets/fonts/NotoSansKR-Regular.otf
       - asset: assets/fonts/NotoSansKR-Bold.otf
         weight: 700
+  - family: Godo
+    fonts:
+      - asset: assets/fonts/GodoB.ttf
 #  - family: TrainOne
 #    fonts:
 #      - asset: assets/fonts/TrainOne-Regular.ttf

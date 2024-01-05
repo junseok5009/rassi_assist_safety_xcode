@@ -23,10 +23,11 @@ class HomeTileHotTheme extends StatefulWidget {
   const HomeTileHotTheme({Key? key}) : super(key: key);
 
   @override
-  State<HomeTileHotTheme> createState() => _HomeTileHotThemeState();
+  State<HomeTileHotTheme> createState() => HomeTileHotThemeState();
 }
 
-class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
+class HomeTileHotThemeState extends State<HomeTileHotTheme>
+    with AutomaticKeepAliveClientMixin<HomeTileHotTheme>{
   late SharedPreferences _prefs;
   final AppGlobal _appGlobal = AppGlobal();
   String _userId = '';
@@ -47,6 +48,9 @@ class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
     _loadPrefData().then((_) {
@@ -63,6 +67,7 @@ class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -76,7 +81,7 @@ class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
             children: [
               const Text(
                 '이 시간 HOT 테마',
-                style: TStyle.commonTitle,
+                style: TStyle.title18T,
               ),
               InkWell(
                 onTap: () async {
@@ -91,8 +96,7 @@ class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
                 child: const Text(
                   '더보기',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xff999999),
+                    color: RColor.greyMore_999999,
                   ),
                 ),
               ),
@@ -117,11 +121,12 @@ class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
                   height: 20.0,
                 ),
                 _listTheme08[_themeDiv]?.themeStatus == 'BULL' ||
-                        _listTheme08[_themeDiv]?.themeStatus == 'Bullish'
+                        _listTheme08[_themeDiv]?.themeStatus == 'Bullish' ||
+                        _selectDiv == 0
                     ? _listView()
                     : _bearView(),
                 const SizedBox(
-                  height: 20.0,
+                  height: 25.0,
                 ),
                 InkWell(
                   onTap: () {
@@ -134,13 +139,15 @@ class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
                   },
                   child: Container(
                     width: double.infinity,
-                    height: 36,
-                    decoration: UIStyle.boxRoundLine6(),
+                    height: 42,
+                    decoration: UIStyle.boxRoundLine6bgColor(
+                      Colors.white,
+                    ),
                     child: const Center(
                       child: Text(
                         '테마 자세히 보기',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -350,7 +357,7 @@ class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
       height: 92,
       child: Center(
         child: Text(
-          '오늘 강세를 보인 HOT 테마라도 현재 테마 주가가 약세일 경우,\n주도주가 분석 되지 않습니다.',
+          '오늘 강세를 보인 HOT 테마라도\n현재 테마 추세가 약세일 경우\n주도주가 분석되지 않습니다.',
           textAlign: TextAlign.center,
         ),
       ),
@@ -382,7 +389,7 @@ class _HomeTileHotThemeState extends State<HomeTileHotTheme> {
       _parseTrData(trStr, response);
     } on Exception catch (_) {
       if (context.mounted) {
-        CommonPopup().showDialogNetErr(context);
+        CommonPopup.instance.showDialogNetErr(context);
       }
     }
   }

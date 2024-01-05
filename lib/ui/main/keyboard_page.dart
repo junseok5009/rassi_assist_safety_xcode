@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -25,6 +25,8 @@ class KeyboardPage extends StatefulWidget {
   static const String TAG = "[KeyboardPage]";
   static const String TAG_NAME = '종목검색_키보드';
 
+  const KeyboardPage({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => KeyboardPageState();
 }
@@ -43,11 +45,7 @@ class KeyboardPageState extends State<KeyboardPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: KeyboardPage.TAG_NAME,
-      screenClassOverride: KeyboardPage.TAG_NAME,
-    );
-
+    CustomFirebaseClass.logEvtScreenView(KeyboardPage.TAG_NAME,);
     _loadPrefData().then(
       (value) {
         if (_userId != '') {

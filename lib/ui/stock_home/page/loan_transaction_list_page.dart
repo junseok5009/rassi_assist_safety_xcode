@@ -13,13 +13,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../common/const.dart';
 import '../../../common/net.dart';
-import '../../common/common_popup.dart';
 import '../../../des/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart';
 import '../../../des/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart'
 as custom_class_scroller;
 import '../../../models/tr_invest/tr_invest21.dart';
 import '../../../models/tr_invest/tr_invest22.dart';
 import '../../../models/tr_invest/tr_invest23.dart';
+import '../../common/common_popup.dart';
 
 /// 23.03.20 HJS
 /// 종목홈_대차거래/공매_일자별 현황_리스트 화면
@@ -27,9 +27,7 @@ import '../../../models/tr_invest/tr_invest23.dart';
 // /// 신용융자 추가
 class LoanTransactionListPage extends StatefulWidget {
   static const String TAG_NAME = '일자별_현황';
-
   const LoanTransactionListPage({Key? key}) : super(key: key);
-
   @override
   State<LoanTransactionListPage> createState() =>
       _LoanTransactionListPageState();
@@ -39,7 +37,6 @@ class _LoanTransactionListPageState
     extends State<LoanTransactionListPage> {
   late SharedPreferences _prefs;
   String _userId = "";
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   String _stockCode = '';
   final _controller = ScrollController();
 
@@ -98,9 +95,10 @@ class _LoanTransactionListPageState
   }
 
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   Future<void> _loadPrefData() async {
@@ -265,7 +263,7 @@ class _LoanTransactionListPageState
           const SizedBox(
             height: 10,
           ),
-  /*        Expanded(
+/*          Expanded(
             child: CustomStickyHeadersTableBasic(
               columnsLength: _loanListTitle.length,
               rowsLength: _loanListData.length,
@@ -635,14 +633,16 @@ class _LoanTransactionListPageState
       final http.Response response = await http.post(
         url,
         body: json,
-        headers: Net.headers,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

@@ -24,9 +24,7 @@ import '../../common/ui_style.dart';
 class SignalTopPage extends StatefulWidget {
   static const routeName = '/page_signal_top';
   static const String TAG = "[SignalTopPage]";
-
   SignalTopPage({Key? key}) : super(key: key);
-
   @override
   State<StatefulWidget> createState() => SignalTopPageState();
 }

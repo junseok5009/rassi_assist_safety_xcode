@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -13,19 +13,14 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_info.dart';
 import 'package:rassi_assist/models/tr_search/tr_search04.dart';
-import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
 /// 2020.11.20
 /// 인기 종목 현황
 class SignalPopListPage extends StatefulWidget {
   static const routeName = '/page_signal_popular';
   static const String TAG = "[SignalPopListPage]";
   static const String TAG_NAME = '매매신호_인기종목현황';
-
   const SignalPopListPage({Key? key}) : super(key: key);
-
   @override
   State<StatefulWidget> createState() => SignalPopListPageState();
 }
@@ -44,9 +39,7 @@ class SignalPopListPageState extends State<SignalPopListPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: SignalPopListPage.TAG_NAME,
-      screenClassOverride: SignalPopListPage.TAG_NAME,);
+    CustomFirebaseClass.logEvtScreenView(SignalPopListPage.TAG_NAME,);
 
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 400), (){
@@ -70,7 +63,11 @@ class SignalPopListPageState extends State<SignalPopListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, '인기 종목 현황'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '인기 종목 현황',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: ListView.builder(
           scrollDirection: Axis.vertical,

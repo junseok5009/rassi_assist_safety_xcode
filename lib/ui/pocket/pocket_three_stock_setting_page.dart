@@ -57,7 +57,11 @@ class _Pocket3StockSettingPageState extends State<PocketThreeStockSettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, '3종목 알림 설정'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '3종목 알림 설정',
+        elevation: 1,
+      ),
       backgroundColor: RColor.bgBasic_fdfdfd,
       body: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {

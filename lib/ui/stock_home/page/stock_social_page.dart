@@ -21,10 +21,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// 2023.01.22 - JS
 /// 종목홈_소셜지수 - 사용하지 않음
 class StockSocialPage extends StatefulWidget {
-  //const StockSocialPage({Key? key}) : super(key: key);
   static const routeName = '/sliver_stock_social';
   static const String TAG = "[StockSocialPage] ";
   static const String TAG_NAME = '종목홈_소셜지수';
+  const StockSocialPage({Key? key}) : super(key: key);
   @override
   State<StockSocialPage> createState() => _StockSocialPageState();
 }
@@ -61,6 +61,13 @@ class _StockSocialPageState extends State<StockSocialPage> {
   }
 
   @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -73,7 +80,7 @@ class _StockSocialPageState extends State<StockSocialPage> {
             ),
           ],
         ),
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
         elevation: 1,
         centerTitle: false,
       ),
@@ -307,11 +314,11 @@ class _StockSocialPageState extends State<StockSocialPage> {
   }
 
   requestTrAll() async {
-    String _jsonSNS01 = jsonEncode(<String, String>{
+    String jsonSNS01 = jsonEncode(<String, String>{
       'userId': _userId,
       'stockCode': stkCode,
     });
-    String _jsonSNS02 = jsonEncode(<String, String>{
+    String jsonSNS02 = jsonEncode(<String, String>{
       'userId': _userId,
       'stockCode': stkCode,
     });
@@ -319,18 +326,18 @@ class _StockSocialPageState extends State<StockSocialPage> {
     await Future.wait([
       _fetchPosts(
         TR.SNS01,
-        _jsonSNS01,
+        jsonSNS01,
       ),
       _fetchPosts(
         TR.SNS02,
-        _jsonSNS02,
+        jsonSNS02,
       ),
     ]);
 
   }
 
   Future<void> _fetchPosts(String trStr, String json) async {
-    DLog.d(StockSocialPage.TAG, trStr + ' ' + json);
+    DLog.d(StockSocialPage.TAG, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {

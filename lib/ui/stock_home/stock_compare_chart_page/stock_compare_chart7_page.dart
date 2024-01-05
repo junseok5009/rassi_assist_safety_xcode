@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_fluct.dart';
@@ -17,27 +16,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';
 
-
 /// 2022.06. - JS
 /// 종목홈_종목비교_차트7 기가별등락률
+
 class StockCompareChart7Page extends StatefulWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트7';
-  String groupCode = '';
-  String stockCode = '';
+  final String groupCode;
+  final String stockCode;
 
-  StockCompareChart7Page(
-    String vGroupCode,
-    String vStockCode,
-  ) {
-    this.groupCode = vGroupCode;
-    this.stockCode = vStockCode;
-  }
+  const StockCompareChart7Page({
+    Key? key,
+    this.groupCode = '',
+    this.stockCode = '',
+  }) : super(key: key);
 
   @override
-  _StockCompareChart7PageState createState() => _StockCompareChart7PageState();
+  StockCompareChart7PageState createState() => StockCompareChart7PageState();
 }
 
-class _StockCompareChart7PageState extends State<StockCompareChart7Page> {
+class StockCompareChart7PageState extends State<StockCompareChart7Page> {
   late SharedPreferences _prefs;
   String _userId = '';
   String _groupCode = '';
@@ -53,14 +50,21 @@ class _StockCompareChart7PageState extends State<StockCompareChart7Page> {
 
   @override
   void initState() {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart7Page.TAG_NAME,
-      screenClassOverride: StockCompareChart7Page.TAG_NAME,
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart7Page.TAG_NAME,
     );
     _loadPrefData();
   }
 
-  _loadPrefData() async {
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -98,12 +102,10 @@ class _StockCompareChart7PageState extends State<StockCompareChart7Page> {
   }
 
   void _parseTrData(String trStr, final http.Response response) {
-    DLog.d(
-        StockCompareChart7Page.TAG_NAME, "_parseTrData() // trStr : $trStr, ");
+    DLog.d(StockCompareChart7Page.TAG_NAME, "_parseTrData() // trStr : $trStr, ");
     // DEFINE TR.COMPARE05 기간별 등락율 조회
     if (trStr == TR.COMPARE05) {
-      final TrCompare05 resData =
-          TrCompare05.fromJson(jsonDecode(response.body));
+      final TrCompare05 resData = TrCompare05.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         setState(() {
           alStock.addAll(resData.retData.listStockFluct);
@@ -152,7 +154,9 @@ class _StockCompareChart7PageState extends State<StockCompareChart7Page> {
           ),
           _makeChartView(),
           _makeListView(),
-          const SizedBox(height: 20,),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
@@ -314,17 +318,15 @@ class _StockCompareChart7PageState extends State<StockCompareChart7Page> {
       } else if (selectDaysBoxIndex == 4) {
         amountData = item.fluctYear1;
       }
-      if(amountData.isEmpty){
+      if (amountData.isEmpty) {
         amountData = '0';
       }
 
       tmpDataCategory += "'${item.stockName}',";
       if (amountData.contains("-")) {
-        tmpData +=
-            "{ value: $amountData, itemStyle: { color: '#398AFF' }, label: {fontSize: 10, fontWeight: 'bold'},},";
+        tmpData += "{ value: $amountData, itemStyle: { color: '#398AFF' }, label: {fontSize: 10, fontWeight: 'bold'},},";
       } else {
-        tmpData +=
-            "{ value: $amountData, itemStyle: { color: '#FD525A' }, label: {fontSize: 10, fontWeight: 'bold'},},";
+        tmpData += "{ value: $amountData, itemStyle: { color: '#FD525A' }, label: {fontSize: 10, fontWeight: 'bold'},},";
       }
       if (item.stockCode == _stockCode) {
         _highLightIndex = i;
@@ -337,8 +339,7 @@ class _StockCompareChart7PageState extends State<StockCompareChart7Page> {
     _chartDataStrCategory = tmpDataCategory;
     _chartDataStr = tmpData;
 
-    DLog.d(StockCompareChart7Page.TAG_NAME,
-        "_chartDataStrCategory : $_chartDataStrCategory");
+    DLog.d(StockCompareChart7Page.TAG_NAME, "_chartDataStrCategory : $_chartDataStrCategory");
     DLog.d(StockCompareChart7Page.TAG_NAME, "_chartDataStr : $_chartDataStr");
   }
 
@@ -389,7 +390,9 @@ class _StockCompareChart7PageState extends State<StockCompareChart7Page> {
           }
           return Column(
             children: [
-              const SizedBox(height: 2,),
+              const SizedBox(
+                height: 2,
+              ),
               Row(
                 children: [
                   Expanded(

@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -25,7 +24,7 @@ class SignalAllPage extends StatelessWidget {
   static const routeName = '/page_signal_all';
   static const String TAG = "[SignalAllPage]";
   static const String TAG_NAME = '매매신호_전체내역';
-
+  const SignalAllPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
@@ -42,8 +41,7 @@ class SignalAllPage extends StatelessWidget {
 }
 
 class SignalAllWidget extends StatefulWidget {
-  const SignalAllWidget({super.key});
-
+  const SignalAllWidget({Key? key}) : super(key: key);
   @override
   State<StatefulWidget> createState() => SignalAllState();
 }
@@ -73,9 +71,7 @@ class SignalAllState extends State<SignalAllWidget> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: SignalAllPage.TAG_NAME,
-      screenClassOverride: SignalAllPage.TAG_NAME,);
+    CustomFirebaseClass.logEvtScreenView(SignalAllPage.TAG_NAME,);
 
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
@@ -83,7 +79,7 @@ class SignalAllState extends State<SignalAllWidget> {
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 400), (){
       DLog.d(SignalAllPage.TAG, "delayed user id : $_userId");
-      if(_userId != '') {
+      if(_userId != '' && args != null) {
         DLog.d(SignalAllPage.TAG, args.pgData);
 
         _fetchPosts(TR.SIGNAL08, jsonEncode(<String, String>{

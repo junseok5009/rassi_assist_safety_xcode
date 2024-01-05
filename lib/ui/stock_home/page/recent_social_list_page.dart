@@ -14,15 +14,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../common/const.dart';
 import '../../../../common/net.dart';
-import '../../../common/d_log.dart';
 import '../../common/common_popup.dart';
-
+import '../../../common/d_log.dart';
 
 /// 23.03.15 HJS
 /// 종목홈_소셜분석_최근 소셜지수 리스트 화면
 class RecentSocialListPage extends StatefulWidget {
   static const String TAG_NAME = '최근_1개월_소셜지수_리스트';
-
+  const RecentSocialListPage({Key? key}) : super(key: key);
   @override
   State<RecentSocialListPage> createState() => _RecentSocialListPageState();
 }
@@ -30,19 +29,12 @@ class RecentSocialListPage extends StatefulWidget {
 class _RecentSocialListPageState extends State<RecentSocialListPage> {
   late SharedPreferences _prefs;
   String _userId = '';
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   String _statSns = 'images/rassibs_cht_img_1_1.png';
   String _isNoData = '';
   String _stockName = '';
   String _stockCode = '';
   final List<SNS06ChartData> _listData = [];
   final List<String> _listTitle = ['날짜', '소셜지수', '종가'];
-
-  @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
-  }
 
   @override
   void initState() {
@@ -73,6 +65,13 @@ class _RecentSocialListPageState extends State<RecentSocialListPage> {
         }),
       },
     );
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   // 저장된 데이터를 가져오는 것에 시간이 필요함
@@ -353,11 +352,11 @@ class _RecentSocialListPageState extends State<RecentSocialListPage> {
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

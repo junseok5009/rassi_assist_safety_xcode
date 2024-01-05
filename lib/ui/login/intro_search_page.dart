@@ -6,15 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_search/tr_search03.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/login/login_division_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/main/keyboard_page.dart';
@@ -29,6 +30,8 @@ class IntroSearchPage extends StatefulWidget {
   static const routeName = '/page_intro_search';
   static const String TAG = "[IntroSearchPage]";
   static const String TAG_NAME = '인트로_검색';
+
+  const IntroSearchPage({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => IntroSearchPageState();
@@ -65,78 +68,48 @@ class IntroSearchPageState extends State<IntroSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: CommonAppbar.none(
-          RColor.mainColor,
-        ),
-        body: SafeArea(
-          child: ListView(
+    return Scaffold(
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '',
+        elevation: 0,
+      ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //상단 자세히보기 이미지
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Image.asset(
-                    'images/rassibs_intro_bn_img_3_0807_bg.png',
-                    fit: BoxFit.cover,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(
-                      20,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: const [
-                        Text(
-                          '라씨 매매비서는',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 20,
-                          ),
-                        ),
-                        Text(
-                          '전종목에 대한 AI매매신호를\n제공하는 진짜 매매비서입니다.',
-                          textAlign: TextAlign.end,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              Padding(
-                padding: const EdgeInsets.all(20),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      '언제 살까? 언제 팔까? ',
-                      style: TStyle.title18T,
-                    ),
-                    const Text(
-                      '바로 확인해 보세요!',
-                      style: TStyle.content15,
+                      '언제 살까? 언제 팔까?',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                      ),
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 4,
+                    ),
+                    const Text(
+                      '궁금한 종목을 바로 확인해 보세요!',
+                      style: TStyle.content16,
+                    ),
+                    const SizedBox(
+                      height: 25,
                     ),
                     _setSearchBox(),
                     const SizedBox(
-                      height: 30,
+                      height: 50,
                     ),
                     const Text(
-                      '오늘의 인기종목',
+                      '오늘의 검색 인기 종목',
                       style: TextStyle(
-                        color: RColor.mainColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),
@@ -148,39 +121,31 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                     const SizedBox(
                       height: 60,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          child: Container(
-                            width: 250,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                            ),
-                            decoration: const BoxDecoration(
-                              color: RColor.mainColor,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
-                              ),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '1초만에 라씨 매매비서 시작하기',
-                                style: TStyle.btnTextWht15,
-                              ),
-                            ),
-                          ),
-                          onTap: () {
-                            Navigator.pushNamed(
-                                context, LoginDivisionPage.routeName);
-                          },
-                        ),
-                      ],
-                    ),
                   ],
                 ),
+              ),
+              InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                  ),
+                  decoration: UIStyle.boxRoundFullColor25c(
+                    RColor.purpleBasic_6565ff,
+                  ),
+                  child: const Center(
+                    child: Text(
+                      '1초만에 라씨 매매비서 시작하기',
+                      style: TStyle.btnTextWht15,
+                    ),
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, LoginDivisionPage.routeName);
+                },
               ),
             ],
           ),
@@ -194,7 +159,9 @@ class IntroSearchPageState extends State<IntroSearchPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-      decoration: UIStyle.roundBtnLineBox(RColor.mainColor),
+      decoration: UIStyle.boxRoundFullColor8c(
+        RColor.greyBox_f5f5f5,
+      ),
       child: InkWell(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -215,7 +182,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
           ],
         ),
         onTap: () {
-          _navigateRefresh(context, KeyboardPage());
+          _navigateRefresh(context, const KeyboardPage());
         },
       ),
     );
@@ -232,7 +199,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
           return InkWell(
             child: Container(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 0.0, vertical: 1.0),
+                  const EdgeInsets.symmetric(horizontal: 0.0, vertical: 2.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
@@ -240,17 +207,17 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                   Text(
                     _stkList[index].stockName,
                     style: const TextStyle(
-                      fontSize: 17,
+                      fontSize: 16,
                     ),
                   ),
                   const SizedBox(
-                    width: 4.0,
+                    width: 5.0,
                   ),
                   Text(
                     _stkList[index].stockCode,
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Color(0xdd555555),
+                      color: RColor.greyBasic_8c8c8c,
                     ),
                   ),
                 ],
@@ -266,9 +233,9 @@ class IntroSearchPageState extends State<IntroSearchPage> {
 
                 Navigator.push(
                   context,
-                  _createRouteData(
-                    const TradeIntroPage(),
-                    RouteSettings(
+                  MaterialPageRoute(
+                    builder: (context) => const TradeIntroPage(),
+                    settings: RouteSettings(
                       arguments: PgData(
                         userId: '',
                         stockCode: _stkList[index].stockCode,
@@ -276,6 +243,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                       ),
                     ),
                   ),
+
                 );
               } else {
                 _showDialogLimit();
@@ -287,7 +255,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
 
   //리스트에서 해당 종목코드 있는지
   bool _containListData(List<String> sList, String newStr) {
-    if (sList != null && sList.length > 0) {
+    if (sList != null && sList.isNotEmpty) {
       for (int i = 0; i < sList.length; i++) {
         if (sList[i] == newStr) return true;
       }
@@ -362,8 +330,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                       height: 40,
                       decoration: const BoxDecoration(
                         color: RColor.mainColor,
-                        borderRadius:
-                            BorderRadius.all(Radius.circular(20.0)),
+                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
                       ),
                       child: const Center(
                         child: Text(
@@ -386,7 +353,8 @@ class IntroSearchPageState extends State<IntroSearchPage> {
   }
 
   _navigateRefresh(BuildContext context, Widget instance) async {
-    final result = await Navigator.push(context, _createRoute(instance));
+    final result =
+        await Navigator.push(context, CustomNvRouteClass.createRoute(instance));
     if (result == 'cancel') {
       DLog.d(IntroSearchPage.TAG, '*** navigete cancel ***');
     } else {
@@ -401,127 +369,6 @@ class IntroSearchPageState extends State<IntroSearchPage> {
       _searchList.clear();
       _searchList = _prefs.getStringList(TStyle.getTodayString()) ?? [];
     });
-  }
-
-  //페이지 이동 에니메이션
-  Route _createRoute(Widget instance) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    );
-  }
-
-  //페이지 전환 에니메이션 (데이터 전달)
-  Route _createRouteData(Widget instance, RouteSettings settings) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      settings: settings,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    );
-  }
-
-  //네트워크 에러 알림
-  void _showDialogNetErr() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
-                  const Padding(
-                    padding:
-                        EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text(
-                      '안내',
-                      style: TStyle.commonTitle,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  const Text(
-                    RString.err_network,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: RColor.mainColor,
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(20.0)),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
   }
 
   //convert 패키지의 jsonDecode 사용
@@ -541,10 +388,10 @@ class IntroSearchPageState extends State<IntroSearchPage> {
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(IntroSearchPage.TAG, 'ERR : TimeoutException (12 seconds)');
-      _showDialogNetErr();
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
       DLog.d(IntroSearchPage.TAG, 'ERR : SocketException');
-      _showDialogNetErr();
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

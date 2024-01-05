@@ -50,12 +50,12 @@ class RassiLoginPageState extends State<RassiLoginPage> {
       return Scaffold(
         backgroundColor: RColor.deepBlue,
         appBar: CommonAppbar.basicColor(
-          context,
-          '',
-          RColor.mainColor,
-          Colors.white,
-          Colors.white,
-          0,
+          buildContext:  context,
+          title: '',
+          bgColor: RColor.mainColor,
+          titleColor: Colors.white,
+          iconColor: Colors.white,
+          elevation: 0,
         ),
         body: SafeArea(
           child: LayoutBuilder(builder: (layoutBuilderContext, constraint) {

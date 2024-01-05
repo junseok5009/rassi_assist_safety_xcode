@@ -16,17 +16,16 @@ import '../../../common/net.dart';
 import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_report03.dart';
 
-
 /// 2023.02.21_HJS
 /// 종목홈(개편)_홈_리포트분석_발행증권사
 class ReportAnalyzeChart3Page extends StatefulWidget {
-  //const ReportAnalyzeChart1Page({Key? key}) : super(key: key);
+  const ReportAnalyzeChart3Page({Key? key}) : super(key: key);
   @override
   State<ReportAnalyzeChart3Page> createState() =>
-      _ReportAnalyzeChart3PageState();
+      ReportAnalyzeChart3PageState();
 }
 
-class _ReportAnalyzeChart3PageState extends State<ReportAnalyzeChart3Page>
+class ReportAnalyzeChart3PageState extends State<ReportAnalyzeChart3Page>
     with AutomaticKeepAliveClientMixin<ReportAnalyzeChart3Page> {
   final AppGlobal _appGlobal = AppGlobal();
   bool _is1Year = true;
@@ -46,6 +45,13 @@ class _ReportAnalyzeChart3PageState extends State<ReportAnalyzeChart3Page>
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
 
   @override
   void initState() {
@@ -326,14 +332,16 @@ class _ReportAnalyzeChart3PageState extends State<ReportAnalyzeChart3Page>
       final http.Response response = await http.post(
         url,
         body: json,
-        headers: Net.headers,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

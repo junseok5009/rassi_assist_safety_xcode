@@ -6,8 +6,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../models/pg_data.dart';
-
 Future<void> commonLaunchURL(String url) async {
   DLog.i('commonLaunchURL : $url');
   Uri uri = Uri.parse(url);
@@ -52,42 +50,5 @@ void commonShowToastCenter(String msg) {
     msg: msg,
     toastLength: Toast.LENGTH_LONG,
     gravity: ToastGravity.CENTER,
-  );
-}
-
-PageRouteBuilder commonPageRouteFromBottomToUp(Widget page) {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => page,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      var begin = const Offset(0.0, 1.0);
-      var end = Offset.zero;
-      var tween = Tween(begin: begin, end: end);
-      var offsetAnimation = animation.drive(tween);
-      return SlideTransition(
-        position: offsetAnimation,
-        child: child,
-      );
-    },
-  );
-}
-
-//페이지 전환 에니메이션 (데이터 전달)
-PageRouteBuilder commonPageRouteFromBottomToUpWithSettings(
-    Widget page, PgData pgData) {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => page,
-    settings: RouteSettings(
-      arguments: pgData,
-    ),
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      var begin = const Offset(0.0, 1.0);
-      var end = Offset.zero;
-      var tween = Tween(begin: begin, end: end);
-      var offsetAnimation = animation.drive(tween);
-      return SlideTransition(
-        position: offsetAnimation,
-        child: child,
-      );
-    },
   );
 }

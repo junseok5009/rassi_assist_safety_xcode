@@ -14,21 +14,20 @@ import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
 import 'package:rassi_assist/models/none_tr/chart_theme.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_chart.dart';
+import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme04n.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme05.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme06.dart';
+import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
-import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../pay/pay_premium_aos_page.dart';
+import '../pay/pay_premium_page.dart';
 
-
-/// 2022.04.22
+/// 2022.04.22 - JY
 /// (핫)테마 상세보기
 class ThemeHotViewer extends StatefulWidget {
   static const routeName = '/page_theme_viewer';

@@ -28,15 +28,14 @@ import '../../main/base_page.dart';
 
 class StockHomeHomeTileTradingTrends extends StatefulWidget {
   //const StockHomeHomeTileTradingTrends({Key? key}) : super(key: key);
-  static final GlobalKey<_StockHomeHomeTileTradingTrendsState> globalKey = GlobalKey();
+  static final GlobalKey<StockHomeHomeTileTradingTrendsState> globalKey = GlobalKey();
   StockHomeHomeTileTradingTrends() : super(key: globalKey);
   @override
-  State<StockHomeHomeTileTradingTrends> createState() => _StockHomeHomeTileTradingTrendsState();
+  State<StockHomeHomeTileTradingTrends> createState() => StockHomeHomeTileTradingTrendsState();
 }
 
-class _StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTradingTrends>
+class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTradingTrends>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileTradingTrends> {
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   final AppGlobal _appGlobal = AppGlobal();
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 주, true 이면 천주
   bool _isTrends = false; // true : 매매동향 / false : 누적매매
@@ -75,11 +74,11 @@ class _StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTradin
     initPage();
   }
 
-
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   @override
@@ -991,7 +990,7 @@ class _StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTradin
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       CommonPopup().showDialogNetErr(context);
     } on SocketException catch (_) {

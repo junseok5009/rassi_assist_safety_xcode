@@ -21,18 +21,15 @@ import '../../common/common_popup.dart';
 /// 2023.03.02_HJS
 /// 일자별 매매동향 페이지
 class TradingTrendsByDatePage extends StatefulWidget {
-  //const TradingTrendsByDatePage({Key? key}) : super(key: key);
   static const String TAG = "[TradingTrendsByDatePage]";
   static const String TAG_NAME = '일자별_매매동향';
-  const TradingTrendsByDatePage({super.key});
-
+  const TradingTrendsByDatePage({Key? key}) : super(key: key);
   @override
   State<TradingTrendsByDatePage> createState() =>
       _TradingTrendsByDatePageState();
 }
 
 class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   final _appGlobal = AppGlobal();
   late SharedPreferences _prefs;
   String _userId = '';
@@ -53,9 +50,10 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
   final _controller = ScrollController();
 
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   @override
@@ -152,7 +150,7 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
               const SizedBox(
                 height: 5,
               ),
-              /*Expanded(
+/*              Expanded(
                 child: CustomStockHomeStickyHeadersTable(
                   showVerticalScrollbar: false,
                   showHorizontalScrollbar: false,
@@ -424,12 +422,11 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

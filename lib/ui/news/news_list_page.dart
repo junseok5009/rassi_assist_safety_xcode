@@ -7,38 +7,28 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/rassiro.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi02.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 /// 2020.11.03
 /// 라씨로 리스트 / 홈_마켓뷰 이시간속보 더보기 > [AI 속보 분석 리포트]
 // (종목코드 없으면 RASSI01, 종목코드 있으면 RASSI02)
-class NewsListPage extends StatelessWidget {
+class NewsListPage extends StatefulWidget {
   static const routeName = '/page_news_list';
   static const String TAG = "[NewsListPage]";
   static const String TAG_NAME = '이시간_AI속보_더보기';
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(toolbarHeight: 0,
-        backgroundColor: RColor.deepStat, elevation: 0,),
-      body: NewsListWidget(),
-    );
-  }
-}
+  const NewsListPage({Key? key}) : super(key: key);
 
-class NewsListWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => NewsListState();
 }
 
-class NewsListState extends State<NewsListWidget> {
+class NewsListState extends State<NewsListPage> {
   late SharedPreferences _prefs;
   String _userId = "";
   late PgNews args;
@@ -52,7 +42,6 @@ class NewsListState extends State<NewsListWidget> {
   String pageSize = '10';
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String deviceModel = '';
-
 
   @override
   void initState() {
@@ -85,8 +74,7 @@ class NewsListState extends State<NewsListWidget> {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
       _requestData();
-    } else {
-    }
+    } else {}
   }
 
   void _requestData() {
@@ -121,21 +109,10 @@ class NewsListState extends State<NewsListWidget> {
 
   Widget _setLayout() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('AI 속보 분석 리포트', style: TStyle.commonTitle,),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
-        centerTitle: false,
-        leadingWidth: 20,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: 'AI속보 분석리포트',
+        elevation: 1,
       ),
       body: SafeArea(
         child: ListView.builder(

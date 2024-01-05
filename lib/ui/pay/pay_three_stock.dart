@@ -6,13 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/tr_app/tr_app03.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
 import 'package:rassi_assist/ui/sub/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,41 +24,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/custom_firebase_class.dart';
 import '../../models/none_tr/app_global.dart';
 import '../../models/tr_prom02.dart';
-import '../../models/tr_user/tr_user04.dart';
-
+import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 
 /// 2020.12.17
 /// 3종목 알림 결제 (현재는 AOS만 가능한 상품)
-class PayThreeStock extends StatelessWidget {
+class PayThreeStock extends StatefulWidget {
   static const routeName = '/page_pay_three';
   static const String TAG = "[PayThreeStock]";
   static const String TAG_NAME = '3종목알림_결제';
 
-  const PayThreeStock({super.key});
+  const PayThreeStock({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepStat,
-          elevation: 0,
-        ),
-        body: PayThreeWidget(),
-      ),
-    );
-  }
-}
-
-class PayThreeWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => PayThreeState();
 }
 
-class PayThreeState extends State<PayThreeWidget> {
+class PayThreeState extends State<PayThreeStock> {
   var appGlobal = AppGlobal();
   var inAppBilling = PaymentAosService();
   static const channel = MethodChannel(Const.METHOD_CHANNEL_NAME);
@@ -85,6 +70,9 @@ class PayThreeState extends State<PayThreeWidget> {
   bool prBanner = false;
   final List<Prom02> _listPrBanner = [];
 
+  // 23.10.11 추가 구매 안내 문구 전문으로 가져오기
+  final List<App03PaymentGuide> _listApp03 = [];
+
   // TODO 1. 이미 결제된 상품 확인 (프리미엄일 경우 결제 불가)
   // TODO 2. 결제 가능 상태 확인 (매매비서 서버에 확인, 앱스토어 모듈에 확인)
 
@@ -93,16 +81,8 @@ class PayThreeState extends State<PayThreeWidget> {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(PayThreeStock.TAG_NAME);
 
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), () {
+    _loadPrefData().then((value) {
       _initBillingState();
-    });
-  }
-
-  //저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
-    _prefs = await SharedPreferences.getInstance();
-    setState(() {
       _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
       _curProd = _prefs.getString(Const.PREFS_CUR_PROD) ?? '';
       if (_userId == '') {
@@ -117,27 +97,48 @@ class PayThreeState extends State<PayThreeWidget> {
     });
   }
 
+  Future<void> _loadPrefData() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   //결제 동작은 비동기적 구동 초기화 작업이 필요
   Future<void> _initBillingState() async {
     //상품정보 요청
     _getProduct();
 
     //결제 상태 리스너
-    statCallback = (status) {
+    statCallback = (status) async {
       DLog.d(PayThreeStock.TAG, '# statusCallback == $status');
       if (status == 'md_exit') {
         setState(() {
           _bProgress = false;
         });
       } else if (status == 'pay_success') {
-        _showDialogMsg('결제가 완료 되었습니다.', '확인');
+        var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+        await userInfoProvider.updatePayment();
+        if(mounted){
+          Navigator.pop(context);
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+        }
+      }else{
+        Navigator.pop(context);
       }
     };
     inAppBilling.addToProStatusChangedListeners(statCallback);
 
     //결제 에러 상태 리스너
-    errCallback = (retStr) {
-      _showDialogMsg(retStr, '확인');
+    errCallback = (retStr) async {
+      await CommonPopup.instance.showDialogBasicConfirm(context, '알림', retStr);
+      if(context.mounted){
+        Navigator.pop(context);
+      }
     };
     inAppBilling.addToErrorListeners(errCallback);
   }
@@ -154,7 +155,13 @@ class PayThreeState extends State<PayThreeWidget> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: _setAppBar(),
+        appBar: CommonAppbar.simpleWithExit(
+          context,
+          '3종목 실시간 알림 결제',
+          Colors.black,
+          Colors.white,
+          Colors.black,
+        ),
         body: SafeArea(
           child: Container(
             color: Colors.white,
@@ -326,37 +333,6 @@ class PayThreeState extends State<PayThreeWidget> {
     );
   }
 
-  PreferredSizeWidget _setAppBar() {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: Colors.white,
-      shadowColor: Colors.white,
-      elevation: 0,
-      centerTitle: true,
-      title: const Text(
-        '3종목 실시간 알림 결제',
-        style: TStyle.defaultTitle,
-      ),
-      actions: [
-        IconButton(
-            icon: const Icon(Icons.close),
-            color: Colors.black,
-            onPressed: () {
-              if (_bProgress) {
-                commonShowToast('결제가 진행중입니다.');
-              } else if (_isTryPayment) {
-                Navigator.of(context).pop();
-              } else {
-                Navigator.of(context).pop('cancel');
-              }
-            }),
-        const SizedBox(
-          width: 10.0,
-        ),
-      ],
-    );
-  }
-
   //상품 소개
   Widget _setTopDesc() {
     return Column(
@@ -392,16 +368,22 @@ class PayThreeState extends State<PayThreeWidget> {
       padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
+        children: [
+          const Text(
             "App Store 구매안내",
             style: TStyle.commonTitle,
           ),
-          SizedBox(
+          const SizedBox(
             height: 10.0,
           ),
-          Text(RString.pay_guide_i),
-          SizedBox(
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            itemCount: _listApp03.length,
+            itemBuilder: (context, index) => Text(_listApp03[index].guideText),
+          ),
+          const SizedBox(
             height: 5.0,
           ),
         ],
@@ -416,16 +398,22 @@ class PayThreeState extends State<PayThreeWidget> {
       padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
+        children: [
+          const Text(
             "안내",
             style: TStyle.commonTitle,
           ),
-          SizedBox(
+          const SizedBox(
             height: 10.0,
           ),
-          Text(RString.pay_guide_aos),
-          SizedBox(
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            itemCount: _listApp03.length,
+            itemBuilder: (context, index) => Text(_listApp03[index].guideText),
+          ),
+          const SizedBox(
             height: 5.0,
           ),
         ],
@@ -659,6 +647,25 @@ class PayThreeState extends State<PayThreeWidget> {
     if (trStr == TR.USER04) {
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
+        if (resData.retData.accountData != null) {
+          final AccountData accountData = resData.retData.accountData;
+          accountData.initUserStatus();
+        } else {
+          AccountData().setFreeUserStatus();
+        }
+        _fetchPosts(
+            TR.APP03,
+            jsonEncode(<String, String>{
+              'userId': _userId,
+            }));
+      }
+    } else if (trStr == TR.APP03) {
+      final TrApp03 resData = TrApp03.fromJson(jsonDecode(response.body));
+      _listApp03.clear();
+      if (resData.retCode == RT.SUCCESS) {
+        if (resData.retData!.listPaymentGuide.isNotEmpty) {
+          _listApp03.addAll(resData.retData!.listPaymentGuide);
+        }
         _fetchPosts(
             TR.PROM02,
             jsonEncode(<String, String>{
@@ -668,6 +675,7 @@ class PayThreeState extends State<PayThreeWidget> {
             }));
       }
     }
+
     //홍보
     else if (trStr == TR.PROM02) {
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));

@@ -25,17 +25,15 @@ import '../page/stock_compare_page.dart';
 /// 종목홈(개편)_홈_종목비교 카드 + 시가총액/매출액/영업이익 차트
 
 class StockHomeHomeTileStockCompare extends StatefulWidget {
-  static final GlobalKey<_StockHomeHomeTileStockCompareState> globalKey =
+  static final GlobalKey<StockHomeHomeTileStockCompareState> globalKey =
       GlobalKey();
-
   StockHomeHomeTileStockCompare() : super(key: globalKey);
-
   @override
   State<StockHomeHomeTileStockCompare> createState() =>
-      _StockHomeHomeTileStockCompareState();
+      StockHomeHomeTileStockCompareState();
 }
 
-class _StockHomeHomeTileStockCompareState
+class StockHomeHomeTileStockCompareState
     extends State<StockHomeHomeTileStockCompare>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileStockCompare> {
   String _userId = '';
@@ -67,6 +65,13 @@ class _StockHomeHomeTileStockCompareState
     super.initState();
     _userId = _appGlobal.userId;
     initPage();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   @override
@@ -140,7 +145,7 @@ class _StockHomeHomeTileStockCompareState
 
                 // 테이블 _ 하단 : 데이터 반영 기준일 + base data 표시
                 Visibility(
-                  visible: _compare02.listStock.length > 0 &&
+                  visible: _compare02.listStock.isNotEmpty &&
                       _year.isNotEmpty &&
                       _quarter.isNotEmpty,
                   child: Container(
@@ -243,7 +248,7 @@ class _StockHomeHomeTileStockCompareState
   bool _checkStockCompareViewVisible() {
     return _stockGroup.stockGrpNm.isNotEmpty &&
         _stockGroup.stockGrpCd.isNotEmpty &&
-        _compare02.listStockGroup.length > 0 &&
+        _compare02.listStockGroup.isNotEmpty &&
         _compare02.listStock.length > 1;
   }
 
@@ -467,9 +472,9 @@ class _StockHomeHomeTileStockCompareState
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -480,7 +485,7 @@ class _StockHomeHomeTileStockCompareState
           TrCompare07.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Compare07 _compare07 = resData.retData;
-        if (_compare07.listStockGroup.length > 0) {
+        if (_compare07.listStockGroup.isNotEmpty) {
           _stockGroup = _compare07.listStockGroup[0];
 
           // DEFINE 종목 비교

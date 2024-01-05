@@ -8,6 +8,7 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gif/gif.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
@@ -20,7 +21,8 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/tr_app/tr_app01.dart';
-import 'package:rassi_assist/ui/login/intro_search_page.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/login/intro_start_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -29,6 +31,8 @@ import 'package:uuid/uuid.dart';
 /// --- 수정 기록 ---
 /// 2022.08.03 : 로그인 하지 않은 사용자가 호출하는 전문에는 userId에 'RASSI_APP' 넣어서 호출
 /// 인트로
+///
+
 class IntroPage extends StatelessWidget {
   static const routeName = '/page_intro';
   static const String TAG = "[IntroPage]";
@@ -70,7 +74,8 @@ class IntroPage extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+        data: MediaQuery.of(context)
+            .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
         child: child!,
       ),
       home: const Scaffold(
@@ -90,7 +95,8 @@ class IntroWidget extends StatefulWidget {
   State<StatefulWidget> createState() => IntroState();
 }
 
-class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin {
+class IntroState extends State<IntroWidget>
+    with SingleTickerProviderStateMixin {
   var appGlobal = AppGlobal();
   static const platform = MethodChannel(Const.METHOD_CHANNEL_NAME);
 
@@ -99,10 +105,9 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
 
   late SharedPreferences _prefs;
   String _userId = "";
-  bool _isSendTr = false; //2번 호출되는 내용 방지
 
-  // late Uri _latestUri;
-  // late StreamSubscription _sub;
+  // Uri _latestUri;
+  // StreamSubscription _sub;
 
   FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
 
@@ -114,7 +119,6 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
         appGlobal.deviceWidth = MediaQuery.of(context).size.width;
         appGlobal.deviceHeight = MediaQuery.of(context).size.height;
         appGlobal.deviceStatusBarHeight = MediaQuery.of(context).padding.top;
-
         DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
         if (Platform.isAndroid) {
           var shortestSide = MediaQuery.of(context).size.shortestSide;
@@ -183,16 +187,6 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
     // final queryParams = _latestUri?.queryParametersAll?.entries?.toList();
     // DLog.d(IntroPage.TAG, 'queryParams : $queryParams');
 
-    /*if (!_isSendTr) {
-      _isSendTr = true;
-      DLog.d(IntroPage.TAG, 'firebase initialize complete');
-      Future.delayed(const Duration(seconds: 3), () {
-        DLog.d(IntroPage.TAG, 'goNextRoute init: $_userId');
-        // _goNextRoute(_userId);
-        _requestVersionCheck();
-      });
-    }*/
-
     return setIntroUi();
   }
 
@@ -225,38 +219,64 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+        data: MediaQuery.of(context)
+            .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
         child: child!,
       ),
       home: Scaffold(
-        backgroundColor: RColor.mainColor,
-        body: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width / 20 * 9,
-                constraints: const BoxConstraints(
-                  maxWidth: 200,
+          backgroundColor: RColor.purpleBasic_6565ff,
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: const EdgeInsets.all(30),
+            margin: const EdgeInsets.symmetric(
+              vertical: 30,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  //textAlign: TextAlign.center,
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '언제살까 언제팔까?\n주식 잘하는 방법\n\n',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '라씨 매매비서',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 36,
+                          //fontWeight: FontWeight.w600,
+                          fontFamily: 'Godo',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Image.asset(
-                  'images/icon_main_intro.png',
-                  fit: BoxFit.fill,
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width / 20 * 9,
+                    constraints: const BoxConstraints(
+                      maxWidth: 200,
+                    ),
+                    child: Gif(
+                      autostart: Autostart.loop,
+                      image: const AssetImage(
+                        'images/gif_intro_main_logo.gif',
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Image.asset(
-                'images/img_rassi_title_white.png',
-                height: 25,
-              ),
-            ],
-          ),
-        ),
-      ),
+              ],
+            ),
+          )),
       routes: routes,
       navigatorObservers: [
         FirebaseAnalyticsObserver(analytics: CustomFirebaseClass.analytics),
@@ -274,15 +294,14 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
         }));
   }
 
-  //업데이트가 필요한 앱버전 비교
-  void _compareVerCode(String minVer) {}
-
   // 다음 페이지로 이동
   _goNextRoute(String userId) {
     if (userId != '') {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BasePage()));
+      Navigator.pushReplacementNamed(context, '/base',
+          result: MaterialPageRoute(builder: (context) => const BasePage()));
     } else {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => IntroSearchPage()));
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const IntroStartPage()));
     }
   }
 
@@ -305,12 +324,16 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
                   const SizedBox(
                     height: 5.0,
                   ),
-                  const Text('업데이트 알림', style: TStyle.defaultTitle, textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                  const Text('업데이트 알림',
+                      style: TStyle.defaultTitle,
+                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 25.0,
                   ),
                   const Text(RString.need_to_app_update,
-                      textAlign: TextAlign.center, style: TStyle.defaultContent, textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                      textAlign: TextAlign.center,
+                      style: TStyle.defaultContent,
+                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 30.0,
                   ),
@@ -321,84 +344,15 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
                         height: 40,
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
-                          child: Text('확인', style: TStyle.btnTextWht16, textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                          child: Text('확인',
+                              style: TStyle.btnTextWht16,
+                              textScaleFactor: Const.TEXT_SCALE_FACTOR),
                         ),
                       ),
                     ),
                     onPressed: () {
                       // Navigator.pop(context);
                       commonLaunchUrlAppOpen(url);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  //네트워크 에러 알림
-  void _showDialogNetErr() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: UIStyle.borderRoundedDialog(),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
-                  const Text(
-                    '알림',
-                    style: TStyle.defaultTitle,
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  const Text(
-                    RString.err_network,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  InkWell(
-                    child: Container(
-                      width: 140,
-                      height: 36,
-                      decoration: UIStyle.roundBtnStBox(),
-                      child: const Center(
-                        child: Text(
-                          '확인',
-                          style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                        ),
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
                     },
                   ),
                 ],
@@ -425,10 +379,10 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(IntroPage.TAG, 'ERR : TimeoutException (12 seconds)');
-      _showDialogNetErr();
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
       DLog.d(IntroPage.TAG, 'ERR : SocketException');
-      _showDialogNetErr();
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -443,7 +397,7 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
         DLog.d(IntroPage.TAG, 'APP01 => ${resData.resData.toString()}');
 
         var intVer = 0;
-        var minVer = resData.resData?.versionMin;
+        var minVer = resData.resData!.versionMin;
         if (minVer != null && minVer.isNotEmpty) {
           intVer = int.parse(minVer);
           DLog.d(IntroPage.TAG, 'int version : $intVer');
@@ -452,9 +406,7 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
         //앱 버전이 서버에 설정된 최소버전보다 작다면 강제 업데이트
         if (_appVer < intVer) {
           DLog.d(IntroPage.TAG, '강제 업데이트 버전 : $minVer');
-          if (resData.resData != null) {
-            _showVersion(resData.resData!.redirectUrl);
-          }
+          _showVersion(resData.resData!.redirectUrl);
         } else {
           DLog.d(IntroPage.TAG, '일반적인 업데이트 버전 : $minVer');
           _goNextRoute(_userId);
@@ -464,4 +416,28 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
       }
     }
   }
+
+// _timerDelay() async {
+//   // var duration = new Duration(seconds: 4);
+//   // return new Timer(duration, _routeNext);
+// }
+//
+// void _routeNext() {
+//   Navigator.pushReplacement(context, MaterialPageRoute(
+//       builder: (context) => HomePage()));
+// }
+
+/* TODO 추후에 아래 코드 테스트
+  const delay = 3;
+  widget.countdown = delay;
+
+  StreamSubscription sub;
+  sub = new Stream.periodic(const Duration(seconds: 1), (count) {
+  setState(() => widget.countdown--);
+  if(widget.countdown <= 0) {
+    sub.cancel();
+    Navigator.pushNamed(context, '/login');
+  }
+  });
+   */
 }

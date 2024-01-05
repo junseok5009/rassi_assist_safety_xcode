@@ -1,7 +1,6 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
 
@@ -13,8 +12,8 @@ import '../../../common/tstyle.dart';
 
 class StockCompareChart2Page extends StatelessWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트2or3';
-  int _chartDiv = 2; // 2 > PER 3 > PBR
-  String _stockCode = '';
+  int chartDiv = 2; // 2 > PER 3 > PBR
+  String stockCode = '';
   List<StockCompare02> _listStockCompare02 = [];
 
   String _chartDivName = ''; // 2 > PER // 3 > PBR
@@ -22,37 +21,36 @@ class StockCompareChart2Page extends StatelessWidget {
   String _chartDataStr = "";
   int _highLightIndex = 0;
 
-  StockCompareChart2Page(int vChartDiv, String vStockCode,
-      List<StockCompare02> vAlStockCompare02) {
-    this._chartDiv = vChartDiv;
-    this._stockCode = vStockCode;
-    this._listStockCompare02.addAll(vAlStockCompare02);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart2Page.TAG_NAME,
-      screenClassOverride: StockCompareChart2Page.TAG_NAME,
-    );
-
-    if (_chartDiv == 3) {
+  StockCompareChart2Page(
+    List<StockCompare02> vAlStockCompare02, {
+    Key? key,
+    this.chartDiv = 2,
+    this.stockCode = '',
+  }) : super(key: key) {
+    _listStockCompare02.addAll(vAlStockCompare02);
+    if (chartDiv == 3) {
       _chartDivName = 'PBR';
     } else {
       _chartDivName = 'PER';
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart2Page.TAG_NAME,
+    );
     return SafeArea(
       child: Column(
         children: [
           Container(
             alignment: Alignment.centerRight,
             child: IconButton(
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               padding: EdgeInsets.zero,
               alignment: Alignment.topRight,
               color: Colors.black,
-              constraints: BoxConstraints(),
+              constraints: const BoxConstraints(),
               onPressed: () => Navigator.of(context).pop(null),
             ),
           ),
@@ -62,7 +60,9 @@ class StockCompareChart2Page extends StatelessWidget {
           ),
           _makeChartView(),
           _makeListView(),
-          const SizedBox(height: 20,),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
@@ -71,7 +71,7 @@ class StockCompareChart2Page extends StatelessWidget {
   Widget _makeChartView() {
     _setChartData();
     return Container(
-      margin: EdgeInsets.only(top: 20),
+      margin: const EdgeInsets.only(top: 20),
       width: double.infinity,
       height: 240,
       child: Echarts(
@@ -180,16 +180,16 @@ class StockCompareChart2Page extends StatelessWidget {
       if (vStockName.length >= 4) {
         vStockName = vStockName.substring(0, 3);
       }
-      if(_chartDiv == 3){
+      if (chartDiv == 3) {
         vChartData = item.pbr;
-      }else{
+      } else {
         vChartData = item.per;
       }
-      if(vChartData.isEmpty){
+      if (vChartData.isEmpty) {
         vChartData = '0';
       }
       tmpDataStockName += "'$vStockName', ";
-      if (_stockCode == item.stockCode) {
+      if (stockCode == item.stockCode) {
         _highLightIndex = i;
         tmpData += '''
           {
@@ -206,46 +206,49 @@ class StockCompareChart2Page extends StatelessWidget {
     tmpData += "]";
     _chartDataStrStockName = tmpDataStockName;
     _chartDataStr = tmpData;
-    DLog.d(StockCompareChart2Page.TAG_NAME,
-        '_chartDataStrStockName : $_chartDataStrStockName');
+    DLog.d(StockCompareChart2Page.TAG_NAME, '_chartDataStrStockName : $_chartDataStrStockName');
     DLog.d(StockCompareChart2Page.TAG_NAME, '_chartDataStr : $_chartDataStr');
   }
 
   Widget _makeListView() {
-    String _data;
-    TextStyle _stockNameStyle;
-    TextStyle _stockDataStyle;
+    String data;
+    TextStyle stockNameStyle;
+    TextStyle stockDataStyle;
     return Container(
       decoration: UIStyle.boxWeakGrey(6),
-      padding: EdgeInsets.all(15),
-      margin: EdgeInsets.only(top: 10,),
+      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.only(
+        top: 10,
+      ),
       child: ListView.builder(
         shrinkWrap: true,
         scrollDirection: Axis.vertical,
         padding: EdgeInsets.zero,
         itemCount: _listStockCompare02.length,
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          var _item = _listStockCompare02[index];
-          if (_chartDiv == 3) {
+          var item = _listStockCompare02[index];
+          if (chartDiv == 3) {
             // PBR
-            _data = _item.pbr;
+            data = item.pbr;
           } else {
-            _data = _item.per;
+            data = item.per;
           }
-          if (_data.isEmpty) {
-            _data = '0';
+          if (data.isEmpty) {
+            data = '0';
           }
-          if (_item.stockCode == _stockCode) {
-            _stockNameStyle = TStyle.commonPurple14;
-            _stockDataStyle = TStyle.commonPurple14;
+          if (item.stockCode == stockCode) {
+            stockNameStyle = TStyle.commonPurple14;
+            stockDataStyle = TStyle.commonPurple14;
           } else {
-            _stockNameStyle = TStyle.content14;
-            _stockDataStyle = TStyle.subTitle;
+            stockNameStyle = TStyle.content14;
+            stockDataStyle = TStyle.subTitle;
           }
           return Column(
             children: [
-              SizedBox(height: 2,),
+              const SizedBox(
+                height: 2,
+              ),
               Row(
                 children: [
                   Expanded(
@@ -253,8 +256,8 @@ class StockCompareChart2Page extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        '${_item.stockName}',
-                        style: _stockNameStyle,
+                        '${item.stockName}',
+                        style: stockNameStyle,
                       ),
                     ),
                   ),
@@ -266,9 +269,9 @@ class StockCompareChart2Page extends StatelessWidget {
                         width: 75,
                         alignment: Alignment.centerRight,
                         child: Text(
-                          '$_data배',
+                          '$data배',
                           //'9099.99배',
-                          style: _stockDataStyle,
+                          style: stockDataStyle,
                         ),
                       ),
                     ),

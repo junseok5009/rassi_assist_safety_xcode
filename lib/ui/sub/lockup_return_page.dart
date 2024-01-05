@@ -68,10 +68,11 @@ class _LockupReturnPageState extends State<LockupReturnPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CommonAppbar.basic(
-        context,
-        widget.stock.stockName.length > 8
+        buildContext: context,
+        title: widget.stock.stockName.length > 8
             ? '${widget.stock.stockName.substring(0, 8)} 보호예수'
             : '${widget.stock.stockName} 보호예수',
+        elevation: 1,
       ),
       body: SafeArea(
         child: Column(

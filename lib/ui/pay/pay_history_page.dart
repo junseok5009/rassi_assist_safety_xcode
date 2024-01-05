@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -50,10 +50,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: PayHistoryPage.TAG_NAME,
-      screenClassOverride: PayHistoryPage.TAG_NAME,
-    );
+    CustomFirebaseClass.logEvtScreenView(PayHistoryPage.TAG_NAME,);
 
     _loadPrefData().then(
       (value) {
@@ -79,7 +76,11 @@ class PayHistoryPageState extends State<PayHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, '결제 내역'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '결제 내역',
+        elevation: 1,
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(

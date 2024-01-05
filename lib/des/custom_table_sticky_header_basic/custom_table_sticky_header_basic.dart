@@ -8,7 +8,7 @@
 // /// or vertically - top and left headers always stay.
 // class CustomStickyHeadersTableBasic extends StatefulWidget {
 //   CustomStickyHeadersTableBasic({
-//     Key key,
+//     Key? key,
 //
 //     /// Number of Columns (for content only)
 //     this.columnsLength,
@@ -113,8 +113,8 @@
 //   late _SyncScrollController _horizontalSyncController;
 //   late _SyncScrollController _verticalSyncController;
 //
-//   late double _scrollOffsetX;
-//   late double _scrollOffsetY;
+//   double _scrollOffsetX;
+//   double _scrollOffsetY;
 //
 //   bool _onHorizontalScrollingNotification({
 //     ScrollNotification notification,
@@ -624,13 +624,13 @@
 //         stickyColumnAlignment = null,
 //         stickyRowAlignment = null;
 //
-//   final Alignment contentCellAlignment;
-//   final List<Alignment> columnAlignments;
-//   final List<Alignment> rowAlignments;
-//   final List<List<Alignment>> contentCellAlignments;
-//   final Alignment stickyColumnAlignment;
+//   final Alignment? contentCellAlignment;
+//   final List<Alignment>? columnAlignments;
+//   final List<Alignment>? rowAlignments;
+//   final List<List<Alignment>>? contentCellAlignments;
+//   final Alignment? stickyColumnAlignment;
 //   final List<Alignment> stickyColumnAlignments;
-//   final Alignment stickyRowAlignment;
+//   final Alignment? stickyRowAlignment;
 //   final List<Alignment> stickyRowAlignments;
 //   final Alignment stickyLegendAlignment;
 //

@@ -288,7 +288,7 @@ class TStyle {
     //본문 내용
     fontWeight: FontWeight.w400,
     fontSize: 14,
-    color: Color(0xff777777),
+    color: RColor.greyBasicStrong_666666,
   );
 
   static const contentSBLK = TextStyle(
@@ -362,14 +362,14 @@ class TStyle {
     //버튼 화이트 텍스트 16
     fontWeight: FontWeight.w700,
     fontSize: 16,
-    color: Color(0xffEFEFEF),
+    color: Colors.white,
   );
 
   static const btnTextWht15 = TextStyle(
     //버튼 화이트 텍스트 15
     fontWeight: FontWeight.w600,
     fontSize: 15,
-    color: Color(0xffEFEFEF),
+    color: Colors.white,
   );
 
   static const btnTextWht14 = TextStyle(
@@ -409,9 +409,8 @@ class TStyle {
 
   static const btnContentWht15 = TextStyle(
     //버튼 화이트 텍스트 15
-    fontWeight: FontWeight.w400,
     fontSize: 15,
-    color: Color(0xffEFEFEF),
+    color: Colors.white,
   );
 
   static const btnContentWht16 = TextStyle(

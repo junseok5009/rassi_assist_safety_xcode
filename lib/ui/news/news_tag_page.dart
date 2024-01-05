@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2020.12.24
 /// 라씨로 태그 리스트
+
 class NewsTagPage extends StatefulWidget {
   static const routeName = '/page_news_tag';
   static const String TAG = "[NewsTagPage]";
@@ -107,7 +108,11 @@ class NewsTagPageState extends State<NewsTagPage> {
 
   Widget _setLayout() {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, '태그별 AI 속보 리스트'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '태그별 AI 속보 리스트',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: Stack(
           children: [

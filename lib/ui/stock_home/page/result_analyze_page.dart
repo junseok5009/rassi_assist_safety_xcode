@@ -6,7 +6,7 @@ import 'dart:math';
 import 'package:charts_common/common.dart' as charts_common;
 import 'package:charts_flutter_new/flutter.dart' as charts;
 import 'package:charts_flutter_new/src/text_element.dart'
-as charts_text_element;
+    as charts_text_element;
 import 'package:charts_flutter_new/src/text_style.dart' as charts_text_style;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -27,9 +27,10 @@ import '../../common/common_popup.dart';
 /// 2023.03.24_HJS
 /// 실적분석 상세 페이지
 class ResultAnalyzePage extends StatefulWidget {
-  //const ResultAnalyzePage({Key? key}) : super(key: key);
   static const String TAG = "[ResultAnalyzePage]";
   static const String TAG_NAME = '실적분석';
+
+  const ResultAnalyzePage({Key? key}) : super(key: key);
 
   @override
   State<ResultAnalyzePage> createState() => _ResultAnalyzePageState();
@@ -57,29 +58,39 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
     CustomFirebaseClass.logEvtScreenView(
       ResultAnalyzePage.TAG_NAME,
     );
-    _loadPrefData().then((_) =>
-    {
-      Future.delayed(Duration.zero, () {
-        PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
-        if (_userId != '' && pgData.stockCode != null &&
-            pgData.stockCode.isNotEmpty && pgData.stockName.isNotEmpty) {
-          _stockName = pgData.stockName;
-          _stockCode = pgData.stockCode;
-          //_initChart1IsQuart = _pgData.booleanData ?? true;
-          _requestTrSearch11();
-        }
-      }),
-    });
+    _loadPrefData().then((_) => {
+          Future.delayed(Duration.zero, () {
+            PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
+            if (_userId != '' &&
+                pgData.stockCode != null &&
+                pgData.stockCode.isNotEmpty &&
+                pgData.stockName.isNotEmpty) {
+              _stockName = pgData.stockName;
+              _stockCode = pgData.stockCode;
+              //_initChart1IsQuart = _pgData.booleanData ?? true;
+              _requestTrSearch11();
+            }
+          }),
+        });
   }
 
-  _loadPrefData() async {
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
-    _initChart1IsQuart = ((ModalRoute.of(context)!.settings.arguments) as PgData).booleanData ?? true;
+    _initChart1IsQuart =
+        ((ModalRoute.of(context)!.settings.arguments) as PgData).booleanData ??
+            true;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -109,7 +120,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                     decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          width: 15, color: RColor.new_basic_grey,),
+                          width: 15,
+                          color: RColor.new_basic_grey,
+                        ),
                       ),
                     ),
                   ),
@@ -123,7 +136,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                     decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          width: 15, color: RColor.new_basic_grey,),
+                          width: 15,
+                          color: RColor.new_basic_grey,
+                        ),
                       ),
                     ),
                   ),
@@ -179,77 +194,79 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
           const SizedBox(
             height: 20,
           ),
-          _listPerPbrData.length > 0 ? Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    '최근1년',
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: RColor.new_basic_text_color_grey),
-                  ),
-                  Text(
-                    '(배)',
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: RColor.new_basic_text_color_grey),
-                  ),
-                ],
-              ),
-              _setChart3View(),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: const BoxDecoration(
-                      color: RColor.chartGreyColor,
-                      shape: BoxShape.circle,
+          _listPerPbrData.length > 0
+              ? Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text(
+                          '최근1년',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: RColor.new_basic_text_color_grey),
+                        ),
+                        Text(
+                          '(배)',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: RColor.new_basic_text_color_grey),
+                        ),
+                      ],
                     ),
-                  ),
-                  Text(
-                    _isPer ? '  PER' : '  PBR',
-                    style: const TextStyle(
-                        fontSize: 11,
-                        color: RColor.new_basic_text_color_grey),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Container(
-                    width: 7,
-                    height: 7,
-                    //color: Color(0xff6565FF),
-                    decoration: const BoxDecoration(
-                      color: Color(0xff454A63),
-                      shape: BoxShape.circle,
+                    _setChart3View(),
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  const Text(
-                    '  주가',
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: RColor.new_basic_text_color_grey),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                '* PER, PBR : 전일 보통주 수정주가 / 최근 분기 EPS, BPS',
-                style: TStyle.contentGrey12,
-              ),
-            ],
-          ) : _setNoDataView(_isPer ? 'PER 지표가 없습니다.' : 'PBR 지표가 없습니다.'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: const BoxDecoration(
+                            color: RColor.chartGreyColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        Text(
+                          _isPer ? '  PER' : '  PBR',
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: RColor.new_basic_text_color_grey),
+                        ),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        Container(
+                          width: 7,
+                          height: 7,
+                          //color: Color(0xff6565FF),
+                          decoration: const BoxDecoration(
+                            color: Color(0xff454A63),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const Text(
+                          '  주가',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: RColor.new_basic_text_color_grey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Text(
+                      '* PER, PBR : 전일 보통주 수정주가 / 최근 분기 EPS, BPS',
+                      style: TStyle.contentGrey12,
+                    ),
+                  ],
+                )
+              : _setNoDataView(_isPer ? 'PER 지표가 없습니다.' : 'PBR 지표가 없습니다.'),
         ],
       ),
     );
@@ -257,7 +274,8 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
 
   // 기업의 배당 정보
   Widget _setCorporateDividendInformationView() {
-    return Padding(padding: const EdgeInsets.symmetric(horizontal: 15),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -265,30 +283,32 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
             '기업의 배당 정보',
             style: TStyle.title18T,
           ),
-          _listDividendData.length > 0 ? Column(
-            children: [
-              const SizedBox(
-                height: 50,
-              ),
-              _setChart4View(),
-              const SizedBox(
-                height: 20,
-              ),
-              Table(
-                children: List.generate(
-                  _listDividendData.length + 1,
-                      (index) => _setTableRow(index),
+          _listDividendData.length > 0
+              ? Column(
+                  children: [
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    _setChart4View(),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Table(
+                      children: List.generate(
+                        _listDividendData.length + 1,
+                        (index) => _setTableRow(index),
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    _setNoDataView('기업의 배당 정보가 없습니다.'),
+                  ],
                 ),
-              ),
-            ],
-          ) : Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              _setNoDataView('기업의 배당 정보가 없습니다.'),
-            ],
-          ),
         ],
       ),
     );
@@ -330,7 +350,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
             onTap: () {
               if (!_isPer) {
                 setState(
-                      () {
+                  () {
                     _isPer = true;
                     _initChart3Data();
                   },
@@ -363,9 +383,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                   style: !_isPer
                       ? TStyle.commonTitle15
                       : const TextStyle(
-                    fontSize: 15,
-                    color: RColor.lineGrey,
-                  ),
+                          fontSize: 15,
+                          color: RColor.lineGrey,
+                        ),
                 ),
               ),
             ),
@@ -452,10 +472,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         behaviors: [
           charts.LinePointHighlighter(
             symbolRenderer: CustomCircleSymbolRenderer(
-              MediaQuery
-                  .of(context)
-                  .size
-                  .width,
+              MediaQuery.of(context).size.width,
             ), // add this line in behaviours
           ),
         ],
@@ -479,12 +496,11 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
             .asMap()
             .entries
             .map(
-              (e) =>
-              FlSpot(
+              (e) => FlSpot(
                 e.key.toDouble(),
                 double.parse(e.value.dividendRate),
               ),
-        )
+            )
             .toList(),
         isCurved: false,
         dotData: FlDotData(
@@ -518,7 +534,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
               ),
               backgroundColor: Colors.transparent,
               showingTooltipIndicators:
-              _getShowingIndicatorsIndexList.map((index) {
+                  _getShowingIndicatorsIndexList.map((index) {
                 return ShowingTooltipIndicators([
                   LineBarSpot(
                     _lineBarsData[0],
@@ -540,13 +556,13 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                         show: true,
                         getDotPainter: (spot, percent, barData, index) =>
                             FlDotCirclePainter(
-                              radius: 4,
-                              color: index == _listDividendData.length - 1
-                                  ? RColor.mainColor
-                                  : RColor.lineGrey,
-                              strokeWidth: 0,
-                              //strokeColor: Colors.brown,
-                            ),
+                          radius: 4,
+                          color: index == _listDividendData.length - 1
+                              ? RColor.mainColor
+                              : RColor.lineGrey,
+                          strokeWidth: 0,
+                          //strokeColor: Colors.brown,
+                        ),
                       ),
                     );
                   }).toList();
@@ -561,7 +577,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                         '${lineBarSpot.y.toString()}%',
                         TextStyle(
                           color: lineBarSpot.x.toInt() ==
-                              _listDividendData.length - 1
+                                  _listDividendData.length - 1
                               ? RColor.mainColor
                               : Colors.black,
                           fontWeight: FontWeight.bold,
@@ -605,12 +621,13 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
               child: Text(
                 '!',
                 style: TextStyle(
-                    fontSize: 18,
-                    color: RColor.new_basic_text_color_grey),
+                    fontSize: 18, color: RColor.new_basic_text_color_grey),
               ),
             ),
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(
+            height: 10,
+          ),
           Text(
             message,
             style: const TextStyle(
@@ -630,8 +647,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
     return result;
   }
 
-  FlTitlesData get _getChart4TitlesData =>
-      FlTitlesData(
+  FlTitlesData get _getChart4TitlesData => FlTitlesData(
         show: true,
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
@@ -734,8 +750,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         height: 36,
         child: Center(
           child: Text(
-            item.dividendAmt.isNotEmpty && item.dividendAmt != '0' ?
-                '${TStyle.getMoneyPoint(item.dividendAmt)}원': '0원',
+            item.dividendAmt.isNotEmpty && item.dividendAmt != '0'
+                ? '${TStyle.getMoneyPoint(item.dividendAmt)}원'
+                : '0원',
           ),
         ),
       );
@@ -757,29 +774,27 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         id: '주가',
         colorFn: (_, __) => charts.Color.fromHex(code: '#454A63'),
         domainFn: (Search11PerPbr xAxisItem, _) =>
-        '${xAxisItem.tradeDate.substring(2, 4)}\'${xAxisItem.tradeDate.substring(4, 6)}',
+            '${xAxisItem.tradeDate.substring(2, 4)}\'${xAxisItem.tradeDate.substring(4, 6)}',
         measureFn: (Search11PerPbr yAxisItem, _) =>
             int.parse(yAxisItem.tradePrice),
         data: _listPerPbrData,
-      )
-        ..setAttribute(charts.rendererIdKey, 'line'),
+      )..setAttribute(charts.rendererIdKey, 'line'),
       charts.Series<Search11PerPbr, String>(
         id: 'Per/Pbr',
         colorFn: (datum, index) => charts.Color.fromHex(code: '#DCDFE2'),
         domainFn: (Search11PerPbr xAxisItem, _) =>
-        '${xAxisItem.tradeDate.substring(2, 4)}\'${xAxisItem.tradeDate.substring(4, 6)}',
+            '${xAxisItem.tradeDate.substring(2, 4)}\'${xAxisItem.tradeDate.substring(4, 6)}',
         measureFn: (Search11PerPbr yAxisItem, _) {
           return _isPer
               ? double.tryParse(yAxisItem.per) == null
-              ? 0
-              : double.parse(yAxisItem.per)
+                  ? 0
+                  : double.parse(yAxisItem.per)
               : double.tryParse(yAxisItem.pbr) == null
-              ? 0
-              : double.parse(yAxisItem.pbr);
+                  ? 0
+                  : double.parse(yAxisItem.pbr);
         },
         data: _listPerPbrData,
-      )
-        ..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
+      )..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
     ];
   }
 
@@ -896,9 +911,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -918,9 +933,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
           _listDividendData.addAll(resData.retData.listDividend);
         }
       }
-      setState(() {
-
-      });
+      setState(() {});
     }
   }
 }

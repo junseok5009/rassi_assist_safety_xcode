@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_sales_info.dart';
@@ -16,25 +16,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';
 
-
 /// 2022.06. - JS
 /// 종목홈_종목비교_차트4 배당수익률
+
 class StockCompareChart4Page extends StatefulWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트4';
-  String groupCode = '';
-  String stockCode = '';
-
-  StockCompareChart4Page(String vGroupCode, String vStockCode) {
-    this.groupCode = vGroupCode;
-    this.stockCode = vStockCode;
-  }
-
+  final String groupCode;
+  final String stockCode;
+  const StockCompareChart4Page({Key? key, this.groupCode='', this.stockCode=''}) : super(key: key);
   @override
-  _StockCompareChart4PageState createState() =>
-      _StockCompareChart4PageState();
+  StockCompareChart4PageState createState() => StockCompareChart4PageState();
 }
 
-class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
+class StockCompareChart4PageState extends State<StockCompareChart4Page> {
   late SharedPreferences _prefs;
   String _userId = '';
   String _groupCode = '';
@@ -53,28 +47,33 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
 
   @override
   void initState() {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart4Page.TAG_NAME,
-      screenClassOverride: StockCompareChart4Page.TAG_NAME,
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart4Page.TAG_NAME,
     );
-    _loadPrefData();
+    _loadPrefData().then((_) => {
+          DLog.e('$_userId / $_groupCode'),
+          _fetchPosts(
+              TR.COMPARE03,
+              jsonEncode(<String, String>{
+                'userId': _userId,
+                'stockGrpCd': _groupCode,
+              })),
+        });
   }
 
-  _loadPrefData() async {
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      _groupCode = widget.groupCode;
-      _stockCode = widget.stockCode;
-    });
-
-    _fetchPosts(
-        TR.COMPARE03,
-        jsonEncode(<String, String>{
-          'userId': _userId,
-          'stockGrpCd': _groupCode,
-        }));
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    _groupCode = widget.groupCode;
+    _stockCode = widget.stockCode;
   }
 
   void _fetchPosts(String trStr, String json) async {
@@ -83,10 +82,10 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
     try {
       final http.Response response = await http
           .post(
-        url,
-        body: json,
-        headers: Net.headers,
-      )
+            url,
+            body: json,
+            headers: Net.headers,
+          )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
@@ -98,12 +97,11 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
   }
 
   void _parseTrData(String trStr, final http.Response response) {
-    DLog.d(StockCompareChart4Page.TAG_NAME,
-        "_parseTrData() // trStr : $trStr, ");
+    DLog.w("_parseTrData(): $trStr / ${response.body}");
     // DEFINE TR.COMPARE03 배당 수익률 조회
     if (trStr == TR.COMPARE03) {
       final TrCompare03 resData =
-      TrCompare03.fromJson(jsonDecode(response.body));
+          TrCompare03.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
         DLog.d(StockCompareChart4Page.TAG_NAME, resData.retData.toString());
@@ -125,7 +123,8 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
         children: [
           Container(
             alignment: Alignment.centerRight,
-            child: IconButton(icon: const Icon(Icons.close),
+            child: IconButton(
+              icon: const Icon(Icons.close),
               padding: EdgeInsets.zero,
               alignment: Alignment.topRight,
               color: Colors.black,
@@ -138,22 +137,28 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
             style: TStyle.title19T,
           ),
           Container(
-            margin: EdgeInsets.only(top: 10),
+            margin: const EdgeInsets.only(top: 10),
             width: double.infinity,
             child: Wrap(
               spacing: 10.0,
               alignment: WrapAlignment.center,
               children: List.generate(
                 alStock.length,
-                    (index) => _makeSelectStockBox(index),
+                (index) => _makeSelectStockBox(index),
               ),
             ),
           ),
-          const SizedBox(height: 4,),
+          const SizedBox(
+            height: 4,
+          ),
           _makeChartView(),
-          const SizedBox(height: 10,),
+          const SizedBox(
+            height: 10,
+          ),
           _makeListView(), // 배당금
-          const SizedBox(height: 20,),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
@@ -182,9 +187,9 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
     } else {
       return InkWell(
         onTap: () {
-            _itemClickIndex = index;
-            _onClickSelectBox(item);
-          },
+          _itemClickIndex = index;
+          _onClickSelectBox(item);
+        },
         child: Container(
           margin: const EdgeInsets.only(top: 10),
           padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
@@ -256,7 +261,7 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
     String tmpDataYear = '[';
     String tmpDataCategory = '[';
     String tmpData = '[';
-    int _lastYear = int.parse(TStyle.getYearString()) - 1;
+    int lastYear = int.parse(TStyle.getYearString()) - 1;
 
     for (int i = 0; i < alStock.length; i++) {
       var item = alStock[i];
@@ -268,29 +273,29 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
 
       for (int k = 0; k < 4; k++) {
         tmpDataCategory += '0,';
-        if (item.listSalesInfo.length > 0 &&
+        if (item.listSalesInfo.isNotEmpty &&
             yearIndex < item.listSalesInfo.length) {
           var smallItem = item.listSalesInfo[yearIndex];
           if (smallItem.dividendYear.isEmpty) {
             strSmallDataValue += '0,';
             //tmpLineData += '[0, 0],';
-            tmpLineData += '[${ i + alStock.length * k }, 0],';
+            tmpLineData += '[${i + alStock.length * k}, 0],';
           } else {
-            if (int.parse(smallItem.dividendYear) == (_lastYear - 3 + k)) {
+            if (int.parse(smallItem.dividendYear) == (lastYear - 3 + k)) {
               strSmallDataValue += '${smallItem.dividendRate},';
               tmpLineData +=
-              '[${i + (alStock.length * k)}, ${smallItem.dividendRate},],';
+                  '[${i + (alStock.length * k)}, ${smallItem.dividendRate},],';
               yearIndex++;
             } else {
               strSmallDataValue += '0,';
               //tmpLineData += '[0, 0],';
-              tmpLineData += '[${ i + alStock.length * k }, 0],';
+              tmpLineData += '[${i + alStock.length * k}, 0],';
             }
           }
         } else {
           strSmallDataValue += '0,';
           //tmpLineData += '[0, 0],';
-          tmpLineData += '[${ i + alStock.length * k }, 0],';
+          tmpLineData += '[${i + alStock.length * k}, 0],';
         }
       }
 
@@ -329,15 +334,15 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
     }
 
     for (int q = 0; q < 4; q++) {
-      tmpDataYear += "'${_lastYear - 3 + q}',";
-      _listDividendYears.add( (_lastYear -q).toString() );
+      tmpDataYear += "'${lastYear - 3 + q}',";
+      _listDividendYears.add((lastYear - q).toString());
     }
 
     tmpDataYear += ']';
     tmpDataCategory += "]";
     tmpData += "]";
 
-   /* DLog.d(StockCompareChart4Page.TAG_NAME, "tmpDataYear : $tmpDataYear");
+    /* DLog.d(StockCompareChart4Page.TAG_NAME, "tmpDataYear : $tmpDataYear");
     DLog.d(StockCompareChart4Page.TAG_NAME,
         "tmpDataCategory : $tmpDataCategory");
     DLog.d(StockCompareChart4Page.TAG_NAME, "tmpData : $tmpData");*/
@@ -348,7 +353,6 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
   }
 
   Widget _makeListView() {
-
     if (alStock.isEmpty) {
       return const SizedBox();
     }
@@ -362,7 +366,8 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
       } else if (b.dividendYear.isEmpty) {
         return 0;
       } else {
-        return double.parse(b.dividendYear).compareTo(double.parse(a.dividendYear));
+        return double.parse(b.dividendYear)
+            .compareTo(double.parse(a.dividendYear));
       }
     });
     return Container(
@@ -375,12 +380,20 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
             children: [
               Text(
                 alStock[_itemClickIndex].stockName,
-                style: TStyle.textMainColor,),
-              const SizedBox(width: 6,),
-              const Text('주당배당금', style: TStyle.commonTitle,),
+                style: TStyle.textMainColor,
+              ),
+              const SizedBox(
+                width: 6,
+              ),
+              const Text(
+                '주당배당금',
+                style: TStyle.commonTitle,
+              ),
             ],
           ),
-          const SizedBox(height: 6,),
+          const SizedBox(
+            height: 6,
+          ),
           ListView.builder(
             shrinkWrap: true,
             //itemCount: _listSaleInfo.length,
@@ -389,26 +402,31 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
             padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
-              String _year = _listDividendYears[index];
-              String _amt = '0';
-              if(listSaleInfo.length > salesInfoListIndexCheck){
+              String year = _listDividendYears[index];
+              String amt = '0';
+              if (listSaleInfo.length > salesInfoListIndexCheck) {
                 // 1개 이상
-                if(listSaleInfo[salesInfoListIndexCheck].dividendYear == _listDividendYears[index]){
+                if (listSaleInfo[salesInfoListIndexCheck].dividendYear ==
+                    _listDividendYears[index]) {
                   //_salesInfoListIndexCheck++;
-                  _amt = listSaleInfo[salesInfoListIndexCheck++].dividendAmt;
+                  amt = listSaleInfo[salesInfoListIndexCheck++].dividendAmt;
                 }
               }
               return Column(
                 children: [
-                  const SizedBox(height: 2,),
+                  const SizedBox(
+                    height: 2,
+                  ),
                   Row(
                     children: [
                       Expanded(
                         flex: 1,
                         child: Align(
                           alignment: Alignment.centerRight,
-                          child: Text(_year,
-                            style: TStyle.content14,),
+                          child: Text(
+                            '$year',
+                            style: TStyle.content14,
+                          ),
                         ),
                       ),
                       Expanded(
@@ -418,8 +436,10 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
                           child: Container(
                             width: 75,
                             alignment: Alignment.centerRight,
-                            child: Text('${TStyle.getMoneyPoint(_amt)}원',
-                              style: TStyle.commonSTitle,),
+                            child: Text(
+                              '${TStyle.getMoneyPoint(amt)}원',
+                              style: TStyle.commonSTitle,
+                            ),
                           ),
                         ),
                       ),
@@ -433,5 +453,4 @@ class _StockCompareChart4PageState extends State<StockCompareChart4Page> {
       ),
     );
   }
-
 }

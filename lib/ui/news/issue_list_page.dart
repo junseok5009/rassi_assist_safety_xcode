@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -42,10 +42,7 @@ class IssueListPageState extends State<IssueListPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: IssueListPage.TAG_NAME,
-      screenClassOverride: IssueListPage.TAG_NAME,
-    );
+    CustomFirebaseClass.logEvtScreenView(IssueListPage.TAG_NAME,);
 
     _loadPrefData().then((value) {
       _requestData();
@@ -75,7 +72,11 @@ class IssueListPageState extends State<IssueListPage> {
       data: MediaQuery.of(context)
           .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: Scaffold(
-        appBar: CommonAppbar.basic(context, '날짜별 이슈 현황'),
+        appBar: CommonAppbar.basic(
+          buildContext: context,
+          title: '날짜별 이슈 현황',
+          elevation: 1,
+        ),
         body: SafeArea(
           child: Column(
             children: [
@@ -112,8 +113,7 @@ class IssueListPageState extends State<IssueListPage> {
                       child: ListView.builder(
                         itemCount: _dataList.length,
                         itemBuilder: (context, index) {
-                          return _buildListItem(
-                              _dataList[index].issueDate,
+                          return _buildListItem(_dataList[index].issueDate,
                               _dataList[index].listIssue);
                         },
                       ),

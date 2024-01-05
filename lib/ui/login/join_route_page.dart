@@ -14,62 +14,41 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/des/http_process_class.dart';
 import 'package:rassi_assist/des/utils.dart';
-import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'intro_start_page.dart';
 
 /// 2021.04.28
 /// 회원가입 경로 선택
-class JoinRoutePage extends StatelessWidget {
+class JoinRoutePage extends StatefulWidget {
   static const routeName = '/page_join_route';
   static const String TAG = "[JoinRoutePage]";
   static const String TAG_NAME = '회원가입_가입경로';
-  const JoinRoutePage({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepBlue,
-          elevation: 0,
-        ),
-        body: JoinRouteWidget(),
-      ),
-    );
-  }
-}
+  final UserJoinInfo userJoinInfo;
 
-
-class JoinRouteWidget extends StatefulWidget {
-  const JoinRouteWidget({Key? key}) : super(key: key);
+  const JoinRoutePage(
+    this.userJoinInfo, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => JoinRouteState();
 }
 
-
-class JoinRouteState extends State<JoinRouteWidget> {
-  late PgData args;
+class JoinRouteState extends State<JoinRoutePage> {
   final _scrollController = ScrollController();
   String deviceOsVer = '';
 
-  bool _isInitBuild = true; //Build 메소드 안에서 처음 한번만 값 저장
   String _reqType = '';
   String _reqParam = '';
-
-  String _strId = '';
-  String _strEmail = '';
-  String _strName = '';
-  String _pgType = ''; //naver, kakao, ssg, rassi
-
-  String _tempId = '';
   String _sJoinRoute = '';
 
-  String _strPhone = '';
   String _smsCheck = 'N'; //SMS 수신 동의 체크
   String _emailCheck = 'N'; //이메일 수신 동의 체크
   bool _isAgreeMarketing = false; //마케팅 수신 동의 체크
@@ -157,27 +136,19 @@ class JoinRouteState extends State<JoinRouteWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (_isInitBuild) {
-      args = ModalRoute.of(context)!.settings.arguments as PgData;
-      _strId = args.userId ?? '';
-      _strEmail = args.pgData ?? ''; //이메일 또는 비밀번호(라씨)
-      _strName = args.pgSn ?? ''; //이름 또는 전화번호(라씨)
-      _pgType = args.flag ?? '';
-      if (_pgType == 'SSGOLLA') {
-        _strPhone = _strId;
-        _strId = '';
-      }
-      DLog.d(JoinRoutePage.TAG, 'args : $_strId');
-      DLog.d(JoinRoutePage.TAG, 'args : $_pgType');
-      _isInitBuild = false;
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '',
         elevation: 0,
       ),
       body: Theme(
@@ -211,14 +182,14 @@ class JoinRouteState extends State<JoinRouteWidget> {
           child: Container(
             width: double.infinity,
             height: 75,
-            color: RColor.mainColor,
+            color: RColor.purpleBasic_6565ff,
             padding: const EdgeInsets.only(
               bottom: 10,
             ),
             child: InkWell(
               child: const Center(
                 child: Text(
-                  '동의하고 시작합니다.',
+                  '시작하기',
                   style: TStyle.btnTextWht16,
                 ),
               ),
@@ -233,14 +204,14 @@ class JoinRouteState extends State<JoinRouteWidget> {
   }
 
   Widget _setHeaderTile() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 140,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            'images/logo_icon_wt.png',
+            'images/icon_rassi_logo_purple.png',
             height: 50,
           ),
           const SizedBox(
@@ -605,30 +576,31 @@ class JoinRouteState extends State<JoinRouteWidget> {
       }
       DLog.d(JoinRoutePage.TAG, '마케팅 수신동의 : $_isAgreeMarketing');
       DLog.d(JoinRoutePage.TAG, '### JoinRoute : $_sJoinRoute');
+      DLog.d(JoinRoutePage.TAG,
+          '### userId : ${widget.userJoinInfo.userId} / ### pass : ${widget.userJoinInfo.email} / ### phone : ${widget.userJoinInfo.name}');
       //라씨 회원가입
-      if (_pgType == 'RASSI') {
-        _tempId = _strId.toLowerCase();
+      if (widget.userJoinInfo.pgType == 'RASSI') {
+        widget.userJoinInfo.userId = widget.userJoinInfo.userId.toLowerCase();
         _reqType = 'join_confirm';
-        _reqParam = 'userid=${Net.getEncrypt(_strId.toLowerCase())}&passWd=${Net.getEncrypt(_strEmail.trim())}&hp=${Net.getEncrypt(_strName.trim())}&username=&sex_gubun=&joinRoute=$_sJoinRoute&daily=$_emailCheck&tm_sms_f=$_smsCheck';
-        DLog.d(JoinRoutePage.TAG, '### userId : ${_strId.toLowerCase()}');
-        DLog.d(JoinRoutePage.TAG, '### _tempId : ${_tempId}');
-        DLog.d(JoinRoutePage.TAG, '### pass : ${_strEmail.trim()}');
-        DLog.d(JoinRoutePage.TAG, '### phone : ${_strName.trim()}');
+        _reqParam =
+            'userid=${Net.getEncrypt(widget.userJoinInfo.userId.toLowerCase())}&passWd=${Net.getEncrypt(widget.userJoinInfo.email.trim())}&hp=${Net.getEncrypt(widget.userJoinInfo.name.trim())}&username=&sex_gubun=&joinRoute=$_sJoinRoute&daily=$_emailCheck&tm_sms_f=$_smsCheck';
         _requestThink();
       }
       //쓱가입
-      else if (_pgType == 'SSGOLLA') {
+      else if (widget.userJoinInfo.pgType == 'SSGOLLA') {
         DLog.d('SsgJoinPage.TAG',
-            '씽크풀 가입안됨 ' + "SSGOLLA" + utilsGetDeviceHpID(_strPhone));
+            '씽크풀 가입안됨 ' + "SSGOLLA" + utilsGetDeviceHpID(widget.userJoinInfo.phone));
         _reqType = 'join_sns';
-        _reqParam = "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(_strPhone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SNSM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(_strPhone)}&kt_provide_flag=N&hpEncFlag=Y";
+        _reqParam =
+            "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(widget.userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SNSM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(widget.userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
         _requestThink();
       }
       //네이버/카카오/애플
       else {
-        if (_strId != null && _strId.isNotEmpty) {
+        if (widget.userJoinInfo.userId.isNotEmpty) {
           _reqType = 'join_sns';
-          _reqParam = "snsId=${Net.getEncrypt(_strId)}&snsPos=$_pgType&nick=&userName=$_strName&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=$_strEmail&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=";
+          _reqParam =
+              "snsId=${Net.getEncrypt(widget.userJoinInfo.userId)}&snsPos=${widget.userJoinInfo.pgType}&nick=&userName=${widget.userJoinInfo.name}&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=${widget.userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=";
           _requestThink();
         }
       }
@@ -646,10 +618,10 @@ class JoinRouteState extends State<JoinRouteWidget> {
   }
 
   // 다음 페이지로 이동
-  void _goNextRoute(String userId) {
+  Future<void> _goNextRoute() async {
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'complete');
-    switch (_pgType) {
+    switch (widget.userJoinInfo.pgType) {
       case 'SSGOLLA':
         {
           CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.ssg));
@@ -676,18 +648,44 @@ class JoinRouteState extends State<JoinRouteWidget> {
           break;
         }
     }
-    if (userId != '') {
-      if (basePageState != null) {
-        // basePageState = null;
-        basePageState = BasePageState();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String prefsUserId = prefs.getString(Const.PREFS_USER_ID) ?? '';
+    String globalUserId = AppGlobal().userId;
+
+    if (prefsUserId.isEmpty) {
+      if (globalUserId.isEmpty) {
+        if (mounted) {
+          await CommonPopup.instance.showDialogBasicConfirm(
+              context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+          if (mounted) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const IntroStartPage()),
+                (route) => false);
+          }
+        }
+      } else {
+        await prefs.setString(Const.PREFS_USER_ID, globalUserId);
       }
-      // Navigator.pushReplacement(
-      //     context, MaterialPageRoute(builder: (context) => BasePage()));
+    }
+
+    if (globalUserId.isEmpty) {
+      AppGlobal().userId = prefsUserId;
+    }
+
+    if (basePageState != null) {
+      //TODO @@@@@
+      // basePageState = null;
+      basePageState = BasePageState();
+    }
+
+    if (mounted) {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const BasePage()),
           (route) => false);
-    } else {}
+    }
   }
 
   void _showDialogMsg(String msg) {
@@ -792,23 +790,26 @@ class JoinRouteState extends State<JoinRouteWidget> {
         } else {
           DLog.d(JoinRoutePage.TAG, "USER ID : ${resData.userId}");
           DLog.d(JoinRoutePage.TAG, "NICK : ${resData.nickName}");
-          _tempId = resData.userId;
-          HttpProcessClass().callHttpProcess0002(_tempId).then((value) {
+          widget.userJoinInfo.userId = resData.userId;
+          HttpProcessClass()
+              .callHttpProcess0002(widget.userJoinInfo.userId)
+              .then((value) {
             DLog.d(JoinRoutePage.TAG, 'then() value : $value');
             switch (value.appResultCode) {
               case 200:
                 {
-                  _goNextRoute(_tempId);
+                  _goNextRoute();
                   break;
                 }
               case 400:
                 {
-                  CommonPopup().showDialogNetErr(context);
+                  CommonPopup.instance.showDialogNetErr(context);
                   break;
                 }
               default:
                 {
-                  CommonPopup().showDialogMsg(context, value.appDialogMsg);
+                  CommonPopup.instance
+                      .showDialogMsg(context, value.appDialogMsg);
                 }
             }
           });
@@ -817,22 +818,24 @@ class JoinRouteState extends State<JoinRouteWidget> {
     } else if (_reqType == 'join_confirm') {
       //라씨 회원가입
       if (result != 'ERR' && result.isNotEmpty) {
-        HttpProcessClass().callHttpProcess0002(_strId).then((value) {
+        HttpProcessClass()
+            .callHttpProcess0002(widget.userJoinInfo.userId)
+            .then((value) {
           DLog.d(JoinRoutePage.TAG, 'then() value : $value');
           switch (value.appResultCode) {
             case 200:
               {
-                _goNextRoute(_strId);
+                _goNextRoute();
                 break;
               }
             case 400:
               {
-                CommonPopup().showDialogNetErr(context);
+                CommonPopup.instance.showDialogNetErr(context);
                 break;
               }
             default:
               {
-                CommonPopup().showDialogMsg(context, value.appDialogMsg);
+                CommonPopup.instance.showDialogMsg(context, value.appDialogMsg);
               }
           }
         });

@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -43,10 +43,7 @@ class CatchListPageState extends State<CatchListPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: CatchListPage.TAG_NAME,
-      screenClassOverride: CatchListPage.TAG_NAME,
-    );
+    CustomFirebaseClass.logEvtScreenView(CatchListPage.TAG_NAME,);
 
     _loadPrefData().then(
       (value) => {
@@ -66,7 +63,11 @@ class CatchListPageState extends State<CatchListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, '라씨 매매비서의 주간토픽'),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '라씨 매매비서의 주간토픽',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: Container(
           color: Colors.white,

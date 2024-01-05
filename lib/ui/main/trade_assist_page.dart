@@ -2,21 +2,22 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_ask02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2020.10.06
@@ -56,9 +57,8 @@ class TradeAssistPageState extends State<TradeAssistPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: TradeAssistPage.TAG_NAME,
-      screenClassOverride: TradeAssistPage.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      TradeAssistPage.TAG_NAME,
     );
 
     _loadPrefData();
@@ -248,41 +248,14 @@ class TradeAssistPageState extends State<TradeAssistPage> {
               ],
             ),
             onTap: () {
-/*              _navigateSearchData(
-                  context,
-                  SearchPage(),
-                  PgData(
-                    pgSn: '',
-                  ));*/
+              _navigateSearchData(
+                context,
+                SearchPage.goStockHome(),
+              );
             },
           ),
         ),
       ],
-    );
-  }
-
-  //포켓보드 이동 배너
-  Widget _setGoPocketBoard() {
-    return InkWell(
-      child: Container(
-        width: double.infinity,
-        height: 130,
-        color: RColor.bgWeakGrey,
-        child: Image.network(
-          'http://files.thinkpool.com/pnc/rassi/img_banner_board.jpg',
-          fit: BoxFit.contain,
-        ),
-      ),
-      onTap: () {
-        // //포켓보드로 이동
-        // Navigator.pushNamed(
-        //   context,
-        //   PocketBoard.routeName,
-        //   arguments: PgData(
-        //     pgSn: '',
-        //   ),
-        // );
-      },
     );
   }
 
@@ -304,7 +277,9 @@ class TradeAssistPageState extends State<TradeAssistPage> {
   //문의한 종목 설명
   Widget _setNewStockInfo() {
     return Container(
-      margin: const EdgeInsets.only(top: 10,),
+      margin: const EdgeInsets.only(
+        top: 10,
+      ),
       padding: const EdgeInsets.all(10.0),
       child: Wrap(
         alignment: WrapAlignment.start,
@@ -370,15 +345,13 @@ class TradeAssistPageState extends State<TradeAssistPage> {
     );
   }*/
 
-  _navigateSearchData(
-      BuildContext context, Widget instance, PgData pgData) async {
+  _navigateSearchData(BuildContext context, Widget instance) async {
     final result = await Navigator.push(
-        context,
-        _createRouteData(
-            instance,
-            RouteSettings(
-              arguments: pgData,
-            )));
+      context,
+      CustomNvRouteClass.createRoute(
+        instance,
+      ),
+    );
     if (result == 'cancel') {
       DLog.d(TradeAssistPage.TAG, '*** navigete cancel ***');
     } else {
@@ -389,26 +362,6 @@ class TradeAssistPageState extends State<TradeAssistPage> {
       //   'selectCount': '10',
       // }));
     }
-  }
-
-  //페이지 전환 에니메이션 (데이터 전달)
-  Route _createRouteData(Widget instance, RouteSettings settings) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      settings: settings,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    );
   }
 
   //푸시 토큰 재생성 체크

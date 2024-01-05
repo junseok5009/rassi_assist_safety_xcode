@@ -156,7 +156,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                           ' 매매신호 ',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: RColor.greyMore_999999,
+                                            fontWeight: FontWeight.w600,
+                                            color:
+                                                RColor.greyBasicStrong_666666,
                                           ),
                                         ),
                                       ],
@@ -171,7 +173,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                           ' 현재가 ',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: RColor.greyMore_999999,
+                                            fontWeight: FontWeight.w600,
+                                            color:
+                                                RColor.greyBasicStrong_666666,
                                           ),
                                         ),
                                       ],
@@ -193,7 +197,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             SliverFillRemaining(
               child: Stack(
                 children: [
-                  Provider.of<UserInfoProvider>(context, listen: false).is3StockUser() ? _set3StockUserListWidget() : _setStockListWidget(),
+                  Provider.of<UserInfoProvider>(context, listen: false)
+                          .is3StockUser()
+                      ? _set3StockUserListWidget()
+                      : _setStockListWidget(),
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: AnimatedContainer(
@@ -214,7 +221,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const PocketSettingPage(),
+                                    builder: (context) =>
+                                        const PocketSettingPage(),
                                   ),
                                 );
                               },
@@ -250,7 +258,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                 Navigator.push(
                                   context,
                                   CustomNvRouteClass.createRoute(
-                                    SearchPage.goLayer(SearchPage.landAddPocketLayer, _pocket.pktSn),
+                                    SearchPage.goLayer(
+                                        SearchPage.landAddPocketLayer,
+                                        _pocket.pktSn),
                                   ),
                                 );
                               },
@@ -410,9 +420,13 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     ),
 
                     if (_onStockInfo)
-                      if (Provider.of<UserInfoProvider>(context, listen: false).isPremiumUser())
+                      if (Provider.of<UserInfoProvider>(context, listen: false)
+                          .isPremiumUser())
                         _setRateCircleText(_stkList[index])
-                      else if (Provider.of<UserInfoProvider>(context, listen: false).is3StockUser() && _stkList[index].signalYn == 'Y')
+                      else if (Provider.of<UserInfoProvider>(context,
+                                  listen: false)
+                              .is3StockUser() &&
+                          _stkList[index].signalYn == 'Y')
                         _setRateCircleText(_stkList[index])
                       else
                         _setNoPremiumBlockView()

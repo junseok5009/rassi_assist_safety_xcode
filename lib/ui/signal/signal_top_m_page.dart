@@ -60,9 +60,11 @@ class SignalMTopPageState extends State<SignalMTopPage> {
 
     _loadPrefData().then(
       (_) => {
-        Future.delayed(Duration.zero, () {
+        Future.delayed(
+          Duration.zero,
+          () {
             PgData args = ModalRoute.of(context)!.settings.arguments as PgData;
-            if (_userId != '') {
+            if (_userId != '' && args != null) {
               String sTr = '';
               if (args.pgData == 'CUR_B') {
                 TAG_NAME = '조건별_매수후급등';
@@ -118,7 +120,11 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppbar.basic(context, _getPageTitle(),),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: _getPageTitle(),
+        elevation: 1,
+      ),
       body: SafeArea(
         child: Stack(
           children: [

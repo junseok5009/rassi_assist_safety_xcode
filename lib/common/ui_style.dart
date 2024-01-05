@@ -292,7 +292,7 @@ class UIStyle {
     return BoxDecoration(
       // color: Colors.white,
       border: Border.all(
-        color: RColor.mainColor,
+        color: RColor.purpleBasic_6565ff,
         width: 1.0,
       ),
       borderRadius: const BorderRadius.all(Radius.circular(12.0)),
@@ -302,7 +302,7 @@ class UIStyle {
   //Box 선택된 버튼 상태(가입경로) (Solid)
   static BoxDecoration boxSelectedPurple() {
     return const BoxDecoration(
-      color: RColor.mainColor,
+      color: RColor.purpleBasic_6565ff,
       borderRadius: BorderRadius.all(Radius.circular(25)),
     );
   }
@@ -310,10 +310,10 @@ class UIStyle {
   //BOX 선택된 버튼 상태(마켓뷰)
   static BoxDecoration boxBtnSelected() {
     return BoxDecoration(
-      color: RColor.mainColor,
+      color: RColor.purpleBasic_6565ff,
       border: Border.all(
         color: RColor.lineGrey,
-        width: 0.8,
+        width: 1,
       ),
       borderRadius: const BorderRadius.all(Radius.circular(10.0)),
     );
@@ -322,10 +322,10 @@ class UIStyle {
   //BOX 선택된 버튼 상태(마켓뷰)
   static BoxDecoration boxBtnSelected20() {
     return BoxDecoration(
-      color: RColor.mainColor,
+      color: RColor.purpleBasic_6565ff,
       border: Border.all(
         color: RColor.lineGrey,
-        width: 0.8,
+        width: 1,
       ),
       borderRadius: const BorderRadius.all(Radius.circular(20.0)),
     );

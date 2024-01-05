@@ -10,15 +10,15 @@ import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 
 import '../../../common/const.dart';
 import '../../../common/net.dart';
-import '../../common/common_swiper_pagination.dart';
 import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_search/tr_search10.dart';
 import '../../../models/tr_shome/tr_shome05.dart';
+import '../../common/common_swiper_pagination.dart';
 import '../../main/base_page.dart';
 import '../page/result_analyze_page.dart';
 
@@ -26,16 +26,16 @@ import '../page/result_analyze_page.dart';
 /// 종목홈(개편)_홈_실적분석
 
 class StockHomeHomeTileResultAnalyze extends StatefulWidget {
-  static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey =
-      GlobalKey();
+  static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey = GlobalKey();
+
   StockHomeHomeTileResultAnalyze() : super(key: globalKey);
+
   @override
   State<StockHomeHomeTileResultAnalyze> createState() =>
       StockHomeHomeTileResultAnalyzeState();
 }
 
-class StockHomeHomeTileResultAnalyzeState
-    extends State<StockHomeHomeTileResultAnalyze>
+class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultAnalyze>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileResultAnalyze> {
   final AppGlobal _appGlobal = AppGlobal();
 
@@ -72,6 +72,13 @@ class StockHomeHomeTileResultAnalyzeState
   bool get wantKeepAlive => true;
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void dispose() {
     _swiperController.dispose();
     super.dispose();
@@ -81,13 +88,6 @@ class StockHomeHomeTileResultAnalyzeState
   void initState() {
     super.initState();
     initPage();
-  }
-
-  @override
-  void setState(VoidCallback fn) {
-    if(mounted){
-      super.setState(fn);
-    }
   }
 
   @override
@@ -211,7 +211,7 @@ class StockHomeHomeTileResultAnalyzeState
                 onTap: () {
                   // 실적분석 상세페이지 이동
                   basePageState.callPageRouteData(
-                    ResultAnalyzePage(),
+                    const ResultAnalyzePage(),
                     PgData(
                       stockName: _appGlobal.stkName,
                       stockCode: _appGlobal.stkCode,
@@ -378,7 +378,7 @@ class StockHomeHomeTileResultAnalyzeState
                   ),
                   child: Text(
                     _shome05structPrice.per.isEmpty
-                        ? '0'
+                        ? 'N/A'
                         : TStyle.getMoneyPoint(
                             _shome05structPrice.per,
                           ),
@@ -425,7 +425,7 @@ class StockHomeHomeTileResultAnalyzeState
                   ),
                   child: Text(
                     _shome05structPrice.pbr.isEmpty
-                        ? '0'
+                        ? 'N/A'
                         : TStyle.getMoneyPoint(_shome05structPrice.pbr),
                   ),
                 ),
@@ -479,7 +479,7 @@ class StockHomeHomeTileResultAnalyzeState
                   ),
                   child: Text(
                     _shome05structPrice.eps.isEmpty
-                        ? '0'
+                        ? 'N/A'
                         : TStyle.getMoneyPoint(_shome05structPrice.eps),
                   ),
                 ),
@@ -540,7 +540,6 @@ class StockHomeHomeTileResultAnalyzeState
           flex: 1,
           child: InkWell(
             child: Container(
-              //margin: const EdgeInsets.symmetric(horizontal: 10),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -581,7 +580,6 @@ class StockHomeHomeTileResultAnalyzeState
           flex: 1,
           child: InkWell(
             child: Container(
-              //margin: const EdgeInsets.symmetric(horizontal: 10),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -874,42 +872,42 @@ class StockHomeHomeTileResultAnalyzeState
                               style: TStyle.commonTitle,
                             )
                           : Flexible(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Flexible(
-                                  child: FittedBox(
-                                    child: Text(
-                                      TStyle
-                                          .getBillionUnitWithMoneyPointByDouble(
-                                        item.netProfit,
-                                      ),
-                                      style: TStyle.commonTitle,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 4,
-                                ),
-                                Flexible(
-                                  child: FittedBox(
-                                    child: Text(
-                                      item.netIncRateYoY.isEmpty
-                                          ? ' '
-                                          : '(YoY ${TStyle.getPercentString(item.netIncRateYoY)})',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        color: TStyle.getMinusPlusColor(
-                                          item.netIncRateYoY,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Flexible(
+                                    child: FittedBox(
+                                      child: Text(
+                                        TStyle
+                                            .getBillionUnitWithMoneyPointByDouble(
+                                          item.netProfit,
                                         ),
-                                        fontSize: 14,
+                                        style: TStyle.commonTitle,
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(
+                                    width: 4,
+                                  ),
+                                  Flexible(
+                                    child: FittedBox(
+                                      child: Text(
+                                        item.netIncRateYoY.isEmpty
+                                            ? ' '
+                                            : '(YoY ${TStyle.getPercentString(item.netIncRateYoY)})',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          color: TStyle.getMinusPlusColor(
+                                            item.netIncRateYoY,
+                                          ),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                     ],
                   ),
                 ),
@@ -1009,9 +1007,13 @@ class StockHomeHomeTileResultAnalyzeState
                 minY: minValue < 0
                     ? minValue.roundToDouble() +
                         (minValue.roundToDouble() * 0.15)
-                    : minValue.roundToDouble() -
-                        (minValue.roundToDouble() * 0.15),
-                maxY: maxValue.roundToDouble() * 1.05,
+                    : minValue < 2
+                        ? minValue - (minValue * 0.15)
+                        : minValue.roundToDouble() -
+                            (minValue.roundToDouble() * 0.15),
+                maxY: maxValue < 2
+                    ? maxValue * 1.05
+                    : maxValue.roundToDouble() * 1.05,
                 baselineY: minValue.roundToDouble() -
                     (minValue.roundToDouble() * 0.15),
                 extraLinesData: ExtraLinesData(
@@ -1175,6 +1177,7 @@ class StockHomeHomeTileResultAnalyzeState
             if (groupIndex >= _listBarData.length) {
               return null;
             }
+//            DLog.e('rod.toY : ${rod.toY}');
             return BarTooltipItem(
               (_divIndex == 0 && _listBarData[groupIndex].sales.isEmpty) ||
                       (_divIndex == 1 &&
@@ -1182,9 +1185,12 @@ class StockHomeHomeTileResultAnalyzeState
                       (_divIndex == 2 &&
                           _listBarData[groupIndex].netProfit.isEmpty)
                   ? ' - '
-                  : '${TStyle.getBillionUnitWithMoneyPointByDouble(
+                  :
+              rod.toY.abs() < 2 ?
+                  '${rod.toY}억' :
+              TStyle.getBillionUnitWithMoneyPointByDouble(
                       rod.toY.round().toString(),
-                    )}',
+                    ),
               const TextStyle(
                 //color: rod.color,
                 color: Colors.black,
@@ -1197,7 +1203,7 @@ class StockHomeHomeTileResultAnalyzeState
       );
 
   Widget getTitles(double value, TitleMeta meta) {
-    final style = const TextStyle(
+    const style = TextStyle(
       color: RColor.new_basic_text_color_grey,
       fontSize: 10,
     );
@@ -1262,6 +1268,7 @@ class StockHomeHomeTileResultAnalyzeState
       );
 
   Widget _barChartRightTitles(double value, TitleMeta meta) {
+    //DLog.e('_isRightYAxisUpUnit : $_isRightYAxisUpUnit');
     if (value == meta.max) {
       return const SizedBox();
     } else if (value == meta.min) {
@@ -1290,32 +1297,27 @@ class StockHomeHomeTileResultAnalyzeState
       }
       return const SizedBox();
     }
-    var axisValue =
-        _isRightYAxisUpUnit ? (value / 1000).round() : value.round();
-    /*if( (axisValue < 0.1  && axisValue > 0) || (axisValue > -0.1 && axisValue < 0)) {
-      return SideTitleWidget(
-        axisSide: meta.axisSide,
-        child: Text(
-          '$axisValue',
-          style: TextStyle(
-              fontSize: 12,
-              //color: RColor.new_basic_text_color_grey,
-              color: Colors.brown,
-          ),
-        ),
-      );
-    }
-    else */
+    var axisValue = _isRightYAxisUpUnit
+        ? (value / 1000).round()
+        : value.abs() > 2
+            ? value.round()
+            : value;
     return SideTitleWidget(
       axisSide: meta.axisSide,
       child: Text(
         _isRightYAxisUpUnit
             ? axisValue >= 100
-                ? TStyle.getMoneyPoint((value.round() / 1000).floor().toString())
+                ? TStyle.getMoneyPoint(
+                    (value.round() / 1000).floor().toString())
                 : (value.round() / 1000).toStringAsFixed(1)
-            : TStyle.getMoneyPoint(
-                value.round().toString(),
-              ),
+            :
+        axisValue.abs() < 2 ?
+        TStyle.getMoneyPoint(
+                value.toStringAsFixed(2),
+              ) : TStyle.getMoneyPoint(
+          value.round().toString(),
+        )
+        ,
         style: const TextStyle(
           fontSize: 12,
           color: RColor.new_basic_text_color_grey,
@@ -1417,14 +1419,16 @@ class StockHomeHomeTileResultAnalyzeState
       final http.Response response = await http.post(
         url,
         body: json,
-        headers: Net.headers,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1549,7 +1553,7 @@ class StockHomeHomeTileResultAnalyzeState
   }
 
   double get _findMinValue {
-    if (_listBarData.length == 0) {
+    if (_listBarData.isEmpty) {
       return 0;
     } else if (_listBarData.length == 1) {
       var item = _listBarData[0];
@@ -1598,7 +1602,7 @@ class StockHomeHomeTileResultAnalyzeState
   }
 
   double get _findMaxTp {
-    if (_listData.length == 0) {
+    if (_listData.isEmpty) {
       return 0;
     } else if (_listData.length == 1) {
       var item = _listBarData[0];
@@ -1822,7 +1826,7 @@ class StockHomeHomeTileResultAnalyzeState
                     ),
                     InkWell(
                       splashColor: Colors.transparent,
-                      child: Container(
+                      child: SizedBox(
                         width: 140,
                         height: 36,
                         //decoration: UIStyle.roundBtnStBox(),
@@ -1848,7 +1852,7 @@ class StockHomeHomeTileResultAnalyzeState
                         Navigator.pop(context);
                         // 실적분석 상세페이지 이동
                         basePageState.callPageRouteData(
-                          ResultAnalyzePage(),
+                          const ResultAnalyzePage(),
                           PgData(
                             stockName: _appGlobal.stkName,
                             stockCode: _appGlobal.stkCode,
@@ -1868,6 +1872,7 @@ class StockHomeHomeTileResultAnalyzeState
 
 class InfoProvider extends ChangeNotifier {
   Search10Sales _search10Sales = Search10Sales.empty();
+
   Search10Sales get getSearch10Sales => _search10Sales;
 
   void update(Search10Sales vSearch10Sales) {

@@ -16,12 +16,12 @@ import '../../common/common_popup.dart';
 import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_search/tr_search10.dart';
 
-
-
 class ResultAnalyzeTileChart1 extends StatefulWidget {
-  //const ResultAnalyzeTileChart1({Key? key}) : super(key: key);
-  const ResultAnalyzeTileChart1({Key? key, this.initIsQuart,}) : super(key: key);
-  final bool? initIsQuart;
+  const ResultAnalyzeTileChart1({
+    Key? key,
+    required this.initIsQuart,
+  }) : super(key: key);
+  final bool initIsQuart;
 
   @override
   State<ResultAnalyzeTileChart1> createState() =>
@@ -70,9 +70,16 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
         });
   }
 
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   @override
@@ -1029,9 +1036,9 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1045,6 +1052,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
       _isNoData = 'Y';
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData.listSales.isNotEmpty) {
+          //_listData.addAll(resData.retData.listSales);
           for (var e in resData.retData.listSales) {
               if (e.sales.isNotEmpty ||
                   e.salesProfit.isNotEmpty ||
