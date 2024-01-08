@@ -312,12 +312,6 @@ class TStyle {
     color: Color(0xff111111),
   );
 
-  static const introDesc = TextStyle(
-    //소개글
-    fontWeight: FontWeight.w500,
-    fontSize: 20,
-    color: Color(0xeeeeeeee),
-  );
 
   static const homeDesc = TextStyle(
     color: Colors.black,

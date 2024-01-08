@@ -293,7 +293,7 @@ class CommonPopup {
                     padding: const EdgeInsets.only(top: 10, bottom: 10),
                     child: Text(
                       message,
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.start,
                       style: TStyle.content15,
                     ),
                   ),
@@ -357,17 +357,17 @@ class CommonPopup {
                             '\n라씨 매매비서에서는\n최대한 많은 종목에 대해서\n매매신호 발생을 원칙으로 하나\n$stockName의 경우\n'
                             '${TStyle.getDateKorFormat(TStyle.getTodayString())} '
                             '현재\n다음과 같은 사유로\n매수신호가 발생되지 않습니다.',
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.start,
                             style: const TextStyle(fontSize: 14),
                           ),
                           Text(
                             '\n사유 : $desc',
                             style: TStyle.commonTitle,
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.start,
                           ),
                           const Text(
                             '\n해당 사유가 해소되면\n다시 매수 신호가 발생 됩니다.',
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.start,
                             style: TextStyle(fontSize: 14),
                           ),
                         ],
@@ -424,7 +424,7 @@ class CommonPopup {
                     ),
                     const Text(
                       '프리미엄 계정에서 이용이 가능합니다.\n계정을 업그레이드 하시고 매매비서를\n더 완벽하게 이용해 보세요.',
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.start,
                       style: TStyle.content15,
                     ),
                     Container(

@@ -100,15 +100,15 @@ class JoinPreUserState extends State<JoinPreUserWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('본인의 로그인 정보가 아닐 경우 고객센터로 연락 주세요', style: TStyle.contentGrey14,),
+                  const Text('본인의 로그인 정보가 아닐 경우 고객센터로 연락 주세요', style: TStyle.contentGrey14,),
                   const SizedBox(height: 3,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('02-2174-6445  /  ', style: TStyle.contentGrey14,),
+                      const Text('02-2174-6445  /  ', style: TStyle.contentGrey14,),
                       InkWell(
                         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-                        child: Text('카카오톡 문의', style: TStyle.ulTextPurple,),
+                        child: const Text('카카오톡 문의', style: TStyle.ulTextPurple,),
                         onTap: (){
                           commonLaunchURL(Net.URL_KAKAO_QA);
                         },
@@ -153,11 +153,11 @@ class JoinPreUserState extends State<JoinPreUserWidget> {
                   break;
                 }
                 case 400 : {
-                  CommonPopup().showDialogNetErr(context);
+                  CommonPopup.instance.showDialogNetErr(context);
                   break;
                 }
                 default : {
-                  CommonPopup().showDialogMsg(context, value.appDialogMsg);
+                  CommonPopup.instance.showDialogMsg(context, value.appDialogMsg);
                   break;
                 }
               }

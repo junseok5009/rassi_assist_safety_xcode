@@ -720,6 +720,7 @@ class RoundSliderTrackShape extends SliderTrackShape {
         trackRect.left - thumbCenter.dx == 0.0 ? rightTrackPaint : leftTrackPaint);
 
 // Right Arc
+
     context.canvas.drawArc(
         Rect.fromCircle(center: Offset(trackRect.right, trackRect.top + sliderTheme.trackHeight! * 1 / 2), radius: sliderTheme.trackHeight! * 1 / 2),
         -180 / 2, // -90 degrees

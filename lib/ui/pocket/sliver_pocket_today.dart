@@ -542,25 +542,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
     }
     //매매신호
     else if (_tabSelectDiv[_currentTabIndex] == 'TS') {
-      return InkWell(
-        child: TilePocketSig(_pock10.stockList[idx]),
-        onTap: () async {
-          if (_pock10.stockList[idx] != null) {
-            StockPktChart item = _pock10.stockList[idx];
-            if(item.myTradeFlag == 'S') {
-              //나만의 매도신호는 나만의 매도 신호 탭으로 이동
-              DefaultTabController.of(context).animateTo(2);
-            } else {
-              //매매신호는 해당 종목의 매매신호 탭으로 이동
-              await basePageState.goStockHomePage(
-                _pock10.stockList[idx].stockCode,
-                _pock10.stockList[idx].stockName,
-                Const.STK_INDEX_SIGNAL,
-              );
-            }
-          }
-        },
-      );
+      return TilePocketSig(_pock10.stockList[idx]);
     }
     //이슈
     else if (_tabSelectDiv[_currentTabIndex] == 'IS') {

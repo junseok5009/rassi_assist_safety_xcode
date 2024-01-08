@@ -2,10 +2,11 @@ import 'package:rassi_assist/des/constants.dart';
 import 'package:rassi_assist/des/engine.dart';
 import 'package:rassi_assist/des/utils.dart';
 
+
 class DESEngine extends BaseEngine {
-  late List<List<int>> _subKeys;
-  late int _lBlock;
-  late int _rBlock;
+  List<List<int>>? _subKeys;
+  int _lBlock = 0;
+  int _rBlock = 0;
 
   String get algorithmName => "DES";
 
@@ -19,7 +20,7 @@ class DESEngine extends BaseEngine {
     for (var i = 0; i < 56; i++) {
       var keyBitPos = PC1[i] - 1;
       keyBits[i] = (rightShift32(
-          this.key[rightShift32(keyBitPos, 5)], (31 - keyBitPos % 32))) &
+          this.key![rightShift32(keyBitPos, 5)], (31 - keyBitPos % 32))) &
       1;
     }
 
@@ -54,15 +55,16 @@ class DESEngine extends BaseEngine {
     }
   }
 
+  @override
   int processBlock(List<int> M, int offset) {
     List<List<int>> invSubKeys = List.filled(16, <int>[]);
     if (!forEncryption) {
       for (var i = 0; i < 16; i++) {
-        invSubKeys[i] = _subKeys[15 - i];
+        invSubKeys[i] = _subKeys![15 - i];
       }
     }
 
-    List<List<int>> subKeys = forEncryption ? _subKeys : invSubKeys;
+    List<List<int>>? subKeys = forEncryption ? _subKeys : invSubKeys;
 
     _lBlock = M[offset].toSigned(32);
     _rBlock = M[offset + 1].toSigned(32);
@@ -76,7 +78,7 @@ class DESEngine extends BaseEngine {
     // Rounds
     for (var round = 0; round < 16; round++) {
       // Shortcuts
-      var subKey = subKeys[round];
+      var subKey = subKeys![round];
       var lBlock = _lBlock;
       var rBlock = _rBlock;
 
@@ -112,8 +114,8 @@ class DESEngine extends BaseEngine {
 
   void reset() {
     forEncryption = false;
-    // this.key = null;
-    _subKeys = [];
+    key = null;
+    _subKeys = null;
     _lBlock = 0;
     _rBlock = 0;
   }

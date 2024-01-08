@@ -8,7 +8,6 @@ class RString {
   static const String buy = "매수";
   static const String sell = "매도";
 
-  static const String login = "로그인";
   static const String logout = "로그아웃";
   static const String id = "아이디";
   static const String password = "비밀번호";

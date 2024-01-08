@@ -50,7 +50,6 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
   final AppGlobal _appGlobal = AppGlobal();
 
   final List<PocketSignalStock> _stkList = []; //종목리스트
-  Color statColor = Colors.grey;
 
   String _timeInfo = '';
   bool _beforeOpening = false; // 08 ~ 09 Y
@@ -64,7 +63,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
     _pocketProvider = Provider.of<PocketProvider>(context, listen: false);
     _pocketProvider.addListener(reload);
     if (_appGlobal.pocketSn.isNotEmpty) {
-      int tmpIdx = _pocketProvider.getPocketListIndexByPocketSn(_appGlobal.pocketSn);
+      int tmpIdx =
+          _pocketProvider.getPocketListIndexByPocketSn(_appGlobal.pocketSn);
       _pocket = _pocketProvider.getPocketList[tmpIdx];
       _appGlobal.pocketSn = '';
     } else {
@@ -90,11 +90,13 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
   Widget build(BuildContext context) {
     return NotificationListener<UserScrollNotification>(
       onNotification: (notification) {
-        if (notification.direction == ScrollDirection.forward && !_isFaVisible) {
+        if (notification.direction == ScrollDirection.forward &&
+            !_isFaVisible) {
           setState(() {
             _isFaVisible = true;
           });
-        } else if (notification.direction == ScrollDirection.reverse && _isFaVisible) {
+        } else if (notification.direction == ScrollDirection.reverse &&
+            _isFaVisible) {
           setState(() {
             _isFaVisible = false;
           });
@@ -203,10 +205,11 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                       : _setStockListWidget(),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: AnimatedContainer(
+                    child: Container(
                       width: double.infinity,
-                      height: _isFaVisible ? 50 : 0,
-                      duration: const Duration(milliseconds: 200),
+                      //height: _isFaVisible ? 50 : 0,
+                      height: 50,
+                      //duration: const Duration(milliseconds: 200),
                       margin: const EdgeInsets.symmetric(
                         vertical: 10,
                         horizontal: 20,
@@ -373,7 +376,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
       itemCount: _stkList.length,
       itemBuilder: (BuildContext context, int index) {
         return Container(
-          margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20, index == _stkList.length - 1 ? 15 : 0),
+          margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20,
+              index == _stkList.length - 1 ? 75 : 0),
           child: Ink(
             width: double.infinity,
             decoration: UIStyle.boxShadowBasic(16),
@@ -385,7 +389,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               ),
               child: Container(
                 height: 86,
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -444,15 +449,22 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   basePageState.goStockHomePage(
                     _stkList[index].stockCode,
                     _stkList[index].stockName,
-                    Const.STK_INDEX_HOME,
+                    _onStockInfo
+                        ? Const.STK_INDEX_SIGNAL
+                        : Const.STK_INDEX_HOME,
                   );
                 }
               },
               onLongPress: () async {
                 if (!_onStockInfo) {
-                  String result = await CommonPopup.instance.showDialogCustomConfirm(context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
-                  if (result == CustomNvRouteResult.landing && context.mounted) {
-                    String result = await Provider.of<PocketProvider>(context, listen: false).deleteStock(
+                  String result = await CommonPopup.instance
+                      .showDialogCustomConfirm(
+                          context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
+                  if (result == CustomNvRouteResult.landing &&
+                      context.mounted) {
+                    String result = await Provider.of<PocketProvider>(context,
+                            listen: false)
+                        .deleteStock(
                       Stock(
                         stockName: _stkList[index].stockName,
                         stockCode: _stkList[index].stockCode,
@@ -464,9 +476,11 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                         /*Provider.of<StockInfoProvider>(context, listen: false)
                             .postRequest(stkCode);*/
                       } else if (result == CustomNvRouteResult.fail) {
-                        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+                        CommonPopup.instance.showDialogBasic(
+                            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
                       } else {
-                        CommonPopup.instance.showDialogBasic(context, '안내', result);
+                        CommonPopup.instance
+                            .showDialogBasic(context, '안내', result);
                       }
                     }
                   }
@@ -523,7 +537,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                             : '▲ ',
                     style: TextStyle(
                       color: TStyle.getMinusPlusColor(item.fluctuationAmt),
-                      fontSize: (double.tryParse(item.fluctuationAmt) ?? 0) == 0 ? 16 : 10,
+                      fontSize: (double.tryParse(item.fluctuationAmt) ?? 0) == 0
+                          ? 16
+                          : 10,
                       //fontFamily: 'NotoSansKR',
                     ),
                   ),
@@ -598,11 +614,11 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
 
     if (item.tradeFlag == 'B') {
       statTxt = '오늘\n매수';
-      statColor = RColor.bgBuy;
+      statColor = RColor.sigBuy;
       isToday = true;
     } else if (item.tradeFlag == 'S') {
       statTxt = '오늘\n매도';
-      statColor = RColor.bgSell;
+      statColor = RColor.sigSell;
       isToday = true;
     } else if (item.tradeFlag == 'H') {
       statTxt = '보유중';
@@ -631,9 +647,22 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             //오늘 매수/매도 시간 & 가격
             Visibility(
               visible: isToday,
-              child: Text(
-                '${TStyle.getDtTimeFormat(item.tradeDttm)}  '
-                '${TStyle.getMoneyPoint(item.tradePrice)} ',
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${TStyle.getDtTimeFormat(item.tradeDttm)} ',
+                    style: const TextStyle(
+                      color: RColor.greyBasicStrong_666666,
+                    ),
+                  ),
+                  Text(
+                    '${TStyle.getMoneyPoint(item.tradePrice)} ',
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -643,8 +672,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               child: Text(
                 '$typeText ${item.elapsedDays}일째 ',
                 style: const TextStyle(
-                  fontSize: 12,
-                  color: RColor.greyMore_999999,
+                  color: RColor.greyBasicStrong_666666,
                 ),
               ),
             ),
@@ -659,8 +687,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     child: const Text(
                       '수익률',
                       style: TextStyle(
-                        fontSize: 12,
-                        color: RColor.greyMore_999999,
+                        color: RColor.greyBasicStrong_666666,
                       ),
                     ),
                   ),
@@ -671,7 +698,6 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     '$rateText%',
                     style: TextStyle(
                       color: rateColor,
-                      fontSize: 12,
                     ),
                   ),
                   const SizedBox(
@@ -679,7 +705,12 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   ),
                   Visibility(
                     visible: item.tradeFlag == 'S',
-                    child: Text('${item.termOfTrade}일보유'),
+                    child: Text(
+                      '${item.termOfTrade}일보유',
+                      style: const TextStyle(
+                        color: RColor.greyBasicStrong_666666,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -692,8 +723,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
 
         // Circle
         Container(
-          width: 45.0,
-          height: 45.0,
+          width: 50.0,
+          height: 50.0,
           decoration: BoxDecoration(
             color: statColor,
             shape: BoxShape.circle,
@@ -704,6 +735,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,
+                fontWeight: FontWeight.w600,
               ),
               // style: theme.textTheme.body.apply(color: textColor),
             ),
@@ -776,7 +808,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               ),
               InkWell(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: UIStyle.boxRoundLine25c(Colors.black54),
                   child: const Text(
                     '+ 종목추가',
@@ -896,7 +929,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
           );
           if (result != null && context.mounted) {
             if (result == CustomNvRouteResult.landPremiumPopup) {
-              String result = await CommonPopup.instance.showDialogPremium(context);
+              String result =
+                  await CommonPopup.instance.showDialogPremium(context);
               if (result == CustomNvRouteResult.landPremiumPage) {
                 basePageState.navigateAndGetResultPayPremiumPage();
               }
@@ -913,7 +947,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             } else if (result == CustomNvRouteResult.cancel) {
               reload();
             } else {
-              int resultPktIndex = _pocketProvider.getPocketListIndexByPocketSn(result);
+              int resultPktIndex =
+                  _pocketProvider.getPocketListIndexByPocketSn(result);
               if (resultPktIndex != -1) {
                 _pocket = _pocketProvider.getPocketList[resultPktIndex];
               }
@@ -993,7 +1028,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
         Pock08 pock08 = resData.retData;
         _stkList.clear();
         _stkList.addAll(pock08.stkList);
-        _timeInfo = '${TStyle.getDateDivFormat(pock08.tradeDate)} ${TStyle.getTimeFormat(pock08.tradeTime)} ${pock08.timeDivTxt}';
+        _timeInfo =
+            '${TStyle.getDateDivFormat(pock08.tradeDate)} ${TStyle.getTimeFormat(pock08.tradeTime)} ${pock08.timeDivTxt}';
         _beforeOpening = pock08.beforeOpening == 'Y';
         _beforeChart = pock08.beforeChart == 'Y';
         if (_beforeOpening || _beforeChart) {

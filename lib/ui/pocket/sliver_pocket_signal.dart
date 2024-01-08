@@ -85,73 +85,102 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                       builder: (_, provider, __) {
                         List<StockPktSignal> signalList =
                             provider.getSignalList;
-                        return Stack(
-                          children: [
-                            ListView.builder(
-                              itemCount: signalList.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                bool isUserSig = false;
-                                if (signalList[index].sellPrice.isNotEmpty) {
-                                  signalList[index].myTradeFlag == 'S'
-                                      ? isUserSig = true
-                                      : isUserSig = false;
-                                }
-                                return _setListItem(
-                                  index == 0,
-                                  index == signalList.length - 1,
-                                  signalList[index],
-                                  isUserSig,
+                        if (signalList.isEmpty) {
+                          return InkWell(
+                              onTap: () async {
+                                Navigator.push(
+                                  context,
+                                  CustomNvRouteClass.createRoute(
+                                    SearchPage.goLayer(
+                                        SearchPage.landAddSignalLayer, ''),
+                                  ),
                                 );
                               },
-                            ),
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: InkWell(
-                                child: AnimatedContainer(
-                                  width: double.infinity,
-                                  height: _isFaVisible ? 50 : 0,
-                                  duration: const Duration(milliseconds: 200),
-                                  decoration: UIStyle.boxRoundLine6bgColor(
-                                    RColor.bgBasic_fdfdfd,
-                                  ),
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 20,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        'images/icon_add_circle_black.png',
-                                        height: 16,
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      const Text(
-                                        '나만의 매도신호 만들기',
-                                        style: TextStyle(
-                                            //fontSize: 14,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
+                              child: _setEmptySignalView());
+                        } else {
+                          return Stack(
+                            children: [
+                              Expanded(
+                                child: ListView.builder(
+                                  itemCount: signalList.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    bool isUserSig = false;
+                                    if (signalList[index]
+                                        .sellPrice
+                                        .isNotEmpty) {
+                                      signalList[index].myTradeFlag == 'S'
+                                          ? isUserSig = true
+                                          : isUserSig = false;
+                                    }
+                                    return _setListItem(
+                                      index == 0,
+                                      index == signalList.length - 1,
+                                      signalList[index],
+                                      isUserSig,
+                                    );
+                                  },
                                 ),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    CustomNvRouteClass.createRoute(
-                                      SearchPage.goLayer(SearchPage.landAddSignalLayer, ''),
-                                    ),
-                                  );
-                                },
                               ),
-                            ),
-                          ],
-                        );
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: InkWell(
+                                  child: AnimatedContainer(
+                                    width: double.infinity,
+                                    height: _isFaVisible ? 50 : 0,
+                                    duration: const Duration(milliseconds: 200),
+                                    decoration: UIStyle.boxRoundLine6bgColor(
+                                      RColor.bgBasic_fdfdfd,
+                                    ),
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                      horizontal: 20,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                          'images/icon_add_circle_black.png',
+                                          height: 16,
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        const Text(
+                                          '나만의 매도신호 만들기',
+                                          style: TextStyle(
+                                              //fontSize: 14,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      CustomNvRouteClass.createRoute(
+                                        SearchPage.goLayer(
+                                            SearchPage.landAddSignalLayer, ''),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        }
                       },
                     )
-                  : _setNotPremiumView(),
+                  : InkWell(
+                      onTap: () async {
+                        String result = await CommonPopup.instance
+                            .showDialogPremium(context);
+                        if (result == CustomNvRouteResult.landPremiumPage) {
+                          basePageState.navigateAndGetResultPayPremiumPage();
+                        }
+                      },
+                      child: _setEmptySignalView()),
             ),
           ],
         ),
@@ -174,7 +203,10 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
       child: Container(
         padding: const EdgeInsets.all(20),
         margin: EdgeInsets.fromLTRB(20, isFirst ? 15 : 15, 20, isLast ? 15 : 0),
-        decoration: UIStyle.boxShadowColor(16, isUserSig ? Colors.white : const Color(0xfff7f7f8),),
+        decoration: UIStyle.boxShadowColor(
+          16,
+          isUserSig ? Colors.white : const Color(0xfff7f7f8),
+        ),
         // height: 200,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,7 +411,9 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: TStyle.getMinusPlusColor(item.profitRate,),
+              color: TStyle.getMinusPlusColor(
+                item.profitRate,
+              ),
             ),
           ),
           const SizedBox(
@@ -394,8 +428,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
           ),
         ],
       );
-    }
-    else {
+    } else {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -406,7 +439,9 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: TStyle.getMinusPlusColor(item.profitRate,),
+              color: TStyle.getMinusPlusColor(
+                item.profitRate,
+              ),
             ),
           ),
           const SizedBox(
@@ -458,7 +493,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                 const Text(
                   '추적이 완료되었습니다.',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                   ),
                 ),
               ],
@@ -471,20 +506,23 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                       RColor.purpleBasic_6565ff,
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
+                      horizontal: 10,
+                      vertical: 3,
                     ),
                     child: const Text(
                       '삭제',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 10,
+                        fontSize: 12,
                       ),
                     ),
                   ),
                   onTap: () async {
-                    String result = await CommonPopup.instance.showDialogBasicConfirm(context, '나만의 매도신호 삭제', '나만의 매도 신호가 삭제됩니다.');
-                    if(context.mounted && result == CustomNvRouteResult.landing){
+                    String result = await CommonPopup.instance
+                        .showDialogBasicConfirm(
+                            context, '알림', '나만의 매도신호를 삭제하시겠습니까?');
+                    if (context.mounted &&
+                        result == CustomNvRouteResult.landing) {
                       _delSignalAndResult(item);
                     }
                   },
@@ -498,14 +536,14 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                       RColor.purpleBasic_6565ff,
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
+                      horizontal: 10,
+                      vertical: 3,
                     ),
                     child: const Text(
                       '재설정',
                       style: TextStyle(
                         color: RColor.purpleBasic_6565ff,
-                        fontSize: 10,
+                        fontSize: 12,
                       ),
                     ),
                   ),
@@ -561,13 +599,13 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
     }
   }
 
-  Widget _setNotPremiumView() {
+  Widget _setEmptySignalView() {
     return Column(
       children: [
         Container(
           width: double.infinity,
           decoration: UIStyle.boxShadowBasic(16),
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           padding: const EdgeInsets.all(
             30,
           ),
@@ -589,25 +627,16 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
               const SizedBox(
                 height: 25,
               ),
-              InkWell(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: UIStyle.boxRoundLine25c(Colors.black54),
-                  child: const Text(
-                    '+ 나만의 매도신호 만들기',
-                    style: TextStyle(
-                      fontSize: 12,
-                    ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: UIStyle.boxRoundLine25c(Colors.black54),
+                child: const Text(
+                  '+ 나만의 매도신호 만들기',
+                  style: TextStyle(
+                    fontSize: 12,
                   ),
                 ),
-                onTap: () async {
-                  String result =
-                      await CommonPopup.instance.showDialogPremium(context);
-                  if (result == CustomNvRouteResult.landPremiumPage) {
-                    basePageState.navigateAndGetResultPayPremiumPage();
-                  }
-                },
               ),
             ],
           ),
@@ -684,7 +713,9 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                         child: const Center(
                           child: Text(
                             '매수가 변경하기',
-                            style: TextStyle(color: Colors.white,),
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
                             textScaleFactor: Const.TEXT_SCALE_FACTOR,
                           ),
                         ),
@@ -707,7 +738,9 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                         child: const Center(
                           child: Text(
                             '나만의 매도신호 삭제하기',
-                            style: TextStyle(color: Colors.white,),
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
                             textScaleFactor: Const.TEXT_SCALE_FACTOR,
                           ),
                         ),
@@ -715,8 +748,11 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                     ),
                     onPressed: () async {
                       Navigator.pop(popupContext);
-                      String result = await CommonPopup.instance.showDialogBasicConfirm(context, '나만의 매도신호 삭제', '나만의 매도 신호가 삭제됩니다.');
-                      if(context.mounted && result == CustomNvRouteResult.landing){
+                      String result = await CommonPopup.instance
+                          .showDialogBasicConfirm(
+                              context, '알림', '나만의 매도신호를 삭제하시겠습니까?');
+                      if (context.mounted &&
+                          result == CustomNvRouteResult.landing) {
                         _delSignalAndResult(item);
                       }
                     },
@@ -758,5 +794,4 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
       }
     }
   }
-
 }

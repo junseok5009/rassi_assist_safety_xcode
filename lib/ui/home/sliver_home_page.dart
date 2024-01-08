@@ -70,7 +70,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   var inAppBilling;
   late SharedPreferences _prefs;
   String _userId = '';
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
   bool _isFirstTurn = true;
 
   // 땡정보
@@ -1126,7 +1125,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         context,
         Platform.isIOS
             ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-            : CustomNvRouteClass.createRoute( PayPremiumAosPage()));
+            : CustomNvRouteClass.createRoute(const PayPremiumAosPage()));
     if (result == 'cancel') {
       DLog.d(SliverHomeWidget.TAG, '*** navigete cancel ***');
     } else {
@@ -1422,10 +1421,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           }
         } else {
           //회원정보 가져오지 못함
-          AccountData().setFreeUserStatus();
+          const AccountData().setFreeUserStatus();
         }
       } else {
-        AccountData().setFreeUserStatus();
+        const AccountData().setFreeUserStatus();
       }
       setState(() {});
       //푸시 재등록 여부(개발모드에서 제외)

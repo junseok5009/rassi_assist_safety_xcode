@@ -10,8 +10,8 @@ abstract class Engine {
 
 /// BufferedBlockAlgorithm.process()
 abstract class BaseEngine implements Engine {
-  late bool forEncryption;
-  late List<int> key;
+  bool forEncryption = false;
+  List<int>? key;
 
   void init(bool forEncryption, List<int> key) {
     this.key = key;
@@ -19,7 +19,7 @@ abstract class BaseEngine implements Engine {
   }
 
   void reset() {
-    key = [];
+    key = null;
     forEncryption = false;
   }
 

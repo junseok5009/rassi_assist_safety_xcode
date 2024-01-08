@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -25,8 +25,6 @@ class UserCenterPage extends StatelessWidget {
   static const String TAG = "[UserCenterPage]";
   static const String TAG_NAME = '1대1문의';
 
-  const UserCenterPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,14 +33,12 @@ class UserCenterPage extends StatelessWidget {
         backgroundColor: RColor.deepStat,
         elevation: 0,
       ),
-      body: const UserCenterWidget(),
+      body: UserCenterWidget(),
     );
   }
 }
 
 class UserCenterWidget extends StatefulWidget {
-  const UserCenterWidget({super.key});
-
   @override
   State<StatefulWidget> createState() => UserCenterState();
 }
@@ -57,9 +53,8 @@ class UserCenterState extends State<UserCenterWidget> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: UserCenterPage.TAG_NAME,
-      screenClassOverride: UserCenterPage.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      UserCenterPage.TAG_NAME,
     );
 
     _userId = AppGlobal().userId;
@@ -92,13 +87,13 @@ class UserCenterState extends State<UserCenterWidget> {
           style: TStyle.commonTitle,
         ),
         backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: ListView(
         children: [
           _setListHeader(),
           ListView.builder(
-            physics: ScrollPhysics(),
+            physics: const ScrollPhysics(),
             shrinkWrap: true,
             itemCount: _listData.length,
             itemBuilder: (context, index) {
@@ -203,7 +198,7 @@ class UserCenterState extends State<UserCenterWidget> {
             color: RColor.lineGrey,
             width: 0.7,
           ),
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+          borderRadius: const BorderRadius.all(const Radius.circular(10.0)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -509,7 +504,8 @@ class UserCenterState extends State<UserCenterWidget> {
                     height: 5.0,
                   ),
                   const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
+                    padding:
+                        EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,

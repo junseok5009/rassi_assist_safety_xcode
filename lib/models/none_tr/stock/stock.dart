@@ -27,3 +27,4 @@ class Stock {
     return '$stockCode|$stockName';
   }
 }
+

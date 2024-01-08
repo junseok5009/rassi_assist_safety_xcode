@@ -98,7 +98,7 @@ class _IntroStartS1State extends State<IntroStartS1> {
           InkWell(
             highlightColor: Colors.transparent,
             splashColor: Colors.transparent,
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => IntroSearchPage(),),),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const IntroSearchPage(),),),
             child: Container(
               width: 220,
               height: 40,

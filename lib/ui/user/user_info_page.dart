@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,17 +8,20 @@ import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:http/http.dart' as http;
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
 import 'package:rassi_assist/models/tr_user/tr_user04.dart';
-import 'package:rassi_assist/ui/login/intro_search_page.dart';
+import 'package:rassi_assist/ui/login/intro_start_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 /// 2020.12.
 /// 회원정보 관리
@@ -36,14 +38,12 @@ class UserInfoPage extends StatelessWidget {
         backgroundColor: RColor.deepStat,
         elevation: 0,
       ),
-      body: const UserInfoWidget(),
+      body: UserInfoWidget(),
     );
   }
 }
 
 class UserInfoWidget extends StatefulWidget {
-  const UserInfoWidget({super.key});
-
   @override
   State<StatefulWidget> createState() => UserInfoState();
 }
@@ -78,9 +78,8 @@ class UserInfoState extends State<UserInfoWidget> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: UserInfoPage.TAG_NAME,
-      screenClassOverride: UserInfoPage.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      UserInfoPage.TAG_NAME,
     );
 
     // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
@@ -110,7 +109,8 @@ class UserInfoState extends State<UserInfoWidget> {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context)
+          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: _setLayout(),
     );
   }
@@ -147,7 +147,8 @@ class UserInfoState extends State<UserInfoWidget> {
               "아이디",
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
+              padding: const EdgeInsets.only(
+                  left: 15, right: 10, top: 10, bottom: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -217,8 +218,10 @@ class UserInfoState extends State<UserInfoWidget> {
                             //변경중
                             if (_isChPass) {
                               String chPass = _passController.text.trim();
-                              if (_isPwCheck(chPass) || _passController.text.trim().length < 6) {
-                                _showDialogMsg(RString.join_err_pw_rule); //6~12자리 영문, 숫자만 가능
+                              if (_isPwCheck(chPass) ||
+                                  _passController.text.trim().length < 6) {
+                                _showDialogMsg(RString
+                                    .join_err_pw_rule); //6~12자리 영문, 숫자만 가능
                               } else {
                                 DLog.d('Pass Ch -> ', chPass);
                                 _requestChPass(chPass);
@@ -327,7 +330,8 @@ class UserInfoState extends State<UserInfoWidget> {
                       onPressed: () {
                         String strNum = _certController.text.trim();
                         if (strNum.length > 4) {
-                          _requestCertConfirm(_phoneController.text.trim(), strNum);
+                          _requestCertConfirm(
+                              _phoneController.text.trim(), strNum);
                         } else {
                           _showDialogMsg('인증번호를 입력해주세요');
                         }
@@ -401,7 +405,8 @@ class UserInfoState extends State<UserInfoWidget> {
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0)),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -427,7 +432,8 @@ class UserInfoState extends State<UserInfoWidget> {
                   const SizedBox(
                     height: 25.0,
                   ),
-                  const Text('로그아웃 하시겠어요?', textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                  const Text('로그아웃 하시겠어요?',
+                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 30.0,
                   ),
@@ -462,9 +468,9 @@ class UserInfoState extends State<UserInfoWidget> {
 
   // 로그아웃 처리
   Future<void> _setLogoutStatus() async {
-    if (_prefs == null) {
-      _prefs = await SharedPreferences.getInstance();
-    }
+    _prefs ??= await SharedPreferences.getInstance();
+
+    AppGlobal().setLogoutStatus();
 
     if (_userId.length > 3) {
       String checkLoginDiv = _userId.substring(_userId.length - 3);
@@ -486,13 +492,15 @@ class UserInfoState extends State<UserInfoWidget> {
       }
     }
 
-    _prefs.setString(Const.PREFS_USER_ID, '');
-    makeRoutePage(context: context, desPage: IntroSearchPage());
+    await _prefs.setString(Const.PREFS_USER_ID, '');
+    if (context.mounted) {
+      makeRoutePage(context: context, desPage: const IntroStartPage());
+    }
 
     if (Platform.isAndroid) {
       try {
         await channel.invokeMethod('setPrefLogout');
-      } on PlatformException catch (e) {}
+      } on PlatformException catch (_) {}
     }
   }
 
@@ -755,11 +763,13 @@ class UserInfoState extends State<UserInfoWidget> {
       }
       //프리미엄 사용자 -> 탈퇴 불가
       else if (aData.prodName == '프리미엄') {
-        _showDialogMsg('현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+        _showDialogMsg(
+            '현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
       }
       //유료상품 사용자 -> 탈퇴 불가
       else if (aData.prodCode == 'AC_S3') {
-        _showDialogMsg('현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+        _showDialogMsg(
+            '현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
       }
       //사용 상품 없음
       else {
@@ -771,13 +781,22 @@ class UserInfoState extends State<UserInfoWidget> {
   //인증번호 요청
   _requestCertNum(String sPhone) {
     _certTime = TStyle.getTodayAllTimeString();
-    String strParam = "inputNum=" + Net.getEncrypt(sPhone) + "&pos=" + _certTime + '&posName=ollaJoin';
+    String strParam = "inputNum=" +
+        Net.getEncrypt(sPhone) +
+        "&pos=" +
+        _certTime +
+        '&posName=ollaJoin';
     _requestThink('cert_num', strParam);
   }
 
   //인증번호 확인
   _requestCertConfirm(String sPhone, String cNum) {
-    String strParam = "inputNum=" + Net.getEncrypt(sPhone) + "&pos=" + _certTime + '&smsAuthNum=' + cNum;
+    String strParam = "inputNum=" +
+        Net.getEncrypt(sPhone) +
+        "&pos=" +
+        _certTime +
+        '&smsAuthNum=' +
+        cNum;
     _requestThink('cert_confirm', strParam);
   }
 
@@ -789,14 +808,17 @@ class UserInfoState extends State<UserInfoWidget> {
       _isCertInput = false;
     });
 
-    DLog.d(UserInfoPage.TAG, 'CH_Phone : $sPhone');
-    String strParam = "userid=$_userId&encHpNo=$sPhone";
+    DLog.d(UserInfoPage.TAG, 'CH_Phone : ' + sPhone);
+    String strParam = "userid=" + _userId + "&encHpNo=" + sPhone;
     _requestThink('phone_change', strParam);
   }
 
   //비밀번호 변경
   _requestChPass(String newPass) {
-    String strParam = "userid=${Net.getEncrypt(_userId)}&newPassWd=${Net.getEncrypt(newPass)}";
+    String strParam = "userid=" +
+        Net.getEncrypt(_userId) +
+        "&newPassWd=" +
+        Net.getEncrypt(newPass);
     _requestThink('ch_pass', strParam);
   }
 
@@ -804,7 +826,8 @@ class UserInfoState extends State<UserInfoWidget> {
   _requestAppClose() {
     DLog.d(UserInfoPage.TAG, '회원탈퇴 처리');
 
-    String strParam = "userid=${Net.getEncrypt(_userId)}&memo=RassiAssistDismiss";
+    String strParam =
+        "userid=" + Net.getEncrypt(_userId) + "&memo=RassiAssistDismiss";
     _requestThink('close', strParam);
 
     _fetchPosts(
@@ -837,7 +860,8 @@ class UserInfoState extends State<UserInfoWidget> {
     }
 
     var urls = Uri.parse(url);
-    final http.Response response = await http.post(urls, headers: Net.think_headers, body: param);
+    final http.Response response =
+        await http.post(urls, headers: Net.think_headers, body: param);
 
     DLog.d(UserInfoPage.TAG, '${response.statusCode}');
     DLog.d(UserInfoPage.TAG, response.body);

@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
@@ -11,6 +11,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/des/http_process_class.dart';
+import 'package:rassi_assist/provider/login_rassi_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/login/join_rassi_page.dart';
@@ -30,10 +31,10 @@ class RassiLoginPage extends StatefulWidget {
 }
 
 class RassiLoginPageState extends State<RassiLoginPage> {
-  static const methodChannel = MethodChannel(Const.METHOD_CHANNEL_NAME);
   final _scrollController = ScrollController();
   final _idController = TextEditingController();
   final _passController = TextEditingController();
+  bool _isLoading = false;
   String _tempId = '';
 
   @override
@@ -42,23 +43,24 @@ class RassiLoginPageState extends State<RassiLoginPage> {
     CustomFirebaseClass.logEvtScreenView(RassiLoginPage.TAG_NAME);
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'in_login_rassi');
+    Provider.of<LoginRassiProvider>(context, listen: false).initValueFalse();
   }
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardVisibilityBuilder(builder: (_, isKeyboardVisible) {
-      return Scaffold(
-        backgroundColor: RColor.deepBlue,
-        appBar: CommonAppbar.basicColor(
-          buildContext:  context,
-          title: '',
-          bgColor: RColor.mainColor,
-          titleColor: Colors.white,
-          iconColor: Colors.white,
-          elevation: 0,
-        ),
-        body: SafeArea(
-          child: LayoutBuilder(builder: (layoutBuilderContext, constraint) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '',
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: KeyboardVisibilityBuilder(builder: (_, isKeyboardVisible) {
+          return LayoutBuilder(builder: (layoutBuilderContext, constraint) {
+            WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback(
+                (_) => Provider.of<LoginRassiProvider>(context, listen: false)
+                    .setValue(isKeyboardVisible));
             return GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
               child: SingleChildScrollView(
@@ -66,124 +68,146 @@ class RassiLoginPageState extends State<RassiLoginPage> {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraint.maxHeight),
                   child: IntrinsicHeight(
-                    child: Container(
-                      color: RColor.mainColor,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const SizedBox(height: 70.0),
-                          Container(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 24.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 16.0),
-                                const Text(
-                                  RString.desc_waiting_for_you,
-                                  style: TStyle.introDesc,
-                                ),
-                                const SizedBox(height: 120.0),
-                                TextField(
-                                  style: const TextStyle(color: Colors.white70),
-                                  controller: _idController,
-                                  decoration: const InputDecoration(
-                                    filled: true,
-                                    labelText: '아이디',
-                                    labelStyle: TextStyle(
-                                      color: Colors.white54,
-                                    ),
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.white60),
-                                    ),
-                                    focusedBorder: UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.white60),
-                                    ),
-                                  ),
-                                  scrollPadding:
-                                      const EdgeInsets.only(bottom: 100),
-                                  onTap: () {
-                                    _goBottomPage();
-                                  },
-                                ),
-                                const SizedBox(height: 12.0),
-                                TextField(
-                                  style: const TextStyle(color: Colors.white70),
-                                  controller: _passController,
-                                  obscureText: true,
-                                  decoration: const InputDecoration(
-                                    filled: true,
-                                    labelText: '비밀번호',
-                                    labelStyle: TextStyle(
-                                      color: Colors.white54,
-                                    ),
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.white60),
-                                    ),
-                                    focusedBorder: UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.white60),
-                                    ),
-                                  ),
-                                  scrollPadding:
-                                      const EdgeInsets.only(bottom: 100),
-                                ),
-                                _setAnotherRoute(),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            width: double.infinity,
-                            height: 60,
-                            color: RColor.deepBlue,
-                            alignment: Alignment.center,
-                            child: InkWell(
-                              child: const Text(
-                                RString.login,
-                                style: TStyle.btnTextWht16,
+                    child: Stack(
+                      children: [
+                        Column(
+                          children: [
+                            const Text(
+                              RString.desc_waiting_for_you,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
                               ),
-                              onTap: () {
-                                String id = _idController.text.trim();
-                                String pass = _passController.text.trim();
-                                _checkEditData(id, pass);
-                              },
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextField(
+                                    style: const TextStyle(color: Colors.black),
+                                    controller: _idController,
+                                    decoration: const InputDecoration(
+                                      filled: true,
+                                      labelText: '아이디',
+                                      labelStyle: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white60),
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white60),
+                                      ),
+                                    ),
+                                    scrollPadding:
+                                        const EdgeInsets.only(bottom: 100),
+                                    onTap: () {
+                                      _goBottomPage();
+                                    },
+                                  ),
+                                  const SizedBox(height: 12.0),
+                                  TextField(
+                                    style: const TextStyle(color: Colors.black),
+                                    controller: _passController,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                      filled: true,
+                                      labelText: '비밀번호',
+                                      labelStyle: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white60),
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white60),
+                                      ),
+                                    ),
+                                    scrollPadding:
+                                        const EdgeInsets.only(bottom: 100),
+                                  ),
+                                  _setAnotherRoute(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Visibility(
+                          visible: _isLoading,
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            color: Colors.grey.withOpacity(0.1),
+                            alignment: Alignment.center,
+                            child: Image.asset(
+                              'images/gif_ios_loading_large.gif',
+                              height: 25,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
             );
-          }),
-        ),
-        bottomSheet: isKeyboardVisible
-            ? InkWell(
-                child: Container(
-                  width: double.infinity,
-                  height: 60,
-                  color: RColor.deepBlue,
-                  child: const Center(
-                    child: Text(
-                      '입력완료',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
+          });
+        }),
+      ),
+      bottomSheet: Consumer<LoginRassiProvider>(
+        builder: (_, value, __) {
+          if (value.getIsKeyboardVisible) {
+            return InkWell(
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                color: RColor.purpleBasic_6565ff,
+                child: const Center(
+                  child: Text(
+                    '입력완료',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
                     ),
                   ),
                 ),
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                },
-              )
-            : null,
-      );
-    });
+              ),
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+            );
+          } else {
+            return InkWell(
+              child: Container(
+                width: double.infinity,
+                height: 60 + MediaQuery.of(context).padding.bottom,
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom),
+                color: RColor.purpleBasic_6565ff,
+                child: const Center(
+                  child: Text(
+                    '로그인',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              onTap: () {
+                String id = _idController.text.trim();
+                String pass = _passController.text.trim();
+                _checkEditData(id, pass);
+              },
+            );
+          }
+        },
+      ),
+    );
   }
 
   void _goBottomPage() {
@@ -249,27 +273,18 @@ class RassiLoginPageState extends State<RassiLoginPage> {
   }
 
   //로그인 입력값 체크
-  Future<void> _checkEditData(final String id, final String pass) async {
+  void _checkEditData(final String id, final String pass) {
     if (id.isEmpty) {
       commonShowToast('아이디를 입력해 주세요');
     } else {
       if (pass.isEmpty) {
         commonShowToast('패스워드를 입력해 주세요');
       } else {
-        try {
-          final String encodeId = await methodChannel.invokeMethod('getSeedEncodeData', {'data_code': id.toLowerCase()});
-          final String encodePass = await methodChannel.invokeMethod('getSeedEncodeData', {'data_code': pass});
-
-          Future.delayed(const Duration(microseconds: 1000), () {
-            if(encodeId.isNotEmpty) {
-              String strParam =
-                  "userid=${encodeId}&passWd=${encodePass}";
-              _tempId = id.toLowerCase();
-              _requestThink(strParam);
-            }
-          });
-
-        } on PlatformException {}
+        setState(() => _isLoading = true);
+        String strParam =
+            "userid=${Net.getEncrypt(id.toLowerCase())}&passWd=${Net.getEncrypt(pass)}";
+        _tempId = id.toLowerCase();
+        _requestThink(strParam);
       }
     }
   }
@@ -306,7 +321,7 @@ class RassiLoginPageState extends State<RassiLoginPage> {
     DLog.d(RassiLoginPage.TAG, response.body);
 
     final String result = response.body;
-    if (result != 'ERR' && result.length > 0) {
+    if (result != 'ERR' && result.isNotEmpty) {
       DLog.d(RassiLoginPage.TAG, '씽크풀 로그인 완료');
 
       HttpProcessClass().callHttpProcess0001(_tempId).then((value) {
@@ -334,6 +349,7 @@ class RassiLoginPageState extends State<RassiLoginPage> {
       DLog.d(RassiLoginPage.TAG, '씽크풀 로그인 실패');
       commonShowToast(
           '씽크풀 회원이 아니시거나 입력정보가 틀립니다. 아이디가 없으신 경우에는 회원가입을 해주시기 바랍니다.');
+      setState(() => _isLoading = false);
     }
   }
 }

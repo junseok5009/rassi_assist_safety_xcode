@@ -33,7 +33,6 @@ import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 import 'package:rassi_assist/ui/tiles/card_require_pay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
-
 import '../../provider/stock_home/stock_home_tab_name_provider.dart';
 import 'stock_home_tab.dart';
 
@@ -206,13 +205,12 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                       setState(() {
                         _showBottomSheet = false;
                       });
-                      if (_appGlobal.isOnPocket) {
-                        Navigator.pop(context);
-                      } else {
-                        Navigator.pop(context);
-                        // [포켓 > 나의포켓 > 포켓선택]
-                        basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
-                      }
+                      // [포켓 > 나의포켓 > 포켓선택]
+                      basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
+                      Navigator.popUntil(
+                        context,
+                        ModalRoute.withName('/base'),
+                      );
                     },
                     child: Container(
                       width: double.infinity,
@@ -422,10 +420,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
             SliverList(
               delegate: SliverChildListDelegate(
                 [
-                  const SizedBox(
-                    height: 20,
-                  ),
-
                   _setSubTitle('$stkName의 매매신호'),
                   Visibility(
                     visible: _isFreeVisible,
@@ -580,7 +574,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
           context,
           Platform.isIOS
               ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-              : CustomNvRouteClass.createRoute(PayPremiumAosPage()),
+              : CustomNvRouteClass.createRoute(const PayPremiumAosPage()),
         );
       },
     );
@@ -1130,11 +1124,11 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
               context,
               Platform.isIOS
                   ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-                  : CustomNvRouteClass.createRoute(PayPremiumAosPage()),
+                  : CustomNvRouteClass.createRoute(const PayPremiumAosPage()),
             );
           } else {
             basePageState.callPageRouteData(
-              SignalAllPage(),
+              const SignalAllPage(),
               PgData(userId: '', stockCode: stkCode, stockName: stkName),
             );
           }
@@ -1419,6 +1413,10 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
             onTap: () {
               // [포켓 > 나의포켓 > 포켓선택]
               basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
+              Navigator.popUntil(
+                  context,
+                  ModalRoute.withName('/base'),
+              );
             },
             child: Container(
               width: double.infinity,

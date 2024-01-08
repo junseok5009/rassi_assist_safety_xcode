@@ -95,11 +95,16 @@ class MyPocketLayerState extends State<MyPocketLayer> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'images/icon_setting_black.png',
+                        'images/icon_setting_grey.png',
                         height: 16,
                       ),
                       const SizedBox(width: 5),
-                      const Text('포켓설정'),
+                      const Text(
+                        '포켓설정',
+                        style: TextStyle(
+                          color: RColor.greyBasicStrong_666666,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -115,7 +120,7 @@ class MyPocketLayerState extends State<MyPocketLayer> {
                     shrinkWrap: true,
                     physics: isAddStockListOn
                         ? null
-                        : NeverScrollableScrollPhysics(),
+                        : const NeverScrollableScrollPhysics(),
                     itemCount: provider.getPocketList.length,
                     itemBuilder: (context, index) => _setPocketListView(
                         index, provider.getPocketList[index]),
@@ -207,17 +212,18 @@ class MyPocketLayerState extends State<MyPocketLayer> {
               child: Row(
                 children: [
                   Image.asset(
-                    'images/icon_folder.png',
-                    height: 20,
+                    pocket.pktSn == _pocketSn ? 'images/icon_folder_check_purple.png' : 'images/icon_folder_grey.png',
+                    height: pocket.pktSn == _pocketSn ? 20 : 18,
                   ),
-                  const SizedBox(
-                    width: 5,
+                  SizedBox(
+                    width: pocket.pktSn == _pocketSn ? 5 : 7,
                   ),
                   Flexible(
                     child: Text(
                       pocket.pktName,
                       style: TextStyle(
                         fontSize: 16,
+                        color: pocket.pktSn == _pocketSn ? RColor.purpleBasic_6565ff : Colors.black,
                         fontWeight: pocket.pktSn == _pocketSn
                             ? FontWeight.w600
                             : FontWeight.w400,
@@ -238,10 +244,10 @@ class MyPocketLayerState extends State<MyPocketLayer> {
                 children: [
                   TextSpan(
                     text: '${pocket.stkList.length}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 19,
-                      color: RColor.sigBuy,
-                      fontWeight: FontWeight.bold,
+                      color: pocket.pktSn == _pocketSn ? RColor.purpleBasic_6565ff : Colors.black,
+                      fontWeight: pocket.pktSn == _pocketSn ? FontWeight.bold : FontWeight.w400,
                     ),
                   ),
                   const TextSpan(

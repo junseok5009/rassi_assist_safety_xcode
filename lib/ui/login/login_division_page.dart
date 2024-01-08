@@ -17,16 +17,16 @@ import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/des/http_process_class.dart';
+import 'package:rassi_assist/models/none_tr/user_join_info.dart';
+import 'package:rassi_assist/models/think_login_sns.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
-import 'package:rassi_assist/des/http_process_class.dart';
-import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/think_login_sns.dart';
 import 'package:rassi_assist/ui/login/join_phone_page.dart';
-import 'package:rassi_assist/ui/login/join_route_page.dart';
 import 'package:rassi_assist/ui/login/login_rassi_page.dart';
+import 'package:rassi_assist/ui/login/terms_of_use_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
 
 /// 2021.03.11
 /// 로그인 구분
@@ -35,7 +35,9 @@ class LoginDivisionPage extends StatefulWidget {
   static const String TAG = "[LoginDivisionPage]";
   static const String TAG_NAME = '로그인_선택';
   static final GlobalKey<LoginDivisionPageState> globalKey = GlobalKey();
+
   LoginDivisionPage({Key? key}) : super(key: globalKey);
+
   @override
   State<StatefulWidget> createState() => LoginDivisionPageState();
 }
@@ -53,98 +55,41 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     CustomFirebaseClass.logEvtScreenView(LoginDivisionPage.TAG_NAME);
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'in_login_select');
-    WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((_) => _requestAppTracking());
+    WidgetsFlutterBinding.ensureInitialized()
+        .addPostFrameCallback((_) => _requestAppTracking());
   }
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: CommonAppbar.none(RColor.mainColor,),
-        body: SafeArea(
-          child: Container(
-            color: RColor.mainColor,
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    Image.asset(
-                      'images/rassibs_intro_bn_img_3_0807_bg.png',
-                      fit: BoxFit.cover,
-                    ),
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                        iconSize: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10,), // 패딩 설정
-                        //constraints: BoxConstraints(), // constraints
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    Positioned(
-                      top:0.0,
-                      right: 0.0,
-                      bottom: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(20,),
-                        alignment: Alignment.bottomRight,
-                        child: const Text(
-                          '라씨 매매비서가\n회원님을 기다리고 있습니다.',
-                          textAlign: TextAlign.end,
-                          style: TextStyle(
-                            color: Colors.white,
-                            //fontWeight: FontWeight.w800,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  ],
-                ),
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Colors.white,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      //shrinkWrap: true,
-                      //physics: NeverScrollableScrollPhysics(),
-                      children: [
-                        //로그인 버튼 배열
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        _setLoginBtns(),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        //하단 이용약관 표시
-        bottomNavigationBar: Container(
-          width: double.infinity,
-          height: 55,
+    return Scaffold(
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '',
+        elevation: 0,
+      ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 1.0,
-                color: Colors.grey[300],
+                margin: const EdgeInsets.only(
+                  top: 0,
+                ),
+                child: const Text(
+                  '라씨 매매비서가\n투자자님을 기다리고 있습니다.',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
               ),
               Expanded(
-                child: _setTermsText(),
+                child: _setLoginBtns(),
               ),
             ],
           ),
@@ -155,214 +100,210 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
 
   //쓱로그인, 네이버, 씽크풀 로그인, 다른 방법으로 로그인
   Widget _setLoginBtns() {
-    return Column(
-      children: [
-        //전화번호로 로그인
-        Container(
-          width: 250,
-          height: 45,
-          child: MaterialButton(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
-            ),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.0),
-                side: const BorderSide(color: RColor.mainColor)),
-            color: RColor.mainColor,
-            textColor: Colors.white,
-            child: const Text(
-              '휴대폰 번호로 간편하게 시작하기',
-              style: TStyle.btnTextWht15,
-            ),
-            onPressed: () {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          //전화번호로 로그인
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
               Navigator.pushNamed(context, JoinPhonePage.routeName);
-              // Navigator.pushNamed(context, SsgJoinPage.routeName);
             },
-          ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-
-        //네이버 아이디로 로그인
-        Container(
-          width: 250,
-          height: 45,
-          child: MaterialButton(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25.0),
-              side: const BorderSide(color: RColor.naver),
-            ),
-            color: RColor.naver,
-            textColor: Colors.white,
-            child: const Text(
-              '네이버 아이디로 시작하기',
-              style: TStyle.btnTextWht15,
-            ),
-            onPressed: () {
-              _getNaverInfo();
-            },
-          ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-
-        //카카오 아이디로 로그인
-        Visibility(
-          visible: true,
-          child: Container(
-            width: 250,
-            height: 45,
-            child: MaterialButton(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10,
+            child: Container(
+              width: 270,
+              height: 50,
+              decoration: UIStyle.boxRoundFullColor25c(
+                RColor.purpleBasic_6565ff,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.0),
-                side: const BorderSide(color: RColor.kakao),
-              ),
-              color: RColor.kakao,
-              textColor: Colors.white,
+              alignment: Alignment.center,
               child: const Text(
-                '카카오 아이디로 시작하기',
-                style: TStyle.commonTitle15,
+                '휴대폰 번호로 간편하게 시작하기',
+                style: TStyle.btnContentWht15,
               ),
-              onPressed: () {
-                _setUpKakaoLogin();
-              },
             ),
           ),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
 
-        //애플 아이디로 로그인
-        Visibility(
-          visible: Platform.isIOS,
-          child: Container(
-            width: 250,
-            height: 45,
-            child: MaterialButton(
-              padding: const EdgeInsets.symmetric(
-                vertical: 7,
+          // 카카오
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              _setUpKakaoLogin();
+            },
+            child: Container(
+              width: 270,
+              height: 50,
+              margin: const EdgeInsets.only(
+                top: 15,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.0),
-                side: const BorderSide(color: Colors.black),
+              decoration: UIStyle.boxRoundFullColor25c(
+                const Color(
+                  0xfffad200,
+                ),
               ),
-              color: Colors.black,
-              textColor: Colors.white,
+              alignment: Alignment.center,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'images/img_apple.png',
+                    'images/icon_kakao_talk.png',
                     height: 20,
                   ),
                   const SizedBox(
-                    width: 8,
+                    width: 7,
                   ),
                   const Text(
-                    'Apple로 계속하기',
-                    style: TStyle.btnTextWht15,
+                    '카카오 아이디로 시작하기',
+                    style: TStyle.content15,
                   ),
                 ],
               ),
-              onPressed: () {
-                signInWithApple();
-              },
             ),
           ),
-        ),
-        const SizedBox(
-          height: 0,
-        ),
 
-        //구글 아이디로 로그인
-        Visibility(
-          visible: Platform.isAndroid,
-          child: Container(
-            width: 250,
-            height: 45,
-            child: MaterialButton(
-              padding: const EdgeInsets.symmetric(
-                vertical: 7,
+          // 네이버
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              _getNaverInfo();
+            },
+            child: Container(
+              width: 270,
+              height: 50,
+              margin: const EdgeInsets.only(
+                top: 15,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.0),
-                side: const BorderSide(color: RColor.bgGoogle),
+              decoration: UIStyle.boxRoundFullColor25c(
+                const Color(
+                  0xff2db400,
+                ),
               ),
-              color: RColor.bgGoogle,
-              textColor: Colors.white,
-              child: const Text(
-                '구글 아이디로 시작하기',
-                style: TStyle.btnTextWht15,
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'images/icon_naver.png',
+                    height: 20,
+                  ),
+                  const SizedBox(
+                    width: 7,
+                  ),
+                  const Text(
+                    '네이버 아이디로 시작하기',
+                    style: TStyle.content15,
+                  ),
+                ],
               ),
-              onPressed: () {
-                signInWithGoogle();
-              },
             ),
           ),
-        ),
 
-        Center(
-          child: Theme(
-            data: ThemeData().copyWith(dividerColor: Colors.transparent),
-            child: SizedBox(
-              width: 250,
-              child: ExpansionTile(
-                collapsedIconColor: RColor.new_basic_text_color_grey,
-                iconColor: RColor.new_basic_text_color_grey,
-                initiallyExpanded: false,
-                tilePadding: EdgeInsets.zero,
-                childrenPadding: EdgeInsets.zero,
-                leading: null,
-                title: const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '         로그인 방법 더보기',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: RColor.new_basic_text_color_grey,
+          Platform.isAndroid
+              ?
+
+              //구글
+              InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    signInWithGoogle();
+                  },
+                  child: Container(
+                    width: 270,
+                    height: 50,
+                    decoration: UIStyle.boxRoundLine25c(
+                      RColor.greyBoxLine_c9c9c9,
+                    ),
+                    margin: const EdgeInsets.only(
+                      top: 15,
+                    ),
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'images/icon_google.png',
+                          height: 20,
+                        ),
+                        const SizedBox(
+                          width: 7,
+                        ),
+                        const Text(
+                          '구글 아이디로 시작하기',
+                          style: TStyle.content15,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              :
+              //애플 로그인
+              InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    signInWithApple();
+                  },
+                  child: Container(
+                    width: 270,
+                    height: 50,
+                    decoration: UIStyle.boxRoundLine25c(
+                      RColor.greyBoxLine_c9c9c9,
+                    ),
+                    margin: const EdgeInsets.only(
+                      top: 15,
+                    ),
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.apple,
+                        ),
+                        SizedBox(
+                          width: 7,
+                        ),
+                        Text(
+                          '애플 아이디로 시작하기',
+                          style: TStyle.content15,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                children: [
-                  //씽크풀 아이디로 로그인
-                  SizedBox(
-                    width: 250,
-                    height: 45,
-                    child: MaterialButton(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        side: const BorderSide(color: RColor.deepBlue),
-                      ),
-                      color: RColor.deepBlue,
-                      textColor: Colors.white,
-                      child: const Text(
-                        '씽크풀(라씨) 아이디로 시작하기',
-                        style: TStyle.btnTextWht15,
-                      ),
-                      onPressed: () {
-                        Navigator.pushNamed(context, RassiLoginPage.routeName);
-                      },
-                    ),
-                  ),
-                ],
+
+          // 씽크풀
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              Navigator.pushNamed(context, RassiLoginPage.routeName);
+            },
+            child: Container(
+              width: 270,
+              height: 50,
+              margin: const EdgeInsets.only(
+                top: 15,
+              ),
+              decoration: UIStyle.boxRoundFullColor25c(
+                RColor.lightSell_2e70ff,
+              ),
+              alignment: Alignment.center,
+              child: const Text(
+                '라씨(씽크풀) 아이디로 시작하기',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -409,7 +350,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
 
         if (perror.code == 'CANCELED') {
           commonShowToast('카카오 로그인을 취소하였습니다.');
-        }else{
+        } else {
           try {
             token = await UserApi.instance.loginWithKakaoAccount();
             DLog.d(LoginDivisionPage.TAG, '카카오계정으로 로그인2 성공');
@@ -456,9 +397,10 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
         String numId = tokenInfo.id.toString();
         String email = '';
         String name = '';
-        if (numId != null && numId.length > 0) {
+        if (numId != null && numId.isNotEmpty) {
           _reqPos = 'KAKAO';
-          _reqParam = 'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
+          _reqParam =
+              'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
           _requestThink(numId, email, name);
         }
       } catch (error) {
@@ -473,14 +415,13 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       User user = await UserApi.instance.me();
       DLog.d(LoginDivisionPage.TAG, '사용자 정보 요청 성공');
       DLog.d(LoginDivisionPage.TAG, '회원번호: ${user.id}');
-      DLog.d(LoginDivisionPage.TAG,
-          '닉네임 : ${user.kakaoAccount?.profile?.nickname}');
+      DLog.d(LoginDivisionPage.TAG, '닉네임 : ${user.kakaoAccount?.profile?.nickname}');
       DLog.d(LoginDivisionPage.TAG, '이메일: ${user.kakaoAccount?.email}');
 
       String numId = user.id.toString();
       String email = '';
       String name = '';
-      if (numId != null && numId.length > 0) {
+      if (numId != null && numId.isNotEmpty) {
         _reqPos = 'KAKAO';
         _reqParam = 'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
         _requestThink(numId, email, name);
@@ -504,12 +445,10 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     DLog.d(LoginDivisionPage.TAG, '####### NAVER ${result.account.id}');
     DLog.d(LoginDivisionPage.TAG, '####### NAVER ${result.account.name}');
 
-
-
     String numId = result.account.id;
     String email = result.account.email;
     String name = result.account.name;
-    if (numId != null && numId.length > 0) {
+    if (numId != null && numId.isNotEmpty) {
       _reqPos = 'NAVER';
       DLog.d(LoginDivisionPage.TAG, 'Naver Num ID : $numId');
       _reqParam = 'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=NAVER';
@@ -559,7 +498,8 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
         String name = result.credential?.fullName?.givenName ?? '';
         if (aId != null && aId.length > 5) {
           _reqPos = 'APPLE';
-          _reqParam = 'snsId=${Net.getEncrypt(aId)}&snsEmail=$email&snsPos=APPLE';
+          _reqParam =
+              'snsId=${Net.getEncrypt(aId)}&snsEmail=$email&snsPos=APPLE';
           _requestThink(aId, email, name);
         }
         break;
@@ -579,28 +519,28 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
 
   //Google 로그인
   void signInWithGoogle() async {
-/*    GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
-    if(googleUser != null) {
+    GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    if (googleUser != null) {
       // DLog.d(LoginDivisionPage.TAG, 'name = ${googleUser.displayName}');
       DLog.d(LoginDivisionPage.TAG, 'email = ${googleUser.email}');
       DLog.d(LoginDivisionPage.TAG, 'id = ${googleUser.id}');
 
       String numId = googleUser.id;
       String email = googleUser.email;
-      if (numId != null && numId.length > 0) {
+      if (numId != null && numId.isNotEmpty) {
         _reqPos = 'GOOGLE';
         DLog.d(LoginDivisionPage.TAG, 'Google Num ID : $numId');
-        _reqParam = 'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=GOOGLE';
+        _reqParam =
+            'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=GOOGLE';
         _requestThink(numId, email, '');
       }
-    }*/
+    }
   }
 
   // 다음 페이지로 이동
   void _goNextRoute(String userId) {
     commonShowToast('로그인 되었습니다.');
-    CustomFirebaseClass.setUserProperty(
-        CustomFirebaseProperty.LOGIN_STATUS, 'complete');
+    CustomFirebaseClass.setUserProperty(CustomFirebaseProperty.LOGIN_STATUS, 'complete');
     switch (_reqPos) {
       case 'KAKAO':
         {
@@ -633,67 +573,16 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       // Navigator.pushReplacement(
       //     context, MaterialPageRoute(builder: (context) => BasePage()));
       Navigator.pushAndRemoveUntil(
-          context, MaterialPageRoute(builder: (context) => const BasePage()), (route) => false);
+          context,
+          MaterialPageRoute(builder: (context) => const BasePage()),
+          (route) => false);
     } else {}
-  }
-
-  //이용약관, 개인정보처리방침
-  Widget _setTermsText() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Text(
-          '시작시 ',
-          style: TStyle.textSGrey,
-        ),
-        InkWell(
-          child: const Text(
-            '이용약관',
-            style: TStyle.ulTextBlue,
-          ),
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => WebPage(),
-                  settings: RouteSettings(
-                    arguments: PgData(pgData: Net.AGREE_TERMS),
-                  ),
-                ));
-          },
-        ),
-        const Text(
-          '과 ',
-          style: TStyle.textSGrey,
-        ),
-        InkWell(
-          child: const Text(
-            '개인정보 처리방침',
-            style: TStyle.ulTextBlue,
-          ),
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => WebPage(),
-                  settings: RouteSettings(
-                    arguments: PgData(pgData: Net.AGREE_POLICY_INFO),
-                  ),
-                ));
-          },
-        ),
-        const Text(
-          '에 동의 됩니다.',
-          style: TStyle.textSGrey,
-        ),
-      ],
-    );
   }
 
   //App Tracking Transparency (ATT 팝업 : 설치 후 한번만 노출됨)
   Future<void> _requestAppTracking() async {
-    if (await AppTrackingTransparency.trackingAuthorizationStatus == TrackingStatus.notDetermined) {
+    if (await AppTrackingTransparency.trackingAuthorizationStatus ==
+        TrackingStatus.notDetermined) {
       // Wait for dialog popping animation
       await Future.delayed(const Duration(milliseconds: 200));
       // Request system's tracking authorization dialog
@@ -709,27 +598,35 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     String url = Net.THINK_SNS_LOGIN;
 
     var urls = Uri.parse(url);
-    final http.Response response = await http.post(urls,
-        headers: Net.think_headers,
-        body: _reqParam);
+    final http.Response response =
+        await http.post(urls, headers: Net.think_headers, body: _reqParam);
 
     // RESPONSE ---------------------------
     DLog.d(LoginDivisionPage.TAG, '${response.statusCode}');
     DLog.d(LoginDivisionPage.TAG, response.body);
 
     final String result = response.body;
-    if (result.length > 0) {
+    if (result.isNotEmpty) {
       final ThinkLoginSns resData = ThinkLoginSns.fromJson(jsonDecode(result));
       if (resData.resultCode.toString().trim() == '-1') {
         DLog.d(LoginDivisionPage.TAG, '씽크풀 가입안됨');
-
-        //씽크풀 회원가입 루트 선택 페이지로 이동
-        Navigator.pushNamed(
-          context,
-          JoinRoutePage.routeName,
-          arguments:
-          PgData(userId: userId, pgData: email, pgSn: name, flag: _reqPos),
-        );
+        if (mounted) {
+          // 약관 동의로 이동
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TermsOfUsePage(
+                UserJoinInfo(
+                  userId: _reqPos == 'SSGOLLA' ? '' : userId,
+                  email: email,
+                  name: name,
+                  phone: _reqPos == 'SSGOLLA' ? userId : '',
+                  pgType: _reqPos,
+                ),
+              ),
+            ),
+          );
+        }
       } else {
         DLog.d(LoginDivisionPage.TAG, '씽크풀 가입 되어 있음');
         _tempId = resData.userId;

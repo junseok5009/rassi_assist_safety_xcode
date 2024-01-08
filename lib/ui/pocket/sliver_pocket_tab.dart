@@ -70,7 +70,8 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> {
 
   _setTabIndex(BuildContext context) {
     initIndex = Provider.of<PageNotifier>(context, listen: false).pktIndex;
-    int stkCount = Provider.of<PocketProvider>(context, listen: false).getAllStockListCount;
+    int stkCount = Provider.of<PocketProvider>(context, listen: false)
+        .getAllStockListCount;
     if (stkCount == 0) initIndex = 1;
   }
 

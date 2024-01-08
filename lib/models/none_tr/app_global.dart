@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:rassi_assist/common/d_log.dart';
-
 
 /// Singleton 패턴을 이용한 공통 데이터 설정 [ 포켓리스트 / 유료사용자 여부 / 결제정보 / (사용중)상품코드 ..]
 /// 설정된 데이터 최근 갱신일
@@ -40,7 +38,6 @@ class AppGlobal {
 
   //포켓 상태
   var pocketCnt = 1;
-  bool isOnPocket = false;
   String pktStockCode = '';
   String pktStockName = '';
   String pocketSn = '';       //포켓 기본 SN
@@ -68,31 +65,7 @@ class AppGlobal {
     tabIndex = 0;
   }
 
-  // 앱의 view는 변경된 데이터를 얻기 위해 이것을 구독
-  final ObserverList<Function(String)> _pageListeners = ObserverList<Function(String)>();
-
-  // PageStatus Listeners를 구독할 수 있습니다.
-  addPageStatusChangedListeners(Function callback) {
-    isOnPocket = true;
-    _pageListeners.add(callback as Function(String));
-  }
-  // PageStatus Listeners를 취소할 수 있습니다.
-  removePageStatusChangedListeners(Function callback) {
-    isOnPocket = false;
-    _pageListeners.remove(callback as Function(String));
-  }
-
-  sendPageStatusRefresh(String status) {
-    for (var callback in _pageListeners) {
-      callback(status);
-    }
-  }
-
-
 // [getter, setter 예시]
 // String get userId => _userId;
 // set userId(String id) => _userId = id;
 }
-
-
-

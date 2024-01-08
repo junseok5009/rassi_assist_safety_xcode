@@ -1,6 +1,10 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 
 import '../../../common/const.dart';
 import '../../../common/tstyle.dart';
@@ -11,21 +15,22 @@ import '../../../models/tr_pock/tr_pock10.dart';
 import '../../main/base_page.dart';
 import '../../news/issue_viewer.dart';
 
-
 /// 2023.12
 /// [포켓_TODAY - 상승/하락 타일]
 class TileUpAndDown extends StatefulWidget {
   const TileUpAndDown(
-      this.item,
-      this.chartItem, {Key? key,}) : super(key: key);
+    this.item,
+    this.chartItem, {
+    Key? key,
+  }) : super(key: key);
   final StockPktChart item;
   final Pock10ChartModel chartItem;
 
   @override
   State<TileUpAndDown> createState() => _TileUpAndDownState();
 }
-class _TileUpAndDownState extends State<TileUpAndDown> {
 
+class _TileUpAndDownState extends State<TileUpAndDown> {
   @override
   void initState() {
     super.initState();
@@ -78,7 +83,9 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(height: 7,),
+                const SizedBox(
+                  height: 7,
+                ),
                 //종목명
                 Text(
                   ' ${TStyle.getLimitString(widget.item.stockName, 6)}',
@@ -91,7 +98,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 ),
               ],
             ),
-
             Align(
               alignment: Alignment.center,
               child: Column(
@@ -126,7 +132,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 ],
               ),
             ),
-
             Align(
               alignment: Alignment.centerRight,
               child: _setChartView(),
@@ -218,11 +223,11 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
   }
 }
 
-
 /// 2023.12
 /// [포켓_TODAY - 매매신호 타일]
 class TilePocketSig extends StatelessWidget {
   final StockPktChart item;
+
   const TilePocketSig(this.item, {Key? key}) : super(key: key);
 
   @override
@@ -237,53 +242,141 @@ class TilePocketSig extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                decoration: UIStyle.boxRoundFullColor25c(
-                  const Color(0xffDCDFE2),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 3,
-                ),
-                child: Text(
-                  item.myTradeFlag == 'S'
-                      ? '나만의 매도신호'
-                      : TStyle.getLimitString(item.pocketName, 10),
-                  style: const TextStyle(
-                    fontSize: 11,
+          Expanded(
+            child: InkWell(
+              onTap: () async {
+                if (item.myTradeFlag == 'S') {
+                  //나만의 매도신호는 나만의 매도 신호 탭으로 이동
+                  DefaultTabController.of(context).animateTo(2);
+                } else {
+                  //매매신호는 해당 종목의 매매신호 탭으로 이동
+                  basePageState.goStockHomePage(
+                    item.stockCode,
+                    item.stockName,
+                    Const.STK_INDEX_SIGNAL,
+                  );
+                }
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: UIStyle.boxRoundFullColor25c(
+                      const Color(0xffDCDFE2),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    child: Text(
+                      item.myTradeFlag == 'S'
+                          ? '나만의 매도신호'
+                          : TStyle.getLimitString(item.pocketName, 10),
+                      style: const TextStyle(
+                        fontSize: 11,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  const SizedBox(
+                    height: 7,
+                  ),
+                  Expanded(
+                    child: Text(
+                      item.stockName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                ' ${TStyle.getLimitString(item.stockName, 6)}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+            ),
           ),
-          _setBsInfo(item),
-          _setBsIcon(item),
+          const SizedBox(
+            width: 5,
+          ),
+          if (Provider.of<UserInfoProvider>(context, listen: false)
+              .isPremiumUser())
+            _setSignalView(context)
+          else if (Provider.of<UserInfoProvider>(context,
+              listen: false)
+              .is3StockUser() &&
+              item.signalYn == 'Y')
+            _setSignalView(context)
+          else
+            _setNoPremiumBlockView(context)
+
         ],
       ),
     );
   }
 
-  Widget _setBsInfo(StockPktChart item) {
+  // 프리미엄 아닐때 매매신호 리스트 아이템들
+  _setNoPremiumBlockView(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        String result = await CommonPopup.instance.showDialogPremium(context);
+        if (result == CustomNvRouteResult.landPremiumPage) {
+          basePageState.navigateAndGetResultPayPremiumPage();
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Image.asset(
+            'images/icon_lock_grey.png',
+            height: 16,
+          ),
+          const Text(
+            '프리미엄으로 업그레이드하시고\n지금 바로 확인해 보세요',
+            style: TextStyle(
+              fontSize: 12,
+              color: RColor.greyMore_999999,
+            ),
+            textAlign: TextAlign.end,
+          ),
+        ],
+      ),
+    );
+  }
+
+  _setSignalView(BuildContext context){
+    return InkWell(
+      onTap: () {
+        if (item.myTradeFlag == 'S') {
+          //나만의 매도신호는 나만의 매도 신호 탭으로 이동
+          DefaultTabController.of(context).animateTo(2);
+        } else {
+          //매매신호는 해당 종목의 매매신호 탭으로 이동
+          basePageState.goStockHomePage(
+            item.stockCode,
+            item.stockName,
+            Const.STK_INDEX_SIGNAL,
+          );
+        }
+      },
+      child: Row(
+        children: [
+          _setBsInfo(),
+          const SizedBox(width: 10,),
+          _setBsIcon(),
+        ],
+      ),
+    );
+  }
+
+  Widget _setBsInfo() {
     String mText;
     String mPrice;
     String mDttm;
-    if(item.myTradeFlag == 'S') {
+    if (item.myTradeFlag == 'S') {
       mText = '매도가';
       mPrice = item.sellPrice;
       mDttm = item.sellDttm;
@@ -297,13 +390,12 @@ class TilePocketSig extends StatelessWidget {
       mDttm = item.tradeDttm;
     }
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
           TStyle.getDtTimeFormat(mDttm),
           style: TStyle.contentGrey14,
-        ),
-        const SizedBox(
-          height: 5,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -326,23 +418,22 @@ class TilePocketSig extends StatelessWidget {
     );
   }
 
-  Widget _setBsIcon(StockPktChart item) {
+  Widget _setBsIcon() {
     Color bColor;
     String sText;
     double rad;
-    if(item.myTradeFlag == 'S') {
+    if (item.myTradeFlag == 'S') {
       sText = '나만의\n매도';
-      bColor = RColor.jinbora;
-      rad = 25.0;
-    }
-    else if (item.tradeFlag == 'B') {
+      bColor = RColor.purpleBasic_6565ff;
+      rad = 10.0;
+    } else if (item.tradeFlag == 'B') {
       sText = '오늘\n매수';
       bColor = RColor.sigBuy;
-      rad = 10.0;
+      rad = 25.0;
     } else {
       sText = '오늘\n매도';
       bColor = RColor.sigSell;
-      rad = 10.0;
+      rad = 25.0;
     }
     return Container(
       width: 50,
@@ -356,9 +447,9 @@ class TilePocketSig extends StatelessWidget {
           sText,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             color: Colors.white,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -366,16 +457,17 @@ class TilePocketSig extends StatelessWidget {
   }
 }
 
-
 /// 2023.12
 /// [포켓_TODAY - 종목 이슈 타일]
 class TileStockIssue extends StatefulWidget {
   final StockIssueInfo item;
+
   const TileStockIssue(this.item, {Key? key}) : super(key: key);
 
   @override
   State<TileStockIssue> createState() => _TileStockIssue();
 }
+
 class _TileStockIssue extends State<TileStockIssue> {
   @override
   Widget build(BuildContext context) {
@@ -386,43 +478,52 @@ class _TileStockIssue extends State<TileStockIssue> {
         horizontal: 20,
         vertical: 13,
       ),
-      child: Stack(
+      child: Row(
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: InkWell(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.item.keyword,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Color(0xff111111),
+          Flexible(
+            flex: 1,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: InkWell(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.item.keyword,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: Color(0xff111111),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  _issueStatusView(widget.item.avgFluctRate),
-                ],
+                    const SizedBox(
+                      height: 7,
+                    ),
+                    _issueStatusView(widget.item.avgFluctRate),
+                  ],
+                ),
+                onTap: () {
+                  basePageState.callPageRouteUpData(
+                      const IssueViewer(),
+                      PgData(
+                          userId: '',
+                          pgSn: widget.item.newsSn,
+                          pgData: widget.item.issueSn));
+                },
               ),
-              onTap: (){
-                basePageState.callPageRouteUpData(
-                    IssueViewer(),
-                    PgData(userId: '', pgSn: widget.item.newsSn, pgData: widget.item.issueSn)
-                );
-              },
             ),
           ),
-
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 250),
-              child: _relayStockView(context, widget.item.stockList.length),
+          Flexible(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 250),
+                child: _relayStockView(context, widget.item.stockList.length),
+              ),
             ),
           ),
         ],
@@ -431,33 +532,32 @@ class _TileStockIssue extends State<TileStockIssue> {
   }
 
   Widget _issueStatusView(String avgFluctRate) {
-    if(avgFluctRate == '0' || avgFluctRate == '0.0' || avgFluctRate == '0.00') {
+    if (avgFluctRate == '0' ||
+        avgFluctRate == '0.0' ||
+        avgFluctRate == '0.00') {
       return Text(
         '보합 ${TStyle.getPercentString(avgFluctRate)}',
         style: TStyle.contentGrey14,
       );
     }
-    if(!avgFluctRate.contains('-')) {
+    if (!avgFluctRate.contains('-')) {
       return Text(
         '상승중 ${TStyle.getPercentString(avgFluctRate)}',
         style: TextStyle(
           color: TStyle.getMinusPlusColor(avgFluctRate),
         ),
       );
-    }
-    else if(avgFluctRate.contains('-')) {
+    } else if (avgFluctRate.contains('-')) {
       return Text(
         '하락중 ${TStyle.getPercentString(avgFluctRate)}',
         style: TextStyle(
           color: TStyle.getMinusPlusColor(avgFluctRate),
         ),
       );
-    }
-    else {
+    } else {
       return Container();
     }
   }
-
 
   //관련 종목 부분
   Widget _relayStockView(BuildContext context, int len) {
@@ -466,8 +566,8 @@ class _TileStockIssue extends State<TileStockIssue> {
       crossAxisAlignment: WrapCrossAlignment.start,
       spacing: 7,
       alignment: WrapAlignment.end,
-      children:
-      List.generate(len, (index) => _relayStock(widget.item.stockList[index])),
+      children: List.generate(
+          len, (index) => _relayStock(widget.item.stockList[index])),
     );
   }
 
@@ -479,8 +579,7 @@ class _TileStockIssue extends State<TileStockIssue> {
       child: Text(
         one.stockName.substring(0, strLen),
         style: const TextStyle(
-          fontSize: 14,
-          color: RColor.greyMore_999999,
+          color: RColor.greyBasicStrong_666666,
         ),
       ),
       onTap: () {
@@ -494,16 +593,17 @@ class _TileStockIssue extends State<TileStockIssue> {
   }
 }
 
-
 /// 2023.12
 /// [포켓_TODAY - 수급 타일]
 class TileSupplyAndDemand extends StatefulWidget {
   final StockSupplyDemand item;
+
   const TileSupplyAndDemand(this.item, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _TileSupplyAndDemandState();
 }
+
 class _TileSupplyAndDemandState extends State<TileSupplyAndDemand> {
   @override
   Widget build(BuildContext context) {
@@ -536,7 +636,9 @@ class _TileSupplyAndDemandState extends State<TileSupplyAndDemand> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 5,),
+                  const SizedBox(
+                    width: 5,
+                  ),
                   Text(
                     widget.item.stockCode,
                     style: const TextStyle(
@@ -567,7 +669,9 @@ class _TileSupplyAndDemandState extends State<TileSupplyAndDemand> {
               ),
             ],
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(
+            height: 7,
+          ),
 
           // 타이틀
           Text(
@@ -583,16 +687,17 @@ class _TileSupplyAndDemandState extends State<TileSupplyAndDemand> {
   }
 }
 
-
 /// 2023.12
 /// [포켓_TODAY - 차트분석 타일]
 class TileStockChart extends StatefulWidget {
   final StockSupplyDemand item;
+
   const TileStockChart(this.item, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _TileStockChartState();
 }
+
 class _TileStockChartState extends State<TileStockChart> {
   @override
   Widget build(BuildContext context) {
@@ -617,7 +722,7 @@ class _TileStockChartState extends State<TileStockChart> {
                 children: [
                   //종목명
                   Text(
-                    ' ${TStyle.getLimitString(widget.item.stockName, 6)}',
+                    TStyle.getLimitString(widget.item.stockName, 6),
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -625,7 +730,9 @@ class _TileStockChartState extends State<TileStockChart> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 5,),
+                  const SizedBox(
+                    width: 5,
+                  ),
                   Text(
                     widget.item.stockCode,
                     style: const TextStyle(
@@ -656,7 +763,9 @@ class _TileStockChartState extends State<TileStockChart> {
               ),
             ],
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(
+            height: 7,
+          ),
 
           // 타이틀
           Text(

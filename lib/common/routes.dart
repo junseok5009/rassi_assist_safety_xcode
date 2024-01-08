@@ -27,6 +27,7 @@ import 'package:rassi_assist/ui/pay/pay_manage_page.dart';
 import 'package:rassi_assist/ui/pay/pay_test_page.dart';
 import 'package:rassi_assist/ui/pay/pay_web_page.dart';
 import 'package:rassi_assist/ui/pocket/pocket_setting_page.dart';
+import 'package:rassi_assist/ui/pocket/sliver_pocket_tab.dart';
 import 'package:rassi_assist/ui/signal/signal_all_page.dart';
 import 'package:rassi_assist/ui/signal/signal_board_page.dart';
 import 'package:rassi_assist/ui/signal/signal_hold_stock.dart';
@@ -59,11 +60,12 @@ import 'package:rassi_assist/ui/user/user_center_page.dart';
 import 'package:rassi_assist/ui/user/user_info_page.dart';
 import 'package:rassi_assist/ui/user/write_qna_page.dart';
 
-import '../ui/main/search_page.dart';
-import '../ui/pocket/sliver_pocket_tab.dart';
 import '../ui/sub/trade_intro_page.dart';
 
 final routes = {
+
+  '/intro': (BuildContext context) => const IntroPage(),
+
   '/base': (BuildContext context) => const BasePage(),
 
   // 메인_홈
@@ -79,30 +81,34 @@ final routes = {
 
   TradeAssistPage.routeName: (BuildContext context) => const TradeAssistPage(),
   MyPage.routeName: (BuildContext context) => MyPage(),
-  KeyboardPage.routeName: (BuildContext context) => KeyboardPage(),
+  KeyboardPage.routeName: (BuildContext context) => const KeyboardPage(),
   //SearchPage.routeName: (BuildContext context) => SearchPage(),
   //SearchStockPage.routeName: (BuildContext context) => SearchStockPage(),
   //StockCatchPage.routeName: (BuildContext context) => StockCatchPage(),
 
   //SignalPage.routeName: (BuildContext context) => SignalPage(),
   //MarketPageN.routeName: (BuildContext context) => MarketPageN(),
-  NotificationPage.routeName: (BuildContext context) => const NotificationPage(),
-  NotificationSetting.routeName: (BuildContext context) => NotificationSetting(),
-  NotificationSettingN.routeName: (BuildContext context) => const NotificationSettingN(),
+  NotificationPage.routeName: (BuildContext context) =>
+      const NotificationPage(),
+  NotificationSetting.routeName: (BuildContext context) =>
+      NotificationSetting(),
+  NotificationSettingN.routeName: (BuildContext context) =>
+      const NotificationSettingN(),
   NotiListPage.routeName: (BuildContext context) => NotiListPage(),
 
   TradeIntroPage.routeName: (BuildContext context) => const TradeIntroPage(),
-  PocketSettingPage.routeName: (BuildContext context) => const PocketSettingPage(),
+  PocketSettingPage.routeName: (BuildContext context) =>
+      const PocketSettingPage(),
   ReportPage.routeName: (BuildContext context) => ReportPage(),
-  ConditionPage.routeName: (BuildContext context) => ConditionPage(),
+  ConditionPage.routeName: (BuildContext context) => const ConditionPage(),
   StkCatchBigPage.routeName: (BuildContext context) => const StkCatchBigPage(),
   StkCatchTopPage.routeName: (BuildContext context) => const StkCatchTopPage(),
-  ThemeListPage.routeName: (BuildContext context) => const ThemeListPage(),
-  ThemeViewer.routeName: (BuildContext context) => const ThemeViewer(),
+  ThemeListPage.routeName: (BuildContext context) => ThemeListPage(),
+  ThemeViewer.routeName: (BuildContext context) => ThemeViewer(),
   ThemeSearch.routeName: (BuildContext context) => ThemeSearch(),
   ThemeHotPage.routeName: (BuildContext context) => const ThemeHotPage(),
 
-  IntroPage.routeName: (BuildContext context) => const IntroPage(),
+
   IntroSearchPage.routeName: (BuildContext context) => IntroSearchPage(),
   LoginIntroPage.routeName: (BuildContext context) => LoginIntroPage(),
   LoginDivisionPage.routeName: (BuildContext context) => LoginDivisionPage(),
@@ -118,8 +124,9 @@ final routes = {
   SignalTopPage.routeName: (BuildContext context) => SignalTopPage(),
   SignalTodayPage.routeName: (BuildContext context) => const SignalTodayPage(),
   SignalBoardPage.routeName: (BuildContext context) => SignalBoardPage(),
-  SignalPopListPage.routeName: (BuildContext context) => const SignalPopListPage(),
-  SignalAllPage.routeName: (BuildContext context) => SignalAllPage(),
+  SignalPopListPage.routeName: (BuildContext context) =>
+      const SignalPopListPage(),
+  SignalAllPage.routeName: (BuildContext context) => const SignalAllPage(),
   SignalMTopPage.routeName: (BuildContext context) => const SignalMTopPage(),
   SignalHoldPage.routeName: (BuildContext context) => SignalHoldPage(),
   SignalWaitPage.routeName: (BuildContext context) => SignalWaitPage(),
@@ -129,8 +136,8 @@ final routes = {
 
   SocialListPage.routeName: (BuildContext context) => SocialListPage(),
   CatchListPage.routeName: (BuildContext context) => const CatchListPage(),
-  NewsListPage.routeName: (BuildContext context) => NewsListPage(),
-  NewsViewer.routeName: (BuildContext context) => const NewsViewer(),
+  NewsListPage.routeName: (BuildContext context) => const NewsListPage(),
+  NewsViewer.routeName: (BuildContext context) => NewsViewer(),
   IssueListPage.routeName: (BuildContext context) => const IssueListPage(),
 
   WebPage.routeName: (BuildContext context) => WebPage(),
@@ -139,14 +146,14 @@ final routes = {
   AiVersionPage.routeName: (BuildContext context) => const AiVersionPage(),
   UserInfoPage.routeName: (BuildContext context) => UserInfoPage(),
   CommunityPage.routeName: (BuildContext context) => CommunityPage(),
-  UserCenterPage.routeName: (BuildContext context) => const UserCenterPage(),
+  UserCenterPage.routeName: (BuildContext context) => UserCenterPage(),
   WriteQnaPage.routeName: (BuildContext context) => WriteQnaPage(),
 
   PayHistoryPage.routeName: (BuildContext context) => const PayHistoryPage(),
   PayManagePage.routeName: (BuildContext context) => PayManagePage(),
-  PayWebPage.routeName: (BuildContext context) => const PayWebPage(),
+  PayWebPage.routeName: (BuildContext context) => PayWebPage(),
   PayCancelPage.routeName: (BuildContext context) => PayCancelPage(),
-  PaySubCancelPage.routeName: (BuildContext context) => const PaySubCancelPage(),
+  PaySubCancelPage.routeName: (BuildContext context) => PaySubCancelPage(),
   PayTestPage.routeName: (BuildContext context) => PayTestPage(),
   //PayPremiumPage.routeName: (BuildContext context) => PayPremiumPage(),
   BillingPage.routeName: (BuildContext context) => BillingPage(),

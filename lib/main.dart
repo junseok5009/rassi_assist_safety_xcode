@@ -9,6 +9,7 @@ import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_tab_data.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
+import 'package:rassi_assist/provider/login_rassi_provider.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
@@ -46,6 +47,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => SignalProvider()),
       ChangeNotifierProvider(create: (context) => StockInfoProvider()),
       ChangeNotifierProvider(create: (context) => StockTabNameProvider()),
+      ChangeNotifierProvider(create: (context) => LoginRassiProvider()),
     ],
     child: const IntroPage(),
   ));

@@ -1,3 +1,5 @@
+
+
 /// 차트 데이터
 class ChartData {
   final String tradeDate;
@@ -25,4 +27,6 @@ class ChartData {
       'tp': tradePrc,
     };
   }
+
+
 }

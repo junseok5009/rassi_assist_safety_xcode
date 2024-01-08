@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -49,9 +49,8 @@ class WriteQnaState extends State<WriteQnaWidget> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: WriteQnaPage.TAG_NAME,
-      screenClassOverride: WriteQnaPage.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      WriteQnaPage.TAG_NAME,
     );
 
     _loadPrefData();
@@ -111,11 +110,11 @@ class WriteQnaState extends State<WriteQnaWidget> {
                   controller: _titleController,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.done,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: '제목을 입력하세요',
                     border: OutlineInputBorder(),
                     isDense: true,
-                    contentPadding: const EdgeInsets.all(10),
+                    contentPadding: EdgeInsets.all(10),
                   ),
                 ),
               ),
@@ -168,7 +167,7 @@ class WriteQnaState extends State<WriteQnaWidget> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('취소'),
+                          const Text('취소'),
                         ],
                       ),
                     ),
@@ -197,7 +196,7 @@ class WriteQnaState extends State<WriteQnaWidget> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('등록'),
+                          const Text('등록'),
                         ],
                       ),
                     ),
@@ -261,7 +260,7 @@ class WriteQnaState extends State<WriteQnaWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
-                  child: Icon(
+                  child: const Icon(
                     Icons.close,
                     color: Colors.black,
                   ),

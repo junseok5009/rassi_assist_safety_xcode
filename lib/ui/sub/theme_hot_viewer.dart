@@ -24,9 +24,6 @@ import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../pay/pay_premium_aos_page.dart';
-import '../pay/pay_premium_page.dart';
-
 /// 2022.04.22 - JY
 /// (핫)테마 상세보기
 class ThemeHotViewer extends StatefulWidget {
@@ -232,7 +229,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
       rText = _increseRate;
       rColor = RColor.sigSell;
     } else {
-      rText = '+' + _increseRate;
+      rText = '+$_increseRate';
       rColor = RColor.sigBuy;
     }
 
@@ -431,9 +428,9 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                 Row(
                   children: [
                     Image.asset(
-                      'images/logo_icon_wt.png',
+                      'images/icon_rassi_logo_purple.png',
                       fit: BoxFit.cover,
-                      scale: 3,
+                      height: 50,
                       color: RColor.mainColor,
                     ),
                     const SizedBox(
@@ -849,100 +846,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
       //       'userId': _userId,
       //     }));
     }
-  }
-
-  //프리미엄 가입하기 다이얼로그
-  void _showDialogPremium() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              InkWell(
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.black,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.asset(
-                  'images/rassibs_img_infomation.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(
-                  height: 25.0,
-                ),
-                const Text(
-                  '안내',
-                  style: TStyle.title20,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                ),
-                const SizedBox(
-                  height: 30.0,
-                ),
-                const Text(
-                  '매매비서 프리미엄에서\n이용할 수 있는 정보입니다.',
-                  style: TStyle.defaultContent,
-                  textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                ),
-                const SizedBox(
-                  height: 25.0,
-                ),
-                const Text(
-                  '프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
-                  textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                ),
-                const SizedBox(
-                  height: 25.0,
-                ),
-                MaterialButton(
-                  child: Center(
-                    child: Container(
-                      width: 180,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: RColor.deepBlue,
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '프리미엄 가입하기',
-                          style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                        ),
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateRefreshPay(
-                      context,
-                      Platform.isIOS ? PayPremiumPage() : PayPremiumAosPage(),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 
   //안내 다이얼로그

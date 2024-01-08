@@ -9,6 +9,7 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/des/utils.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_user/tr_user01.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
@@ -133,7 +134,8 @@ class HttpProcessClass {
           'groupSubDiv': '',
         }));
 
-    DLog.d(TAG, 'ㅡㅡㅡㅡㅡ finish callHttpProcess0002 ㅡㅡㅡㅡㅡ \n result : ${result.toString()}');
+    DLog.d(TAG,
+        'ㅡㅡㅡㅡㅡ finish callHttpProcess0002 ㅡㅡㅡㅡㅡ \n result : ${result.toString()}');
     return result;
   }
 
@@ -184,7 +186,6 @@ class HttpProcessClass {
               'groupSubDiv': '',
             }));
       } else {
-
         result = HttpProcessResultClass(
             serverRetCode: resData.retCode,
             serverRetMsg: resData.retMsg,
@@ -194,8 +195,8 @@ class HttpProcessClass {
     } else if (trStr == TR.USER01) {
       final TrUser01 resData = TrUser01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _prefs.setString(Const.PREFS_USER_ID, _userId);
-
+        await _prefs.setString(Const.PREFS_USER_ID, _userId);
+        AppGlobal().userId = _userId;
         if (_token != null && _token != '') {
           await _fetchPosts(
               TR.PUSH01,
@@ -302,11 +303,13 @@ class HttpProcessClass {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       switch (_callNum) {
         case 0001:
@@ -317,7 +320,6 @@ class HttpProcessClass {
           break;
       }
       //_parseTrData(trStr, response);
-
     } on TimeoutException catch (_) {
       result = HttpProcessResultClass(
           serverRetCode: '',

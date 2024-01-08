@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
@@ -72,7 +71,6 @@ class StockHomeTabState extends State<StockHomeTab>
 
   @override
   void initState() {
-    DLog.d('@@@@@@@@', 'STOCK_HOME initState()');
     super.initState();
     if (_appGlobal.stkCode.isEmpty || _appGlobal.stkName.isEmpty) {
       Navigator.pop(context);
@@ -97,7 +95,6 @@ class StockHomeTabState extends State<StockHomeTab>
 
   @override
   void dispose() {
-    DLog.d('@@@@@@@@', 'STOCK_HOME dispose()');
     _userInfoProvider.removeListener(refreshChild);
     super.dispose();
   }
@@ -114,7 +111,7 @@ class StockHomeTabState extends State<StockHomeTab>
             leadingWidth: 40,
             //automaticallyImplyLeading: true,
             backgroundColor: Colors.white,
-            elevation: 1,
+            elevation: 0,
             leading: InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
@@ -304,7 +301,8 @@ class StockHomeTabState extends State<StockHomeTab>
           strokeWidth: 2.0,
           onRefresh: () async {
             if (StockHomeSignalPage.globalKey.currentState != null) {
-              var childCurrentState = StockHomeSignalPage.globalKey.currentState;
+              var childCurrentState =
+                  StockHomeSignalPage.globalKey.currentState;
               //Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
               childCurrentState?.reload();
               await Future.delayed(const Duration(milliseconds: 1000));
@@ -603,19 +601,18 @@ class StockHomeTabState extends State<StockHomeTab>
               context,
               Platform.isIOS
                   ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-                  : CustomNvRouteClass.createRoute(PayPremiumAosPage()),
+                  : CustomNvRouteClass.createRoute(const PayPremiumAosPage()),
             );
           }
         }
       } else if (result == CustomNvRouteResult.landPremiumPopup) {
         String result = await CommonPopup.instance.showDialogPremium(context);
-        if (result == CustomNvRouteResult.landPremiumPage &&
-            context.mounted) {
+        if (result == CustomNvRouteResult.landPremiumPage && context.mounted) {
           Navigator.push(
             context,
             Platform.isIOS
                 ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-                : CustomNvRouteClass.createRoute(PayPremiumAosPage()),
+                : CustomNvRouteClass.createRoute(const PayPremiumAosPage()),
           );
         }
       } else if (result == CustomNvRouteResult.fail) {
@@ -833,22 +830,15 @@ class StockHomeTabState extends State<StockHomeTab>
                     ),
                   ),
                   onTap: () {
-                    Navigator.pop(context);
-                    var stockInfoProvider = Provider.of<StockInfoProvider>(
-                        context,
-                        listen: false);
-                    if (_appGlobal.isOnPocket) {
-                      Navigator.pop(context);
-                      _appGlobal.pocketSn = stockInfoProvider.getPockSn;
-                      _appGlobal.pktStockCode = stockInfoProvider.getStockCode;
-                      _appGlobal.pktStockName = stockInfoProvider.getStockName;
-                      _appGlobal.sendPageStatusRefresh('stk_change');
-                    } else {
-                      // 종목홈 나가기
-                      Navigator.pop(context);
-                      // [포켓 > 나의포켓 > 포켓선택]
-                      basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: stockInfoProvider.getPockSn);
-                    }
+                    var stockInfoProvider =
+                        Provider.of<StockInfoProvider>(context, listen: false);
+                    // [포켓 > 나의포켓 > 포켓선택]
+                    basePageState.goPocketPage(Const.PKT_INDEX_MY,
+                        pktSn: stockInfoProvider.getPockSn);
+                    Navigator.popUntil(
+                      context,
+                      ModalRoute.withName('/base'),
+                    );
                   },
                 ),
                 const SizedBox(

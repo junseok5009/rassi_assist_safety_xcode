@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/services.dart';
 
@@ -94,12 +96,17 @@ concat(List<int> a, List<int> b) {
     for (var i = 0; i < thatSigBytes; i += 4) {
       var idx = (thisSigBytes + i) >> 2;
       if (idx >= thisWords.length) {
-        thisWords.length = idx + 1;
+        // thisWords.length = idx + 1;
+        int currentLength = thisWords.length;
+        thisWords.addAll(List<int>.filled(idx + 1 - currentLength, 0));
       }
       thisWords[idx] = thatWords[i >> 2];
     }
   }
-  a.length = thisSigBytes + thatSigBytes;
+
+  // a.length = thisSigBytes + thatSigBytes;
+  int currentLength = a.length;
+  a.addAll(List<int>.filled(thisSigBytes + thatSigBytes - currentLength, 0));
 }
 
 void expandList(List<int> data, int newLength) {
@@ -107,7 +114,11 @@ void expandList(List<int> data, int newLength) {
     return;
   }
 
-  // update the length
+  int currentLength = data.length;
+  // 크기가 newLength가 되도록 리스트 확장
+  data.addAll(List<int>.filled(newLength - currentLength, 0));
+
+/*  // update the length
   data.length = newLength;
 
   // replace any new allocations with 0
@@ -115,7 +126,7 @@ void expandList(List<int> data, int newLength) {
     if (data[i] == null) {
       data[i] = 0;
     }
-  }
+  }*/
 }
 
 void clamp(List<int> data) {
@@ -155,12 +166,17 @@ String wordsToUtf8(List<int> words) {
 }
 
 List<int> parseBase64(String base64Str) {
-  const map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-  List<int> reverseMap = List<int>.filled(123, 0);
+  const map =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  List<int>? reverseMap;
   // Shortcuts
   var base64StrLength = base64Str.length;
-  for (var j = 0; j < map.length; j++) {
-    reverseMap[map.codeUnits[j]] = j;
+
+  if (reverseMap == null) {
+    reverseMap = List<int>.filled(123, 0);
+    for (var j = 0; j < map.length; j++) {
+      reverseMap[map.codeUnits[j]] = j;
+    }
   }
 
   // Ignore padding
@@ -172,7 +188,8 @@ List<int> parseBase64(String base64Str) {
     }
   }
 
-  List<int> parseLoop(String base64Str, int base64StrLength, List<int> reverseMap) {
+  List<int> parseLoop(
+      String base64Str, int base64StrLength, List<int> reverseMap) {
     var words = [];
     var nBytes = 0;
     for (var i = 0; i < base64StrLength; i++) {

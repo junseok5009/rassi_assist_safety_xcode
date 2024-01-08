@@ -11,21 +11,24 @@ class TripleDESEngine extends BaseEngine {
     var des1 = DESEngine();
     var des2 = DESEngine();
     var des3 = DESEngine();
-    if (forEncryption) {
-      des1.init(true, key.sublist(0, 2));
-      des1.processBlock(M, offset);
-      des2.init(false, key.sublist(2, 4));
-      des2.processBlock(M, offset);
-      des3.init(true, key.sublist(4, 6));
-      des3.processBlock(M, offset);
-    } else {
-      des3.init(false, key.sublist(4, 6));
-      des3.processBlock(M, offset);
-      des2.init(true, key.sublist(2, 4));
-      des2.processBlock(M, offset);
-      des1.init(false, key.sublist(0, 2));
-      des1.processBlock(M, offset);
+    if(key != null) {
+      if (forEncryption) {
+        des1.init(true, key!.sublist(0, 2));
+        des1.processBlock(M, offset);
+        des2.init(false, key!.sublist(2, 4));
+        des2.processBlock(M, offset);
+        des3.init(true, key!.sublist(4, 6));
+        des3.processBlock(M, offset);
+      } else {
+        des3.init(false, key!.sublist(4, 6));
+        des3.processBlock(M, offset);
+        des2.init(true, key!.sublist(2, 4));
+        des2.processBlock(M, offset);
+        des1.init(false, key!.sublist(0, 2));
+        des1.processBlock(M, offset);
+      }
     }
+
     return blockSize;
   }
 }

@@ -53,15 +53,15 @@ class Rassiro {
 
   factory Rassiro.fromJson(Map<String, dynamic> json) {
     return Rassiro(
-      newsDiv: json['newsDiv'],
-      newsSn: json['newsSn'],
-      newsCrtDate: json['newsCrtDate'],
-      issueDttm: json['issueDttm'],
-      title: json['title'],
-      viewLinkYn: json['viewLinkYn'],
+      newsDiv: json['newsDiv'] ?? '',
+      newsSn: json['newsSn'] ?? '',
+      newsCrtDate: json['newsCrtDate'] ?? '',
+      issueDttm: json['issueDttm'] ?? '',
+      title: json['title'] ?? '',
+      viewLinkYn: json['viewLinkYn'] ?? '',
       stockCode: json['stockCode'] ?? '',
       stockName: json['stockName'] ?? '',
-      imageUrl: json['imageUrl'],
+      imageUrl: json['imageUrl'] ?? '',
       linkUrl: json['linkUrl'] ?? '',
       currentPrice: json['currentPrice'] ?? '',
       fluctuationRate: json['fluctuationRate'] ?? '',

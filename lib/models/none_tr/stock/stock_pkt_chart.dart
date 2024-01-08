@@ -1,5 +1,6 @@
 import 'package:rassi_assist/models/none_tr/chart_data.dart';
 
+
 /// 종목정보 (포켓안에서) with 차트데이터
 class StockPktChart {
   final String pocketSn;
@@ -15,6 +16,7 @@ class StockPktChart {
   final String myTradeFlag;
   final String sellPrice;
   final String sellDttm;
+  final String signalYn;
   final List<ChartData> listChart;
 
   StockPktChart({
@@ -31,6 +33,7 @@ class StockPktChart {
     this.myTradeFlag = '',
     this.sellPrice = '',
     this.sellDttm = '',
+    this.signalYn = '',
     this.listChart = const [],
   });
 
@@ -53,6 +56,7 @@ class StockPktChart {
       myTradeFlag: json['myTradeFlag'] ?? '',
       sellPrice: json['sellPrice'] ?? '',
       sellDttm: json['sellDttm'] ?? '',
+      signalYn: json['signalYn'] ?? '',
       listChart: rtList,
     );
   }
@@ -62,3 +66,4 @@ class StockPktChart {
     return '$stockCode|$stockName|$fluctuationAmt|$fluctuationRate|';
   }
 }
+
