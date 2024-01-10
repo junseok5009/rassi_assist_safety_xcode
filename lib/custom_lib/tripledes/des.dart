@@ -1,6 +1,6 @@
-import 'package:rassi_assist/des/constants.dart';
-import 'package:rassi_assist/des/engine.dart';
-import 'package:rassi_assist/des/utils.dart';
+import 'package:rassi_assist/custom_lib/tripledes/constants.dart';
+import 'package:rassi_assist/custom_lib/tripledes/engine.dart';
+import 'package:rassi_assist/custom_lib/tripledes/utils.dart';
 
 
 class DESEngine extends BaseEngine {

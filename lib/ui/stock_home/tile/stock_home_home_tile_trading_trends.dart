@@ -123,7 +123,7 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
                     onTap: () {
                       // 일자별 매매동향 리스트 페이지
                       basePageState.callPageRouteUP(
-                        TradingTrendsByDatePage(),
+                        const TradingTrendsByDatePage(),
                       );
                     },
                   ),
@@ -992,9 +992,9 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1009,7 +1009,7 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
       if (resData.retCode == RT.SUCCESS) {
         Invest01 invest01 = resData.retData;
         _frnHoldRate = invest01.frnHoldRate;
-        if (invest01.listChartData.length > 0) {
+        if (invest01.listChartData.isNotEmpty) {
           _trendsListData.addAll(List.from(invest01.listChartData.reversed));
           _initTrendsChartData();
         } else {
@@ -1032,7 +1032,7 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
         _accFrnVol = invest02.accFrnVol;
         _accOrgVol = invest02.accOrgVol;
         //_accPsnVol = invest02.accPsnVol;
-        if (invest02.listChartData.length > 0) {
+        if (invest02.listChartData.isNotEmpty) {
           _sumListData.addAll(invest02.listChartData);
           if (_sumListData[0].afv != '0') {
             _sumListData[0].afv = '0';

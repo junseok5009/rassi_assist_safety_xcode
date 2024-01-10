@@ -1897,7 +1897,12 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       },
     );
     String jsonDISCLOS01 = jsonEncode(
-      <String, String>{'userId': _userId, 'stockCode': stkCode, 'pageNo': '0', 'pageItemSize': '5'},
+      <String, String>{
+        'userId': _userId,
+        'stockCode': stkCode,
+        'pageNo': '0',
+        'pageItemSize': '5'
+      },
     );
 
     await Future.wait(
@@ -2102,7 +2107,9 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       final TrSHome01 resData = TrSHome01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         SHome01 data = resData.retData;
-        if (data.listRas != null) _listRassiro = resData.retData.listRas!;
+        if (data.listRas != null) {
+          _listRassiro = resData.retData.listRas!;
+        }
       }
     }
 

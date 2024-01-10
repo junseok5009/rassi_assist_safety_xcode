@@ -1433,7 +1433,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
   }
 
   void _parseTrData(String trStr, final http.Response response) {
-    DLog.w(trStr + response.body);
+    // DLog.w(trStr + response.body);
     if (trStr == TR.SEARCH10) {
       final TrSearch10 resData = TrSearch10.fromJson(jsonDecode(response.body));
       _confirmSearch10SalesIndexInListData = -1;

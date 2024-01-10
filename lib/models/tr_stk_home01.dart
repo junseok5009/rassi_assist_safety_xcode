@@ -136,14 +136,14 @@ class RassiroH {
 
   factory RassiroH.fromJson(Map<String, dynamic> json) {
     return RassiroH(
-      newsDiv: json['newsDiv'] = '',
-      newsSn: json['newsSn'] = '',
-      newsCrtDate: json['newsCrtDate'] = '',
-      issueDttm: json['issueDttm'] = '',
-      elapsedTmTx: json['elapsedTmTx'] = '',
-      title: json['title'] = '',
-      imageUrl: json['imageUrl'] = '',
-      viewLinkYn: json['viewLinkYn'] = '',
+      newsDiv: json['newsDiv'] ?? '',
+      newsSn: json['newsSn'] ?? '',
+      newsCrtDate: json['newsCrtDate'] ?? '',
+      issueDttm: json['issueDttm'] ?? '',
+      elapsedTmTx: json['elapsedTmTx'] ?? '',
+      title: json['title'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      viewLinkYn: json['viewLinkYn'] ?? '',
     );
   }
 
@@ -214,14 +214,14 @@ class TileAnother extends StatelessWidget {
         ),
         onTap: (){
           if(item.newsDiv == 'ISSUE') {
-            basePageState.callPageRouteUpData(IssueViewer(),
+            basePageState.callPageRouteUpData(const IssueViewer(),
                 PgData(userId: '', pgSn: item.newsSn));
           }
           else if(item.newsDiv == 'TRADE') {
             basePageState.goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_SIGNAL,);
           }
           if(item.newsDiv == 'RASSIRO') {
-            basePageState.callPageRouteNews(NewsViewer(),
+            basePageState.callPageRouteNews(const NewsViewer(),
               PgNews(stockCode: item.stockCode, stockName: item.stockName,
                 newsSn: item.newsSn, createDate: item.issueDate,),);
           }
@@ -249,9 +249,7 @@ class TileAnother extends StatelessWidget {
 //종목홈 - AI속보 리스트
 class TileRassiroH extends StatelessWidget {
   final RassiroH item;
-
   TileRassiroH(this.item,);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -280,7 +278,7 @@ class TileRassiroH extends StatelessWidget {
         ),
         onTap: () {
           basePageState.callPageRouteNews(
-            NewsViewer(),
+            const NewsViewer(),
             PgNews(
               stockCode: '',
               stockName: '',

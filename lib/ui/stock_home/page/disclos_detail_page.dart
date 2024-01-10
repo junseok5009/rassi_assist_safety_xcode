@@ -6,6 +6,7 @@ import 'package:cross_scroll/cross_scroll.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
@@ -34,7 +35,7 @@ class DisclosDetailPage extends StatefulWidget {
 class _DisclosDetailPageState extends State<DisclosDetailPage> {
   late SharedPreferences _prefs;
   String _userId = "";
-  // PgData args;
+  late PgData args;
   String title = "";
   String _issueDate = "";
   Color statColor = Colors.grey;

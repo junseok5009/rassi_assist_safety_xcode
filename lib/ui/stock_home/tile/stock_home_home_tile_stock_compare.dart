@@ -268,7 +268,7 @@ class StockHomeHomeTileStockCompareState
                   color: _stockCompareDiv == 0 ? Colors.black : RColor.lineGrey,
                 ),
                 borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(
+                  left: const Radius.circular(
                     5,
                   ),
                 ),
@@ -286,7 +286,7 @@ class StockHomeHomeTileStockCompareState
               ),
             ),
             onTap: () {
-              if (_stockCompareDiv != 0) {
+              if (_stockCompareDiv != 0)
                 setState(
                   () {
                     _stockCompareDiv = 0;
@@ -299,7 +299,6 @@ class StockHomeHomeTileStockCompareState
                     _isRightYAxisUpUnit = _findMaxValue >= 1000;
                   },
                 );
-              }
             },
           ),
         ),
@@ -338,7 +337,7 @@ class StockHomeHomeTileStockCompareState
               ),
             ),
             onTap: () {
-              if (_stockCompareDiv != 1) {
+              if (_stockCompareDiv != 1)
                 setState(() {
                   _stockCompareDiv = 1;
                   _compare02.listStock.sort(
@@ -349,7 +348,6 @@ class StockHomeHomeTileStockCompareState
                   );
                   _isRightYAxisUpUnit = _findMaxValue >= 1000;
                 });
-              }
             },
           ),
         ),
@@ -366,7 +364,7 @@ class StockHomeHomeTileStockCompareState
                   color: _stockCompareDiv == 2 ? Colors.black : RColor.lineGrey,
                 ),
                 borderRadius: const BorderRadius.horizontal(
-                  right: Radius.circular(
+                  right: const Radius.circular(
                     5,
                   ),
                 ),
@@ -384,7 +382,7 @@ class StockHomeHomeTileStockCompareState
               ),
             ),
             onTap: () {
-              if (_stockCompareDiv != 2) {
+              if (_stockCompareDiv != 2)
                 setState(() {
                   _stockCompareDiv = 2;
                   _compare02.listStock.sort(
@@ -395,7 +393,6 @@ class StockHomeHomeTileStockCompareState
                   );
                   _isRightYAxisUpUnit = _findMaxValue >= 1000;
                 });
-              }
             },
           ),
         ),
@@ -435,7 +432,7 @@ class StockHomeHomeTileStockCompareState
     _listYQClass.sort((a, b) => b.year.compareTo(a.year));
 
     return Visibility(
-      visible: _vAlStockCompare02.length > 0,
+      visible: _vAlStockCompare02.isNotEmpty,
       child: Container(
         decoration: UIStyle.boxNewBasicGrey10(),
         padding: const EdgeInsets.all(20),

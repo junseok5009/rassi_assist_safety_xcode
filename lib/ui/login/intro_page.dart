@@ -115,6 +115,8 @@ class IntroState extends State<IntroWidget>
   void initState() {
     super.initState();
     _loadPrefData().then((_) {
+      appGlobal.userId = _userId;
+
       Future.delayed(Duration.zero, () async {
         appGlobal.deviceWidth = MediaQuery.of(context).size.width;
         appGlobal.deviceHeight = MediaQuery.of(context).size.height;
@@ -145,28 +147,9 @@ class IntroState extends State<IntroWidget>
     super.dispose();
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-
-    if (Platform.isAndroid) {
-      DLog.d(IntroPage.TAG, '##### Platform Android');
-      //Android Native 사용자를 위한 코드
-      try {
-        final String result = await platform.invokeMethod('getPrefUserId');
-        if (result.isNotEmpty) {
-          _prefs.setString(Const.PREFS_USER_ID, result);
-          _userId = result;
-        } else {
-          _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-        }
-      } on PlatformException {}
-      DLog.d(IntroPage.TAG, '##### Platform Android ID: $_userId');
-    } else {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    }
-
-    appGlobal.userId = _userId;
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
     _prefs.setString(Const.PREFS_DEVICE_ID, const Uuid().v4());
   }
 

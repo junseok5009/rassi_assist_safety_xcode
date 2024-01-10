@@ -18,7 +18,7 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/des/http_process_class.dart';
+import 'package:rassi_assist/custom_lib/http_process_class.dart';
 import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
@@ -360,7 +360,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
         }
       } catch (error) {
         DLog.d(LoginDivisionPage.TAG, '카카오톡으로 로그인 실패 $error');
-        DLog.d(LoginDivisionPage.TAG, '${error.toString()}');
+        DLog.d(LoginDivisionPage.TAG, error.toString());
 
         if (error.toString().isNotEmpty &&
             error.toString().contains('User denied access')) {

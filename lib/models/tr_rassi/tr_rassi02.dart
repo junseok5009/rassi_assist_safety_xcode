@@ -64,14 +64,14 @@ class Rassi02 {
 
   factory Rassi02.fromJson(Map<String, dynamic> json) {
     return Rassi02(
-      newsDiv: json['newsDiv'],
-      newsSn: json['newsSn'],
-      newsCrtDate: json['newsCrtDate'],
-      issueDttm: json['issueDttm'],
-      elapsedTmTx: json['elapsedTmTx'],
-      title: json['title'],
-      imageUrl: json['imageUrl'],
-      viewLinkYn: json['viewLinkYn'],
+      newsDiv: json['newsDiv'] ?? '',
+      newsSn: json['newsSn'] ?? '',
+      newsCrtDate: json['newsCrtDate'] ?? '',
+      issueDttm: json['issueDttm'] ?? '',
+      elapsedTmTx: json['elapsedTmTx'] ?? '',
+      title: json['title'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      viewLinkYn: json['viewLinkYn'] ?? '',
     );
   }
 }

@@ -15,7 +15,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/des/custom_table_sticky_header/custom_table_sticky_headers.dart';
+import 'package:rassi_assist/custom_lib/sticky_header/custom_table_sticky_header/custom_table_sticky_headers.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_group.dart';
@@ -1836,8 +1836,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
             //right: BorderSide(color: Colors.red, width: 1),
           ),
         ),
-//TODO @@@@@
-/*        child: CustomStickyHeadersTable(
+        child: CustomStickyHeadersTable(
           columnsLength: titleColumn.length,
           // rowsLength: _listTableStockCompare02.length + 1,
           rowsLength: alStockCompare02.length + 1,
@@ -1854,8 +1853,8 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
           dataCellcontentWidth: rowSize,
           // 데이터 들어가는 행들의 width
           titleViewHeight: titleViewHeight,
-          highLightedIndex: highLightedIndex,
-        ),*/
+          highLightedIndex: highLightedIndex, onEndScrolling: (double x, double y) {  },
+        ),
       ),
     );
   }

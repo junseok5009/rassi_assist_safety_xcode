@@ -12,8 +12,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common/custom_firebase_class.dart';
 import '../../../common/net.dart';
 import '../../../common/tstyle.dart';
-import '../../../des/custom_stock_home_sticky_header/custom_stock_home_sticky_headers_table.dart';
-import '../../../des/custom_stock_home_sticky_header/custom_stock_home_sticky_headers_table.dart'
+import '../../../custom_lib/sticky_header/custom_stock_home_sticky_header/custom_stock_home_sticky_headers_table.dart';
+import '../../../custom_lib/sticky_header/custom_stock_home_sticky_header/custom_stock_home_sticky_headers_table.dart'
     as custom_class_scroller;
 import '../../../models/tr_invest/tr_invest01.dart';
 import '../../common/common_popup.dart';
@@ -150,7 +150,7 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
               const SizedBox(
                 height: 5,
               ),
-/*              Expanded(
+              Expanded(
                 child: CustomStockHomeStickyHeadersTable(
                   showVerticalScrollbar: false,
                   showHorizontalScrollbar: false,
@@ -388,7 +388,7 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
                     ),
                   ),
                 ),
-              ),*/
+              ),
             ],
           ),
         ),

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:rassi_assist/des/engine.dart';
-import 'package:rassi_assist/des/utils.dart';
+import 'package:rassi_assist/custom_lib/tripledes/engine.dart';
+import 'package:rassi_assist/custom_lib/tripledes/utils.dart';
 
 
 

@@ -36,9 +36,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
   final List<int> _optionListBombLastData = [];
   final _secondaryMeasureAxisId = 'secondaryMeasureAxisId';
   final String _socialPopupMsg =
-      '라씨 매매비서는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집합니다.'
-      '\n수집된 양을 이전기간과 비교하여 참여도의 증가와 감소를 수치화하여 참여 정도를 알려드립니다.'
-      '\n커뮤니티 참여도가 높아지면 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
+      '라씨 매매비서는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집합니다.\n'
+      '수집된 양을 이전기간과 비교하여 참여도의 증가와 감소를 수치화하여 참여 정도를 알려드립니다.\n'
+      '커뮤니티 참여도가 높아지면 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +122,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                       onTap: () {
                         // 종목 최근 소셜지수 페이지
                         basePageState.callPageRouteData(
-                          RecentSocialListPage(),
+                          const RecentSocialListPage(),
                           PgData(
                             stockName: appGlobal.stkName,
                             stockCode: appGlobal.stkCode,
@@ -441,7 +441,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                   color: charts.Color.fromHex(code: '#8C8C8C'),
                 ),
                 lineStyle: charts.LineStyleSpec(
-                  dashPattern: [2, 2],
+                  dashPattern: const [2, 2],
                   color: charts.Color.fromHex(code: '#DCDFE2'),
                 ),
               ),

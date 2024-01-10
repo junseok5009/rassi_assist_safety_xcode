@@ -13,13 +13,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../common/const.dart';
 import '../../../common/net.dart';
-import '../../../des/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart';
-import '../../../des/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart'
+import '../../common/common_popup.dart';
+import '../../../custom_lib/sticky_header/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart';
+import '../../../custom_lib/sticky_header/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart'
 as custom_class_scroller;
 import '../../../models/tr_invest/tr_invest21.dart';
 import '../../../models/tr_invest/tr_invest22.dart';
 import '../../../models/tr_invest/tr_invest23.dart';
-import '../../common/common_popup.dart';
 
 /// 23.03.20 HJS
 /// 종목홈_대차거래/공매_일자별 현황_리스트 화면
@@ -263,7 +263,7 @@ class _LoanTransactionListPageState
           const SizedBox(
             height: 10,
           ),
-/*          Expanded(
+          Expanded(
             child: CustomStickyHeadersTableBasic(
               columnsLength: _loanListTitle.length,
               rowsLength: _loanListData.length,
@@ -346,16 +346,11 @@ class _LoanTransactionListPageState
                   child: Center(
                     child: Text(
                       columnIndex == 0
-                          ? TStyle.getMoneyPoint(
-                        _loanListData[rowIndex].volumeNew,
-                      )
+                          ? TStyle.getMoneyPoint(_loanListData[rowIndex].volumeNew,)
                           : columnIndex == 1
-                          ? TStyle.getMoneyPoint(
-                          _loanListData[rowIndex].volumeRepay)
+                          ? TStyle.getMoneyPoint(_loanListData[rowIndex].volumeRepay)
                           : columnIndex == 2
-                          ? TStyle.getMoneyPoint(
-                          _loanListData[rowIndex]
-                              .volumeBalance)
+                          ? TStyle.getMoneyPoint(_loanListData[rowIndex].volumeBalance)
                           : columnIndex == 3
                           ? '${_loanListData[rowIndex].creditRate}%'
                           : columnIndex == 4
@@ -373,7 +368,7 @@ class _LoanTransactionListPageState
                 verticalBodyController: _controller,
               ),
             ),
-          ),*/
+          ),
         ],
       ),
     );
