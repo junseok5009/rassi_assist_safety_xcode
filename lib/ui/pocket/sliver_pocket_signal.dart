@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -37,6 +38,8 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
   @override
   void initState() {
     super.initState();
+    CustomFirebaseClass.logEvtScreenView(SliverPocketSignalWidget.TAG_NAME);
+    CustomFirebaseClass.logEvtMyPocketView(SliverPocketSignalWidget.TAG_NAME);
     _signalProvider = Provider.of<SignalProvider>(context, listen: false);
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _signalProvider.setList();
@@ -399,7 +402,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
   }
 
   // 등락률 + 매수, 매도가
-  Widget _setMyPriceText(StockPktSignal item, bool tradeFlag){
+  Widget _setMyPriceText(StockPktSignal item, bool tradeFlag) {
     if (tradeFlag) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,

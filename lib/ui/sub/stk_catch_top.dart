@@ -3,19 +3,23 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_push04.dart';
 import 'package:rassi_assist/models/tr_stk_catch02.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 
 import '../common/common_appbar.dart';
@@ -54,14 +58,33 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StkCatchTopPage.TAG_NAME,
-      screenClassOverride: StkCatchTopPage.TAG_NAME,
+    CustomFirebaseClass.logEvtScreenView(
+      StkCatchTopPage.TAG_NAME,
     );
 
     _userId = appGlobal.userId;
+    _strDiv = appGlobal.pageData.isNotEmpty ? appGlobal.pageData : 'AVG';
     if (_userId != '') {
-      _requestStkCatch02('AVG', 'S');
+      if (_strDiv == 'AVG') {
+        _requestStkCatch02('AVG', 'S');
+      } else if (_strDiv == 'SUM') {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          _swiperTopController.move(
+            1,
+            animation: true,
+          );
+        });
+      } else if (_strDiv == 'WIN') {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          _swiperTopController.move(
+            2,
+            animation: true,
+          );
+        });
+      } else {
+        _strDiv == 'AVG';
+        _requestStkCatch02('AVG', 'S');
+      }
     }
   }
 
@@ -129,7 +152,7 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
               const SizedBox(
                 height: 15,
               ),
-              _setCatchTopList(context),
+              AppGlobal().isPremium ? _setCatchTopList() : _setFreeView(),
             ],
           ),
         ),
@@ -265,16 +288,14 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
 
   //Swiper 아이템 (성과Top)
   Widget _getSwiperTopItem(int idx) {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const SizedBox(
-            width: 20.0,
-          ),
-          _setSelectTopImg(_swpTopList[idx].swpSn),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const SizedBox(
+          width: 20.0,
+        ),
+        _setSelectTopImg(_swpTopList[idx].swpSn),
+      ],
     );
   }
 
@@ -371,7 +392,7 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
   }
 
   // 캐치 TOP 종목 리스트
-  Widget _setCatchTopList(BuildContext context) {
+  Widget _setCatchTopList() {
     return SizedBox(
       width: double.infinity,
       child: ListView.builder(
@@ -386,8 +407,60 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
     );
   }
 
+  Widget _setFreeView() {
+    return Column(
+      children: [
+        _listData.isNotEmpty ? TileStkCatch02(_listData[0]) : _setFreeCard(),
+        _setFreeCard(),
+        _setFreeCard(),
+        _setFreeCard(),
+      ],
+    );
+  }
+
+  //결제하지 않은 회원
+  Widget _setFreeCard() {
+    return InkWell(
+      splashColor: Colors.deepPurpleAccent.withAlpha(30),
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 7,
+        ),
+        padding: const EdgeInsets.all(20.0),
+        decoration: UIStyle.boxRoundLine6bgColor(
+          Colors.white,
+        ),
+        child: Column(
+          children: [
+            Image.asset(
+              'images/img_question_icon.png',
+              height: 65,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(
+              height: 15.0,
+            ),
+            const Text(
+              '프리미엄으로 업그레이드 하시고\n지금 모든 종목을 확인해 보세요.',
+              style: TStyle.defaultContent,
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        if (Platform.isIOS) {
+          _navigateRefreshPay(PayPremiumPage());
+        } else {
+          _navigateRefreshPay(PayPremiumAosPage());
+        }
+      },
+    );
+  }
+
   void _requestStkCatch02(String tType, String flag) {
-    DLog.d(StkCatchTopPage.TAG, '[' + tType + '|' + flag + ']');
+    DLog.d(StkCatchTopPage.TAG, '[$tType|$flag]');
     _fetchPosts(
         TR.STKCATCH02,
         jsonEncode(<String, String>{
@@ -399,7 +472,8 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
 
   _navigateDataRefresh(
       BuildContext context, Widget instance, PgData pgData) async {
-    final result = await Navigator.push(context, _createRoute(instance));
+    final result =
+        await Navigator.push(context, CustomNvRouteClass.createRoute(instance));
     if (result == 'cancel') {
       DLog.d(StkCatchTopPage.TAG, '*** ***');
     } else {
@@ -410,25 +484,6 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
             'userId': _userId,
           }));
     }
-  }
-
-  //페이지 전환 에니메이션
-  Route _createRoute(Widget instance) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    );
   }
 
   void _showDialogPushStatus(bool onoff, String title) {
@@ -486,7 +541,7 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
                     height: 30.0,
                   ),
                   Text(
-                    '$title' + descTxt,
+                    '$title$descTxt',
                     style: const TextStyle(
                         color: RColor.mainColor,
                         fontWeight: FontWeight.w600,
@@ -531,86 +586,19 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
         });
   }
 
-  //네트워크 에러 알림
-  void _showDialogNetErr() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text(
-                      '안내',
-                      style: TStyle.commonTitle,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  const Text(
-                    RString.err_network,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        decoration: UIStyle.roundBtnStBox(),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
+  _navigateRefreshPay(Widget instance) async {
+    final result =
+        await Navigator.push(context, CustomNvRouteClass.createRoute(instance));
+    if (result == 'cancel') {
+      DLog.d(SliverStockCatchWidget.TAG, '*** navigete cancel ***');
+    } else {
+      DLog.d(SliverStockCatchWidget.TAG, '*** navigateRefresh');
+    }
   }
 
   //convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
-    DLog.d(StkCatchTopPage.TAG, trStr + ' ' + json);
+    DLog.d(StkCatchTopPage.TAG, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
@@ -624,11 +612,9 @@ class StkCatchTopPageState extends State<StkCatchTopPage> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      DLog.d(StkCatchTopPage.TAG, 'ERR : TimeoutException (12 seconds)');
-      _showDialogNetErr();
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      DLog.d(StkCatchTopPage.TAG, 'ERR : SocketException');
-      _showDialogNetErr();
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

@@ -16,6 +16,7 @@ class TrRassi04 {
   }
 }
 
+
 class Rassi04 {
   final String content;
   final String todayNewsCount;
@@ -50,21 +51,19 @@ class Rassi04 {
 class Rassi04News {
   final String newsDiv; // DSC : 공시, SCR : 잠정 실적, RPT : 증권사 리포트
   final String title;
-
   Rassi04News({
     this.newsDiv = '',
     this.title = '',
   });
-
   factory Rassi04News.fromJson(Map<String, dynamic> json) {
     return Rassi04News(
       newsDiv: json['newsDiv'] ?? '',
       title: json['title'] ?? '',
     );
   }
-
   @override
   String toString() {
     return '$newsDiv|$title';
   }
 }
+

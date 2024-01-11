@@ -26,12 +26,12 @@ class StockStatus {
     list == null ? rtList = [] : rtList = list.map((i) => Keyword.fromJson(i)).toList();
 
     return StockStatus(
-      stockCode: json['stockCode'],
-      stockName: json['stockName'],
-      currentPrice: json['currentPrice'],
-      fluctuationRate: json['fluctuationRate'],
-      fluctuationAmt: json['fluctuationAmt'],
-      bizOverview: json['bizOverview'],
+      stockCode: json['stockCode'] ?? '',
+      stockName: json['stockName'] ?? '',
+      currentPrice: json['currentPrice'] ?? '',
+      fluctuationRate: json['fluctuationRate'] ?? '',
+      fluctuationAmt: json['fluctuationAmt'] ?? '',
+      bizOverview: json['bizOverview'] ?? '',
       listKeyword: rtList,
     );
   }

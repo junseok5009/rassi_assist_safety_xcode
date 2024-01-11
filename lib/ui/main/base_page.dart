@@ -52,7 +52,8 @@ class BasePageState extends State<BasePage> {
       '라씨', // title
       description: '라씨 알림', // description
       importance: Importance.max);*/
-  final StreamController<String> selectNotificationStream = StreamController<String>.broadcast();
+  final StreamController<String> selectNotificationStream =
+      StreamController<String>.broadcast();
   static const channel = MethodChannel(Const.METHOD_CHANNEL_PUSH);
 
   DateTime? currentPressTime;
@@ -89,20 +90,18 @@ class BasePageState extends State<BasePage> {
     });
 
     // ===== 앱이 종료된 상태에서 열릴때
-/*    FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((RemoteMessage message) {
-      debugPrint('onBackgroundOpen =====>');
-      if (message != null) {
-        Map<String, dynamic> msgData = message.data;
-        if (msgData != null) {
-          debugPrint('onBackgroundOpen : ${msgData.toString()}');
-          _onSelectNotification(msgData);
-        }
-      } else {
-        // _getAndroidBackgroundMessage();
-      }
-    });*/
+    // FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage message) {
+    //   debugPrint('onBackgroundOpen =====>');
+    //   if (message != null) {
+    //     Map<String, dynamic> msgData = message.data;
+    //     if (msgData != null) {
+    //       debugPrint('onBackgroundOpen : ${msgData.toString()}');
+    //       _onSelectNotification(msgData);
+    //     }
+    //   } else {
+    //     // _getAndroidBackgroundMessage();
+    //   }
+    // });
 
     // ===== 백그라운드 상태 / 포그라운드 상태  메시지 선택했을 경우
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -209,7 +208,8 @@ class BasePageState extends State<BasePage> {
     );
   }
 
-  BottomNavigationBarItem _buildBottomNavigationItem({required String activeIconPath, required String iconPath}) {
+  BottomNavigationBarItem _buildBottomNavigationItem(
+      {String? activeIconPath, required String iconPath}) {
     return BottomNavigationBarItem(
       activeIcon: activeIconPath == null
           ? null
@@ -462,7 +462,7 @@ class BasePageState extends State<BasePage> {
           String? userCurProd = prefs.getString(Const.PREFS_CUR_PROD);
           if (userCurProd!.isNotEmpty && userCurProd.toUpperCase().contains('AC_PR')) {
             if (SliverHomeWidget.globalKey.currentState != null) {
-              // SliverHomeWidget.globalKey.currentState.navigateRefreshPay();
+              SliverHomeWidget.globalKey.currentState?.navigateRefreshPay();
             } else {
               // 추후에 하긴 해야함.. 어떤 화면에서 푸시를 받을지 몰라서 갱신을 못해줌
             }
@@ -538,13 +538,12 @@ class BasePageState extends State<BasePage> {
   }
 
   //포켓탭으로 이동
-  goPocketPage(int tabIndex, {String pktSn = '', int todayIndex = 0}) {
+  goPocketPage(int tabIndex, {int todayIndex = 0, String pktSn = '', bool isSignalInfo = false}) {
+    appGlobal.isSignalInfo = isSignalInfo;
     if (tabIndex == Const.PKT_INDEX_TODAY) {
       appGlobal.pocketTodayIndex = todayIndex;
     } else if (tabIndex == Const.PKT_INDEX_MY) {
       appGlobal.pocketSn = pktSn;
-      // appGlobal.pktStockCode = '';
-      // appGlobal.pktStockName = '';
     }
 
     if (SliverPocketTab.globalKey.currentState == null) {
@@ -553,7 +552,7 @@ class BasePageState extends State<BasePage> {
         _selectedIndex = 1;
       });
     } else {
-      SliverPocketTab.globalKey.currentState?.refreshChild();
+      SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(tabIndex);
     }
   }
 

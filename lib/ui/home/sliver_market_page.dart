@@ -901,11 +901,11 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: [
-                    const SizedBox(
+                  children: const [
+                    SizedBox(
                       width: 14,
                     ),
-                    const Text(
+                    Text(
                       'AI가 찾은 추천 정보',
                       style: TStyle.commonTitle,
                     ),

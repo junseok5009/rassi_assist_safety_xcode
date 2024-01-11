@@ -64,15 +64,51 @@ class CustomFirebaseClass{
     );
   }
 
-  //FB 관심 종목 등록 : 23.03.03
-  static Future<void> logEvtMyPocketAdd(String screenName, String stockName, String stockCode,) async {
+  // 24.01.10 포켓 생성
+  static Future<void> logEvtMyPocketMake(String pocketCnt) async {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'my_pocket_make',
+      parameters: <String, dynamic>{
+        'firebase_screen': '',
+        'firebase_screen_class': '',
+        'pocket_cnt': pocketCnt,
+      },
+    );
+  }
+
+  // 24.01.10 나의 포켓에 종목 추가
+  static Future<void> logEvtMyPocketAdd(String stockName, String stockCode,) async {
     await FirebaseAnalytics.instance.logEvent(
       name: 'my_pocket_add',
       parameters: <String, dynamic>{
-        'firebase_screen': screenName,
-        'firebase_screen_class': screenName,
+        'firebase_screen': '',
+        'firebase_screen_class': '',
         'stock_name': stockName,
         'stock_code': stockCode,
+      },
+    );
+  }
+
+  // 24.01.10 나만의 신호 추가
+  static Future<void> logEvtMySignalAdd(String stockName, String stockCode,) async {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'my_signal_add',
+      parameters: <String, dynamic>{
+        'firebase_screen': '',
+        'firebase_screen_class': '',
+        'stock_name': stockName,
+        'stock_code': stockCode,
+      },
+    );
+  }
+
+  // 24.01.10 포켓 개편 이후 전환률 측정을 위한 이벤트 (TODAY/나의포켓/나만의신호)
+  static Future<void> logEvtMyPocketView(String screenName,) async {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'my_pocket_view',
+      parameters: <String, dynamic>{
+        'firebase_screen': screenName,
+        'firebase_screen_class': screenName,
       },
     );
   }

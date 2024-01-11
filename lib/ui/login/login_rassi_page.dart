@@ -258,15 +258,16 @@ class RassiLoginPageState extends State<RassiLoginPage> {
               ),
             ],
           ),
-          InkWell(
-            child: const Text(
-              RString.join_think_pool,
-              style: TStyle.wtText,
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, RassiJoinPage.routeName);
-            },
-          ),
+          //TODO @@@@@
+          // InkWell(
+          //   child: const Text(
+          //     RString.join_think_pool,
+          //     style: TStyle.wtText,
+          //   ),
+          //   onTap: () {
+          //     Navigator.pushNamed(context, RassiJoinPage.routeName);
+          //   },
+          // ),
         ],
       ),
     );

@@ -25,7 +25,7 @@ class PocketSettingPage extends StatefulWidget {
 
   static const routeName = '/page_pocket_setting';
   static const String TAG = "[PocketSettingPage]";
-  static const String TAG_NAME = '포켓 설정';
+  static const String TAG_NAME = '포켓_설정';
 
   @override
   State<StatefulWidget> createState() => PocketSettingPageState();
@@ -377,15 +377,15 @@ class PocketSettingPageState extends State<PocketSettingPage> {
                         item,
                       );
                       if (result == CustomNvRouteResult.refresh) {
-                        //TODO @@@@@
-/*                        Pocket findChangedPocket = _pocketProvider.getPocketList.firstWhere(
+                        Pocket? findChangedPocket = _pocketProvider.getPocketList
+                            .firstWhere(
                                 (findPocket) => findPocket.pktSn == item.pktSn,
-                                orElse: () => null);
+                                orElse: () => null as Pocket);
                         if (findChangedPocket != null) {
                           setState(() {
                             item.pktName = findChangedPocket.pktName;
                           });
-                        }*/
+                        }
                       } else {}
                     },
                   ),

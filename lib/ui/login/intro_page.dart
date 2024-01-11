@@ -34,7 +34,6 @@ import 'package:uuid/uuid.dart';
 ///
 
 class IntroPage extends StatelessWidget {
-  static const routeName = '/page_intro';
   static const String TAG = "[IntroPage]";
   static const String TAG_NAME = '앱_인트로';
 
@@ -115,8 +114,6 @@ class IntroState extends State<IntroWidget>
   void initState() {
     super.initState();
     _loadPrefData().then((_) {
-      appGlobal.userId = _userId;
-
       Future.delayed(Duration.zero, () async {
         appGlobal.deviceWidth = MediaQuery.of(context).size.width;
         appGlobal.deviceHeight = MediaQuery.of(context).size.height;

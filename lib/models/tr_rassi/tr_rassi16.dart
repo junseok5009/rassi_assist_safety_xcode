@@ -1,5 +1,6 @@
-import '../rassiro.dart';
 
+
+import '../rassiro.dart';
 
 /// 2023.06.28 - JS
 /// 라씨 데스크
@@ -54,7 +55,6 @@ class Rassi16Stock{
   final String afterHourFluctRate;  // 시간외 등락률
   final String afterHourFluctAmt;  // 시간외 등락액
   final String title; // 종목의 이슈 제목
-
   Rassi16Stock({
     this.stockCode = '',
     this.stockName = '',

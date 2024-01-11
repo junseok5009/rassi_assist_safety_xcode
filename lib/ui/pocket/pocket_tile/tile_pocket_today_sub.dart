@@ -31,21 +31,12 @@ class TileUpAndDown extends StatefulWidget {
 }
 
 class _TileUpAndDownState extends State<TileUpAndDown> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -58,48 +49,64 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
           horizontal: 20,
           vertical: 13,
         ),
-        child: Stack(
+        child: Row(
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //포켓명
-                Container(
-                  decoration: UIStyle.boxRoundFullColor25c(
-                    const Color(0xffDCDFE2),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 3,
-                  ),
-                  child: Text(
-                    TStyle.getLimitString(widget.item.pocketName, 10),
-                    style: const TextStyle(
-                      fontSize: 11,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //포켓명
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      decoration: UIStyle.boxRoundFullColor25c(
+                        const Color(0xffDCDFE2),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
+                      child: Text(
+                        widget.item.pocketName,
+                        style: const TextStyle(
+                          fontSize: 11,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const SizedBox(
-                  height: 7,
-                ),
-                //종목명
-                Text(
-                  ' ${TStyle.getLimitString(widget.item.stockName, 6)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                  const SizedBox(
+                    height: 5,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  //종목명
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        basePageState.goStockHomePage(
+                          widget.item.stockCode,
+                          widget.item.stockName,
+                          Const.STK_INDEX_HOME,
+                        );
+                      },
+                      child: Text(
+                        widget.item.stockName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Align(
-              alignment: Alignment.center,
+            const SizedBox(width: 5,),
+            Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,23 +126,10 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-
-                  //등락금액
-/*                  Text(
-                    TStyle.getTriangleStringWithMoneyPoint(widget.item.fluctuationAmt),
-                    style: TextStyle(
-                      color: TStyle.getMinusPlusColor(widget.item.fluctuationAmt),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                    ),
-                  ),*/
                 ],
               ),
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: _setChartView(),
-            ),
+            _setChartView(),
           ],
         ),
       ),
@@ -243,48 +237,42 @@ class TilePocketSig extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: InkWell(
-              onTap: () async {
-                if (item.myTradeFlag == 'S') {
-                  //나만의 매도신호는 나만의 매도 신호 탭으로 이동
-                  DefaultTabController.of(context).animateTo(2);
-                } else {
-                  //매매신호는 해당 종목의 매매신호 탭으로 이동
-                  basePageState.goStockHomePage(
-                    item.stockCode,
-                    item.stockName,
-                    Const.STK_INDEX_SIGNAL,
-                  );
-                }
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    decoration: UIStyle.boxRoundFullColor25c(
-                      const Color(0xffDCDFE2),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 3,
-                    ),
-                    child: Text(
-                      item.myTradeFlag == 'S'
-                          ? '나만의 매도신호'
-                          : TStyle.getLimitString(item.pocketName, 10),
-                      style: const TextStyle(
-                        fontSize: 11,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: UIStyle.boxRoundFullColor25c(
+                    const Color(0xffDCDFE2),
                   ),
-                  const SizedBox(
-                    height: 7,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
                   ),
-                  Expanded(
+                  child: Text(
+                    item.myTradeFlag == 'S'
+                        ? '나만의 매도신호'
+                        : item.pocketName,
+                    style: const TextStyle(
+                      fontSize: 11,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      basePageState.goStockHomePage(
+                        item.stockCode,
+                        item.stockName,
+                        Const.STK_INDEX_HOME,
+                      );
+                    },
                     child: Text(
                       item.stockName,
                       style: const TextStyle(
@@ -295,8 +283,8 @@ class TilePocketSig extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(
@@ -348,27 +336,12 @@ class TilePocketSig extends StatelessWidget {
   }
 
   _setSignalView(BuildContext context){
-    return InkWell(
-      onTap: () {
-        if (item.myTradeFlag == 'S') {
-          //나만의 매도신호는 나만의 매도 신호 탭으로 이동
-          DefaultTabController.of(context).animateTo(2);
-        } else {
-          //매매신호는 해당 종목의 매매신호 탭으로 이동
-          basePageState.goStockHomePage(
-            item.stockCode,
-            item.stockName,
-            Const.STK_INDEX_SIGNAL,
-          );
-        }
-      },
-      child: Row(
-        children: [
-          _setBsInfo(),
-          const SizedBox(width: 10,),
-          _setBsIcon(),
-        ],
-      ),
+    return Row(
+      children: [
+        _setBsInfo(),
+        const SizedBox(width: 10,),
+        _setBsIcon(),
+      ],
     );
   }
 
@@ -622,55 +595,69 @@ class _TileSupplyAndDemandState extends State<TileSupplyAndDemand> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               //종목정보
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  //종목명
-                  Text(
-                    ' ${TStyle.getLimitString(widget.item.stockName, 6)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
+              InkWell(
+                onTap: () {
+                  basePageState.goStockHomePage(
+                    widget.item.stockCode,
+                    widget.item.stockName,
+                    Const.STK_INDEX_HOME,
+                  );
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    //종목명
+                    Text(
+                      ' ${TStyle.getLimitString(widget.item.stockName, 6)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      widget.item.stockCode,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              //포켓명
+              InkWell(
+                onTap: () {
+                  basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: widget.item.pocketSn,);
+                },
+                child: Container(
+                  decoration: UIStyle.boxRoundFullColor25c(
+                    const Color(0xffDCDFE2),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
+                  child: Text(
+                    TStyle.getLimitString(widget.item.pocketName, 10),
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    widget.item.stockCode,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: RColor.greyBasic_8c8c8c,
-                    ),
-                  ),
-                ],
-              ),
-              //포켓명
-              Container(
-                decoration: UIStyle.boxRoundFullColor25c(
-                  const Color(0xffDCDFE2),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 3,
-                ),
-                child: Text(
-                  TStyle.getLimitString(widget.item.pocketName, 10),
-                  style: const TextStyle(
-                    fontSize: 12,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
           const SizedBox(
-            height: 7,
+            height: 5,
           ),
 
           // 타이틀
@@ -743,22 +730,27 @@ class _TileStockChartState extends State<TileStockChart> {
                 ],
               ),
               //포켓명
-              Container(
-                decoration: UIStyle.boxRoundFullColor25c(
-                  const Color(0xffDCDFE2),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 3,
-                ),
-                child: Text(
-                  TStyle.getLimitString(widget.item.pocketName, 10),
-                  style: const TextStyle(
-                    fontSize: 12,
+              InkWell(
+                onTap: () {
+                  basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: widget.item.pocketSn,);
+                },
+                child: Container(
+                  decoration: UIStyle.boxRoundFullColor25c(
+                    const Color(0xffDCDFE2),
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
+                  child: Text(
+                    TStyle.getLimitString(widget.item.pocketName, 10),
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
             ],

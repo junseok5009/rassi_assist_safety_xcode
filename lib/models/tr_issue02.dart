@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
-
 
 /// 2021.02.22
 /// 월별(날짜별) 이슈 현황
@@ -14,39 +13,38 @@ class TrIssue02 {
   TrIssue02({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrIssue02.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-/*    List<IssueList>? rtList;
-    if(list == null) {
-      rtList = null;
-    } else {
-      rtList  = list.map((i) => IssueList.fromJson(i)).toList();
-    }*/
+    var list = json['retData'] as List?;
+    List<IssueList> rtList;
+    if (list == null)
+      rtList = [];
+    else
+      rtList = list.map((i) => IssueList.fromJson(i)).toList();
 
     return TrIssue02(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        listData: list.map((i) => IssueList.fromJson(i)).toList(),
-    );
+        retCode: json['retCode'], retMsg: json['retMsg'], listData: rtList);
   }
 }
-
 
 class IssueList {
   final String issueDate;
-  List<Issue02> listIssue;
+  final List<Issue02> listIssue;
 
-  IssueList({this.issueDate = '', this.listIssue = const []});
+  IssueList({this.issueDate='', this.listIssue = const []});
 
   factory IssueList.fromJson(Map<String, dynamic> json) {
     var list = json['list_Issue'] as List;
+    List<Issue02> rtList;
+    if (list == null)
+      rtList = [];
+    else
+      rtList = list.map((i) => Issue02.fromJson(i)).toList();
 
     return IssueList(
       issueDate: json['issueDate'],
-      listIssue: list.map((i) => Issue02.fromJson(i)).toList(),
+      listIssue: rtList,
     );
   }
 }
-
 
 class Issue02 {
   final String newsSn;
@@ -71,7 +69,6 @@ class Issue02 {
   }
 }
 
-
 //화면구성
 class TileChip2 extends StatelessWidget {
   final Issue02 item;
@@ -86,12 +83,15 @@ class TileChip2 extends StatelessWidget {
         label: Text(item.keyword),
         backgroundColor: bColor,
       ),
-      onTap: (){
-        //TODO @@@@@
-/*        Navigator.of(context).push(UIStyle.createRoute(
-            IssueViewer(),
-            PgData(userId: '', pgSn: item.newsSn))
-        );*/
+      onTap: () {
+        Navigator.of(context).push(
+          CustomNvRouteClass.createRouteData(
+            const IssueViewer(),
+            RouteSettings(
+              arguments: PgData(userId: '', pgSn: item.newsSn),
+            ),
+          ),
+        );
       },
     );
   }

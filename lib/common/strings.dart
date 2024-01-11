@@ -13,7 +13,6 @@ class RString {
   static const String password = "비밀번호";
   static const String password_re = "비밀번호확인";
   static const String find_id_pass = "아이디/비밀번호 찾기";
-  static const String join_think_pool = "회원가입";
   static const String name = "이름";
   static const String phone_num = "휴대폰 번호";
   static const String how_to_find_id_pass =

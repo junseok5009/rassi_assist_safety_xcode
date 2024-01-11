@@ -53,7 +53,6 @@ class SearchPage extends StatefulWidget {
 }
 
 class SearchPageState extends State<SearchPage> {
-
   late UserInfoProvider _userInfoProvider;
 
   late SharedPreferences _prefs;
@@ -71,7 +70,6 @@ class SearchPageState extends State<SearchPage> {
   int curPocketIdx = 0; // 들고온 포켓번호 idx
   int selectedIdx = 0; // 나의 종목 추가하기에서 선택한 포켓번호 idx
 
-  String crudPock05 = '';
   bool isHoldingStk = false; //보유종목(true)
 
   @override
@@ -110,7 +108,7 @@ class SearchPageState extends State<SearchPage> {
   }
 
   // 여기서 결제 창 열고 결제 성공시 화면 나가기
-  void _outPage(){
+  void _outPage() {
     Navigator.pop(context);
   }
 
@@ -429,13 +427,12 @@ class SearchPageState extends State<SearchPage> {
 
   _showAddStockLayerAndResult(String stkCode, String stkName) async {
     String result = await CommonLayer.instance.showLayerAddStock(
-      context,
-      Stock(
-        stockName: stkName,
-        stockCode: stkCode,
-      ),
-      widget.pocketSn
-    );
+        context,
+        Stock(
+          stockName: stkName,
+          stockCode: stkCode,
+        ),
+        widget.pocketSn);
 
     if (context.mounted && result != null) {
       if (result == CustomNvRouteResult.refresh) {
@@ -453,7 +450,7 @@ class SearchPageState extends State<SearchPage> {
         if (result == CustomNvRouteResult.landPremiumPage) {
           basePageState.navigateAndGetResultPayPremiumPage();
         }
-      }else {
+      } else {
         CommonPopup.instance.showDialogBasic(context, '알림', result);
       }
     } else {
@@ -503,29 +500,6 @@ class SearchPageState extends State<SearchPage> {
         textScaleFactor: Const.TEXT_SCALE_FACTOR,
       ),
     );
-  }
-
-  //포켓 종목 등록(POCK05)
-  requestRegPocket(
-      String pktSn, String stkName, String stkCode, String bPrice) {
-    if (bPrice.length > 2) {
-      isHoldingStk = true;
-    } else {
-      isHoldingStk = false;
-    }
-
-    crudPock05 = 'C';
-    _fetchPosts(
-        TR.POCK05,
-        jsonEncode(<String, String>{
-          'userId': _userId,
-          'pocketSn': pktSn,
-          'crudType': crudPock05,
-          'stockCode': stkCode,
-          'buyPrice': bPrice,
-        }));
-    CustomFirebaseClass.logEvtMyPocketAdd(
-        SearchPage.TAG_NAME, stkName, stkCode);
   }
 
   //인기 검색 종목

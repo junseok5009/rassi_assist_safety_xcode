@@ -1,7 +1,6 @@
-import 'package:rassi_assist/models/opinion.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
+import 'package:rassi_assist/models/opinion.dart';
 import 'package:rassi_assist/models/tag_info.dart';
-
 
 /// 라씨로 뉴스 상세
 class TrRassi03 {
@@ -18,7 +17,6 @@ class TrRassi03 {
       retData: json['retData'] == null ? defaultObj : Rassi03.fromJson(json['retData']['struct_Rassiro']),
     );
   }
-
 }
 
 const defaultObj = Rassi03(newsDiv: '', issueDttm: '', title: '',

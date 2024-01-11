@@ -57,7 +57,7 @@ class _IntroStartPageState extends State<IntroStartPage> {
                       } else if (index == 1) {
                         return const IntroStartS2();
                       } else if (index == 2) {
-                        return const IntroStartS3();
+                        return IntroStartS3();
                       } else if (index == 3) {
                         return const IntroStartS4();
                       } else {

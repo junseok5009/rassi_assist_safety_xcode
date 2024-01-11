@@ -73,16 +73,16 @@ class Rassi11 {
         : rtListS = listS.map((e) => Stock.fromJson(e)).toList();
 
     return Rassi11(
-      newsSn: json['newsSn'] = '',
-      title: json['title'] = '',
-      newsCrtDate: json['newsCrtDate'] = '',
-      newsKeyword: json['newsKeyword'] = '',
-      issueDttm: json['issueDttm'] = '',
-      elapsedTmTx: json['elapsedTmTx'] = '',
-      imageUrl: json['imageUrl'] = '',
-      viewLinkYn: json['viewLinkYn'] = '',
-      totalPageSize: json['totalPageSize'] = '',
-      currentPageNo: json['currentPageNo'] = '',
+      newsSn: json['newsSn'] ?? '',
+      title: json['title'] ?? '',
+      newsCrtDate: json['newsCrtDate'] ?? '',
+      newsKeyword: json['newsKeyword'] ?? '',
+      issueDttm: json['issueDttm'] ?? '',
+      elapsedTmTx: json['elapsedTmTx'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      viewLinkYn: json['viewLinkYn'] ?? '',
+      totalPageSize: json['totalPageSize'] ?? '',
+      currentPageNo: json['currentPageNo'] ?? '',
       listTag: rtList,
       listStock: rtListS,
     );
@@ -149,7 +149,7 @@ class TileRassi11N extends StatelessWidget {
                 InkWell(
                   onTap: () {
                     basePageState.callPageRouteNews(
-                      NewsViewer(),
+                      const NewsViewer(),
                       PgNews(
                         stockCode: '',
                         stockName: '',

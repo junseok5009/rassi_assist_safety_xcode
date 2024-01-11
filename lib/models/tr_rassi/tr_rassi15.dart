@@ -61,7 +61,9 @@ class TileChipTag extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Chip(
-        label: Text('#${item.tagName}', style: TStyle.puplePlainStyle(),),
+        label: Text(
+          '#${item.tagName}',
+          style: TStyle.pupleRegularStyle(),),
         backgroundColor: RColor.bgWeakGrey,
       ),
       onTap: (){

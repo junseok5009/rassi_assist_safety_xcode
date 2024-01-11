@@ -75,15 +75,15 @@ class Rassi14 {
     List<Stock> rtListS = listS.map((e) => Stock.fromJson(e)).toList();
 
     return Rassi14(
-      newsSn: json['newsSn'],
-      title: json['title'],
-      newsCrtDate: json['newsCrtDate'],
-      issueDttm: json['issueDttm'],
-      elapsedTmTx: json['elapsedTmTx'],
-      imageUrl: json['imageUrl'],
-      viewLinkYn: json['viewLinkYn'],
-      totalPageSize: json['totalPageSize'],
-      currentPageNo: json['currentPageNo'],
+      newsSn: json['newsSn'] ?? '',
+      title: json['title'] ?? '',
+      newsCrtDate: json['newsCrtDate'] ?? '',
+      issueDttm: json['issueDttm'] ?? '',
+      elapsedTmTx: json['elapsedTmTx'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      viewLinkYn: json['viewLinkYn'] ?? '',
+      totalPageSize: json['totalPageSize'] ?? '',
+      currentPageNo: json['currentPageNo'] ?? '',
       listTag: rtList,
       listStock: rtListS,
     );

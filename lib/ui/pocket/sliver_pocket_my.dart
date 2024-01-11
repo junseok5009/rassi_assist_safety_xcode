@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
@@ -32,7 +33,7 @@ import '../main/base_page.dart';
 class SliverPocketMyWidget extends StatefulWidget {
   static const routeName = '/page_pocket_my_sliver';
   static const String TAG = "[SliverPocketMyWidget] ";
-  static const String TAG_NAME = '포켓_마이포켓';
+  static const String TAG_NAME = '포켓_나의포켓';
   static final GlobalKey<SliverPocketMyWidgetState> globalKey = GlobalKey();
 
   SliverPocketMyWidget({Key? key}) : super(key: globalKey);
@@ -54,12 +55,14 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
   String _timeInfo = '';
   bool _beforeOpening = false; // 08 ~ 09 Y
   bool _beforeChart = false; // 09 ~ 09 : 20 Y
-  bool _onStockInfo = false; // true : 매매신호, false : 현재가
+  bool _isSignalInfo = false; // true : 매매신호, false : 현재가
   bool _isFaVisible = true;
 
   @override
   void initState() {
     super.initState();
+    CustomFirebaseClass.logEvtScreenView(SliverPocketMyWidget.TAG_NAME);
+    CustomFirebaseClass.logEvtMyPocketView(SliverPocketMyWidget.TAG_NAME);
     _pocketProvider = Provider.of<PocketProvider>(context, listen: false);
     _pocketProvider.addListener(reload);
     if (_appGlobal.pocketSn.isNotEmpty) {
@@ -70,12 +73,14 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
     } else {
       _pocket = _pocketProvider.getPocketList[0];
     }
+    _isSignalInfo = _appGlobal.isSignalInfo;
     reload();
   }
 
   @override
   void dispose() {
     _pocketProvider.removeListener(reload);
+    _appGlobal.isSignalInfo = false;
     super.dispose();
   }
 
@@ -131,7 +136,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        if (!_onStockInfo)
+                        if (!_isSignalInfo)
                           Text(
                             _timeInfo,
                             style: const TextStyle(
@@ -147,7 +152,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                         InkWell(
                           child: Row(
                             children: [
-                              _onStockInfo
+                              _isSignalInfo
                                   ? Row(
                                       children: [
                                         Image.asset(
@@ -186,7 +191,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                           ),
                           onTap: () {
                             setState(() {
-                              _onStockInfo = !_onStockInfo;
+                              _isSignalInfo = !_isSignalInfo;
                             });
                           },
                         ),
@@ -375,6 +380,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
       physics: const RangeMaintainingScrollPhysics(),
       itemCount: _stkList.length,
       itemBuilder: (BuildContext context, int index) {
+        DLog.e('ListView.builder _stkList[index].stockCode : ${_stkList[index].stockCode}');
         return Container(
           margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20,
               index == _stkList.length - 1 ? 75 : 0),
@@ -424,7 +430,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                       width: 5,
                     ),
 
-                    if (_onStockInfo)
+                    if (_isSignalInfo)
                       if (Provider.of<UserInfoProvider>(context, listen: false)
                           .isPremiumUser())
                         _setRateCircleText(_stkList[index])
@@ -449,14 +455,14 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   basePageState.goStockHomePage(
                     _stkList[index].stockCode,
                     _stkList[index].stockName,
-                    _onStockInfo
+                    _isSignalInfo
                         ? Const.STK_INDEX_SIGNAL
                         : Const.STK_INDEX_HOME,
                   );
                 }
               },
               onLongPress: () async {
-                if (!_onStockInfo) {
+                if (!_isSignalInfo) {
                   String result = await CommonPopup.instance
                       .showDialogCustomConfirm(
                           context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
@@ -985,11 +991,11 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
     );
   }
 
-  reload() {
+  Future<void> reload() async {
     if (_pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn) == -1) {
       _pocket = _pocketProvider.getPocketList[0];
     }
-    _fetchPosts(
+    await _fetchPosts(
         TR.POCK08,
         jsonEncode(<String, String>{
           'userId': AppGlobal().userId,
@@ -997,7 +1003,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
         }));
   }
 
-  void _fetchPosts(String trStr, String json) async {
+  Future<void> _fetchPosts(String trStr, String json) async {
     DLog.d(SliverPocketMyWidget.TAG, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);

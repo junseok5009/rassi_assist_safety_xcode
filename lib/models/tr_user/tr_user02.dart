@@ -45,13 +45,13 @@ class User02 {
 
   factory User02.fromJson(Map<String, dynamic> json) {
     return User02(
-      userId: json['userId'] = '',
-      userStatus: json['userStatus'] = '',
-      userName: json['userName'] = '',
-      userNick: json['userNick'] = '',
-      userEmail: json['userEmail'] = '',
-      userHp: json['userHp'] = '',
-      pushValid: json['pushTokenValid'] = '',
+      userId: json['userId'] ?? '',
+      userStatus: json['userStatus'] ?? '',
+      userName: json['userName'] ?? '',
+      userNick: json['userNick'] ?? '',
+      userEmail: json['userEmail'] ?? '',
+      userHp: json['userHp'] ?? '',
+      pushValid: json['pushTokenValid'] ?? '',
     );
   }
 

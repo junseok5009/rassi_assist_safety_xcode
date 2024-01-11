@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -38,6 +39,9 @@ class _Pocket3StockSettingPageState extends State<PocketThreeStockSettingPage> {
   @override
   void initState() {
     super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      '3종목_알림_설정',
+    );
     _pocketProvider = Provider.of<PocketProvider>(context, listen: false);
     _fetchPosts(
         TR.POCK08,
@@ -299,11 +303,13 @@ class _Pocket3StockSettingPageState extends State<PocketThreeStockSettingPage> {
   void _fetchPosts(String trStr, String json) async {
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
+      final http.Response response = await http
+          .post(
             url,
             body: json,
             headers: Net.headers,
-          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {

@@ -180,9 +180,41 @@ class UIStyle {
       color: Colors.white,
       border: Border.all(
         color: lineColor,
-        width: 0.8,
+        width: 1,
       ),
       borderRadius: const BorderRadius.all(Radius.circular(6)),
+    );
+  }
+
+  static BoxDecoration boxRoundLine8() {
+    return BoxDecoration(
+      border: Border.all(
+        color: RColor.lineGrey,
+        width: 1,
+      ),
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
+    );
+  }
+
+  static BoxDecoration boxRoundLine8bgColor(Color bgColor) {
+    return BoxDecoration(
+      color: bgColor,
+      border: Border.all(
+        color: RColor.greyBoxLine_c9c9c9,
+        width: 1,
+      ),
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
+    );
+  }
+
+  static BoxDecoration boxRoundLine8LineColor(Color lineColor) {
+    return BoxDecoration(
+      color: Colors.white,
+      border: Border.all(
+        color: lineColor,
+        width: 1,
+      ),
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
     );
   }
 

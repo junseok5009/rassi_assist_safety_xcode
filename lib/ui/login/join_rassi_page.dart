@@ -11,42 +11,28 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/custom_lib/http_process_class.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/login/join_route_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
 /// 2020.09.29
 /// 라씨 회원가입
-class RassiJoinPage extends StatelessWidget {
+class RassiJoinPage extends StatefulWidget {
   static const routeName = '/page_join_rassi';
   static const String TAG = "[RassiJoinPage]";
   static const String TAG_NAME = '라씨_회원가입';
 
-  @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: Colors.white,
-          elevation: 0,
-        ),
-        body: RassiJoinWidget(),
-      ),
-    );
-  }
-}
+  const RassiJoinPage({Key? key}) : super(key: key);
 
-class RassiJoinWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => RassiJoinState();
 }
 
-class RassiJoinState extends State<RassiJoinWidget> {
+class RassiJoinState extends State<RassiJoinPage> {
   final _idController = TextEditingController();
   final _passController = TextEditingController();
   final _passReController = TextEditingController();
@@ -77,15 +63,16 @@ class RassiJoinState extends State<RassiJoinWidget> {
   void initState() {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(RassiJoinPage.TAG_NAME);
-    CustomFirebaseClass.setUserProperty(CustomFirebaseProperty.LOGIN_STATUS, 'in_signing_rassi');
+    CustomFirebaseClass.setUserProperty(
+        CustomFirebaseProperty.LOGIN_STATUS, 'in_signing_rassi');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '',
         elevation: 0,
       ),
       body: SafeArea(
@@ -112,28 +99,61 @@ class RassiJoinState extends State<RassiJoinWidget> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Stack(
+            alignment: Alignment.center,
             children: [
               TextField(
+                readOnly: _isIdCheck,
+                style: const TextStyle(color: Colors.black),
+                decoration: const InputDecoration(
+                  filled: true,
+                  hintText: RString.hint_input_id,
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: RColor.greyBox_f5f5f5,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: RColor.greyBox_f5f5f5,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  ),
+                ),
+                cursorColor: Colors.black,
                 controller: _idController,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
                 ],
-                decoration: const InputDecoration(hintText: RString.hint_input_id),
               ),
-              Positioned(
-                right: 2,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(width: 1.0, color: Colors.black45),
-                    foregroundColor: Colors.black54,
-                  ),
-                  child: const Text(
-                    '중복확인',
-                    style: TextStyle(fontSize: 14.0),
-                  ),
-                  onPressed: () {
-                    _checkId();
+              Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  onTap: () {
+                    if (!_isIdCheck) {
+                      _checkId();
+                    }
                   },
+                  child: Container(
+                    width: 75,
+                    height: 40,
+                    margin: const EdgeInsets.only(right: 4),
+                    decoration: UIStyle.boxRoundLine8LineColor(
+                      _isIdCheck
+                          ? RColor.greyBasic_8c8c8c
+                          : RColor.purpleBasic_6565ff,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '중복확인',
+                        style: TextStyle(
+                          color: _isIdCheck
+                              ? RColor.greyBasicStrong_666666
+                              : RColor.purpleBasic_6565ff,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -148,9 +168,26 @@ class RassiJoinState extends State<RassiJoinWidget> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: TextField(
+            style: const TextStyle(color: Colors.black),
+            decoration: const InputDecoration(
+              filled: true,
+              hintText: RString.hint_input_pass,
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: RColor.greyBox_f5f5f5,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: RColor.greyBox_f5f5f5,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              ),
+            ),
+            cursorColor: Colors.black,
             obscureText: true,
             controller: _passController,
-            decoration: const InputDecoration(hintText: RString.hint_input_pass),
           ),
         ),
         const SizedBox(
@@ -162,9 +199,26 @@ class RassiJoinState extends State<RassiJoinWidget> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: TextField(
+            style: const TextStyle(color: Colors.black),
+            decoration: const InputDecoration(
+              filled: true,
+              hintText: RString.hint_input_pass_re,
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: RColor.greyBox_f5f5f5,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: RColor.greyBox_f5f5f5,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              ),
+            ),
+            cursorColor: Colors.black,
             obscureText: true,
             controller: _passReController,
-            decoration: const InputDecoration(hintText: RString.hint_input_pass_re),
           ),
         ),
         const SizedBox(
@@ -173,68 +227,123 @@ class RassiJoinState extends State<RassiJoinWidget> {
 
         //휴대폰 번호
         _setSubTitle(RString.phone_num, descTextStyle),
-        Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: TextField(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              TextField(
+                style: const TextStyle(color: Colors.black),
+                decoration: const InputDecoration(
+                  filled: true,
+                  hintText: '휴대폰 번호를 입력해 주세요',
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: RColor.greyBox_f5f5f5,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: RColor.greyBox_f5f5f5,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  ),
+                ),
+                cursorColor: Colors.black,
                 enabled: _phEnableField,
                 controller: _phoneController,
-                decoration: const InputDecoration(hintText: '휴대폰 번호를 입력해 주세요'),
               ),
-            ),
-            Positioned(
-              right: 20.0,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(width: 1.0, color: Colors.black45),
-                  foregroundColor: Colors.black54,
+              Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  onTap: () {
+                    if (!_isPhoneCheck) {
+                      _checkPhone();
+                    }
+                  },
+                  child: Container(
+                    width: 75,
+                    height: 40,
+                    margin: const EdgeInsets.only(right: 4),
+                    decoration: UIStyle.boxRoundLine8LineColor(
+                      _isPhoneCheck
+                          ? RColor.greyBasic_8c8c8c
+                          : RColor.purpleBasic_6565ff,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '인증받기',
+                        style: TextStyle(
+                          color: _isPhoneCheck
+                              ? RColor.greyBasicStrong_666666
+                              : RColor.purpleBasic_6565ff,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                child: const Text(
-                  '인증받기',
-                  style: TextStyle(fontSize: 14.0),
-                ),
-                onPressed: () {
-                  _checkPhone();
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(
           height: 5.0,
         ),
         Visibility(
           visible: _visibleAuth,
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: TextField(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                TextField(
                   controller: _authController,
-                  decoration: const InputDecoration(hintText: '수신된 인증번호를 입력하세요.'),
-                ),
-              ),
-              Positioned(
-                right: 20.0,
-                child: MaterialButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(7.0),
-                    side: const BorderSide(color: Colors.grey),
+                  style: const TextStyle(color: Colors.black),
+                  decoration: const InputDecoration(
+                    filled: true,
+                    hintText: '수신된 인증번호를 입력하세요.',
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: RColor.greyBox_f5f5f5,
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: RColor.greyBox_f5f5f5,
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    ),
                   ),
-                  color: Colors.white,
-                  textColor: Colors.black54,
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text(
-                    '확인',
-                    style: TextStyle(fontSize: 14.0),
-                  ),
-                  onPressed: () {
-                    _checkAuthNum(_authController.text.trim());
-                  },
+                  cursorColor: Colors.black,
                 ),
-              ),
-            ],
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: InkWell(
+                    onTap: () {
+                      _checkAuthNum(_authController.text.trim());
+                    },
+                    child: Container(
+                      width: 75,
+                      height: 40,
+                      margin: const EdgeInsets.only(right: 4),
+                      decoration: UIStyle.boxRoundLine8LineColor(
+                        RColor.purpleBasic_6565ff,
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '확인',
+                          style: TextStyle(
+                            color: RColor.purpleBasic_6565ff,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(
@@ -258,7 +367,7 @@ class RassiJoinState extends State<RassiJoinWidget> {
   Widget _setConfirmBtn() {
     return Column(
       children: [
-        Container(
+        SizedBox(
           width: 170,
           height: 45,
           child: MaterialButton(
@@ -269,9 +378,9 @@ class RassiJoinState extends State<RassiJoinWidget> {
               borderRadius: BorderRadius.circular(25.0),
               side: const BorderSide(color: RColor.mainColor),
             ),
-            color: RColor.mainColor,
+            color: RColor.purpleBasic_6565ff,
             textColor: Colors.white,
-            child: Text(
+            child: const Text(
               '확인',
               style: TStyle.btnTextWht17,
             ),
@@ -287,15 +396,16 @@ class RassiJoinState extends State<RassiJoinWidget> {
   }
 
   //아이디 중복확인
-  //TODO 씽크풀 회원가입은 대소문자 구분이 없음
+  //씽크풀 회원가입은 대소문자 구분이 없음
   void _checkId() {
     _strId = _idController.text.trim();
     if (_strId.length > 3) {
       _reqType = 'id_check';
-      _reqParam = 'userid=' + Net.getEncrypt(_strId.toLowerCase());
+      _reqParam = 'userid=${Net.getEncrypt(_strId.toLowerCase())}';
       _requestThink();
     } else {
-      _showDialogMsg('잘못된 아이디 입니다.\n아이디는 4~12자리 영문, 숫자만\n사용하실 수 있습니다.');
+      CommonPopup.instance.showDialogBasicConfirm(
+          context, '알림', '잘못된 아이디 입니다.\n아이디는 4~12자리 영문, 숫자만\n사용하실 수 있습니다.');
     }
   }
 
@@ -306,40 +416,50 @@ class RassiJoinState extends State<RassiJoinWidget> {
       //인증번호 발송
       _reqType = 'phone_check';
       _strOnTime = TStyle.getTimeString();
-      _reqParam = 'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&posName=$posName';
+      _reqParam =
+          'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&posName=$posName';
       _requestThink();
     } else {
-      _showDialogMsg('전화번호를 입력해 주세요');
+      CommonPopup.instance.showDialogBasicConfirm(
+        context,
+        '알림',
+        '전화번호를 입력해 주세요',
+      );
     }
   }
 
   //인증번호 확인
   void _checkAuthNum(String data) {
-    if (data.length > 0) {
+    if (data.isNotEmpty) {
       //인증번호 확인
       _reqType = 'phone_confirm';
-      _reqParam = 'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&posName=$posName&smsAuthNum=$data';
+      _reqParam =
+          'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&posName=$posName&smsAuthNum=$data';
       _requestThink();
     } else {
-      _showDialogMsg('인증번호를 입력해 주세요');
+      CommonPopup.instance
+          .showDialogBasicConfirm(context, '알림', '인증번호를 입력해 주세요');
     }
   }
 
   //회원가입 입력값 체크
   void _checkEditData(final String id, final String pass) {
     if (!_isIdCheck) {
-      _showDialogMsg('아이디 중복확인을 해주세요.');
+      CommonPopup.instance
+          .showDialogBasicConfirm(context, '알림', '아이디 중복확인을 해주세요.');
     } else {
       if (_isPwCheck(pass) || _passController.text.trim().length < 6) {
-        _showDialogMsg(RString.join_err_pw_rule); //6~12자리 영문, 숫자만 가능
+        CommonPopup.instance.showDialogBasicConfirm(
+            context, '알림', RString.join_err_pw_rule); //6~12자리 영문, 숫자만 가능
       } else {
         if (_passController.text.trim() != _passReController.text.trim()) {
-          _showDialogMsg(RString.join_err_pw_match);
+          CommonPopup.instance
+              .showDialogBasicConfirm(context, '알림', RString.join_err_pw_match);
         } else {
           if (!_isPhoneCheck) {
-            _showDialogMsg('전화번호를 인증해 주세요.');
+            CommonPopup.instance
+                .showDialogBasicConfirm(context, '알림', '전화번호를 인증해 주세요.');
           } else {
-
             DLog.d(RassiJoinPage.TAG, '마케팅 수신동의 : $_isAgreeMarketing');
             DLog.d(RassiJoinPage.TAG, '### JoinRoute : $_sJoinRoute');
             DLog.d(RassiJoinPage.TAG, '### JoinPhone : $_strPhone');
@@ -353,7 +473,6 @@ class RassiJoinState extends State<RassiJoinWidget> {
                   pgData: pass,
                   pgSn: _strPhone.trim(),
                   flag: 'RASSI'),
-
             );
           }
         }
@@ -363,7 +482,7 @@ class RassiJoinState extends State<RassiJoinWidget> {
 
   //비밀번호 유효성 체크(동일한 문자, 숫자 3자리 불가)
   bool _isPwCheck(String strPw) {
-    if (strPw == null || strPw.length == 0) return false;
+    if (strPw == null || strPw.isEmpty) return false;
 
     int count = 0; //중복된 글자수
     String tmp = strPw[0];
@@ -415,23 +534,33 @@ class RassiJoinState extends State<RassiJoinWidget> {
     if (_reqType == 'id_check') {
       //아이디 중복체크
       if (result == '0') {
-        _isIdCheck = true;
-        _showDialogMsg(('멋진 아이디네요!\n아이디 사용이 가능합니다.'));
+        setState(() {
+          _isIdCheck = true;
+        });
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(
+              context, '알림', ('멋진 아이디네요!\n아이디 사용이 가능합니다.'));
+        }
       } else {
         _isIdCheck = false;
-        _showDialogMsg('이런, 죄송합니다.\n이미 사용중인 아이디 입니다.\n다른 아이디를 입력해 주세요.');
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(
+              context, '알림', '이런, 죄송합니다.\n이미 사용중인 아이디 입니다.\n다른 아이디를 입력해 주세요.');
+        }
       }
     } else if (_reqType == 'phone_check') {
       //인증번호 요청
-      if (result == 'success') {
-        _showDialogMsg(('인증번호가 발송되었습니다.\n인증번호가 오지 않으면 입력하신 번호를 확인해 주세요.'));
+      if (result == 'success' && mounted) {
+        CommonPopup.instance.showDialogBasicConfirm(
+            context, '알림', ('인증번호가 발송되었습니다.\n인증번호가 오지 않으면 입력하신 번호를 확인해 주세요.'));
         setState(() {
           _phEnableField = true;
           _visibleAuth = true;
         });
       } else {
         _phEnableField = true;
-        _showDialogMsg(('인증번호 요청이 실패하였습니다.\n정확한 번호 입력 후 다시 시도하여 주세요.'));
+        CommonPopup.instance.showDialogBasicConfirm(
+            context, '알림', ('인증번호 요청이 실패하였습니다.\n정확한 번호 입력 후 다시 시도하여 주세요.'));
       }
     } else if (_reqType == 'phone_confirm') {
       //인증번호 확인
@@ -466,99 +595,37 @@ class RassiJoinState extends State<RassiJoinWidget> {
       }
     } else if (_reqType == 'join_confirm') {
       //회원가입
-      if (result != 'ERR' && result.length > 0) {
+      if (result != 'ERR' && result.isNotEmpty) {
         HttpProcessClass().callHttpProcess0002(_strId).then((value) {
           DLog.d(RassiJoinPage.TAG, 'then() value : $value');
-          switch(value.appResultCode){
-            case 200 : {
-              _goNextRoute(_strId);
-              break;
-            }
-            case 400 : {
-              CommonPopup().showDialogNetErr(context);
-              break;
-            }
-            default: {
-              CommonPopup().showDialogMsg(context, value.appDialogMsg);
-            }
+          switch (value.appResultCode) {
+            case 200:
+              {
+                _goNextRoute(_strId);
+                break;
+              }
+            case 400:
+              {
+                CommonPopup.instance.showDialogNetErr(context);
+                break;
+              }
+            default:
+              {
+                CommonPopup.instance.showDialogMsg(context, value.appDialogMsg);
+              }
           }
         });
       } else {
         //씽크풀 회원가입 실패
-        if (result == 'PWERR') {
-          _showDialogMsg('안전한 비밀번호로 다시 설정해 주세요.');
+        if (result == 'PWERR' && mounted) {
+          CommonPopup.instance
+              .showDialogBasicConfirm(context, '알림', '안전한 비밀번호로 다시 설정해 주세요.');
         } else {
-          _showDialogMsg('회원 가입에 실패하였습니다. 고객센터로 문의해주세요.');
+          CommonPopup.instance.showDialogBasicConfirm(
+              context, '알림', '회원 가입에 실패하였습니다. 고객센터로 문의해주세요.');
         }
       }
     }
-  }
-
-  void _showDialogMsg(String msg) {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                  Text(
-                    '알림',
-                    style: TStyle.title20,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  Text(msg,
-                    textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 150,
-                        height: 40,
-                        // margin: const EdgeInsets.only(top: 20.0),
-                        decoration: const BoxDecoration(
-                          color: RColor.mainColor,
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20.0)),
-                        ),
-                        child: Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
   }
 
   //이미 사용중인 아이디가 있을경우 (자동 페이지 종료)
@@ -598,7 +665,7 @@ class RassiJoinState extends State<RassiJoinWidget> {
                     height: 15.0,
                   ),
                   Text(
-                    '$message',
+                    message,
                     textAlign: TextAlign.center,
                     textScaleFactor: Const.TEXT_SCALE_FACTOR,
                   ),
@@ -613,8 +680,7 @@ class RassiJoinState extends State<RassiJoinWidget> {
                         // margin: const EdgeInsets.only(top: 20.0),
                         decoration: const BoxDecoration(
                           color: RColor.mainColor,
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20.0)),
+                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
                         ),
                         child: Center(
                           child: Text(
@@ -647,20 +713,25 @@ class RassiJoinState extends State<RassiJoinWidget> {
   // 다음 페이지로 이동
   void _goNextRoute(String userId) {
     commonShowToast('로그인 되었습니다.');
-    CustomFirebaseClass.setUserProperty(CustomFirebaseProperty.LOGIN_STATUS, 'complete');
+    CustomFirebaseClass.setUserProperty(
+        CustomFirebaseProperty.LOGIN_STATUS, 'complete');
     CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.rassi));
     if (userId != '') {
       if (basePageState != null) {
+        //TODO @@@@@
         // basePageState = null;
         basePageState = BasePageState();
       }
       // Navigator.pushReplacement(
       //     context, MaterialPageRoute(builder: (context) => BasePage()));
       Navigator.pushAndRemoveUntil(
-          context, MaterialPageRoute(builder: (context) => BasePage()), (route) => false);
+          context,
+          MaterialPageRoute(
+              builder: (context) => const BasePage(),
+              settings: const RouteSettings(name: '/base')),
+          (route) => false);
     } else {}
   }
-
 }
 
 //텍스트 스타일 예시

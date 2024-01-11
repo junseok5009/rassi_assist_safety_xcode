@@ -6,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock11.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
@@ -95,6 +96,8 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
   @override
   void initState() {
     super.initState();
+    CustomFirebaseClass.logEvtScreenView(SliverPocketTodayWidget.TAG_NAME);
+    CustomFirebaseClass.logEvtMyPocketView(SliverPocketTodayWidget.TAG_NAME);
     _pocketProvider = Provider.of<PocketProvider>(context, listen: false);
     _pocketProvider.addListener(reload);
     _currentTabIndex = _appGlobal.pocketTodayIndex;
@@ -526,23 +529,31 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
     //상승,하락
     if (_tabSelectDiv[_currentTabIndex] == 'UP'
         || _tabSelectDiv[_currentTabIndex] == 'DN') {
+      // 포켓명 : 나의포켓, 종목명 : 종목홈, 나머지 : 나의포켓-현재가 리스트
       return InkWell(
+        onTap: () {
+          basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: _pock10.stockList[idx].pocketSn,);
+        },
         child: TileUpAndDown(
           _pock10.stockList[idx],
           _setChartItem(_pock10.stockList[idx]),
         ),
-        onTap: () async {
-          await basePageState.goStockHomePage(
-            _pock10.stockList[idx].stockCode,
-            _pock10.stockList[idx].stockName,
-            Const.STK_INDEX_HOME,
-          );
-        },
       );
     }
     //매매신호
     else if (_tabSelectDiv[_currentTabIndex] == 'TS') {
-      return TilePocketSig(_pock10.stockList[idx]);
+      return InkWell(
+          onTap: () {
+            var item = _pock10.stockList[idx];
+            if (item.myTradeFlag == 'S') {
+              //나만의 매도신호는 나만의 매도 신호 탭으로 이동
+              DefaultTabController.of(context).animateTo(2);
+            } else {
+              //매매신호는 나의포켓-매매신호 리스트로
+              basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: _pock10.stockList[idx].pocketSn, isSignalInfo: true,);
+            }
+          },
+          child: TilePocketSig(_pock10.stockList[idx]));
     }
     //이슈
     else if (_tabSelectDiv[_currentTabIndex] == 'IS') {

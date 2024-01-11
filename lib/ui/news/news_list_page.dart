@@ -98,6 +98,7 @@ class NewsListState extends State<NewsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    //TODO @@@@@
     args = ModalRoute.of(context)!.settings.arguments as PgNews;
     stkName = args.stockName;
     stkCode = args.stockCode;

@@ -1,8 +1,9 @@
-import 'package:card_swiper/card_swiper.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 
 class IntroStartS3 extends StatefulWidget {
   const IntroStartS3({Key? key}) : super(key: key);
@@ -10,10 +11,49 @@ class IntroStartS3 extends StatefulWidget {
   //const IntroStartS3({super.key});
 
   @override
-  State<IntroStartS3> createState() => _IntroStartS3State();
+  State<IntroStartS3> createState() => _IntroStartS2State();
 }
 
-class _IntroStartS3State extends State<IntroStartS3> {
+class _IntroStartS2State extends State<IntroStartS3> {
+  Timer? _timer;
+  int _count = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        if (_count == 1) {
+          _count = 0;
+        } else {
+          _count++;
+        }
+      });
+      _timer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+        setState(() {
+          if (_count == 1) {
+            _count = 0;
+          } else {
+            _count++;
+          }
+        });
+      });
+    });
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -34,7 +74,15 @@ class _IntroStartS3State extends State<IntroStartS3> {
                   ),
                 ),
                 TextSpan(
-                  text: '로 보는 종목정보,\n종목인사이트\n\n',
+                  text: '로 보는 종목정보,\n',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+                TextSpan(
+                  text: '종목인사이트\n\n',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
@@ -43,7 +91,7 @@ class _IntroStartS3State extends State<IntroStartS3> {
                 ),
                 TextSpan(
                   text:
-                      '종목이슈, 실적, 투자자별 매매동향, 대차공매 등\n모든 종목정보를 시각화하여 쉽게 분석!\n이제 숫자가 아닌 이미지로 확인하세요!',
+                      '종목이슈, 실적, 투자자별 매매동향, 대차공매 등 모든 종목정보를 시각화하여 쉽게 분석! 이제 숫자가 아닌 이미지로 확인하세요!',
                   style: TextStyle(
                     //본문 내용 - 기준
                     fontWeight: FontWeight.w400,
@@ -56,7 +104,7 @@ class _IntroStartS3State extends State<IntroStartS3> {
             ),
           ),
           const SizedBox(
-            height: 30,
+            height: 10,
           ),
           Expanded(
             flex: 1,
@@ -66,56 +114,44 @@ class _IntroStartS3State extends State<IntroStartS3> {
               child: Row(
                 children: [
                   const Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: SizedBox(),
                   ),
                   Expanded(
                     flex: 5,
-                    child: Column(
+                    child: Stack(
                       children: [
-                        const Expanded(
-                          flex: 2,
-                          child: SizedBox(),
-                        ),
-                        Expanded(
-                          flex: 7,
-                          child: Container(
-                            width: double.infinity,
-                            alignment: Alignment.topCenter,
-                            decoration: UIStyle.boxShadowBasic(16),
-                            padding: const EdgeInsets.all(10),
-                            //margin: EdgeInsets.symmetric(vertical: 10,),
-                            child: Swiper(
-                              onTap: (index) {},
-                              itemCount: 4,
-                              loop: true,
-                              pagination:
-                                  CommonSwiperPagenation.getNormalSpWithMargin2(
-                                5,
-                                5,
-                                RColor.purpleBasic_6565ff,
-                              ),
-                              itemBuilder: (context, index) {
-                                return Align(
-                                  alignment: Alignment.topCenter,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16.0),
-                                    child: Image.asset(
-                                      'images/icon_intro_start3_1.png',
-                                      fit: BoxFit.fitWidth,
-                                    ),
-                                  ),
-                                );
-                              },
-                              autoplay: true,
-                              autoplayDelay: 2000,
-                            ),
+                        Container(
+                          width: double.infinity,
+                          alignment: Alignment.centerRight,
+                          child: Image.asset(
+                            'images/icon_intro_start3_1.png',
+                            fit: BoxFit.fill,
                           ),
                         ),
-                        const Expanded(
-                          flex: 2,
-                          child: SizedBox(),
-                        ),
+                        Column(
+                          children: [
+                            const Expanded(flex: 2, child: SizedBox()),
+                            Expanded(
+                              flex: 4,
+                              child: AnimatedContainer(
+                                //bottom: count == 0 ?  ? 20.0 : 0.0,
+                                //color: Colors.red.withOpacity(0.3),
+                                alignment: _count == 0
+                                    ? Alignment.bottomLeft
+                                    : Alignment.bottomRight,
+                                duration: const Duration(milliseconds: 1500),
+                                curve: Curves.fastOutSlowIn,
+                                child: Image.asset(
+                                  'images/icon_intro_start3_2.png',
+                                  width: AppGlobal().deviceWidth / 4,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            const Expanded(flex: 1, child: SizedBox()),
+                          ],
+                        )
                       ],
                     ),
                   ),
@@ -129,22 +165,5 @@ class _IntroStartS3State extends State<IntroStartS3> {
         ],
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void setState(VoidCallback fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

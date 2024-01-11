@@ -40,8 +40,9 @@ class AppGlobal {
   var pocketCnt = 1;
   String pktStockCode = '';
   String pktStockName = '';
-  String pocketSn = '';       //포켓 기본 SN
-  String pocketStkCode = '';  //포켓 선택된 종목
+  String pocketSn = ''; // MY - 포켓 기본 SN
+  bool isSignalInfo = false; // MY - 현재가
+  String pocketStkCode = ''; //포켓 선택된 종목
   int pocketTodayIndex = 0; //포켓Today sub index
 
   // 핸드폰 앱바 크기 (배터리, 시간 영역 부분)
@@ -54,7 +55,7 @@ class AppGlobal {
   // 태블릿(큰 디스플레이)인지 구분
   bool isTablet = false;
 
-  setLogoutStatus(){
+  setLogoutStatus() {
     userId = '';
     pdCode = '';
     isPremium = false;

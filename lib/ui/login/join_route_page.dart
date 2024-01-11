@@ -151,24 +151,29 @@ class JoinRouteState extends State<JoinRoutePage> {
         title: '',
         elevation: 0,
       ),
-      body: Theme(
-        data: Theme.of(context).copyWith(
-            unselectedWidgetColor: Colors.white,
-            colorScheme:
-                ColorScheme.fromSwatch().copyWith(secondary: Colors.white)),
-        child: ListView.builder(
-          controller: _scrollController,
-          itemCount: itemList.length + 2,
-          itemBuilder: (context, i) {
-            if (i == 0) {
-              return _setHeaderTile(); //Header - 어떻게 만나시게 되셨나요?
-            } else if (i == 6) {
-              return _setFooterTile();
-            } else {
-              int idx = i - 1;
-              return _setDivTile(idx, expandList[idx]);
-            }
-          },
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+        child: Column(
+          children: [
+            _setHeaderTile(),
+            Expanded(
+              child: Align(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  controller: _scrollController,
+                  itemCount: itemList.length + 1,
+                  itemBuilder: (context, i) {
+                    if (i == 5) {
+                      return _setFooterTile();
+                    } else {
+                      int idx = i;
+                      return _setDivTile(idx, expandList[idx]);
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
 
@@ -204,25 +209,16 @@ class JoinRouteState extends State<JoinRoutePage> {
   }
 
   Widget _setHeaderTile() {
-    return SizedBox(
-      width: double.infinity,
-      height: 140,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'images/icon_rassi_logo_purple.png',
-            height: 50,
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          const Text(
-            '라씨 매매비서를\n어떻게 만나시게 되셨나요?',
-            textAlign: TextAlign.center,
-            style: TStyle.content17,
-          ),
-        ],
+    return const Align(
+      alignment: Alignment.topLeft,
+      child: Text(
+        '라씨 매매비서를\n어떻게 만나시게 되셨나요?',
+        //textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 24,
+        ),
       ),
     );
   }
@@ -232,20 +228,26 @@ class JoinRouteState extends State<JoinRoutePage> {
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       child: Container(
-        margin: const EdgeInsets.only(top: 15, left: 10, right: 10, bottom: 25),
+        margin: const EdgeInsets.only(
+          top: 15,
+        ),
         width: double.infinity,
-        height: 60,
-        decoration:
-            statList[10] ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
+        height: 56,
+        decoration: statList[10]
+            ? UIStyle.boxRoundLine8LineColor(RColor.purpleBasic_6565ff)
+            : UIStyle.boxRoundLine8LineColor(
+                RColor.greyBoxLine_c9c9c9,
+              ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '  기타',
+              '기타',
               style: TextStyle(
-                  fontSize: 17.0,
+                  fontSize: 16.0,
                   fontWeight: FontWeight.bold,
-                  color: statList[10] ? Colors.white : Colors.black),
+                  color:
+                      statList[10] ? RColor.purpleBasic_6565ff : Colors.black),
             ),
           ],
         ),
@@ -261,10 +263,15 @@ class JoinRouteState extends State<JoinRoutePage> {
   //리스트 item 하나
   Widget _setDivTile(int idx, bool expStat) {
     return Container(
-      margin: const EdgeInsets.only(top: 15, left: 10, right: 10),
+      margin: const EdgeInsets.only(
+        top: 15,
+      ),
       width: double.infinity,
-      decoration:
-          expStat ? UIStyle.boxSelectedLine12() : UIStyle.boxRoundLine6(),
+      decoration: expStat
+          ? UIStyle.boxRoundLine8LineColor(RColor.purpleBasic_6565ff)
+          : UIStyle.boxRoundLine8LineColor(
+              RColor.greyBoxLine_c9c9c9,
+            ),
       child: _setExpansionTile(idx),
     );
   }
@@ -273,119 +280,160 @@ class JoinRouteState extends State<JoinRoutePage> {
   Widget _setExpansionTile(
     int idx,
   ) {
-    return ExpansionTile(
-      //타이틀 Center 정렬을 위한 아이콘
-      leading: const Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: Colors.white,
-      ),
-      // collapsedIconColor: Colors.amber,
-      iconColor: Colors.grey,
-      //타이틀
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
+    return Theme(
+      data: ThemeData().copyWith(dividerColor: Colors.transparent,),
+      child: ExpansionTile(
+        //타이틀 Center 정렬을 위한 아이콘
+        leading: const Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: Colors.transparent,
+        ),
+        collapsedIconColor: RColor.greyBoxLine_c9c9c9,
+        // collapsedIconColor: Colors.amber,
+        iconColor: RColor.greyBoxLine_c9c9c9,
+        //타이틀
+        title: Center(
+          child: Text(
             itemList[idx].subItemTitle,
             style: const TextStyle(
-              fontSize: 17.0,
+              fontSize: 16.0,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),
-        ],
-      ),
+        ),
 
-      onExpansionChanged: (expanded) {
-        DLog.d(JoinRoutePage.TAG, 'message $expanded | $idx');
-        if (idx == 3 && expanded) _goBottomPage();
-        if (idx == 4 && expanded) _goBottomPage();
-      },
+        onExpansionChanged: (expanded) {
+          if (idx == 3 && expanded) _goBottomPage();
+          if (idx == 4 && expanded) _goBottomPage();
+        },
 
-      //하위 메뉴
-      children: itemList[idx].secondStatus == itemList[idx].firstStatus + 1
-          ? _setSubItem2(
-              idx,
-              statList[itemList[idx].firstStatus],
-              statList[itemList[idx].secondStatus],
-            )
-          : [
-              _setSubItem1(
+        //하위 메뉴
+        children: itemList[idx].secondStatus == itemList[idx].firstStatus + 1
+            ? _setSubItem2(
                 idx,
                 statList[itemList[idx].firstStatus],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-            ],
+                statList[itemList[idx].secondStatus],
+              )
+            : [
+                _setSubItem1(
+                  idx,
+                  statList[itemList[idx].firstStatus],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
+      ),
     );
   }
 
   Widget _setSubItem1(int idx, bool firstStat) {
-    return InkWell(
+    return Align(
+      alignment: Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10),
         width: double.infinity,
-        height: 50,
-        decoration:
-            firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
-        child: Center(
-          child: Text(
-            itemList[idx].firstContent,
-            style: firstStat ? TStyle.btnTextWht16 : TStyle.content16,
+        padding: const EdgeInsets.symmetric(horizontal: 20,),
+        child: InkWell(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                itemList[idx].firstContent,
+                style: TextStyle(
+                  color: firstStat
+                      ? RColor.purpleBasic_6565ff
+                      : RColor.new_basic_text_color_strong_grey,
+                ),
+              ),
+              Image.asset(
+                firstStat
+                    ? 'images/icon_circle_check_y.png'
+                    : 'images/icon_circle_check_n.png',
+                width: 24,
+                fit: BoxFit.cover,
+              ),
+            ],
           ),
+          onTap: () {
+            _setSelectExpand(itemList[idx].expandStatus);
+            _setSelectStatus(itemList[idx].firstStatus);
+          },
         ),
       ),
-      onTap: () {
-        _setSelectExpand(itemList[idx].expandStatus);
-        _setSelectStatus(itemList[idx].firstStatus);
-      },
     );
   }
 
   List<Widget> _setSubItem2(int idx, bool firstStat, bool secondStat) {
     return [
-      InkWell(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          width: double.infinity,
-          height: 50,
-          decoration:
-              firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
-          child: Center(
-            child: Text(
-              itemList[idx].firstContent,
-              style: firstStat ? TStyle.btnTextWht16 : TStyle.content16,
+      Align(
+        alignment: Alignment.centerLeft,
+        child: InkWell(
+          onTap: () {
+            _setSelectExpand(itemList[idx].expandStatus);
+            _setSelectStatus(itemList[idx].firstStatus);
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20,),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  itemList[idx].firstContent,
+                  style: TextStyle(
+                    color: firstStat
+                        ? RColor.purpleBasic_6565ff
+                        : RColor.new_basic_text_color_strong_grey,
+                  ),
+                ),
+                Image.asset(
+                  firstStat
+                      ? 'images/icon_circle_check_y.png'
+                      : 'images/icon_circle_check_n.png',
+                  width: 24,
+                  fit: BoxFit.cover,
+                ),
+              ],
             ),
           ),
         ),
-        onTap: () {
-          _setSelectExpand(itemList[idx].expandStatus);
-          _setSelectStatus(itemList[idx].firstStatus);
-        },
       ),
       const SizedBox(
         height: 10,
       ),
-      InkWell(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          width: double.infinity,
-          height: 50,
-          decoration: secondStat
-              ? UIStyle.boxSelectedPurple()
-              : UIStyle.boxWeakGrey25(),
-          child: Center(
-            child: Text(
-              itemList[idx].secondContent,
-              style: secondStat ? TStyle.btnTextWht16 : TStyle.content16,
+      Align(
+        alignment: Alignment.centerLeft,
+        child: InkWell(
+          onTap: () {
+            _setSelectExpand(itemList[idx].expandStatus);
+            _setSelectStatus(itemList[idx].secondStatus);
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20,),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  itemList[idx].secondContent,
+                  style: TextStyle(
+                    color: secondStat
+                        ? RColor.purpleBasic_6565ff
+                        : RColor.new_basic_text_color_strong_grey,
+                  ),
+                ),
+                Image.asset(
+                  secondStat
+                      ? 'images/icon_circle_check_y.png'
+                      : 'images/icon_circle_check_n.png',
+                  width: 24,
+                  fit: BoxFit.cover,
+                ),
+              ],
             ),
           ),
         ),
-        onTap: () {
-          _setSelectExpand(itemList[idx].expandStatus);
-          _setSelectStatus(itemList[idx].secondStatus);
-        },
       ),
       const SizedBox(
         height: 10,
@@ -588,8 +636,11 @@ class JoinRouteState extends State<JoinRoutePage> {
       }
       //쓱가입
       else if (widget.userJoinInfo.pgType == 'SSGOLLA') {
-        DLog.d('SsgJoinPage.TAG',
-            '씽크풀 가입안됨 ' + "SSGOLLA" + utilsGetDeviceHpID(widget.userJoinInfo.phone));
+        DLog.d(
+            'SsgJoinPage.TAG',
+            '씽크풀 가입안됨 ' +
+                "SSGOLLA" +
+                utilsGetDeviceHpID(widget.userJoinInfo.phone));
         _reqType = 'join_sns';
         _reqParam =
             "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(widget.userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SNSM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(widget.userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
@@ -683,7 +734,9 @@ class JoinRouteState extends State<JoinRoutePage> {
     if (mounted) {
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const BasePage()),
+          MaterialPageRoute(
+              builder: (context) => const BasePage(),
+              settings: const RouteSettings(name: '/base')),
           (route) => false);
     }
   }

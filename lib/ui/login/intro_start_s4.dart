@@ -99,73 +99,14 @@ class _IntroStartS4State extends State<IntroStartS4> {
                     width: double.infinity,
                     height: _containerSize.height,
                     //color: Colors.yellow,
-                    child: Stack(
-                      children: [
-                        // 빅스텝
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          bottom: 0,
-                          right: 0,
-                          child: AnimatedFractionallySizedBox(
-                            widthFactor: _containerSize.width != 0 ? 0.5 : 0,
-                            duration: const Duration(milliseconds: 1000),
-                            child: _setRedCircle1(
-                              '삼성전자',
-                              10,
-                            ),
-                          ),
-                        ),
-
-                        // 방산
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          bottom: 0,
-                          right: _containerSize.width / 2,
-                          child: AnimatedFractionallySizedBox(
-                            widthFactor: _containerSize.width != 0 ? 0.5 : 0,
-                            duration: const Duration(milliseconds: 1100),
-                            child: _setRedCircle1(
-                              '방산',
-                              10,
-                            ),
-                          ),
-                        ),
-
-                        // 빅스텝
-                        /*Positioned(
-                          top: _containerSize.height / 10,
-                          bottom: _containerSize.height / 10,
-                          left: _containerSize.width / 4,
-                          right: _containerSize.width / 4,
-                          child: AnimatedFractionallySizedBox(
-                            widthFactor: _containerSize.width != 0 ? 1.8 : 0,
-                            duration: const Duration(milliseconds: 2000),
-                            child: _setRedCircle1('빅스텝', 24,),
-                          ),
-                        ),*/
-                        /*   Positioned(
-                          top: _containerSize.height / 10 + 70,
-                          left: _containerSize.width / 4,
-                          right: _containerSize.width / 4,
-                          child: AnimatedFractionallySizedBox(
-                            widthFactor: _containerSize.width != 0 ? 1.0 : 0,
-                            duration: const Duration(milliseconds: 3000),
-                            child: _setRedCircle1('123', 24,),
-                          ),
-                        ),*/
-
-                        // 마리 화나
-
-                        // 로봇
-
-                        // 전기차
-
-                        // 철강
-
-                        // 여행
-                      ],
+                    child: AnimatedFractionallySizedBox(
+                      widthFactor: _containerSize.width != 0 ? 1 : 0,
+                      duration: const Duration(milliseconds: 1500),
+                      child: Image.asset(
+                        'images/icon_intro_start4_1.png',
+                        //width: AppGlobal().deviceWidth / 4,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
