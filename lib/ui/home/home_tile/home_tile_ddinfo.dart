@@ -32,9 +32,9 @@ class HomeTileDdinfo extends StatelessWidget {
   final Today05 today05;
   final SwiperController _swiperController = SwiperController();
   int _startIndex = 0;
+
   @override
   Widget build(BuildContext context) {
-
     if (today05 != null && today05.listRassiroNewsDdInfo.isNotEmpty) {
       today05.listRassiroNewsDdInfo.asMap().forEach((key, value) {
         if (value.representYn == 'Y') {
@@ -144,7 +144,9 @@ class HomeTileDdinfo extends StatelessWidget {
               ),
             );
           } else if (item.contentDiv == 'SCH' || item.contentDiv == 'SCH2') {
-            basePageState.callPageRoute(SearchPage.goStockHome(),);
+            basePageState.callPageRoute(
+              SearchPage.goStockHome(),
+            );
           }
         }
       },
@@ -210,7 +212,7 @@ class HomeTileDdinfo extends StatelessWidget {
                         if (item.contentDiv == 'ISS') {
                           // 개별 이슈 페이지로
                           basePageState.callPageRouteUpData(
-                            IssueViewer(),
+                            const IssueViewer(),
                             PgData(
                                 userId: '',
                                 pgSn: item.listItem[index].itemCode),
@@ -324,8 +326,10 @@ class HomeTileDdinfo extends StatelessWidget {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-      if (!context.mounted) return;
-      _parseTrData(context, trStr, response);
+      //if (context.mounted) return;
+      if (context.mounted) {
+        _parseTrData(context, trStr, response);
+      }
     } on Exception catch (_) {}
   }
 
@@ -339,10 +343,12 @@ class HomeTileDdinfo extends StatelessWidget {
         if (rassi17.stockList.isNotEmpty) {
           basePageState.callPageRoute(const RassiDeskPage());
         } else {
-          CommonPopup.instance.showDialogTitleMsg(context, '알림', '데이터 업데이트 중입니다.');
+          CommonPopup.instance
+              .showDialogTitleMsg(context, '알림', '데이터 업데이트 중입니다.');
         }
       } else {
-        CommonPopup.instance.showDialogTitleMsg(context, '알림', '데이터 업데이트 중입니다.');
+        CommonPopup.instance
+            .showDialogTitleMsg(context, '알림', '데이터 업데이트 중입니다.');
       }
     }
   }

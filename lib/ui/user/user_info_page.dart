@@ -55,7 +55,7 @@ class UserInfoState extends State<UserInfoWidget> {
 
   late SharedPreferences _prefs;
   String _userId = '';
-  String _token = '';
+  String? _token = '';
   late PgNews args;
 
   String title = '';
@@ -99,7 +99,7 @@ class UserInfoState extends State<UserInfoWidget> {
 
   // 저장된 데이터를 가져오는 것에 시간이 필요함
   _loadPrefData() async {
-    _token = (await _messaging.getToken())!;
+    _token = await FirebaseMessaging.instance.getToken();
     _prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
@@ -716,7 +716,7 @@ class UserInfoState extends State<UserInfoWidget> {
         }
         setState(() {});
         DLog.d(UserInfoPage.TAG, resData.retData.userHp);
-        DLog.d(UserInfoPage.TAG, _token);
+        DLog.d(UserInfoPage.TAG, _token ?? '');
 
         if (resData.retData.pushValid == 'N') {
           //푸시 재등록
@@ -728,7 +728,7 @@ class UserInfoState extends State<UserInfoWidget> {
                     'userId': _userId,
                     'appEnv': _appEnv,
                     'deviceId': _prefs.getString(Const.PREFS_DEVICE_ID) ?? '',
-                    'pushToken': _token,
+                    'pushToken': _token ?? '',
                   }));
             }
           }
@@ -738,7 +738,7 @@ class UserInfoState extends State<UserInfoWidget> {
       //탈퇴 가능 여부
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _checkCloseStatus(resData.retData!);
+        _checkCloseStatus(resData.retData);
       } else if (resData.retCode == RT.NO_DATA) {}
     }
 
@@ -746,7 +746,7 @@ class UserInfoState extends State<UserInfoWidget> {
     else if (trStr == TR.PUSH01) {
       final TrPush01 resData = TrPush01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _prefs.setString(Const.PREFS_SAVED_TOKEN, _token);
+        _prefs.setString(Const.PREFS_SAVED_TOKEN, _token ?? '');
       } else {
         //푸시 등록 실패
         _prefs.setString(Const.PREFS_DEVICE_ID, '');

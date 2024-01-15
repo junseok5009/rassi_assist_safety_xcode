@@ -65,7 +65,7 @@ class SliverHomeWidget extends StatefulWidget {
 }
 
 class SliverHomeWidgetState extends State<SliverHomeWidget> {
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  // final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   var appGlobal = AppGlobal();
   var inAppBilling;
   late SharedPreferences _prefs;
@@ -73,7 +73,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   bool _isFirstTurn = true;
 
   // 땡정보
-  String _token = '';
+  String? _token = '';
   String _dayCheckPush = '';
   String _dayCheckAD = '';
   String _todayString = '0000';
@@ -144,7 +144,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   }
 
   Future<void> _loadPrefData() async {
-    _token = (await _messaging.getToken())!;
+    _token = await FirebaseMessaging.instance.getToken();
     _todayString = TStyle.getTodayString();
     _prefs = await SharedPreferences.getInstance();
     if (Platform.isIOS) {
@@ -1451,7 +1451,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                 'userId': _userId,
                 'appEnv': 'EN20',
                 'deviceId': _prefs.getString(Const.PREFS_DEVICE_ID) ?? '',
-                'pushToken': _token,
+                'pushToken': _token ?? '',
               }));
         }
       }
@@ -1466,7 +1466,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     else if (trStr == TR.PUSH01) {
       final TrPush01 resData = TrPush01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _prefs.setString(Const.PREFS_SAVED_TOKEN, _token);
+        _prefs.setString(Const.PREFS_SAVED_TOKEN, _token ?? '');
       } else {
         //푸시 등록 실패
         _prefs.setString(Const.PREFS_DEVICE_ID, '');

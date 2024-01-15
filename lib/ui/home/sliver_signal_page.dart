@@ -969,7 +969,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
       onTap: () {
         _navigateRefresh(
           context,
-          Platform.isIOS ? PayPremiumPage() : PayPremiumAosPage(),
+          Platform.isIOS ? const PayPremiumPage() : const PayPremiumAosPage(),
         );
       },
     );
@@ -1407,7 +1407,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
 
     if (trStr == TR.USER04) {
       //탭이동을 홈으로 초기화(setState 필요)
-      Provider.of<PageNotifier>(context, listen: false).setPageData(0);
+      // Provider.of<PageNotifier>(context, listen: false).setPageData(0);
 
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {

@@ -55,7 +55,7 @@ class MyPage extends StatefulWidget {
 }
 
 class MyPageState extends State<MyPage> {
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  // final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
   final String _appEnv =
       Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20

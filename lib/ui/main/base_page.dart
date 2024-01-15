@@ -78,33 +78,34 @@ class BasePageState extends State<BasePage> {
     _setFcmForeground();
 
     // ===== 포그라운드 상태에서 받은 메시지 내용
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
       debugPrint('foreground message =====>');
-
-      Map<String, dynamic> msgData = message.data;
-      if (msgData != null) {
-        //받은 메시지 내용 ios 로그표시만, android notification 생성
-        DLog.d(BasePage.TAG, 'onMessage : ${msgData.toString()}');
-        // setAndroidForegroundMessaging(message);
+      if (message != null) {
+        Map<String, dynamic> msgData = message.data;
+        if (msgData != null) {
+          //받은 메시지 내용 ios 로그표시만, android notification 생성
+          DLog.d(BasePage.TAG, 'onMessage : ${msgData.toString()}');
+          // setAndroidForegroundMessaging(message);
+        }
       }
     });
 
     // ===== 앱이 종료된 상태에서 열릴때
-    // FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage message) {
-    //   debugPrint('onBackgroundOpen =====>');
-    //   if (message != null) {
-    //     Map<String, dynamic> msgData = message.data;
-    //     if (msgData != null) {
-    //       debugPrint('onBackgroundOpen : ${msgData.toString()}');
-    //       _onSelectNotification(msgData);
-    //     }
-    //   } else {
-    //     // _getAndroidBackgroundMessage();
-    //   }
-    // });
+    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message){
+      debugPrint('onBackgroundOpen =====>');
+      if(message != null) {
+        Map<String, dynamic> msgData = message.data;
+        if (msgData != null) {
+          debugPrint('onBackgroundOpen : ${msgData.toString()}');
+          _onSelectNotification(msgData);
+        }
+      } else {
+        // _getAndroidBackgroundMessage();
+      }
+    });
 
     // ===== 백그라운드 상태 / 포그라운드 상태  메시지 선택했을 경우
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
       debugPrint('onMessageOpen =====>');
       if (message != null) {
         Map<String, dynamic> msgData = message.data;
@@ -552,7 +553,7 @@ class BasePageState extends State<BasePage> {
         _selectedIndex = 1;
       });
     } else {
-      SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(tabIndex);
+      // SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(tabIndex);
     }
   }
 
@@ -675,7 +676,9 @@ class BasePageState extends State<BasePage> {
   navigateAndGetResultPayPremiumPage() async {
     final result = await Navigator.push(
       context,
-      Platform.isIOS ? CustomNvRouteClass.createRoute(const PayPremiumPage()) : CustomNvRouteClass.createRoute( PayPremiumAosPage()),
+      Platform.isIOS
+          ? CustomNvRouteClass.createRoute(const PayPremiumPage())
+          : CustomNvRouteClass.createRoute( const PayPremiumAosPage()),
     );
     if (result == 'cancel') {
     } else {

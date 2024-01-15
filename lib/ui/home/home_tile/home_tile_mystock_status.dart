@@ -112,12 +112,9 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
     super.dispose();
   }
 
-  /*@override
-  bool get wantKeepAlive => true;*/
-
   @override
   Widget build(BuildContext context) {
-    //super.build(context);
+   super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -632,9 +629,9 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if(mounted)CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if(mounted)CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -645,8 +642,8 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
       if (resData.retCode == RT.SUCCESS) {
         _pock09 = resData.retData!;
         if (resData.retData != null) {
-          _stockCount = int.parse(_pock09.stockCount);
-          _pocketSn = _pock09.pocketSn;
+          _stockCount = int.parse(resData.retData!.stockCount);
+          _pocketSn = resData.retData!.pocketSn;
           //_tabSelectDiv[_currentTabIndex] = _pock09.selectDiv;
         }
       } else {

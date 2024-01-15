@@ -4,14 +4,13 @@ import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 
 /* DEFINE
       공통으로 사용하는 팝업 클래스 입니다.
    */
 class CommonPopup {
   CommonPopup._privateConstructor();
-
-
 
   static final CommonPopup instance = CommonPopup._privateConstructor();
 
@@ -22,10 +21,10 @@ class CommonPopup {
   }
 
   // 네트워크 에러 알림
-  void showDialogNetErr(BuildContext context) {
-    if (context != null && context.mounted) {
+  void showDialogNetErr(BuildContext funcBuildContext) {
+    if (basePageState.context != null && basePageState.context.mounted /*&& ModalRoute.of(basePageState.context).isCurrent*/) {
       showDialog(
-          context: context,
+          context: basePageState.context,
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -593,6 +592,8 @@ class CommonPopup {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
                   child: const Icon(
                     Icons.close,
                     color: Colors.black,
@@ -625,13 +626,15 @@ class CommonPopup {
                       height: 40.0,
                     ),
                     InkWell(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 30,
                           vertical: 12,
                         ),
                         decoration: UIStyle.boxRoundFullColor50c(
-                          RColor.mainColor,
+                          RColor.purpleBasic_6565ff,
                         ),
                         child: const Text(
                           '확인',
