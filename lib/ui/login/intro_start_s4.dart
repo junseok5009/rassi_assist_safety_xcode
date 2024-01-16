@@ -46,6 +46,9 @@ class _IntroStartS4State extends State<IntroStartS4> {
         RichText(
           textAlign: TextAlign.start,
           text: const TextSpan(
+            style: TextStyle(
+              fontFamily: 'NotoSansKR',
+            ),
             children: [
               TextSpan(
                 text: '시장의 주류',
@@ -56,7 +59,7 @@ class _IntroStartS4State extends State<IntroStartS4> {
                 ),
               ),
               TextSpan(
-                text: '를 알고 싶다면\n이슈와 테마\n\n',
+                text: '를 알고 싶다면\n이슈와 테마\n',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
@@ -65,7 +68,7 @@ class _IntroStartS4State extends State<IntroStartS4> {
               ),
               TextSpan(
                 text:
-                    '실시간 업데이트 되는 오늘의 이슈\n대장주와 추세를 AI가 분석해주는 테마주도주\n시장을 움직이는 주류와 관련 종목을\n알려드립니다.',
+                    '\n실시간 업데이트 되는 오늘의 이슈\n대장주와 추세를 AI가 분석해주는 테마주도주\n시장을 움직이는 주류와 관련 종목을\n알려드립니다.',
                 style: TextStyle(
                   //본문 내용 - 기준
                   fontWeight: FontWeight.w400,

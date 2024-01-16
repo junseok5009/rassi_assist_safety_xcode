@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/ui/home/sliver_home_tab.dart';
 import 'package:rassi_assist/ui/login/intro_page.dart';
 import 'package:rassi_assist/ui/login/intro_search_page.dart';
+import 'package:rassi_assist/ui/login/intro_start_page.dart';
 import 'package:rassi_assist/ui/login/join_cert_num_page.dart';
 import 'package:rassi_assist/ui/login/join_phone_page.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
 import 'package:rassi_assist/ui/login/join_rassi_page.dart';
 import 'package:rassi_assist/ui/login/login_division_page.dart';
-import 'package:rassi_assist/ui/login/login_intro_page.dart';
 import 'package:rassi_assist/ui/login/login_rassi_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/main/keyboard_page.dart';
@@ -65,6 +65,7 @@ import '../ui/sub/trade_intro_page.dart';
 final routes = {
 
   '/intro': (BuildContext context) => const IntroPage(),
+  '/intro_start': (BuildContext context) => const IntroStartPage(),
 
   '/base': (BuildContext context) => const BasePage(),
 
@@ -110,7 +111,6 @@ final routes = {
 
 
   IntroSearchPage.routeName: (BuildContext context) => IntroSearchPage(),
-  LoginIntroPage.routeName: (BuildContext context) => LoginIntroPage(),
   LoginDivisionPage.routeName: (BuildContext context) => LoginDivisionPage(),
   RassiLoginPage.routeName: (BuildContext context) => const RassiLoginPage(),
   RassiJoinPage.routeName: (BuildContext context) => RassiJoinPage(),

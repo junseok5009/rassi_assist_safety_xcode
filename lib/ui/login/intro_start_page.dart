@@ -24,6 +24,14 @@ class _IntroStartPageState extends State<IntroStartPage> {
     super.initState();
   }
 
+
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,9 +39,7 @@ class _IntroStartPageState extends State<IntroStartPage> {
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          padding: const EdgeInsets.all(
-            30,
-          ),
+          padding: const EdgeInsets.all(30),
           margin: const EdgeInsets.only(top: 10),
           child: Stack(
             alignment: Alignment.bottomCenter,
@@ -57,7 +63,7 @@ class _IntroStartPageState extends State<IntroStartPage> {
                       } else if (index == 1) {
                         return const IntroStartS2();
                       } else if (index == 2) {
-                        return IntroStartS3();
+                        return const IntroStartS3();
                       } else if (index == 3) {
                         return const IntroStartS4();
                       } else {
@@ -75,12 +81,14 @@ class _IntroStartPageState extends State<IntroStartPage> {
                     vertical: 12,
                   ),
                   decoration: UIStyle.boxRoundFullColor50c(
-                    RColor.mainColor,
+                    RColor.purpleBasic_6565ff,
                   ),
                   child: const Text(
                     '1초만에 라씨 매매비서 시작하기',
                     style: TextStyle(
                       color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

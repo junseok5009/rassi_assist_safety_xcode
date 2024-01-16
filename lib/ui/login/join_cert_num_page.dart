@@ -11,40 +11,27 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
 import 'package:rassi_assist/ui/login/join_route_page.dart';
 
 /// 2021.05.06
 /// 인증 번호 입력
-class JoinCertPage extends StatelessWidget {
+
+class JoinCertPage extends StatefulWidget {
   static const routeName = '/page_join_cert';
   static const String TAG = "[JoinCertPage]";
   static const String TAG_NAME = '쓱가입_인증번호';
 
+  const JoinCertPage({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepBlue,
-          elevation: 0,
-        ),
-        body: JoinCertWidget(),
-      ),
-    );
-  }
+  State<StatefulWidget> createState() => JoinCertPageState();
 }
 
-class JoinCertWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => JoinCertState();
-}
-
-class JoinCertState extends State<JoinCertWidget> {
-
+class JoinCertPageState extends State<JoinCertPage> {
   final _authController = TextEditingController();
   late PgData args;
   String _reqType = '';
@@ -57,16 +44,17 @@ class JoinCertState extends State<JoinCertWidget> {
   void initState() {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(JoinCertPage.TAG_NAME);
-    Future.delayed(const Duration(milliseconds: 400), () {
+
+    Future.delayed(Duration.zero, () {
+      args = ModalRoute.of(context)!.settings.arguments as PgData;
+      _strPhone = args.pgData ?? '';
       if (_strPhone.length > 5) {
         //인증번호 발송
         _reqType = 'phone_check';
         _strOnTime = TStyle.getTimeString();
-        _reqParam = 'inputNum=' +
-            Net.getEncrypt(_strPhone) +
-            '&pos=' +
-            _strOnTime +
-            '&posName=ollaJoin';
+        _reqParam =
+            'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&posName=ollaJoin';
+        setState(() {});
         _requestThink();
       }
     });
@@ -74,123 +62,99 @@ class JoinCertState extends State<JoinCertWidget> {
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    _strPhone = args.pgData ?? '';
-    DLog.d(JoinCertPage.TAG, 'args : $_strPhone');
-
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '',
         elevation: 0,
       ),
-      body: Theme(
-        data: Theme.of(context).copyWith(
-            unselectedWidgetColor: Colors.white,
-            colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.white)),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
         child: ListView(
           children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '인증번호를\n확인해 주세요.',
-                    style: TStyle.title22m,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '인증번호를\n확인해 주세요.',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(
-                    height: 20,
+                ),
+                Text(
+                  '\n$_strPhone 으로 인증번호가 발송되었습니다.\n인증번호가 맞지 않다면,\n입력하신 번호를 다시 확인해 주세요.',
+                  style: const TextStyle(
+                    fontSize: 16,
                   ),
-                  Text(
-                    '$_strPhone 으로 인증번호가 발송되었습니다.\n인증번호가 맞지 않다면,\n입력하신 번호를 다시 확인해 주세요.',
-                    style: TStyle.textGrey15,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
             const SizedBox(
               height: 40,
             ),
 
             //인증번호
-            _setSubTitle('인증번호'),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: TextField(
-                controller: _authController,
-                decoration: const InputDecoration(hintText: '인증번호'),
-                keyboardType: TextInputType.number,
+            const Text(
+              '인증번호',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
               ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextField(
+              controller: _authController,
+              decoration: const InputDecoration(
+                filled: true,
+                hintText: '인증번호를 입력하세요',
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: RColor.greyBox_f5f5f5,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: RColor.greyBox_f5f5f5,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+              ),
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              cursorColor: Colors.black,
             ),
             const SizedBox(
               height: 50.0,
             ),
 
-            _setConfirmBtn(),
+            Column(
+              children: [
+                CommonView.setConfirmBtnView(
+                  () => _checkAuthNum(_authController.text.trim()),
+                )
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  //타이틀 서식
-  Widget _setSubTitle(String subTitle) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
-      child: Text(
-        subTitle,
-        style: TStyle.defaultTitle,
-      ),
-    );
-  }
-
-  Widget _setConfirmBtn() {
-    return Column(
-      children: [
-        Container(
-          width: 170,
-          height: 45,
-          child: MaterialButton(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25.0),
-              side: const BorderSide(color: RColor.mainColor),
-            ),
-            color: RColor.mainColor,
-            textColor: Colors.white,
-            child: const Text(
-              '확인',
-              style: TStyle.btnTextWht17,
-            ),
-            onPressed: () {
-              _checkAuthNum(_authController.text.trim());
-            },
-          ),
-        )
-      ],
-    );
-  }
-
   //인증번호 확인
   void _checkAuthNum(String data) {
-    if (data.length > 0) {
+    if (data.isNotEmpty) {
       //인증번호 확인
       _reqType = 'phone_confirm';
-      _reqParam = 'inputNum=' +
-          Net.getEncrypt(_strPhone) +
-          '&pos=' +
-          _strOnTime +
-          '&smsAuthNum=$data';
+      _reqParam =
+          'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&smsAuthNum=$data';
       _requestThink();
     } else {
-      _showDialogMsg('인증번호를 입력해 주세요');
+      CommonPopup.instance.showDialogBasicConfirm(context, '알림', '인증번호를 입력해 주세요');
     }
   }
 
@@ -208,79 +172,11 @@ class JoinCertState extends State<JoinCertWidget> {
     }
 
     _reqType = 'login_check';
-    String strSsgId = 'SSGOLLA' + devicePh;
+    String strSsgId = 'SSGOLLA$devicePh';
     DLog.d(JoinCertPage.TAG, 'SSG ID : $strSsgId');
 
-    _reqParam =
-        'snsId=' + Net.getEncrypt(strSsgId) + '&snsEmail=&snsPos=SSGOLLA';
+    _reqParam = 'snsId=${Net.getEncrypt(strSsgId)}&snsEmail=&snsPos=SSGOLLA';
     _requestThink();
-  }
-
-  void _showDialogMsg(String msg) {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                  const Text(
-                    '알림',
-                    style: TStyle.title20,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  Text(
-                    msg,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                  ),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 150,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: RColor.mainColor,
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(20.0)),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
   }
 
   // 씽크풀 API 호출
@@ -302,9 +198,8 @@ class JoinCertState extends State<JoinCertWidget> {
     }
 
     var urls = Uri.parse(url);
-    final http.Response response = await http.post(urls,
-        headers: Net.think_headers,
-        body: _reqParam);
+    final http.Response response =
+        await http.post(urls, headers: Net.think_headers, body: _reqParam);
 
     // RESPONSE ---------------------------
     DLog.d(JoinCertPage.TAG, '${response.statusCode}');
@@ -313,29 +208,32 @@ class JoinCertState extends State<JoinCertWidget> {
     final String result = response.body;
     if (_reqType == 'login_check') {
       //쓱가입 전화번호 아이디 체크
-      if (result.length > 0) {
+      if (result.isNotEmpty) {
         final ThinkLoginSns resData =
             ThinkLoginSns.fromJson(jsonDecode(result));
         if (resData.resultCode.toString().trim() == '-1') {
           DLog.d(JoinCertPage.TAG, '씽크풀 가입안됨');
 
-          //씽크풀 회원가입 -> 경로 선택 화면으로 이동
-          Navigator.pushNamed(
-            context,
-            JoinRoutePage.routeName,
-            arguments: PgData(
-                userId: _strPhone, pgData: '', pgSn: '', flag: 'SSGOLLA'),
-          );
-
+          if (mounted) {
+            //씽크풀 회원가입 -> 경로 선택 화면으로 이동
+            Navigator.pushNamed(
+              context,
+              JoinRoutePage.routeName,
+              arguments: PgData(
+                  userId: _strPhone, pgData: '', pgSn: '', flag: 'SSGOLLA'),
+            );
+          }
         } else {
           DLog.d(JoinCertPage.TAG, '씽크풀 가입 되어 있음');
           //가입된 정보 페이지로 이동
           _tempId = resData.userId;
-          Navigator.pushNamed(
-            context,
-            JoinPreUserPage.routeName,
-            arguments: PgData(userId: _tempId.trim()),
-          );
+          if (mounted) {
+            Navigator.pushNamed(
+              context,
+              JoinPreUserPage.routeName,
+              arguments: PgData(userId: _tempId.trim()),
+            );
+          }
         }
       }
     } else if (_reqType == 'phone_check') {
@@ -343,7 +241,9 @@ class JoinCertState extends State<JoinCertWidget> {
       if (result == 'success') {
         // _showDialogMsg(('인증번호가 발송되었습니다. 인증번호가 오지 않으면 입력하신 번호를 확인해 주세요.'));
       } else {
-        _showDialogMsg(('인증번호 요청이 실패하였습니다. 정확한 번호 입력 후 다시 시도하여 주세요.'));
+        if(mounted){
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '인증번호 요청이 실패하였습니다. 정확한 번호 입력 후 다시 시도하여 주세요.');
+        }
       }
     } else if (_reqType == 'phone_confirm') {
       //인증번호 확인
@@ -357,5 +257,4 @@ class JoinCertState extends State<JoinCertWidget> {
       }
     }
   }
-
 }

@@ -88,7 +88,7 @@ class HalfOnlyWebViewState extends State<HalfOnlyWebViewWidget> {
         shadowColor: Colors.white,
         actions: [
           IconButton(
-            icon: Icon(Icons.close),
+            icon: const Icon(Icons.close),
             color: Colors.black,
             onPressed: () => Navigator.of(context).pop(null),
           ),
@@ -110,18 +110,18 @@ class HalfOnlyWebViewState extends State<HalfOnlyWebViewWidget> {
                     //_makeWebView(),
                     Container(
                       height: _height,
-                      // child: WebView(
-                      //   key: _key,
-                      //   initialUrl: _linkUrl,
-                      //   gestureRecognizers: _isExpanded ? gestureRecognizers : null,
-                      //   javascriptMode: JavascriptMode.unrestricted,
-                      //   onPageFinished: (initialUrl) {
-                      //     if(_isExpanded){
-                      //       _myController.runJavascript("document.getElementsByClassName('ws-header-container')[0].style.display='none';");
-                      //       _myController.runJavascript("document.getElementsByClassName('ws-footer-page')[0].style.display='none';");
-                      //     }
-                      //   },
-                      // ),
+/*                      child: WebView(
+                        key: _key,
+                        initialUrl: _linkUrl,
+                        gestureRecognizers: _isExpanded ? gestureRecognizers : null,
+                        javascriptMode: JavascriptMode.unrestricted,
+                        onPageFinished: (initialUrl) {
+                          if(_isExpanded){
+                            _myController.runJavascript("document.getElementsByClassName('ws-header-container')[0].style.display='none';");
+                            _myController.runJavascript("document.getElementsByClassName('ws-footer-page')[0].style.display='none';");
+                          }
+                        },
+                      ),*/
                     ),
                   );
                 },

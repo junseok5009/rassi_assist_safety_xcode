@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_sales_info.dart';
@@ -30,11 +30,11 @@ class StockCompareChart4Dialog extends StatefulWidget {
   }
 
   @override
-  _StockCompareChart4DialogState createState() =>
-      _StockCompareChart4DialogState();
+  StockCompareChart4DialogState createState() =>
+      StockCompareChart4DialogState();
 }
 
-class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
+class StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
   late SharedPreferences _prefs;
   String _userId = '';
   String _groupCode = '';
@@ -52,14 +52,21 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
 
   @override
   void initState() {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart4Dialog.TAG_NAME,
-      screenClassOverride: StockCompareChart4Dialog.TAG_NAME,
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart4Dialog.TAG_NAME,
     );
     _loadPrefData();
   }
 
-  _loadPrefData() async {
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -82,10 +89,10 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
     try {
       final http.Response response = await http
           .post(
-        url,
-        body: json,
-        headers: Net.headers,
-      )
+            url,
+            body: json,
+            headers: Net.headers,
+          )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
@@ -102,7 +109,7 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
     // DEFINE TR.COMPARE03 배당 수익률 조회
     if (trStr == TR.COMPARE03) {
       final TrCompare03 resData =
-      TrCompare03.fromJson(jsonDecode(response.body));
+          TrCompare03.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
         DLog.d(StockCompareChart4Dialog.TAG_NAME, resData.retData.toString());
@@ -136,7 +143,8 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
             children: [
               Container(
                 alignment: Alignment.centerRight,
-                child: IconButton(icon: Icon(Icons.close),
+                child: IconButton(
+                  icon: const Icon(Icons.close),
                   padding: EdgeInsets.zero,
                   alignment: Alignment.topRight,
                   color: Colors.black,
@@ -156,13 +164,15 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
                   alignment: WrapAlignment.start,
                   children: List.generate(
                     alStock.length,
-                        (index) => _makeSelectStockBox(index),
+                    (index) => _makeSelectStockBox(index),
                   ),
                 ),
               ),
-              const SizedBox(height: 4,),
+              const SizedBox(
+                height: 4,
+              ),
               _makeChartView(),
-              _makeListView(),  // 배당금
+              _makeListView(), // 배당금
             ],
           ),
         ),
@@ -170,7 +180,7 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
     );
   }
 
-  _onClickSelectBox(StockSalesInfo stock){
+  _onClickSelectBox(StockSalesInfo stock) {
     setState(() {
       _stockCode = stock.stockCode;
       stockName = stock.stockName;
@@ -179,25 +189,26 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
 
   Widget _makeSelectStockBox(int index) {
     var item = alStock[index];
-    DLog.d(StockCompareChart4Dialog.TAG_NAME, '_makeSelectStockBox() item.stockName : ${item.stockName} / item.stockCode : ${item.stockCode} vs _stockCode : $_stockCode');
-    if(item.stockCode == _stockCode){
+    DLog.d(StockCompareChart4Dialog.TAG_NAME,
+        '_makeSelectStockBox() item.stockName : ${item.stockName} / item.stockCode : ${item.stockCode} vs _stockCode : $_stockCode');
+    if (item.stockCode == _stockCode) {
       _itemClickIndex = index;
       return Container(
-        margin: EdgeInsets.only(top: 10),
-        padding: EdgeInsets.fromLTRB(4, 0, 4, 0),
+        margin: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
         decoration: UIStyle.boxBtnSelectedMainColor6Cir(),
         child: Text(
           item.stockName,
           style: TStyle.btnTextWht14,
         ),
       );
-    }else{
+    } else {
       return Container(
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
         decoration: UIStyle.boxRoundLine6(),
         child: InkWell(
-            onTap: (){
+            onTap: () {
               _itemClickIndex = index;
               _onClickSelectBox(item);
             },
@@ -209,7 +220,7 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
   Widget _makeChartView() {
     _setChartData();
     return Container(
-      margin: EdgeInsets.only(top: 20),
+      margin: const EdgeInsets.only(top: 20),
       width: double.infinity,
       height: 240,
       child: Echarts(
@@ -276,7 +287,7 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
     String tmpDataYear = '[';
     String tmpDataCategory = '[';
     String tmpData = '[';
-    int _lastYear = int.parse(TStyle.getYearString()) -1 ;
+    int lastYear = int.parse(TStyle.getYearString()) - 1;
 
     for (int i = 0; i < alStock.length; i++) {
       var item = alStock[i];
@@ -288,29 +299,29 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
 
       for (int k = 0; k < 4; k++) {
         tmpDataCategory += '0,';
-        if (item.listSalesInfo.length > 0 &&
+        if (item.listSalesInfo.isNotEmpty &&
             yearIndex < item.listSalesInfo.length) {
           var smallItem = item.listSalesInfo[yearIndex];
-          if(smallItem.dividendYear.isEmpty){
+          if (smallItem.dividendYear.isEmpty) {
             strSmallDataValue += '0,';
             //tmpLineData += '[0, 0],';
-            tmpLineData += '[${ i + alStock.length * k }, 0],';
-          }else{
-            if (int.parse(smallItem.dividendYear) == (_lastYear - 3 + k)) {
+            tmpLineData += '[${i + alStock.length * k}, 0],';
+          } else {
+            if (int.parse(smallItem.dividendYear) == (lastYear - 3 + k)) {
               strSmallDataValue += '${smallItem.dividendRate},';
               tmpLineData +=
-              '[${i + (alStock.length * k)}, ${smallItem.dividendRate},],';
+                  '[${i + (alStock.length * k)}, ${smallItem.dividendRate},],';
               yearIndex++;
             } else {
               strSmallDataValue += '0,';
               //tmpLineData += '[0, 0],';
-              tmpLineData += '[${ i + alStock.length * k }, 0],';
+              tmpLineData += '[${i + alStock.length * k}, 0],';
             }
           }
         } else {
           strSmallDataValue += '0,';
           //tmpLineData += '[0, 0],';
-          tmpLineData += '[${ i + alStock.length * k }, 0],';
+          tmpLineData += '[${i + alStock.length * k}, 0],';
         }
       }
 
@@ -349,7 +360,7 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
     }
 
     for (int q = 0; q < 4; q++) {
-      tmpDataYear += "'${_lastYear - 3 + q}',";
+      tmpDataYear += "'${lastYear - 3 + q}',";
     }
 
     tmpDataYear += ']';
@@ -367,12 +378,12 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
   }
 
   Widget _makeListView() {
-    if(alStock.isEmpty){
-      return SizedBox();
+    if (alStock.isEmpty) {
+      return const SizedBox();
     }
-    var _listSaleInfo = alStock[_itemClickIndex].listSalesInfo;
+    var listSaleInfo = alStock[_itemClickIndex].listSalesInfo;
     return Visibility(
-      visible: _listSaleInfo.length > 0,
+      visible: listSaleInfo.isNotEmpty,
       child: Container(
         decoration: UIStyle.boxWeakGrey(6),
         padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
@@ -383,27 +394,43 @@ class _StockCompareChart4DialogState extends State<StockCompareChart4Dialog> {
               children: [
                 Text(
                   alStock[_itemClickIndex].stockName,
-                style: TStyle.textMainColor,),
-                const SizedBox(width: 6,),
-                const Text('주당배당금', style: TStyle.commonTitle,),
+                  style: TStyle.textMainColor,
+                ),
+                const SizedBox(
+                  width: 6,
+                ),
+                const Text(
+                  '주당배당금',
+                  style: TStyle.commonTitle,
+                ),
               ],
             ),
-            const SizedBox(height: 6,),
+            const SizedBox(
+              height: 6,
+            ),
             ListView.builder(
               shrinkWrap: true,
-              itemCount: _listSaleInfo.length,
+              itemCount: listSaleInfo.length,
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (BuildContext context, int index) {
-                var _item = _listSaleInfo[index];
+                var item = listSaleInfo[index];
                 return Row(
                   children: [
-                    Text(_item.dividendYear,
-                      style: TStyle.content14,),
-                    const SizedBox(width: 10,),
-                    Text(' ${TStyle.getMoneyPoint(_item.dividendAmt)}',
-                      style: TStyle.commonSTitle,),
-                    const Text('원',
-                      style: TStyle.content14,),
+                    Text(
+                      item.dividendYear,
+                      style: TStyle.content14,
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      ' ${TStyle.getMoneyPoint(item.dividendAmt)}',
+                      style: TStyle.commonSTitle,
+                    ),
+                    const Text(
+                      '원',
+                      style: TStyle.content14,
+                    ),
                   ],
                 );
               },

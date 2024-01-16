@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -16,8 +17,10 @@ import 'package:rassi_assist/custom_lib/http_process_class.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/login/join_route_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/sub/web_page.dart';
 
 /// 2020.09.29
 /// 라씨 회원가입
@@ -59,6 +62,9 @@ class RassiJoinState extends State<RassiJoinPage> {
   String _sJoinRoute = '';
   String deepLinkRoute = '';
 
+  final List<bool> _checkBoolList = [false, false, false];
+  bool _checkAll = false;
+
   @override
   void initState() {
     super.initState();
@@ -75,13 +81,24 @@ class RassiJoinState extends State<RassiJoinPage> {
         title: '',
         elevation: 0,
       ),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Container(
-          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
           child: ListView(
             children: [
               _setInputField(),
-              _setConfirmBtn(),
+              _setBtns(),
+              const SizedBox(height: 40,),
+              Column(
+                children: [
+                  CommonView.setConfirmBtnView(() {
+                    String id = _idController.text.trim();
+                    String pass = _passController.text.trim();
+                    _checkEditData(id, pass);
+                  }),
+                ],
+              ),
             ],
           ),
         ),
@@ -95,148 +112,208 @@ class RassiJoinState extends State<RassiJoinPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //아이디
-        _setSubTitle(RString.id, descTextStyle),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              TextField(
-                readOnly: _isIdCheck,
-                style: const TextStyle(color: Colors.black),
-                decoration: const InputDecoration(
-                  filled: true,
-                  hintText: RString.hint_input_id,
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: RColor.greyBox_f5f5f5,
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        _setSubTitle(
+          RString.id,
+        ),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            TextField(
+              readOnly: _isIdCheck,
+              style: const TextStyle(color: Colors.black),
+              decoration: const InputDecoration(
+                filled: true,
+                hintText: RString.hint_input_id,
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: RColor.greyBox_f5f5f5,
                   ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: RColor.greyBox_f5f5f5,
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
                 ),
-                cursorColor: Colors.black,
-                controller: _idController,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
-                ],
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: RColor.greyBox_f5f5f5,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: InkWell(
-                  onTap: () {
-                    if (!_isIdCheck) {
-                      _checkId();
-                    }
-                  },
-                  child: Container(
-                    width: 75,
-                    height: 40,
-                    margin: const EdgeInsets.only(right: 4),
-                    decoration: UIStyle.boxRoundLine8LineColor(
-                      _isIdCheck
-                          ? RColor.greyBasic_8c8c8c
-                          : RColor.purpleBasic_6565ff,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '중복확인',
-                        style: TextStyle(
-                          color: _isIdCheck
-                              ? RColor.greyBasicStrong_666666
-                              : RColor.purpleBasic_6565ff,
-                        ),
+              cursorColor: Colors.black,
+              controller: _idController,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+              ],
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () {
+                  if (!_isIdCheck) {
+                    _checkId();
+                  }
+                },
+                child: Container(
+                  width: 75,
+                  height: 40,
+                  margin: const EdgeInsets.only(right: 4),
+                  decoration: UIStyle.boxRoundLine8LineColor(
+                    _isIdCheck
+                        ? RColor.greyBasic_8c8c8c
+                        : RColor.purpleBasic_6565ff,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '중복확인',
+                      style: TextStyle(
+                        color: _isIdCheck
+                            ? RColor.greyBasicStrong_666666
+                            : RColor.purpleBasic_6565ff,
                       ),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         const SizedBox(
           height: 10.0,
         ),
 
         //비밀번호
-        _setSubTitle(RString.password, descTextStyle),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: TextField(
-            style: const TextStyle(color: Colors.black),
-            decoration: const InputDecoration(
-              filled: true,
-              hintText: RString.hint_input_pass,
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: RColor.greyBox_f5f5f5,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        _setSubTitle(
+          RString.password,
+        ),
+        TextField(
+          style: const TextStyle(color: Colors.black),
+          decoration: const InputDecoration(
+            filled: true,
+            hintText: RString.hint_input_pass,
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: RColor.greyBox_f5f5f5,
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: RColor.greyBox_f5f5f5,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              ),
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
             ),
-            cursorColor: Colors.black,
-            obscureText: true,
-            controller: _passController,
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: RColor.greyBox_f5f5f5,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            ),
           ),
+          cursorColor: Colors.black,
+          obscureText: true,
+          controller: _passController,
         ),
         const SizedBox(
           height: 10.0,
         ),
 
         //비밀번호 확인
-        _setSubTitle(RString.password_re, descTextStyle),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: TextField(
-            style: const TextStyle(color: Colors.black),
-            decoration: const InputDecoration(
-              filled: true,
-              hintText: RString.hint_input_pass_re,
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: RColor.greyBox_f5f5f5,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        _setSubTitle(
+          RString.password_re,
+        ),
+        TextField(
+          style: const TextStyle(color: Colors.black),
+          decoration: const InputDecoration(
+            filled: true,
+            hintText: RString.hint_input_pass_re,
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: RColor.greyBox_f5f5f5,
               ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: RColor.greyBox_f5f5f5,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              ),
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
             ),
-            cursorColor: Colors.black,
-            obscureText: true,
-            controller: _passReController,
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: RColor.greyBox_f5f5f5,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            ),
           ),
+          cursorColor: Colors.black,
+          obscureText: true,
+          controller: _passReController,
         ),
         const SizedBox(
           height: 10.0,
         ),
 
         //휴대폰 번호
-        _setSubTitle(RString.phone_num, descTextStyle),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        _setSubTitle(
+          RString.phone_num,
+        ),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            TextField(
+              style: const TextStyle(color: Colors.black),
+              decoration: const InputDecoration(
+                filled: true,
+                hintText: '휴대폰 번호를 입력해 주세요',
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: RColor.greyBox_f5f5f5,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: RColor.greyBox_f5f5f5,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+              ),
+              cursorColor: Colors.black,
+              enabled: _phEnableField,
+              controller: _phoneController,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () {
+                  if (!_isPhoneCheck) {
+                    _checkPhone();
+                  }
+                },
+                child: Container(
+                  width: 75,
+                  height: 40,
+                  margin: const EdgeInsets.only(right: 4),
+                  decoration: UIStyle.boxRoundLine8LineColor(
+                    _isPhoneCheck
+                        ? RColor.greyBasic_8c8c8c
+                        : RColor.purpleBasic_6565ff,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '인증받기',
+                      style: TextStyle(
+                        color: _isPhoneCheck
+                            ? RColor.greyBasicStrong_666666
+                            : RColor.purpleBasic_6565ff,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 5.0,
+        ),
+        Visibility(
+          visible: _visibleAuth,
           child: Stack(
             alignment: Alignment.center,
             children: [
               TextField(
+                controller: _authController,
                 style: const TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   filled: true,
-                  hintText: '휴대폰 번호를 입력해 주세요',
+                  hintText: '수신된 인증번호를 입력하세요.',
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
                       color: RColor.greyBox_f5f5f5,
@@ -251,33 +328,25 @@ class RassiJoinState extends State<RassiJoinPage> {
                   ),
                 ),
                 cursorColor: Colors.black,
-                enabled: _phEnableField,
-                controller: _phoneController,
               ),
               Align(
                 alignment: Alignment.centerRight,
                 child: InkWell(
                   onTap: () {
-                    if (!_isPhoneCheck) {
-                      _checkPhone();
-                    }
+                    _checkAuthNum(_authController.text.trim());
                   },
                   child: Container(
                     width: 75,
                     height: 40,
                     margin: const EdgeInsets.only(right: 4),
                     decoration: UIStyle.boxRoundLine8LineColor(
-                      _isPhoneCheck
-                          ? RColor.greyBasic_8c8c8c
-                          : RColor.purpleBasic_6565ff,
+                      RColor.purpleBasic_6565ff,
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text(
-                        '인증받기',
+                        '확인',
                         style: TextStyle(
-                          color: _isPhoneCheck
-                              ? RColor.greyBasicStrong_666666
-                              : RColor.purpleBasic_6565ff,
+                          color: RColor.purpleBasic_6565ff,
                         ),
                       ),
                     ),
@@ -285,65 +354,6 @@ class RassiJoinState extends State<RassiJoinPage> {
                 ),
               ),
             ],
-          ),
-        ),
-        const SizedBox(
-          height: 5.0,
-        ),
-        Visibility(
-          visible: _visibleAuth,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                TextField(
-                  controller: _authController,
-                  style: const TextStyle(color: Colors.black),
-                  decoration: const InputDecoration(
-                    filled: true,
-                    hintText: '수신된 인증번호를 입력하세요.',
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: RColor.greyBox_f5f5f5,
-                      ),
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: RColor.greyBox_f5f5f5,
-                      ),
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    ),
-                  ),
-                  cursorColor: Colors.black,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: InkWell(
-                    onTap: () {
-                      _checkAuthNum(_authController.text.trim());
-                    },
-                    child: Container(
-                      width: 75,
-                      height: 40,
-                      margin: const EdgeInsets.only(right: 4),
-                      decoration: UIStyle.boxRoundLine8LineColor(
-                        RColor.purpleBasic_6565ff,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '확인',
-                          style: TextStyle(
-                            color: RColor.purpleBasic_6565ff,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
         const SizedBox(
@@ -354,43 +364,252 @@ class RassiJoinState extends State<RassiJoinPage> {
   }
 
   //타이틀 서식
-  Widget _setSubTitle(String subTitle, TextStyle textStyle) {
+  Widget _setSubTitle(
+    String subTitle,
+  ) {
     return Padding(
-      padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
+      padding: const EdgeInsets.only(
+        top: 15,
+        bottom: 10,
+      ),
       child: Text(
         subTitle,
-        style: textStyle,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
 
-  Widget _setConfirmBtn() {
+  //동의
+  Widget _setBtns() {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          width: 170,
-          height: 45,
-          child: MaterialButton(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
+        // 전체 동의
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            setState(() {
+              if (_checkAll) {
+                _checkBoolList[0] = false;
+                _checkBoolList[1] = false;
+                _checkBoolList[2] = false;
+              } else {
+                _checkBoolList[0] = true;
+                _checkBoolList[1] = true;
+                _checkBoolList[2] = true;
+              }
+              _checkAll = !_checkAll;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Image.asset(
+                  _checkAll
+                      ? 'images/icon_circle_check_y.png'
+                      : 'images/icon_circle_check_n.png',
+                  fit: BoxFit.cover,
+                  width: 22,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                const Text(
+                  '전체동의',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25.0),
-              side: const BorderSide(color: RColor.mainColor),
-            ),
-            color: RColor.purpleBasic_6565ff,
-            textColor: Colors.white,
-            child: const Text(
-              '확인',
-              style: TStyle.btnTextWht17,
-            ),
-            onPressed: () {
-              String id = _idController.text.trim();
-              String pass = _passController.text.trim();
-              _checkEditData(id, pass);
-            },
           ),
-        )
+        ),
+
+        Container(
+          width: double.infinity,
+          height: 1,
+          color: RColor.greyBox_dcdfe2,
+          margin: const EdgeInsets.symmetric(
+            vertical: 10,
+          ),
+        ),
+
+        // 서비스 이용약관
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            setState(() {
+              _checkBoolList[0] = !_checkBoolList[0];
+              _funcCheckAll();
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Image.asset(
+                  _checkBoolList[0]
+                      ? 'images/icon_circle_check_y.png'
+                      : 'images/icon_circle_check_n.png',
+                  fit: BoxFit.cover,
+                  width: 22,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                const Text(
+                  '서비스 이용약관',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      CustomNvRouteClass.createRouteData(
+                        WebPage(),
+                        RouteSettings(
+                          arguments: PgData(
+                            pgData: Net.AGREE_TERMS,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 5,
+                    ),
+                    child: Text(
+                      '내용보기',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: RColor.greyMore_999999,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // 개인정보 수집 및 이용
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            setState(() {
+              _checkBoolList[1] = !_checkBoolList[1];
+              _funcCheckAll();
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Image.asset(
+                  _checkBoolList[1]
+                      ? 'images/icon_circle_check_y.png'
+                      : 'images/icon_circle_check_n.png',
+                  fit: BoxFit.cover,
+                  width: 22,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                const Text(
+                  '개인정보 수집 및 이용',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      CustomNvRouteClass.createRouteData(
+                        WebPage(),
+                        RouteSettings(
+                          arguments: PgData(
+                            pgData: Net.AGREE_POLICY_INFO,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 5,
+                    ),
+                    child: Text(
+                      '내용보기',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: RColor.greyMore_999999,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // 만 14세 이상
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            setState(() {
+              _checkBoolList[2] = !_checkBoolList[2];
+              _funcCheckAll();
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Image.asset(
+                  _checkBoolList[2]
+                      ? 'images/icon_circle_check_y.png'
+                      : 'images/icon_circle_check_n.png',
+                  fit: BoxFit.cover,
+                  width: 22,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                const Text(
+                  '만 14세 이상입니다.',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -447,36 +666,35 @@ class RassiJoinState extends State<RassiJoinPage> {
     if (!_isIdCheck) {
       CommonPopup.instance
           .showDialogBasicConfirm(context, '알림', '아이디 중복확인을 해주세요.');
-    } else {
-      if (_isPwCheck(pass) || _passController.text.trim().length < 6) {
-        CommonPopup.instance.showDialogBasicConfirm(
-            context, '알림', RString.join_err_pw_rule); //6~12자리 영문, 숫자만 가능
-      } else {
-        if (_passController.text.trim() != _passReController.text.trim()) {
-          CommonPopup.instance
-              .showDialogBasicConfirm(context, '알림', RString.join_err_pw_match);
-        } else {
-          if (!_isPhoneCheck) {
-            CommonPopup.instance
-                .showDialogBasicConfirm(context, '알림', '전화번호를 인증해 주세요.');
-          } else {
-            DLog.d(RassiJoinPage.TAG, '마케팅 수신동의 : $_isAgreeMarketing');
-            DLog.d(RassiJoinPage.TAG, '### JoinRoute : $_sJoinRoute');
-            DLog.d(RassiJoinPage.TAG, '### JoinPhone : $_strPhone');
-
-            //씽크풀 회원가입 페이지로 이동
-            Navigator.pushNamed(
-              context,
-              JoinRoutePage.routeName,
-              arguments: PgData(
-                  userId: id.toLowerCase(),
-                  pgData: pass,
-                  pgSn: _strPhone.trim(),
-                  flag: 'RASSI'),
-            );
-          }
-        }
-      }
+    } else if (_isPwCheck(pass) || _passController.text.trim().length < 6) {
+      CommonPopup.instance.showDialogBasicConfirm(
+          context, '알림', RString.join_err_pw_rule); //6~12자리 영문, 숫자만 가능
+    } else if (_passController.text.trim() != _passReController.text.trim()) {
+      CommonPopup.instance
+          .showDialogBasicConfirm(context, '알림', RString.join_err_pw_match);
+    } else if (!_isPhoneCheck) {
+      CommonPopup.instance
+          .showDialogBasicConfirm(context, '알림', '전화번호를 인증해 주세요.');
+    } else if (!_checkBoolList[0]) {
+      CommonPopup.instance
+          .showDialogBasic(context, '알림', '서비스 이용약관에 동의해 주세요.');
+    } else if (!_checkBoolList[1]) {
+      CommonPopup.instance
+          .showDialogBasic(context, '알림', '개인정보 수집 및 이용에 동의해 주세요.');
+    } else if (!_checkBoolList[2]) {
+      CommonPopup.instance
+          .showDialogBasic(context, '알림', '만 14세 이상을 확인해 주세요.');
+    } else{
+      //씽크풀 회원가입 페이지로 이동
+      Navigator.pushNamed(
+        context,
+        JoinRoutePage.routeName,
+        arguments: PgData(
+            userId: id.toLowerCase(),
+            pgData: pass,
+            pgSn: _strPhone.trim(),
+            flag: 'RASSI'),
+      );
     }
   }
 
@@ -718,7 +936,6 @@ class RassiJoinState extends State<RassiJoinPage> {
     CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.rassi));
     if (userId != '') {
       if (basePageState != null) {
-        //TODO @@@@@
         // basePageState = null;
         basePageState = BasePageState();
       }
@@ -732,13 +949,12 @@ class RassiJoinState extends State<RassiJoinPage> {
           (route) => false);
     } else {}
   }
-}
 
-//텍스트 스타일 예시
-const descTextStyle = TextStyle(
-    color: Colors.black,
-    fontWeight: FontWeight.w800,
-    fontFamily: 'Roboto',
-    letterSpacing: 0.5,
-    fontSize: 14,
-    height: 2);
+  _funcCheckAll() {
+    if (_checkBoolList[0] && _checkBoolList[1] && _checkBoolList[2]) {
+      _checkAll = true;
+    } else {
+      _checkAll = false;
+    }
+  }
+}

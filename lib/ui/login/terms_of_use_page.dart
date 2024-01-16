@@ -40,19 +40,19 @@ class _TermsOfUsePageState extends State<TermsOfUsePage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: 30,
-              ),
               RichText(
                 textAlign: TextAlign.start,
                 text: const TextSpan(
+                  style: TextStyle(
+                    fontFamily: 'NotoSansKR',
+                  ),
                   children: [
                     TextSpan(
-                      text: '서비스 이용을 위해\n이용 약관을 확인해 주세요.\n\n',
+                      text: '서비스 이용을 위해\n이용 약관을 확인해 주세요.\n',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
@@ -61,7 +61,7 @@ class _TermsOfUsePageState extends State<TermsOfUsePage> {
                     ),
                     TextSpan(
                       text:
-                          '라씨 매매비서는 서비스 제공을 위해\n최소한의 정보만을 수집하여\n수집된 정보 보안을 위해 최선을 다합니다.',
+                          '\n라씨 매매비서는 서비스 제공을 위해\n최소한의 정보만을 수집하여\n수집된 정보 보안을 위해 최선을 다합니다.',
                       style: TextStyle(
                         //본문 내용 - 기준
                         fontWeight: FontWeight.w400,

@@ -68,88 +68,111 @@ class RassiLoginPageState extends State<RassiLoginPage> {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraint.maxHeight),
                   child: IntrinsicHeight(
-                    child: Stack(
-                      children: [
-                        Column(
-                          children: [
-                            const Text(
-                              RString.desc_waiting_for_you,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  TextField(
-                                    style: const TextStyle(color: Colors.black),
-                                    controller: _idController,
-                                    decoration: const InputDecoration(
-                                      filled: true,
-                                      labelText: '아이디',
-                                      labelStyle: TextStyle(
-                                        color: Colors.black,
-                                      ),
-                                      enabledBorder: UnderlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.white60),
-                                      ),
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.white60),
-                                      ),
-                                    ),
-                                    scrollPadding:
-                                        const EdgeInsets.only(bottom: 100),
-                                    onTap: () {
-                                      _goBottomPage();
-                                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+                      child: Stack(
+                        //alignment: Alignment.topLeft,
+                        children: [
+                          Column(
+                            children: [
+                              const Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  RString.desc_waiting_for_you,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  const SizedBox(height: 12.0),
-                                  TextField(
-                                    style: const TextStyle(color: Colors.black),
-                                    controller: _passController,
-                                    obscureText: true,
-                                    decoration: const InputDecoration(
-                                      filled: true,
-                                      labelText: '비밀번호',
-                                      labelStyle: TextStyle(
-                                        color: Colors.black,
-                                      ),
-                                      enabledBorder: UnderlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.white60),
-                                      ),
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.white60),
-                                      ),
-                                    ),
-                                    scrollPadding:
-                                        const EdgeInsets.only(bottom: 100),
-                                  ),
-                                  _setAnotherRoute(),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Visibility(
-                          visible: _isLoading,
-                          child: Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            color: Colors.grey.withOpacity(0.1),
-                            alignment: Alignment.center,
-                            child: Image.asset(
-                              'images/gif_ios_loading_large.gif',
-                              height: 25,
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    TextField(
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                      controller: _idController,
+                                      decoration: const InputDecoration(
+                                        filled: true,
+                                        labelText: '아이디',
+                                        labelStyle: TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: RColor.greyBox_f5f5f5,
+                                          ),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: RColor.greyBox_f5f5f5,
+                                          ),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                        ),
+                                      ),
+                                      scrollPadding:
+                                          const EdgeInsets.only(bottom: 100),
+                                      cursorColor: Colors.black,
+                                      onTap: () {
+                                        _goBottomPage();
+                                      },
+                                    ),
+                                    const SizedBox(height: 12.0),
+                                    TextField(
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                      controller: _passController,
+                                      obscureText: true,
+                                      decoration: const InputDecoration(
+                                        filled: true,
+                                        labelText: '비밀번호',
+                                        labelStyle: TextStyle(
+                                          color: Colors.black,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: RColor.greyBox_f5f5f5,
+                                          ),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: RColor.greyBox_f5f5f5,
+                                          ),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                        ),
+                                      ),
+                                      scrollPadding:
+                                          const EdgeInsets.only(bottom: 100),
+                                      cursorColor: Colors.black,
+                                    ),
+                                    _setAnotherRoute(),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Visibility(
+                            visible: _isLoading,
+                            child: Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              color: Colors.grey.withOpacity(0.1),
+                              alignment: Alignment.center,
+                              child: Image.asset(
+                                'images/gif_ios_loading_large.gif',
+                                height: 25,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -237,7 +260,12 @@ class RassiLoginPageState extends State<RassiLoginPage> {
               InkWell(
                 child: const Text(
                   '아이디 찾기',
-                  style: TStyle.wtText,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    color: Colors.black,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
                 onTap: () {
                   commonLaunchURL(Net.URL_FIND_TP_ID);
@@ -245,12 +273,17 @@ class RassiLoginPageState extends State<RassiLoginPage> {
               ),
               const Text(
                 ' / ',
-                style: TStyle.wtText,
+                //style: TStyle.wtText,
               ),
               InkWell(
                 child: const Text(
                   '비밀번호 찾기',
-                  style: TStyle.wtText,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    color: Colors.black,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
                 onTap: () {
                   commonLaunchURL(Net.URL_FIND_TP_PW);
@@ -258,16 +291,20 @@ class RassiLoginPageState extends State<RassiLoginPage> {
               ),
             ],
           ),
-          //TODO @@@@@
-          // InkWell(
-          //   child: const Text(
-          //     RString.join_think_pool,
-          //     style: TStyle.wtText,
-          //   ),
-          //   onTap: () {
-          //     Navigator.pushNamed(context, RassiJoinPage.routeName);
-          //   },
-          // ),
+          InkWell(
+            child: const Text(
+              '회원가입',
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                color: Colors.black,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+            onTap: () {
+              Navigator.pushNamed(context, RassiJoinPage.routeName);
+            },
+          ),
         ],
       ),
     );
@@ -305,7 +342,9 @@ class RassiLoginPageState extends State<RassiLoginPage> {
       //     builder: (context) => BasePage()));
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const BasePage()),
+          MaterialPageRoute(
+              builder: (context) => const BasePage(),
+              settings: const RouteSettings(name: '/base')),
           (route) => false);
     } else {}
   }

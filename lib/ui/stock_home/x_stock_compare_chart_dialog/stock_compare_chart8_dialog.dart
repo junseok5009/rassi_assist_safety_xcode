@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_52.dart';
@@ -16,9 +16,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';
 
-
 /// 2022.06. - JS
 /// 종목홈_종목비교_차트8/9 (52주 최저가 : 8 or 최고가 : 9)
+
 class StockCompareChart8Dialog extends StatefulWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트8';
   int chartDiv = 8; // 8 > 최고가  9 > 최저가
@@ -33,11 +33,11 @@ class StockCompareChart8Dialog extends StatefulWidget {
   }
 
   @override
-  _StockCompareChart8DialogState createState() =>
-      _StockCompareChart8DialogState();
+  StockCompareChart8DialogState createState() =>
+      StockCompareChart8DialogState();
 }
 
-class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
+class StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
   late SharedPreferences _prefs;
   String _userId = '';
   int chartDiv = 8;
@@ -58,10 +58,17 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
   void onClickTv() {}
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart8Dialog.TAG_NAME,
-      screenClassOverride: StockCompareChart8Dialog.TAG_NAME,
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart8Dialog.TAG_NAME,
     );
     _loadPrefData();
   }
@@ -69,11 +76,9 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
   _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
 
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      _groupCode = widget.groupCode;
-      _stockCode = widget.stockCode;
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    _groupCode = widget.groupCode;
+    _stockCode = widget.stockCode;
 
     _fetchPosts(
         TR.COMPARE06,
@@ -162,7 +167,9 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
                 chartDivName,
                 style: TStyle.title19T,
               ),
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
               _makeChartView(),
               _makeListView(),
             ],
@@ -175,7 +182,7 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
   Widget _makeChartView() {
     _setChartData();
     return Container(
-      margin: EdgeInsets.only(top: 10),
+      margin: const EdgeInsets.only(top: 10),
       width: double.infinity,
       height: 240,
       child: Echarts(
@@ -288,7 +295,7 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
         barColor = _chartPlusColorStr;
       }
 
-      if(item.stockCode == _stockCode){
+      if (item.stockCode == _stockCode) {
         _highLightIndex = i;
       }
 
@@ -312,12 +319,11 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
   }
 
   Widget _makeListView() {
-
-    String _title = '';
+    String title = '';
     if (chartDiv == 9) {
-      _title = '52주 최저가';
-    }else{
-      _title = '52주 최고가';
+      title = '52주 최저가';
+    } else {
+      title = '52주 최고가';
     }
 
     return Container(
@@ -327,9 +333,12 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
       child: Column(
         children: [
           Container(
-              alignment: Alignment.center,
-              child: Text(_title
-              , style: TStyle.commonTitle,),),
+            alignment: Alignment.center,
+            child: Text(
+              title,
+              style: TStyle.commonTitle,
+            ),
+          ),
           ListView.builder(
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
@@ -344,43 +353,43 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
   }
 
   Widget _makeListItemView(int index) {
-    String _price = '';
-    String _date = '';
-    bool _isHigh = false;
-    bool _isLow = false;
+    String price = '';
+    String date = '';
+    bool isHigh = false;
+    bool isLow = false;
     Stock52 item = alStock[index];
-    _date = TStyle.getDateSlashFormat1(item.low52Date);
-    TextStyle _stockNameStyle;
+    date = TStyle.getDateSlashFormat1(item.low52Date);
+    TextStyle stockNameStyle;
 
     if (chartDiv == 9) {
-      _price = TStyle.getMoneyPoint(item.low52Price);
+      price = TStyle.getMoneyPoint(item.low52Price);
       if (item.low52Date == baseDate) {
-        _isLow = true;
+        isLow = true;
       }
     } else {
-      _price = TStyle.getMoneyPoint(item.top52Price);
+      price = TStyle.getMoneyPoint(item.top52Price);
       if (item.top52Date == baseDate) {
-        _isHigh = true;
+        isHigh = true;
       }
     }
     if(item.stockCode == _stockCode){
-      _stockNameStyle = TStyle.commonPurple14;
+      stockNameStyle = TStyle.commonPurple14;
     }else{
-      _stockNameStyle = TStyle.content14;
+      stockNameStyle = TStyle.content14;
     }
 
     return Column(
       children: [
-        SizedBox(height: 4,),
+        const SizedBox(height: 4,),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
               item.stockName,
-              style: _stockNameStyle,
+              style: stockNameStyle,
             ),
             Text(
-              ' $_price',
+              ' $price',
               style: TStyle.subTitle,
             ),
             const Text(
@@ -388,11 +397,11 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
               style: TStyle.content14,
             ),
             Text(
-              ' ($_date)',
+              ' ($date)',
               style: TStyle.content12,
             ),
             Visibility(
-              visible: _isLow,
+              visible: isLow,
               child: Image.asset(
                 'images/icon_low_price.png',
                 height: 16,
@@ -400,7 +409,7 @@ class _StockCompareChart8DialogState extends State<StockCompareChart8Dialog> {
               ),
             ),
             Visibility(
-              visible: _isHigh,
+              visible: isHigh,
               child: Image.asset(
                 'images/icon_high_price.png',
                 height: 16,

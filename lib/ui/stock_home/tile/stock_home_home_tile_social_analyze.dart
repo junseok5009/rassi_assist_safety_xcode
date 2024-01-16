@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import 'package:rassi_assist/custom_lib/charts_common/common.dart' as charts_common;
-import 'package:rassi_assist/custom_lib/charts_flutter_new//flutter.dart' as charts;
-import 'package:rassi_assist/custom_lib/charts_flutter_new//text_element.dart'
+import 'package:charts_common/common.dart' as charts_common;
+import 'package:charts_flutter_new/flutter.dart' as charts;
+import 'package:charts_flutter_new/src/text_element.dart'
     as charts_text_element;
-import 'package:rassi_assist/custom_lib/charts_flutter_new//text_style.dart' as charts_text_style;
+import 'package:charts_flutter_new/src/text_style.dart' as charts_text_style;
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';

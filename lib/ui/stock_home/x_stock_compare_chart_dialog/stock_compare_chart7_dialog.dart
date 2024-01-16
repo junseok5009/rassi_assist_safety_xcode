@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_fluct.dart';
@@ -17,25 +16,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';
 
-
 /// 2022.06. - JS
 /// 종목홈_종목비교_차트7 기가별등락률
+
 class StockCompareChart7Dialog extends StatefulWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트7';
   String groupCode = '';
   String stockCode = '';
 
-  StockCompareChart7Dialog(String vGroupCode, String vStockCode,) {
-    this.groupCode = vGroupCode;
-    this.stockCode = vStockCode;
-  }
+  StockCompareChart7Dialog(String vGroupCode, String vStockCode,
+      {Key? key, this.groupCode = '', this.stockCode = ''})
+      : super(key: key);
 
   @override
-  _StockCompareChart7DialogState createState() =>
-      _StockCompareChart7DialogState();
+  StockCompareChart7DialogState createState() =>
+      StockCompareChart7DialogState();
 }
 
-class _StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
+class StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
   late SharedPreferences _prefs;
   String _userId = '';
   String _groupCode = '';
@@ -52,21 +50,26 @@ class _StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
 
   @override
   void initState() {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart7Dialog.TAG_NAME,
-      screenClassOverride: StockCompareChart7Dialog.TAG_NAME,
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart7Dialog.TAG_NAME,
     );
     _loadPrefData();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
 
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      _groupCode = widget.groupCode;
-      _stockCode = widget.stockCode;
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    _groupCode = widget.groupCode;
+    _stockCode = widget.stockCode;
 
     _fetchPosts(
         TR.COMPARE05,
@@ -158,7 +161,9 @@ class _StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
               _makeChartView(),
               _makeListView(),
             ],
@@ -328,7 +333,7 @@ class _StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
         tmpData +=
             "{ value: $amountData, itemStyle: { color: '#FD525A' }, label: {fontSize: 10, fontWeight: 'bold'},},";
       }
-      if(item.stockCode == _stockCode){
+      if (item.stockCode == _stockCode) {
         _highLightIndex = i;
       }
     }
@@ -342,7 +347,6 @@ class _StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
     DLog.d(StockCompareChart7Dialog.TAG_NAME,
         "_chartDataStrCategory : $_chartDataStrCategory");
     DLog.d(StockCompareChart7Dialog.TAG_NAME, "_chartDataStr : $_chartDataStr");
-
   }
 
   Widget _makeListView() {
@@ -350,7 +354,9 @@ class _StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
     TextStyle stockNameStyle;
     TextStyle stockDataStyle;
     return Container(
-      margin: const EdgeInsets.only(top: 10,),
+      margin: const EdgeInsets.only(
+        top: 10,
+      ),
       decoration: UIStyle.boxWeakGrey(6),
       padding: const EdgeInsets.all(15),
       child: ListView.builder(
@@ -358,28 +364,28 @@ class _StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
         itemCount: alStock.length,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          var _item = alStock[index];
+          var item = alStock[index];
 
           if(selectDaysBoxIndex == 0){
             // PBR
-            data = _item.fluctWeek1;
+            data = item.fluctWeek1;
           }else if(selectDaysBoxIndex == 1){
             // PBR
-            data = _item.fluctMonth1;
+            data = item.fluctMonth1;
           }else if(selectDaysBoxIndex == 2){
             // PBR
-            data = _item.fluctMonth3;
+            data = item.fluctMonth3;
           }else if(selectDaysBoxIndex == 3){
             // PBR
-            data = _item.fluctMonth6;
+            data = item.fluctMonth6;
           }else if(selectDaysBoxIndex == 4){
             // PBR
-            data = _item.fluctYear1;
+            data = item.fluctYear1;
           }
           if(data.isEmpty){
             data = '0';
           }
-          if(_item.stockCode == _stockCode){
+          if(item.stockCode == _stockCode){
             stockNameStyle = TStyle.commonPurple14;
             stockDataStyle = TStyle.commonPurple14;
           }else{
@@ -388,14 +394,21 @@ class _StockCompareChart7DialogState extends State<StockCompareChart7Dialog> {
           }
           return Row(
             children: [
-              Text(_item.stockName, style: stockNameStyle,),
-              const SizedBox(width: 10,),
-              Text(data, style: stockDataStyle,),
+              Text(
+                item.stockName,
+                style: stockNameStyle,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Text(
+                data,
+                style: stockDataStyle,
+              ),
             ],
           );
         },
       ),
     );
   }
-
 }

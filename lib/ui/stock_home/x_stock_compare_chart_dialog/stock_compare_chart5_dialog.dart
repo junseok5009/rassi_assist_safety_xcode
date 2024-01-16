@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_sales_info.dart';
@@ -16,9 +16,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../common/d_log.dart';
 import '../../../common/tstyle.dart';
 
-
 /// 2022.06. - JS
 /// 종목홈_종목비교_차트 5 매출액증가율 or 6 영업이익 증가율
+
 class StockCompareChart5Dialog extends StatefulWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트5or6';
   String groupCode = '';
@@ -32,11 +32,11 @@ class StockCompareChart5Dialog extends StatefulWidget {
   }
 
   @override
-  _StockCompareChart5DialogState createState() =>
-      _StockCompareChart5DialogState();
+  StockCompareChart5DialogState createState() =>
+      StockCompareChart5DialogState();
 }
 
-class _StockCompareChart5DialogState extends State<StockCompareChart5Dialog> {
+class StockCompareChart5DialogState extends State<StockCompareChart5Dialog> {
   late SharedPreferences _prefs;
   String _userId = '';
   String _groupCode = '';
@@ -62,10 +62,17 @@ class _StockCompareChart5DialogState extends State<StockCompareChart5Dialog> {
   void onClickTv() {}
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: StockCompareChart5Dialog.TAG_NAME,
-      screenClassOverride: StockCompareChart5Dialog.TAG_NAME,
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      StockCompareChart5Dialog.TAG_NAME,
     );
     _loadPrefData();
   }

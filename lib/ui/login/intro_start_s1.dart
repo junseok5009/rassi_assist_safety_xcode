@@ -48,122 +48,140 @@ class _IntroStartS1State extends State<IntroStartS1> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            textAlign: TextAlign.start,
-            text: const TextSpan(
-              children: [
-                TextSpan(
-                  text: '매매타이밍',
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RichText(
+                textAlign: TextAlign.center,
+                text: const TextSpan(
                   style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: RColor.purpleBasic_6565ff,
+                    fontFamily: 'NotoSansKR',
                   ),
-                ),
-                TextSpan(
-                  text: '의 정답\n',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-                TextSpan(
-                  text: 'AI매매신호\n\n',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-                TextSpan(
-                  text:
-                      '고도화된 알고리즘이 사고 팔 시점과\n정확한 가격을 알려드립니다.\n지금, 궁금한 종목을 검색해 보세요!',
-                  style: TextStyle(
-                    //본문 내용 - 기준
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                    color: Colors.black,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          InkWell(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const IntroSearchPage(),),),
-            child: Container(
-              width: 220,
-              height: 40,
-              alignment: Alignment.center,
-              margin: const EdgeInsets.symmetric(
-                vertical: 10,
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: RColor.purpleBasic_6565ff,
-                  width: 1,
-                ),
-                //borderRadius: const BorderRadius.all(Radius.circular(6)),
-              ),
-              child: const Text(
-                'AI매매신호 검색',
-                style: TextStyle(
-                  color: RColor.purpleBasic_6565ff,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                SizedBox(
-                  height: double.infinity,
-                  child: Row(
-                    children: [
-                      const Expanded(
-                        child: SizedBox(),
+                  children: [
+                    TextSpan(
+                      text: '매도',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: RColor.purpleBasic_6565ff,
                       ),
-                      Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: Image.asset(
-                            'images/icon_intro_start1_1.png',
-                            fit: BoxFit.fitWidth,
+                    ),
+                    TextSpan(
+                      text: '가 곧 수익이다!\n',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'AI매매신호\n',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    TextSpan(
+                      text:
+                          '\n매도를 잘해야 수익이 납니다.\n궁금한 종목을 입력하시면\n정확한 시간과 가격을 알려드립니다.',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        color: Colors.black,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                height: 55,
+                margin: const EdgeInsets.only(
+                  top: 25,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15.0,
+                ),
+                decoration: BoxDecoration(
+                  color: RColor.greyBox_f5f5f5,
+                  border: Border.all(
+                    color: RColor.purpleBasic_6565ff,
+                    width: 2,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                ),
+                child: InkWell(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Flexible(
+                        child: Text(
+                          '종목명/종목코드를 입력하세요.',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: RColor.purpleBasic_6565ff,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
+                      ),
+                      Image.asset(
+                        'images/rassibs_icon_img_2.png',
+                        width: 22,
                       ),
                     ],
                   ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const IntroSearchPage(),
+                      ),
+                    );
+                  },
                 ),
-                AnimatedPositioned(
-                  bottom: _isUp ? 25.0 : 0.0,
-                  duration: const Duration(milliseconds: 1200),
-                  curve: Curves.fastOutSlowIn,
-                  child: Image.asset(
-                    'images/icon_intro_start1_2.png',
-                    width: AppGlobal().deviceWidth -
-                        (AppGlobal().deviceWidth / 2.5),
-                    fit: BoxFit.contain,
+              ),
+            ],
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: SizedBox(
+            width: AppGlobal().isTablet
+                ? AppGlobal().deviceWidth / 2
+                : AppGlobal().deviceWidth * 2 / 3,
+            height: AppGlobal().deviceWidth / 2,
+            child: Center(
+              child: Stack(
+                children: [
+                  AnimatedPositioned(
+                    right: 0,
+                    left: 0,
+                    bottom: _isUp ? 25.0 : 0.0,
+                    duration: const Duration(milliseconds: 1200),
+                    curve: Curves.fastOutSlowIn,
+                    child: Image.asset(
+                      'images/icon_intro_start1_2.png',
+                      width: AppGlobal().deviceWidth -
+                          (AppGlobal().deviceWidth / 2.5),
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          const SizedBox(
-            height: 120,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(
+          height: 120,
+        ),
+      ],
     );
   }
 }

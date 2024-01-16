@@ -99,7 +99,8 @@ class IntroState extends State<IntroWidget>
   var appGlobal = AppGlobal();
   static const platform = MethodChannel(Const.METHOD_CHANNEL_NAME);
 
-  final String _appEnv = Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
+  final String _appEnv =
+      Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
   final int _appVer = Platform.isIOS ? Const.VER_CODE : Const.VER_CODE_AOS;
 
   late SharedPreferences _prefs;
@@ -146,7 +147,25 @@ class IntroState extends State<IntroWidget>
 
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+
+    if (Platform.isAndroid) {
+      DLog.d(IntroPage.TAG, '##### Platform Android');
+      //Android Native 사용자를 위한 코드
+      try {
+        final String result = await platform.invokeMethod('getPrefUserId');
+        if (result.isNotEmpty) {
+          _prefs.setString(Const.PREFS_USER_ID, result);
+          _userId = result;
+        } else {
+          _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+        }
+      } on PlatformException {}
+      DLog.d(IntroPage.TAG, '##### Platform Android ID: $_userId');
+    } else {
+      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    }
+
+    appGlobal.userId = _userId;
     _prefs.setString(Const.PREFS_DEVICE_ID, const Uuid().v4());
   }
 
@@ -157,8 +176,8 @@ class IntroState extends State<IntroWidget>
       Fluttertoast.showToast(msg: 'dynamicLinkData.link.path : ${dynamicLinkData.link.path}',toastLength: Toast.LENGTH_LONG);*/
       //Navigator.pushNamed(context, dynamicLinkData.link.path);
     }).onError((error) {
-      debugPrint('onLink error');
-      debugPrint(error.message);
+      print('onLink error');
+      print(error.message);
     });
   }
 
@@ -280,8 +299,15 @@ class IntroState extends State<IntroWidget>
       Navigator.pushReplacementNamed(context, '/base',
           result: MaterialPageRoute(builder: (context) => const BasePage()));
     } else {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const IntroStartPage()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const IntroStartPage(),
+          settings: const RouteSettings(
+            name: '/intro_start',
+          ),
+        ),
+      );
     }
   }
 

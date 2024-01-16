@@ -1,7 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
 
@@ -79,11 +79,11 @@ class _StockCompareChart2DialogState extends State<StockCompareChart2Dialog> {
               Container(
                 alignment: Alignment.centerRight,
                 child: IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   padding: EdgeInsets.zero,
                   alignment: Alignment.topRight,
                   color: Colors.black,
-                  constraints: BoxConstraints(),
+                  constraints: const BoxConstraints(),
                   onPressed: () => Navigator.of(context).pop(null),
                 ),
               ),
@@ -103,7 +103,7 @@ class _StockCompareChart2DialogState extends State<StockCompareChart2Dialog> {
   Widget _makeChartView() {
     _setChartData();
     return Container(
-      margin: EdgeInsets.only(top: 20),
+      margin: const EdgeInsets.only(top: 20),
       width: double.infinity,
       height: 240,
       child: Echarts(

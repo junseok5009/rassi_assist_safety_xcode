@@ -1112,4 +1112,15 @@ class TStyle {
   }
   }
 
+  static String removeSpecialCharacters(String input) {
+    // 정규식을 사용하여 특수문자 제거
+    // ^는 문자열의 시작을 의미하고, \w는 단어 문자(알파벳, 숫자, 밑줄)를 의미하며,
+    // \s는 공백 문자를 의미합니다.
+    // 따라서 [^\w\s]는 단어 문자와 공백 문자를 제외한 나머지 문자를 의미합니다.
+    RegExp regExp = RegExp(r'[^\w\s]');
+
+    // 정규식을 사용하여 특수문자를 빈 문자열로 대체
+    return input.replaceAll(regExp, '');
+  }
+
 }

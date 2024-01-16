@@ -63,9 +63,12 @@ class _IntroStartS2State extends State<IntroStartS2> {
           RichText(
             textAlign: TextAlign.start,
             text: const TextSpan(
+              style: TextStyle(
+                fontFamily: 'NotoSansKR',
+              ),
               children: [
                 TextSpan(
-                  text: '모든 매매내역 ',
+                  text: '10년간 검증된 AI,\n모든 매매내역 ',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
@@ -81,7 +84,7 @@ class _IntroStartS2State extends State<IntroStartS2> {
                   ),
                 ),
                 TextSpan(
-                  text: '공개,\n10년간 검증된 성과\n\n',
+                  text: '공개\n',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
@@ -90,7 +93,7 @@ class _IntroStartS2State extends State<IntroStartS2> {
                 ),
                 TextSpan(
                   text:
-                      '2015년 최조의 주식 AI 서비스 출시,\n30만 다운로드 인정받은 주식AI!\n모든 AI매매신호와 성과는\n100% 투명하게 공개',
+                      '\n2015년 최조의 주식 AI 서비스 출시,\n30만 다운로드 인정받은 주식AI!\n모든 AI매매신호와 성과는\n100% 투명하게 공개',
                   style: TextStyle(
                     //본문 내용 - 기준
                     fontWeight: FontWeight.w400,

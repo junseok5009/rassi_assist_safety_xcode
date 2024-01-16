@@ -163,4 +163,29 @@ class CommonView {
       ),
     );
   }
+
+  static Widget setConfirmBtnView(void Function() onTap,){
+    return InkWell(
+      onTap: onTap,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      child: Container(
+        width: 180,
+        height: 50,
+        alignment: Alignment.center,
+        decoration: UIStyle.boxRoundFullColor50c(
+          RColor.purpleBasic_6565ff,
+        ),
+        child: const Text(
+          '확인',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
 }

@@ -6,19 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/tr_search/tr_search02.dart';
 import 'package:rassi_assist/models/tr_search/tr_search03.dart';
-import 'package:rassi_assist/models/tr_user/tr_user02.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/login/login_division_page.dart';
-import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/main/keyboard_page.dart';
 import 'package:rassi_assist/ui/sub/trade_intro_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,10 +37,18 @@ class IntroSearchPage extends StatefulWidget {
 }
 
 class IntroSearchPageState extends State<IntroSearchPage> {
+
   late SharedPreferences _prefs;
-  List<Search03> _stkList = [];
-  List<String> _searchList = []; //무료 5종목 검색
+
+  final List<Search03> _search03StockList = []; // 오늘의 검색 인기 종목
+  final List<Stock> _userSearchStockList = []; //검색어 입력하여 검색된 리스트
+  final List<String> _searchList = []; //무료 5종목 검색
   String deepLinkData = '';
+
+  Timer? _timer;
+  int savedTime = 0;
+
+  final TextEditingController _textEditingController = TextEditingController();
 
   @override
   void initState() {
@@ -49,21 +56,36 @@ class IntroSearchPageState extends State<IntroSearchPage> {
     CustomFirebaseClass.logEvtScreenView(IntroSearchPage.TAG_NAME);
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'in_intro_search');
-    _loadPrefData().then(
-      (value) => _fetchPosts(
-        TR.SEARCH03,
-        jsonEncode(<String, String>{
-          'userId': 'RASSI_APP',
-          'selectDiv': 'S',
-          'selectCount': '5',
-        }),
-      ),
+    _loadPrefData().then((_) =>
+        _fetchPosts(
+          TR.SEARCH03,
+          jsonEncode(<String, String>{
+            'userId': 'RASSI_APP',
+            'selectDiv': 'S',
+            'selectCount': '5',
+          }),
+        )
     );
   }
 
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    _searchList = _prefs.getStringList(TStyle.getTodayString()) ?? [];
+    //무료 5종목 체크
+    _searchList.addAll(_prefs.getStringList(TStyle.getTodayString()) ?? []);
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _textEditingController.dispose();
+    super.dispose();
   }
 
   @override
@@ -77,7 +99,7 @@ class IntroSearchPageState extends State<IntroSearchPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+          padding: const EdgeInsets.fromLTRB(30, 10, 30, 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -85,67 +107,83 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '언제 살까? 언제 팔까?',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                      ),
-                    ),
+                    _setSearchField(),
                     const SizedBox(
-                      height: 4,
+                      height: 20,
                     ),
-                    const Text(
-                      '궁금한 종목을 바로 확인해 보세요!',
-                      style: TStyle.content16,
-                    ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    _setSearchBox(),
-                    const SizedBox(
-                      height: 50,
-                    ),
-                    const Text(
-                      '오늘의 검색 인기 종목',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    _setPopularStock(),
-                    const SizedBox(
-                      height: 60,
-                    ),
+                    _textEditingController.text.isEmpty
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              const Text(
+                                '오늘의 검색 인기 종목',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              _setPopularStock(),
+                            ],
+                          )
+                        : Expanded(
+                            child: _userSearchStockList.isEmpty
+                                ? Column(
+                                    children: [
+                                      CommonView.setNoDataTextView(
+                                          100, '검색 결과가 없습니다.'),
+                                    ],
+                                  )
+                                : ListView.builder(
+                                    physics: const ScrollPhysics(),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
+                                    shrinkWrap: true,
+                                    itemCount: _userSearchStockList.length,
+                                    itemBuilder:
+                                        (BuildContext context, index) =>
+                                            _tileSearch(
+                                                _userSearchStockList[index]),
+                                  ),
+                          ),
                   ],
                 ),
               ),
-              InkWell(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                  ),
-                  decoration: UIStyle.boxRoundFullColor25c(
-                    RColor.purpleBasic_6565ff,
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '1초만에 라씨 매매비서 시작하기',
-                      style: TStyle.btnTextWht15,
+              Visibility(
+                visible: _textEditingController.text.isEmpty,
+                child: InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                    ),
+                    decoration: UIStyle.boxRoundFullColor25c(
+                      RColor.purpleBasic_6565ff,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        '1초만에 라씨 매매비서 시작하기',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ),
+                  onTap: () {
+                    Navigator.pushNamed(context, LoginDivisionPage.routeName);
+                  },
                 ),
-                onTap: () {
-                  Navigator.pushNamed(context, LoginDivisionPage.routeName);
-                },
               ),
             ],
           ),
@@ -154,36 +192,37 @@ class IntroSearchPageState extends State<IntroSearchPage> {
     );
   }
 
-  //검색 Box
-  Widget _setSearchBox() {
+  Widget _setSearchField() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
       decoration: UIStyle.boxRoundFullColor8c(
         RColor.greyBox_f5f5f5,
       ),
-      child: InkWell(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Flexible(
-              child: Text(
-                '종목명(초성, 중간어 지원) / 종목코드 검색',
-                style: TStyle.textGrey15,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
+      child: Stack(
+        children: [
+          TextField(
+            decoration:
+                const InputDecoration.collapsed(hintText: '종목명/종목코드를 입력하세요.'),
+            controller: _textEditingController,
+            onChanged: (text) {
+              if (text.length > 1) {
+                _handleSubmit(text.toString());
+              } else {
+                setState(() {});
+              }
+            },
+          ),
+          Positioned(
+            top: 1,
+            bottom: 1,
+            right: 1.0,
+            child: Image.asset(
+              'images/icon_search_black.png',
+              width: 18,
             ),
-            Icon(
-              Icons.search,
-              size: 25,
-              color: RColor.mainColor,
-            ),
-          ],
-        ),
-        onTap: () {
-          _navigateRefresh(context, const KeyboardPage());
-        },
+          ),
+        ],
       ),
     );
   }
@@ -194,18 +233,18 @@ class IntroSearchPageState extends State<IntroSearchPage> {
         scrollDirection: Axis.vertical,
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: _stkList.length,
+        itemCount: _search03StockList.length,
         itemBuilder: (context, index) {
           return InkWell(
             child: Container(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 0.0, vertical: 2.0),
+                  const EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
-                    _stkList[index].stockName,
+                    _search03StockList[index].stockName,
                     style: const TextStyle(
                       fontSize: 16,
                     ),
@@ -214,39 +253,43 @@ class IntroSearchPageState extends State<IntroSearchPage> {
                     width: 5.0,
                   ),
                   Text(
-                    _stkList[index].stockCode,
+                    _search03StockList[index].stockCode,
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: RColor.greyBasic_8c8c8c,
                     ),
                   ),
                 ],
               ),
             ),
-            onTap: () {
+            onTap: () async {
               if (_searchList.length < 5 ||
-                  _containListData(_searchList, _stkList[index].stockCode)) {
+                  _containListData(
+                      _searchList, _search03StockList[index].stockCode)) {
                 //새로운 종목코드 라면 페이지에 임시 저장
-                if (!_containListData(_searchList, _stkList[index].stockCode)) {
-                  _searchList.add(_stkList[index].stockCode);
+                if (!_containListData(
+                    _searchList, _search03StockList[index].stockCode)) {
+                  _searchList.add(_search03StockList[index].stockCode);
+                  await _prefs.setStringList(TStyle.getTodayString(), _searchList);
                 }
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TradeIntroPage(),
-                    settings: RouteSettings(
-                      arguments: PgData(
-                        userId: '',
-                        stockCode: _stkList[index].stockCode,
-                        stockName: _stkList[index].stockName,
+                if(mounted){
+                  CustomFirebaseClass.logEvtSearchStock(_search03StockList[index].stockName);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TradeIntroPage(),
+                      settings: RouteSettings(
+                        arguments: PgData(
+                          userId: '',
+                          stockCode: _search03StockList[index].stockCode,
+                          stockName: _search03StockList[index].stockName,
+                        ),
                       ),
                     ),
-                  ),
-
-                );
+                  );
+                }
               } else {
-                _showDialogLimit();
+                CommonPopup.instance.showDialogBasicConfirm(context, '알림', '로그인 전 매매비서 / 매매신호 열람은 하루 5종목까지 무료로 제공됩니다.');
               }
             },
           );
@@ -265,113 +308,95 @@ class IntroSearchPageState extends State<IntroSearchPage> {
     }
   }
 
-  // 다음 페이지로 이동(사용안함: IntroSearch 에서 가입 없음)
-  _goNextRoute(String userId) {
-    if (userId != '') {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const BasePage()));
-    } else {}
-  }
-
-  //5종목 초과 검색시 알림
-  void _showDialogLimit() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              InkWell(
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.black,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.asset(
-                  'images/rassibs_iconimg_01.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(
-                  height: 25.0,
-                ),
-                const Text(
-                  '알림',
-                  textAlign: TextAlign.center,
-                  style: TStyle.title18,
-                ),
-                const SizedBox(
-                  height: 30.0,
-                ),
-                const Text(
-                  '로그인 전 매매비서 / 매매신호 열람은 하루 5종목까지 무료로 제공됩니다.',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(
-                  height: 30.0,
-                ),
-                MaterialButton(
-                  child: Center(
-                    child: Container(
-                      width: 180,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: RColor.mainColor,
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '확인',
-                          style: TStyle.btnTextWht16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+  Widget _tileSearch(Stock item) {
+    return InkWell(
+      child: Container(
+        margin: const EdgeInsets.only(left: 5.0, bottom: 13.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              item.stockCode,
+              overflow: TextOverflow.ellipsis,
+              style: TStyle.textGreyDefault,
+              textAlign: TextAlign.center,
             ),
-          ),
-        );
+            const SizedBox(
+              width: 8.0,
+            ),
+            Flexible(
+              child: Text(
+                item.stockName,
+                style: TStyle.content17,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+      onTap: () async {
+        if (_searchList.length < 5 ||
+            _containListData(
+                _searchList, item.stockCode)) {
+          //새로운 종목코드 라면 페이지에 임시 저장
+          if (!_containListData(
+              _searchList, item.stockCode)) {
+            _searchList.add(item.stockCode);
+            await _prefs.setStringList(TStyle.getTodayString(), _searchList);
+          }
+          if(mounted){
+            CustomFirebaseClass.logEvtSearchStock(item.stockName);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TradeIntroPage(),
+                settings: RouteSettings(
+                  arguments: PgData(
+                    userId: 'RASSI_APP',
+                    stockCode: item.stockCode,
+                    stockName: item.stockName,
+                  ),
+                ),
+              ),
+            );
+          }
+        } else {
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '로그인 전 매매비서 / 매매신호 열람은 하루 5종목까지 무료로 제공됩니다.');
+        }
       },
     );
   }
 
-  _navigateRefresh(BuildContext context, Widget instance) async {
-    final result =
-        await Navigator.push(context, CustomNvRouteClass.createRoute(instance));
-    if (result == 'cancel') {
-      DLog.d(IntroSearchPage.TAG, '*** navigete cancel ***');
+  // 검색 입력 처리
+  void _handleSubmit(String keyword) {
+    int curTime = DateTime.now().millisecondsSinceEpoch;
+    if (savedTime == 0) {
+      savedTime = DateTime.now().millisecondsSinceEpoch;
+      _requestSearch02(keyword);
+    } else if (savedTime > 0 && (curTime - savedTime) > 200) {
+      savedTime = DateTime.now().millisecondsSinceEpoch;
+      //일단 타이머를 걸어서 메소드 실행.
+      _timer = Timer(const Duration(milliseconds: 200), () {
+        _requestSearch02(keyword);
+      });
     } else {
-      DLog.d(IntroSearchPage.TAG, '*** navigateRefresh');
-      _loadPrefList();
-      DLog.d(IntroSearchPage.TAG, '*** ${_searchList.length}');
+      savedTime = DateTime.now().millisecondsSinceEpoch;
+      //짧은 시간 전에 호출된 메소드 취소하고 이번 메소드 실행
+      _timer?.cancel();
+      _requestSearch02(keyword);
     }
   }
 
-  _loadPrefList() {
-    setState(() {
-      _searchList.clear();
-      _searchList = _prefs.getStringList(TStyle.getTodayString()) ?? [];
-    });
+  void _requestSearch02(String keyword) {
+    _fetchPosts(
+        TR.SEARCH02,
+        jsonEncode(<String, String>{
+          'userId': 'RASSI_APP',
+          'keyword': keyword,
+          'selectCount': '30',
+        }));
   }
 
-  //convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
     DLog.d(IntroSearchPage.TAG, trStr + ' ' + json);
 
@@ -387,38 +412,44 @@ class IntroSearchPageState extends State<IntroSearchPage> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      DLog.d(IntroSearchPage.TAG, 'ERR : TimeoutException (12 seconds)');
       CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      DLog.d(IntroSearchPage.TAG, 'ERR : SocketException');
       CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
-  // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각 ???
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(IntroSearchPage.TAG, response.body);
 
-    if (trStr == TR.USER02) {
-      final TrUser02 resData = TrUser02.fromJson(jsonDecode(response.body));
-      DLog.d(IntroSearchPage.TAG, resData.retCode);
-
-      if (resData.retCode == RT.SUCCESS) {
-        final User02 data = resData.retData!;
-        DLog.d(IntroSearchPage.TAG, data.toString());
-        if (data.userId != '') {
-          _prefs.setString(Const.PREFS_USER_ID, data.userId);
-          //일단은 메인으로 이동, 나중에 푸시 등록
-          DLog.d(IntroSearchPage.TAG, '로그인 완료~~~ 메인으로 이동');
-          _goNextRoute(data.userId);
-        } else {
-          //매매비서 회원정보 생성
-        }
-      }
-    } else if (trStr == TR.SEARCH03) {
+    if (trStr == TR.SEARCH03) {
+      _search03StockList.clear();
       TrSearch03 resData = TrSearch03.fromJson(jsonDecode(response.body));
-      _stkList = resData.retData!;
+      if (resData.retData!.isNotEmpty) {
+        _search03StockList.addAll(resData.retData!);
+      }
       setState(() {});
+    }
+
+    //유저 직접 검색
+    else if (trStr == TR.SEARCH02) {
+      final TrSearch02 resData = TrSearch02.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        List<Stock> list = resData.retData!;
+        if (list != null && list.isNotEmpty) {
+          setState(() {
+            _userSearchStockList.clear();
+            _userSearchStockList.addAll(list);
+          });
+        } else {
+          setState(() {
+            _userSearchStockList.clear();
+          });
+        }
+      } else {
+        setState(() {
+          _userSearchStockList.clear();
+        });
+      }
     }
   }
 }

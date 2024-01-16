@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 
 class IntroStartS3 extends StatefulWidget {
@@ -29,7 +28,7 @@ class _IntroStartS2State extends State<IntroStartS3> {
           _count++;
         }
       });
-      _timer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+      _timer = Timer.periodic(const Duration(milliseconds: 3500), (timer) {
         setState(() {
           if (_count == 1) {
             _count = 0;
@@ -64,6 +63,9 @@ class _IntroStartS2State extends State<IntroStartS3> {
           RichText(
             textAlign: TextAlign.start,
             text: const TextSpan(
+              style: TextStyle(
+                fontFamily: 'NotoSansKR',
+              ),
               children: [
                 TextSpan(
                   text: '이미지',
@@ -82,7 +84,7 @@ class _IntroStartS2State extends State<IntroStartS3> {
                   ),
                 ),
                 TextSpan(
-                  text: '종목인사이트\n\n',
+                  text: '종목인사이트\n',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
@@ -91,7 +93,7 @@ class _IntroStartS2State extends State<IntroStartS3> {
                 ),
                 TextSpan(
                   text:
-                      '종목이슈, 실적, 투자자별 매매동향, 대차공매 등 모든 종목정보를 시각화하여 쉽게 분석! 이제 숫자가 아닌 이미지로 확인하세요!',
+                      '\n종목이슈, 실적, 투자자별 매매동향, 대차공매 등 모든 종목정보를 시각화하여 쉽게 분석! 이제 숫자가 아닌 이미지로 확인하세요!',
                   style: TextStyle(
                     //본문 내용 - 기준
                     fontWeight: FontWeight.w400,
@@ -140,7 +142,7 @@ class _IntroStartS2State extends State<IntroStartS3> {
                                 alignment: _count == 0
                                     ? Alignment.bottomLeft
                                     : Alignment.bottomRight,
-                                duration: const Duration(milliseconds: 1500),
+                                duration: const Duration(milliseconds: 3500),
                                 curve: Curves.fastOutSlowIn,
                                 child: Image.asset(
                                   'images/icon_intro_start3_2.png',

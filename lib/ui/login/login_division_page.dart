@@ -74,18 +74,19 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                margin: const EdgeInsets.only(
-                  top: 0,
+              const Text(
+                '라씨 매매비서가\n회원님을 기다리고 있습니다.',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
                 ),
-                child: const Text(
-                  '라씨 매매비서가\n투자자님을 기다리고 있습니다.',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                  ),
+              ),
+              const Text(
+                '\nSNS 아이디로 시작하기에서는\n휴대폰 번호가 필요없어요.',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  fontSize: 16,
                 ),
               ),
               Expanded(
@@ -415,7 +416,8 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       User user = await UserApi.instance.me();
       DLog.d(LoginDivisionPage.TAG, '사용자 정보 요청 성공');
       DLog.d(LoginDivisionPage.TAG, '회원번호: ${user.id}');
-      DLog.d(LoginDivisionPage.TAG, '닉네임 : ${user.kakaoAccount?.profile?.nickname}');
+      DLog.d(LoginDivisionPage.TAG,
+          '닉네임 : ${user.kakaoAccount?.profile?.nickname}');
       DLog.d(LoginDivisionPage.TAG, '이메일: ${user.kakaoAccount?.email}');
 
       String numId = user.id.toString();
@@ -423,7 +425,8 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       String name = '';
       if (numId != null && numId.isNotEmpty) {
         _reqPos = 'KAKAO';
-        _reqParam = 'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
+        _reqParam =
+            'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
         _requestThink(numId, email, name);
       }
     } catch (error) {
@@ -540,7 +543,8 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
   // 다음 페이지로 이동
   void _goNextRoute(String userId) {
     commonShowToast('로그인 되었습니다.');
-    CustomFirebaseClass.setUserProperty(CustomFirebaseProperty.LOGIN_STATUS, 'complete');
+    CustomFirebaseClass.setUserProperty(
+        CustomFirebaseProperty.LOGIN_STATUS, 'complete');
     switch (_reqPos) {
       case 'KAKAO':
         {
@@ -574,7 +578,8 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       //     context, MaterialPageRoute(builder: (context) => BasePage()));
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const BasePage()),
+          MaterialPageRoute(
+              builder: (context) => const BasePage(), settings: const RouteSettings(name: '/base')),
           (route) => false);
     } else {}
   }

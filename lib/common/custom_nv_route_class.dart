@@ -26,24 +26,6 @@ class CustomNvRouteClass {
     );
   }
 
-  //오른쪽에서 왼쪽으로 슬라이드로 나오는 페이지
-  static Route createRouteSlide(Widget instance) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      /*transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },*/
-    );
-  }
-
   static Route createRouteSlow1(Widget instance) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => instance,

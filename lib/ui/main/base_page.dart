@@ -156,7 +156,8 @@ class BasePageState extends State<BasePage> {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context)
+          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: WillPopScope(
         onWillPop: _onWillPop,
         child: _setLayout(),
@@ -233,13 +234,6 @@ class BasePageState extends State<BasePage> {
     });
   }
 
-  void goNavigationTab(int index) {
-    DLog.d(BasePage.TAG, 'BasePage Tab : $index');
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   /// 채널 리스너
   void _setFcmChannelListener() async {
     channel.setMethodCallHandler((call) async {
@@ -292,7 +286,8 @@ class BasePageState extends State<BasePage> {
   }
 
   //다른 페이지에서도 호출됨
-  goLandingPage(String landingCode, String stkCode, String stkName, String bsType, String pktSn) async {
+  goLandingPage(String landingCode, String stkCode, String stkName,
+      String bsType, String pktSn) async {
     switch (landingCode) {
       // [홈_홈]
       case LD.main_home:
@@ -546,14 +541,13 @@ class BasePageState extends State<BasePage> {
     } else if (tabIndex == Const.PKT_INDEX_MY) {
       appGlobal.pocketSn = pktSn;
     }
-
     if (SliverPocketTab.globalKey.currentState == null) {
       Provider.of<PageNotifier>(context, listen: false).setPocketTab(tabIndex);
       setState(() {
         _selectedIndex = 1;
       });
     } else {
-      // SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(tabIndex);
+      // SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(tabIndex, changePocketSn: pktSn,);
     }
   }
 
@@ -678,7 +672,7 @@ class BasePageState extends State<BasePage> {
       context,
       Platform.isIOS
           ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-          : CustomNvRouteClass.createRoute( const PayPremiumAosPage()),
+          : CustomNvRouteClass.createRoute(const PayPremiumAosPage()),
     );
     if (result == 'cancel') {
     } else {
