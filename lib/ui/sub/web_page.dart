@@ -12,6 +12,8 @@ class WebPage extends StatelessWidget {
   static const String TAG = "[WebPage]";
   static const String TAG_NAME = '웹뷰';
 
+  const WebPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
@@ -19,13 +21,15 @@ class WebPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(toolbarHeight: 0,
           backgroundColor: RColor.deepStat, elevation: 0,),
-        body: WebWidget(),
+        body: const WebWidget(),
       ),
     );
   }
 }
 
 class WebWidget extends StatefulWidget {
+  const WebWidget({super.key});
+
   @override
   State<StatefulWidget> createState() => WebState();
 }

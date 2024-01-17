@@ -684,7 +684,7 @@ class CustomCircleSymbolRenderer extends charts_common.CircleSymbolRenderer {
 
       canvas.drawRect(
         Rectangle(xPoint, 0, minWidth, bounds.height + 62),
-        fill: charts.Color(
+        fill: const charts.Color(
           r: 102,
           g: 102,
           b: 102,

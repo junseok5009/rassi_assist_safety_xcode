@@ -56,7 +56,7 @@ class TermsState extends State<TermsWidget> {
   Widget _setLayout() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           '이용약관',
           style: TStyle.commonTitle,
         ),
@@ -83,7 +83,7 @@ class TermsState extends State<TermsWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       '사용중인 앱 버전',
                       style: TStyle.content14,
                     ),
@@ -123,7 +123,7 @@ class TermsState extends State<TermsWidget> {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => WebPage(),
+              builder: (context) => const WebPage(),
               settings: RouteSettings(
                 arguments: PgData(pgData: termsUrl),
               ),

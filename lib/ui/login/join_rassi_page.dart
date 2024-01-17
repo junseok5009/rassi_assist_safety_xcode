@@ -481,7 +481,7 @@ class RassiJoinState extends State<RassiJoinPage> {
                     Navigator.push(
                       context,
                       CustomNvRouteClass.createRouteData(
-                        WebPage(),
+                        const WebPage(),
                         RouteSettings(
                           arguments: PgData(
                             pgData: Net.AGREE_TERMS,

@@ -27,6 +27,7 @@ import 'package:rassi_assist/ui/login/join_phone_page.dart';
 import 'package:rassi_assist/ui/login/login_rassi_page.dart';
 import 'package:rassi_assist/ui/login/terms_of_use_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// 2021.03.11
 /// 로그인 구분

@@ -142,17 +142,21 @@ class HttpProcessClass {
   Future<void> _parse0001(String trStr, final http.Response response) async {
     DLog.d(TAG, response.body);
 
-    String? deviceModel = Platform.isIOS ? _iosInfo.utsname.machine : _androidInfo.model;
-    String? osVersion = Platform.isIOS ? _iosInfo.systemVersion : _androidInfo.version.release;
+    String? deviceModel =
+        Platform.isIOS ? _iosInfo.utsname.machine : _androidInfo.model;
+    String? osVersion =
+        Platform.isIOS ? _iosInfo.systemVersion : _androidInfo.version.release;
 
     // 사용자 정보 조회 부터
     if (trStr == TR.USER02) {
       final TrUser02 resData = TrUser02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         final User02 data = resData.retData;
-        if (data.userId != null && data.userId.length > 0)
+        if (data.userId != null && data.userId.isNotEmpty) {
           _userId = data.userId;
-        _prefs.setString(Const.PREFS_USER_ID, _userId);
+        }
+        await _prefs.setString(Const.PREFS_USER_ID, _userId);
+        AppGlobal().userId = _userId;
         if (_token != null && _token != '') {
           await _fetchPosts(
               TR.PUSH01,

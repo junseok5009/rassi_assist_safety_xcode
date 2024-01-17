@@ -37,7 +37,8 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
 
   @override
   void dispose() {
-    _userInfoProvider.removeListener(refreshChildWithMoveTab(0));
+    _userInfoProvider
+        .removeListener(refreshChildWithMoveTab(0));
     super.dispose();
   }
 

@@ -89,12 +89,9 @@ final routes = {
 
   //SignalPage.routeName: (BuildContext context) => SignalPage(),
   //MarketPageN.routeName: (BuildContext context) => MarketPageN(),
-  NotificationPage.routeName: (BuildContext context) =>
-      const NotificationPage(),
-  NotificationSetting.routeName: (BuildContext context) =>
-      NotificationSetting(),
-  NotificationSettingN.routeName: (BuildContext context) =>
-      const NotificationSettingN(),
+  NotificationPage.routeName: (BuildContext context) => const NotificationPage(),
+  NotificationSetting.routeName: (BuildContext context) => NotificationSetting(),
+  NotificationSettingN.routeName: (BuildContext context) => const NotificationSettingN(),
   NotiListPage.routeName: (BuildContext context) => NotiListPage(),
 
   TradeIntroPage.routeName: (BuildContext context) => const TradeIntroPage(),
@@ -137,17 +134,17 @@ final routes = {
   SocialListPage.routeName: (BuildContext context) => SocialListPage(),
   CatchListPage.routeName: (BuildContext context) => const CatchListPage(),
   NewsListPage.routeName: (BuildContext context) => const NewsListPage(),
-  NewsViewer.routeName: (BuildContext context) => NewsViewer(),
+  NewsViewer.routeName: (BuildContext context) => const NewsViewer(),
   IssueListPage.routeName: (BuildContext context) => const IssueListPage(),
 
-  WebPage.routeName: (BuildContext context) => WebPage(),
+  WebPage.routeName: (BuildContext context) => const WebPage(),
   WebViewer.routeName: (BuildContext context) => const WebViewer(),
   TermsPage.routeName: (BuildContext context) => TermsPage(),
   AiVersionPage.routeName: (BuildContext context) => const AiVersionPage(),
-  UserInfoPage.routeName: (BuildContext context) => UserInfoPage(),
+  UserInfoPage.routeName: (BuildContext context) => const UserInfoPage(),
   CommunityPage.routeName: (BuildContext context) => CommunityPage(),
-  UserCenterPage.routeName: (BuildContext context) => UserCenterPage(),
-  WriteQnaPage.routeName: (BuildContext context) => WriteQnaPage(),
+  UserCenterPage.routeName: (BuildContext context) => const UserCenterPage(),
+  WriteQnaPage.routeName: (BuildContext context) => const WriteQnaPage(),
 
   PayHistoryPage.routeName: (BuildContext context) => const PayHistoryPage(),
   PayManagePage.routeName: (BuildContext context) => PayManagePage(),

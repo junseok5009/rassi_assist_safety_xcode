@@ -209,15 +209,15 @@ class PocketSettingPageState extends State<PocketSettingPage> {
                     color: RColor.mainColor,
                     borderRadius: BorderRadius.all(Radius.circular(50)),
                   ),
-                  // TODO @@@@@
-                  // margin: EdgeInsets.only(
-                  //   left: 20,
-                  //   right: 20,
-                  //   top: 10,
-                  //   bottom: MediaQuery.of(_scaffoldKey.currentState.context)
-                  //           .viewPadding
-                  //           .bottom + 10,
-                  // ),
+                  margin: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 10,
+                    bottom: MediaQuery.of(_scaffoldKey.currentState!.context)
+                            .viewPadding
+                            .bottom +
+                        10,
+                  ),
                   alignment: Alignment.center,
                   child: const Text(
                     '저장하기',
