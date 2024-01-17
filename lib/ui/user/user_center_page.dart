@@ -25,6 +25,8 @@ class UserCenterPage extends StatelessWidget {
   static const String TAG = "[UserCenterPage]";
   static const String TAG_NAME = '1대1문의';
 
+  const UserCenterPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +41,8 @@ class UserCenterPage extends StatelessWidget {
 }
 
 class UserCenterWidget extends StatefulWidget {
+  const UserCenterWidget({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => UserCenterState();
 }
@@ -198,7 +202,7 @@ class UserCenterState extends State<UserCenterWidget> {
             color: RColor.lineGrey,
             width: 0.7,
           ),
-          borderRadius: const BorderRadius.all(const Radius.circular(10.0)),
+          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -208,7 +212,7 @@ class UserCenterState extends State<UserCenterWidget> {
         ),
       ),
       onTap: () {
-        _navigateRefreshData(context, WriteQnaPage());
+        _navigateRefreshData(context, const WriteQnaPage());
       },
     );
   }
@@ -421,7 +425,7 @@ class UserCenterState extends State<UserCenterWidget> {
                         ),
                         onTap: () {
                           Navigator.pop(context);
-                          _navigateRefreshData(context, WriteQnaPage());
+                          _navigateRefreshData(context, const WriteQnaPage());
                         },
                       ),
                       const SizedBox(
@@ -569,7 +573,6 @@ class UserCenterState extends State<UserCenterWidget> {
     }
   }
 
-  // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(UserCenterPage.TAG, response.body);
 

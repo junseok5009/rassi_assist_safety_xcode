@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/provider/provider_network/pocket_provider_network.dart';
@@ -10,8 +11,8 @@ import 'package:rassi_assist/models/pocket.dart';
 /// MY 포켓 리스트 provider
 class PocketProvider with ChangeNotifier {
   final String TAG = '[* PocketProvider *]';
-  final List<Pocket> _pktList = [];
 
+  final List<Pocket> _pktList = [];
   List<Pocket> get getPocketList => _pktList;
 
   void loggingPocketInfo() {
@@ -47,6 +48,7 @@ class PocketProvider with ChangeNotifier {
       return false;
     } else {
       _pktList.add(newPocket);
+      await CustomFirebaseClass.logEvtMyPocketMake(_pktList.length.toString());
       notifyListeners();
       return true;
     }
@@ -118,6 +120,7 @@ class PocketProvider with ChangeNotifier {
     if (result == null) {
       return CustomNvRouteResult.fail;
     } else if (result == CustomNvRouteResult.refresh) {
+      await CustomFirebaseClass.logEvtMyPocketAdd(newStock.stockName, newStock.stockCode);
       int pocketListIndex = getPocketListIndexByPocketSn(pocketSn);
       if (pocketListIndex == -1) {
         await setList();
@@ -217,8 +220,13 @@ class PocketProvider with ChangeNotifier {
     }
   }
 
-  int getPocketByPocketSn(String pocketSn) {
-    return _pktList.indexWhere((element) => element.pktSn == pocketSn);
+  Pocket getPocketByPocketSn(String pocketSn) {
+    int listIndex = _pktList.indexWhere((element) => element.pktSn == pocketSn);
+    if(listIndex == -1){
+      return _pktList.first;
+    }else{
+      return _pktList[listIndex];
+    }
   }
 
   // 포켓Sn으로 포켓리스트의 index 찾기

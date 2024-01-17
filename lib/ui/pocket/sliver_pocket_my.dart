@@ -45,10 +45,12 @@ class SliverPocketMyWidget extends StatefulWidget {
 //현재가 기준시간 표시 (전문 필요)
 //랜딩으로 들어올 경우 특정 포켓으로 이동
 class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
-  // 현재 선택된 포켓
-  late Pocket _pocket;
-  late PocketProvider _pocketProvider;
   final AppGlobal _appGlobal = AppGlobal();
+
+  late Pocket _pocket; // 현재 선택된 포켓
+  late PocketProvider _pocketProvider;
+  int _pocketListLength =
+      0; // 포켓 수정,삭제 등 모든 변화에 noti로 받는데, 새로 포켓설정으로 새로 만들었을 경우 새로 만든 포켓으로 셋팅
 
   final List<PocketSignalStock> _stkList = []; //종목리스트
 
@@ -73,6 +75,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
     } else {
       _pocket = _pocketProvider.getPocketList[0];
     }
+    _pocketListLength = _pocketProvider.getPocketList.length;
     _isSignalInfo = _appGlobal.isSignalInfo;
     reload();
   }
@@ -380,7 +383,6 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
       physics: const RangeMaintainingScrollPhysics(),
       itemCount: _stkList.length,
       itemBuilder: (BuildContext context, int index) {
-        DLog.e('ListView.builder _stkList[index].stockCode : ${_stkList[index].stockCode}');
         return Container(
           margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20,
               index == _stkList.length - 1 ? 75 : 0),
@@ -518,8 +520,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             //현재가
             Text(
               TStyle.getMoneyPoint(item.currentPrice),
-              style: TextStyle(
-                color: TStyle.getMinusPlusColor(item.fluctuationAmt),
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -941,7 +942,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                 basePageState.navigateAndGetResultPayPremiumPage();
               }
             } else if (result == CustomNvRouteResult.landing) {
-              Future.delayed(const Duration(milliseconds: 300), () {
+              Future.delayed(const Duration(milliseconds: 300), () async {
                 // 포켓 설정
                 Navigator.push(
                   context,
@@ -991,19 +992,26 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
     );
   }
 
-  Future<void> reload() async {
-    if (_pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn) == -1) {
+  Future<bool> reload({String changePocketSn = ''}) async {
+    if (changePocketSn != null) {
+      _pocket = _pocketProvider.getPocketByPocketSn(changePocketSn);
+    } else if (_pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn) == -1) {
       _pocket = _pocketProvider.getPocketList[0];
+    } else if (_pocketListLength < _pocketProvider.getPocketList.length) {
+      // 포켓을 새로 만든 경우
+      _pocket = _pocketProvider.getPocketList.last;
     }
-    await _fetchPosts(
+    _pocketListLength = _pocketProvider.getPocketList.length;
+    bool result = await _fetchPosts(
         TR.POCK08,
         jsonEncode(<String, String>{
           'userId': AppGlobal().userId,
           'pocketSn': _pocket.pktSn,
         }));
+    return result;
   }
 
-  Future<void> _fetchPosts(String trStr, String json) async {
+  Future<bool> _fetchPosts(String trStr, String json) async {
     DLog.d(SliverPocketMyWidget.TAG, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);
@@ -1017,12 +1025,15 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
+      return true;
     } on TimeoutException catch (_) {
       DLog.d(SliverPocketMyWidget.TAG, 'ERR : TimeoutException (12 seconds)');
       CommonPopup.instance.showDialogNetErr(context);
+      return false;
     } on SocketException catch (_) {
       DLog.d(SliverPocketMyWidget.TAG, 'ERR : SocketException');
       CommonPopup.instance.showDialogNetErr(context);
+      return false;
     }
   }
 

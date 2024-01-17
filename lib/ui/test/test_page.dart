@@ -4,25 +4,28 @@ import 'dart:io';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dotted_line/dotted_line.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/provider/pocket_provider.dart';
+import 'package:rassi_assist/provider/signal_provider.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/login/intro_search_page.dart';
 import 'package:rassi_assist/ui/login/join_phone_page.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
 import 'package:rassi_assist/ui/login/join_route_page.dart';
-import 'package:rassi_assist/ui/login/login_intro_page.dart';
 import 'package:rassi_assist/ui/login/login_rassi_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/pay/billing_page.dart';
@@ -40,8 +43,9 @@ import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_page.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/test/halflayer/test_half_layer_main.dart';
-import 'package:rassi_assist/ui/test/test_echart.dart';
+import 'package:rassi_assist/ui/test/test_event_popup_page.dart';
 import 'package:rassi_assist/ui/test/test_image_fit.dart';
+import 'package:rassi_assist/ui/test/test_webview.dart';
 import 'package:rassi_assist/ui/test/web_chart.dart';
 import 'package:rassi_assist/ui/user/user_info_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,8 +59,6 @@ class TestPage extends StatelessWidget {
   static const routeName = '/page_test';
   static const String TAG = "[TestPage]";
 
-  const TestPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,14 +67,12 @@ class TestPage extends StatelessWidget {
         backgroundColor: RColor.deepStat,
         elevation: 0,
       ),
-      body: const TestWidget(),
+      body: TestWidget(),
     );
   }
 }
 
 class TestWidget extends StatefulWidget {
-  const TestWidget({super.key});
-
   @override
   State<StatefulWidget> createState() => TestState();
 }
@@ -86,7 +86,6 @@ class TestState extends State<TestWidget> {
   String _strIp = '';
   String _token = '';
 
-  final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   late FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -251,7 +250,6 @@ class TestState extends State<TestWidget> {
             ),
           ),
         ),
-        _setAButton('e차트', EChartPage.routeName, Colors.redAccent[100]!),
         Builder(
           builder: (context) => InkWell(
             child: Container(
@@ -363,6 +361,61 @@ class TestState extends State<TestWidget> {
             },
           ),
         ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.redAccent[100],
+              child: const Text(
+                '인트로 페이지',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () {
+
+            },
+          ),
+        ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.redAccent[100],
+              child: const Text(
+                '웹뷰 테스트',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TestWebview(),
+                ),
+              );
+            },
+          ),
+        ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.redAccent[100],
+              child: const Text(
+                '이벤트팝업테스트',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TestEventPopupPage(),
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -378,14 +431,13 @@ class TestState extends State<TestWidget> {
       childAspectRatio: 1.5,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        _setCallUpButton('회원정보', UserInfoPage(), Colors.blueAccent[100]!),
+        _setCallUpButton('회원정보', const UserInfoPage(), Colors.blueAccent[100]!),
         _setAButton('정기결제관리', PayManagePage.routeName, Colors.blueAccent[100]!),
         _setAButton('핫_테마', ThemeHotPage.routeName, Colors.blueAccent[100]!),
         _setJoinButton('가입정보', 'PRE', Colors.blueAccent[100]!),
         _setAButton('가입SSG', JoinPhonePage.routeName, Colors.blueAccent[100]!),
         _setJoinButton('joinKakao', 'KAKAO', Colors.blueAccent[100]!),
         _setJoinButton('joinApple', 'APPLE', Colors.blueAccent[100]!),
-        _setAButton('Login\nIntro', LoginIntroPage.routeName, Colors.blueAccent[100]!),
         _setAButton('Intro\nsearch', IntroSearchPage.routeName, Colors.blueAccent[100]!),
         _setJoinButton('가입경로', 'ROUTE', Colors.blueAccent[100]!),
         _setAButton('라씨\n로그인', RassiLoginPage.routeName, Colors.blueAccent[100]!),
@@ -531,7 +583,7 @@ class TestState extends State<TestWidget> {
                 basePageState.callPageRouteUP(const PayPremiumPage());
               }
               if (Platform.isAndroid) {
-                basePageState.callPageRouteUP(PayPremiumAosPage());
+                basePageState.callPageRouteUP(const PayPremiumAosPage());
               }
             },
           ),
@@ -1154,20 +1206,21 @@ class TestState extends State<TestWidget> {
     );
   }
 
-  void setUserId(String uId) {
-    _prefs.setString(Const.PREFS_USER_ID, uId);
-    _regIdFirebase(_userId, uId);
-  }
-
-  //FB 기록 - 관리자 아이디 변경 기록을 남기기 위해서
-  Future<void> _regIdFirebase(String id1, String id2) async {
-    await analytics.logEvent(
+  setUserId(String uId) async {
+    CustomFirebaseClass.fInstance.logEvent(
       name: 'test_page_id_change',
       parameters: <String, dynamic>{
-        'before_user_id': id1,
-        'after_user_id': id2,
+        'before_user_id': _userId,
+        'after_user_id': uId,
       },
     );
+    AppGlobal().setLogoutStatus();
+    AppGlobal().userId = uId;
+    await _prefs.setString(Const.PREFS_USER_ID, uId);
+
+    Provider.of<UserInfoProvider>(context, listen: false).init();
+    Provider.of<PocketProvider>(context, listen: false).setList();
+    Provider.of<SignalProvider>(context, listen: false).setList();
   }
 
   void _getNaverInfo() async {

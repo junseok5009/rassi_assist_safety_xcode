@@ -109,7 +109,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   //등락률
                   Text(
@@ -129,6 +129,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 ],
               ),
             ),
+            const SizedBox(width: 5,),
             _setChartView(),
           ],
         ),
@@ -141,8 +142,9 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          width: 50,
-          height: 38,
+          width: 90,
+          height: 40,
+          //color: Colors.yellow,
           alignment: Alignment.center,
           child: LineChart(
             LineChartData(
@@ -270,7 +272,7 @@ class TilePocketSig extends StatelessWidget {
                       basePageState.goStockHomePage(
                         item.stockCode,
                         item.stockName,
-                        Const.STK_INDEX_HOME,
+                        Const.STK_INDEX_SIGNAL,
                       );
                     },
                     child: Text(
@@ -292,15 +294,14 @@ class TilePocketSig extends StatelessWidget {
           ),
           if (Provider.of<UserInfoProvider>(context, listen: false)
               .isPremiumUser())
-            _setSignalView(context)
+            _setSignalView()
           else if (Provider.of<UserInfoProvider>(context,
               listen: false)
               .is3StockUser() &&
               item.signalYn == 'Y')
-            _setSignalView(context)
+            _setSignalView()
           else
             _setNoPremiumBlockView(context)
-
         ],
       ),
     );
@@ -335,7 +336,7 @@ class TilePocketSig extends StatelessWidget {
     );
   }
 
-  _setSignalView(BuildContext context){
+  _setSignalView(){
     return Row(
       children: [
         _setBsInfo(),

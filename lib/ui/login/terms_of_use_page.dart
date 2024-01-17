@@ -318,7 +318,7 @@ class _TermsOfUsePageState extends State<TermsOfUsePage> {
                           WebPage(),
                           RouteSettings(
                             arguments: PgData(
-                              pgData: Net.AGREE_POLICY_INFO,
+                              pgData: Net.AGREE_POLICY_INFO_2,
                             ),
                           ),
                         ),

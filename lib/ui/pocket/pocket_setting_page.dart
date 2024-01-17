@@ -108,23 +108,30 @@ class PocketSettingPageState extends State<PocketSettingPage> {
               splashColor: Colors.transparent,
               onTap: () async {
                 var pocketProvider =
-                Provider.of<PocketProvider>(context, listen: false);
+                    Provider.of<PocketProvider>(context, listen: false);
                 if (AppGlobal().isPremium) {
                   if (pocketProvider.getPocketList.length >= 10) {
                     commonShowToastCenter('생성 가능한 포켓의 개수는 최대 10개 입니다.');
                   } else {
-                    String result = await CommonLayer.instance.showLayerAddPocket(context);
-                    if(result != null && result == CustomNvRouteResult.refresh){
-                      setState(() {
+                    String result =
+                        await CommonLayer.instance.showLayerAddPocket(context);
+                    if (result != null &&
+                        result == CustomNvRouteResult.refresh) {
+                      // [포켓 > 나의포켓 > 포켓선택 (새로 만든 포켓이 선택)]
+                      if (mounted) {
+                        Navigator.pop(context);
+                      }
+                      /* setState(() {
                         _pktList = _pocketProvider.getPocketList
                             .map((e) => Pocket.withStockList(e.pktSn, e.pktName, e.stkList))
                             .toList();
-                      });
+                      });*/
                     }
                   }
                 } else {
                   // 프리미엄 팝업
-                  String result = await CommonPopup.instance.showDialogPremium(context);
+                  String result =
+                      await CommonPopup.instance.showDialogPremium(context);
                   if (result == CustomNvRouteResult.landPremiumPage) {
                     basePageState.navigateAndGetResultPayPremiumPage();
                   }
@@ -202,14 +209,15 @@ class PocketSettingPageState extends State<PocketSettingPage> {
                     color: RColor.mainColor,
                     borderRadius: BorderRadius.all(Radius.circular(50)),
                   ),
-                  margin: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 10,
-                    bottom: MediaQuery.of(_scaffoldKey.currentState!.context)
-                        .viewPadding
-                        .bottom + 10,
-                  ),
+                  // TODO @@@@@
+                  // margin: EdgeInsets.only(
+                  //   left: 20,
+                  //   right: 20,
+                  //   top: 10,
+                  //   bottom: MediaQuery.of(_scaffoldKey.currentState.context)
+                  //           .viewPadding
+                  //           .bottom + 10,
+                  // ),
                   alignment: Alignment.center,
                   child: const Text(
                     '저장하기',
@@ -290,7 +298,10 @@ class PocketSettingPageState extends State<PocketSettingPage> {
   Widget _setListItem(Pocket item) {
     return Container(
       key: Key(item.pktSn),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7.5,),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 7.5,
+      ),
       color: Colors.transparent,
       child: Container(
         key: Key(item.pktSn),
@@ -324,6 +335,9 @@ class PocketSettingPageState extends State<PocketSettingPage> {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(
+                width: 5,
               ),
               Row(
                 children: [
@@ -451,11 +465,13 @@ class PocketSettingPageState extends State<PocketSettingPage> {
 
   deleteProcess(bool goBack) async {
     if (_isChangedTrash || _isChangedOrder) {
-      String result = await CommonPopup.instance.showDialogCustomConfirm(context, '알림',
-          !_isChangedTrash
-              ? '포켓의 순서를 저장하시겠습니까?'
-              : '선택하신 ${_getTrashPocketCount()}개의 포켓을\n삭제하시겠습니까?\n포켓에 등록된 모든 종목이\n함께 삭제됩니다.',
-          !_isChangedTrash ? '저장하기' : '삭제하기',
+      String result = await CommonPopup.instance.showDialogCustomConfirm(
+        context,
+        '알림',
+        !_isChangedTrash
+            ? '포켓의 순서를 저장하시겠습니까?'
+            : '선택하신 ${_getTrashPocketCount()}개의 포켓을\n삭제하시겠습니까?\n포켓에 등록된 모든 종목이\n함께 삭제됩니다.',
+        !_isChangedTrash ? '저장하기' : '삭제하기',
       );
       if (context.mounted) {
         if (result == CustomNvRouteResult.landing) {
@@ -496,5 +512,4 @@ class PocketSettingPageState extends State<PocketSettingPage> {
       Navigator.pop(context, CustomNvRouteResult.cancel);
     }
   }
-
 }

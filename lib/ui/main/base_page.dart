@@ -547,6 +547,7 @@ class BasePageState extends State<BasePage> {
         _selectedIndex = 1;
       });
     } else {
+      //TODO @@@@@
       // SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(tabIndex, changePocketSn: pktSn,);
     }
   }
@@ -743,7 +744,7 @@ class BasePageState extends State<BasePage> {
   //Android forground 에서 메시지 처리
   void _configureSelectNotificationSubject() {
     selectNotificationStream.stream.listen((String payload) async {
-      DLog.d(BasePage.TAG, 'SelectNotification : ${payload}');
+      DLog.d(BasePage.TAG, 'SelectNotification : $payload');
 
       try {
         Map<String, dynamic> result = jsonDecode(payload);

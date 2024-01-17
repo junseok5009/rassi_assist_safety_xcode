@@ -57,8 +57,8 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
   int _currentTabIndex = 0; // 현재 탭뷰 인덱스
   late TabController _tabController;
   final List<String> _tabTitles = [
-    '상승',
-    '하락',
+    '상승 50',
+    '하락 50',
     '매매신호',
     '이슈',
     '수급',
@@ -413,7 +413,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                   style: TStyle.content14,
                 ),
                 Text(
-                  _pock11.chartCnt,
+                  '${(int.tryParse(_pock11.chartCnt) ?? 0) + (int.tryParse(_pock11.supplyCnt) ?? 0)}',
                   style: TStyle.commonTitle,
                 ),
               ],
@@ -547,7 +547,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
             var item = _pock10.stockList[idx];
             if (item.myTradeFlag == 'S') {
               //나만의 매도신호는 나만의 매도 신호 탭으로 이동
-              DefaultTabController.of(context).animateTo(2);
+              basePageState.goPocketPage(Const.PKT_INDEX_SIGNAL,);
             } else {
               //매매신호는 나의포켓-매매신호 리스트로
               basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: _pock10.stockList[idx].pocketSn, isSignalInfo: true,);

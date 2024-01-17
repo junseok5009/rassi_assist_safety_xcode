@@ -192,7 +192,7 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
       child: Stack(
         children: [
           TextField(
-            decoration: const InputDecoration.collapsed(hintText: '테마명을 입력하세요.'),
+            decoration: InputDecoration.collapsed(hintText: '테마명을 입력하세요.'),
             controller: null,
             onChanged: (text) {
               if (text.length > 1) {

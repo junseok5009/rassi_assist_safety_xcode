@@ -22,6 +22,8 @@ class WriteQnaPage extends StatelessWidget {
   static const String TAG = "[WriteQnaPage]";
   static const String TAG_NAME = '1대1문의_작성';
 
+  const WriteQnaPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,12 +32,14 @@ class WriteQnaPage extends StatelessWidget {
         backgroundColor: RColor.deepStat,
         elevation: 0,
       ),
-      body: WriteQnaWidget(),
+      body: const WriteQnaWidget(),
     );
   }
 }
 
 class WriteQnaWidget extends StatefulWidget {
+  const WriteQnaWidget({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => WriteQnaState();
 }
@@ -82,23 +86,23 @@ class WriteQnaState extends State<WriteQnaWidget> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             '1:1문의하기',
             style: TStyle.commonTitle,
           ),
           backgroundColor: Colors.white,
-          iconTheme: IconThemeData(color: Colors.black),
+          iconTheme: const IconThemeData(color: Colors.black),
         ),
         body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 30,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15, right: 15),
+              const Padding(
+                padding: EdgeInsets.only(left: 15, right: 15),
                 child: Text('제목'),
               ),
               const SizedBox(
@@ -121,8 +125,8 @@ class WriteQnaState extends State<WriteQnaWidget> {
               const SizedBox(
                 height: 25,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15, right: 15),
+              const Padding(
+                padding: EdgeInsets.only(left: 15, right: 15),
                 child: Text('내용'),
               ),
               const SizedBox(
@@ -162,12 +166,12 @@ class WriteQnaState extends State<WriteQnaWidget> {
                           width: 0.7,
                         ),
                         borderRadius:
-                            const BorderRadius.all(const Radius.circular(10.0)),
+                            const BorderRadius.all(Radius.circular(10.0)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('취소'),
+                        children: const [
+                          Text('취소'),
                         ],
                       ),
                     ),
@@ -191,12 +195,12 @@ class WriteQnaState extends State<WriteQnaWidget> {
                           width: 0.7,
                         ),
                         borderRadius:
-                            const BorderRadius.all(const Radius.circular(10.0)),
+                            const BorderRadius.all(Radius.circular(10.0)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('등록'),
+                        children: const [
+                          Text('등록'),
                         ],
                       ),
                     ),
@@ -218,10 +222,10 @@ class WriteQnaState extends State<WriteQnaWidget> {
   }
 
   void _checkContent(String title, String content) {
-    if (title.length == 0) {
+    if (title.isEmpty) {
       _showDialogMsg('제목을 입력해주세요', '확인');
     } else {
-      if (content.length == 0) {
+      if (content.isEmpty) {
         _showDialogMsg('내용을 입력해주세요', '확인');
       } else {
         _fetchPosts(
@@ -398,13 +402,11 @@ class WriteQnaState extends State<WriteQnaWidget> {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http
-          .post(
+      final http.Response response = await http.post(
             url,
             body: json,
             headers: Net.headers,
-          )
-          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {

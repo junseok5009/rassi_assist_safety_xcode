@@ -103,27 +103,25 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                         } else {
                           return Stack(
                             children: [
-                              Expanded(
-                                child: ListView.builder(
-                                  itemCount: signalList.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    bool isUserSig = false;
-                                    if (signalList[index]
-                                        .sellPrice
-                                        .isNotEmpty) {
-                                      signalList[index].myTradeFlag == 'S'
-                                          ? isUserSig = true
-                                          : isUserSig = false;
-                                    }
-                                    return _setListItem(
-                                      index == 0,
-                                      index == signalList.length - 1,
-                                      signalList[index],
-                                      isUserSig,
-                                    );
-                                  },
-                                ),
+                              ListView.builder(
+                                itemCount: signalList.length,
+                                itemBuilder:
+                                    (BuildContext context, int index) {
+                                  bool isUserSig = false;
+                                  if (signalList[index]
+                                      .sellPrice
+                                      .isNotEmpty) {
+                                    signalList[index].myTradeFlag == 'S'
+                                        ? isUserSig = true
+                                        : isUserSig = false;
+                                  }
+                                  return _setListItem(
+                                    index == 0,
+                                    index == signalList.length - 1,
+                                    signalList[index],
+                                    isUserSig,
+                                  );
+                                },
                               ),
                               Align(
                                 alignment: Alignment.bottomCenter,

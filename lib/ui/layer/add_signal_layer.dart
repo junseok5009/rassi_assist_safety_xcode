@@ -556,7 +556,7 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
         onTap: () async {
           if (_isSelectPrice && _isSelectPriceTouchOnce) {
             String result = await Provider.of<SignalProvider>(context, listen: false).addSignal(
-              _stockInfoProvider.getStockCode,
+              _stockInfoProvider.getStockCode as Stock,
               Provider.of<SignalLayerSliderProvider>(context, listen: false).getCurrentPrice.toStringAsFixed(0),
             );
             if (mounted && result != null) {
@@ -573,7 +573,7 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
               });
             } else {
               String result = await Provider.of<SignalProvider>(context, listen: false).addSignal(
-                _stockInfoProvider.getStockCode,
+                _stockInfoProvider.getStockCode as Stock,
                 _directEditPrice.toStringAsFixed(0),
               );
               if (mounted && result != null) {

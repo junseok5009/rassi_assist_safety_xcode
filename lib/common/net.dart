@@ -73,6 +73,8 @@ class Net {
   static const AGREE_TERMS = "https://www.thinkpool.com/policy/service";
   //개인정보 처리방침
   static const AGREE_POLICY_INFO = "https://www.thinkpool.com/policy/privacy";
+  //개인정보 수집 및 이용 약관
+  static const AGREE_POLICY_INFO_2 = "https://files.thinkpool.com/rassi_signal/pr_s_pec_2024.html";
   //저작권 안내
   static const COPYRIGHT_INFO =
       "https://thinkpoolost.wixsite.com/moneybot/%EC%A0%80%EC%9E%91%EA%B6%8C-%EC%95%88%EB%82%B4";

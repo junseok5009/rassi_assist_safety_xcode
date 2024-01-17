@@ -665,6 +665,7 @@ class PayThreeState extends State<PayThreeStock> {
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData!.listPaymentGuide.isNotEmpty) {
           _listApp03.addAll(resData.retData!.listPaymentGuide);
+          setState(() { });
         }
         _fetchPosts(
             TR.PROM02,

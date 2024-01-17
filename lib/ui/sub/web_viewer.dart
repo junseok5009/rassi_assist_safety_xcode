@@ -1,11 +1,10 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-
-/// 2021.04.07
+/// 2021.04.07 - JY
 /// 웹뷰어 (일단 공시 뷰어)
 class WebViewer extends StatelessWidget {
   static const routeName = '/page_web_view';
@@ -45,9 +44,9 @@ class WebViewState extends State<WebViewerWidget> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: WebViewer.TAG_NAME,
-      screenClassOverride: WebViewer.TAG_NAME,);
+    CustomFirebaseClass.logEvtScreenView(
+      WebViewer.TAG_NAME,
+    );
 
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)

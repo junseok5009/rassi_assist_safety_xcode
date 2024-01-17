@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/stock_pkt_signal.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock13.dart';
 
@@ -53,12 +55,13 @@ class SignalProvider with ChangeNotifier {
     }
   }
 
-  // 23.12.08 나만의 매도 신호 등록 / return [refresh / fail / retMsg]
-  Future<String> addSignal(String stockCode, String buyPrice) async {
+  // 23.12.08 나만의 신호 등록 / return [refresh / fail / retMsg]
+  Future<String> addSignal(Stock newStock, String buyPrice) async {
     //return [refresh / fail / retMsg]
     String result =
-        await SignalProviderNetwork.instance.addSignal(stockCode, buyPrice);
+        await SignalProviderNetwork.instance.addSignal(newStock.stockCode, buyPrice);
     if (result != null && result == CustomNvRouteResult.refresh) {
+      await CustomFirebaseClass.logEvtMySignalAdd(newStock.stockName, newStock.stockCode);
       bool result = await setList();
       if (result) {
         return CustomNvRouteResult.refresh;

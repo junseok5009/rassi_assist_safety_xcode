@@ -1,6 +1,6 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
@@ -12,9 +12,7 @@ class AiVersionPage extends StatelessWidget {
   static const routeName = '/page_ai_engine';
   static const String TAG = "[AiVersionPage]";
   static const String TAG_NAME = 'AI_버전_히스토리';
-
-  const AiVersionPage({super.key});
-
+  const AiVersionPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
@@ -22,12 +20,14 @@ class AiVersionPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(toolbarHeight: 0,
           backgroundColor: RColor.deepStat, elevation: 0,),
-        body: VerWidget(),
+        body: const VerWidget(),
       ),);
   }
 }
 
 class VerWidget extends StatefulWidget {
+  const VerWidget({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => VerState();
 }
@@ -40,9 +40,7 @@ class VerState extends State<VerWidget> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: AiVersionPage.TAG_NAME,
-      screenClassOverride: AiVersionPage.TAG_NAME,);
+    CustomFirebaseClass.logEvtScreenView(AiVersionPage.TAG_NAME,);
 
 
     _controller = WebViewController()

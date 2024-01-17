@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
@@ -14,11 +13,11 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/chart_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_no_retdata.dart';
-
 import 'package:rassi_assist/models/tr_search/tr_search01.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal01.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal02.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal08.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/common_popup.dart';
@@ -32,7 +31,9 @@ class TradeIntroPage extends StatefulWidget {
   static const routeName = '/page_trade_intro';
   static const String TAG = "[TradeIntroPage]";
   static const String TAG_NAME = '인트로_매매신호_상세';
+
   const TradeIntroPage({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => TradeIntroPageState();
 }
@@ -41,7 +42,6 @@ class TradeIntroPageState extends State<TradeIntroPage> {
   late SharedPreferences _prefs;
   String _userId = "";
   late PgData args;
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
 
   String stkName = "";
   String stkCode = "";
@@ -99,37 +99,42 @@ class TradeIntroPageState extends State<TradeIntroPage> {
     CustomFirebaseClass.logEvtScreenView(
       TradeIntroPage.TAG_NAME,
     );
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), () {
-      _fetchPosts(
-          TR.SIGNAL01,
-          jsonEncode(<String, String>{
+    _loadPrefData().then(
+      (_) => _fetchPosts(
+        TR.SIGNAL01,
+        jsonEncode(
+          <String, String>{
             'userId': _userId.isEmpty ? 'RASSI_APP' : _userId,
             'stockCode': stkCode,
-          }));
-    });
+          },
+        ),
+      ),
+    );
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-
-      //무료 5종목 체크
-      _searchList = _prefs.getStringList(TStyle.getTodayString()) ?? [];
-
-      if (stkCode != null && stkCode.isNotEmpty) {
-        if (_searchList.length < 5) {
-          if (!_containListData(_searchList, stkCode)) {
-            //새로운 종목코드를 가지고 있지 않다면 저장
-            _searchList.add(stkCode);
-            _prefs.setStringList(TStyle.getTodayString(), _searchList);
-          }
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    //무료 5종목 체크
+    _searchList = _prefs.getStringList(TStyle.getTodayString()) ?? [];
+    if (stkCode != null && stkCode.isNotEmpty) {
+      if (_searchList.length < 5) {
+        if (!_containListData(_searchList, stkCode)) {
+          //새로운 종목코드를 가지고 있지 않다면 저장
+          _searchList.add(stkCode);
+          await _prefs.setStringList(TStyle.getTodayString(), _searchList);
+          setState(() {});
         }
-        DLog.d(TradeIntroPage.TAG, _searchList.toString());
       }
-    });
+    }
+
   }
 
   //리스트에서 해당 종목코드 있는지
@@ -145,34 +150,28 @@ class TradeIntroPageState extends State<TradeIntroPage> {
   }
 
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     args = ModalRoute.of(context)!.settings.arguments as PgData;
     stkName = args.stockName; //TODO 글자수 제한
     stkCode = args.stockCode;
     DLog.d(TradeIntroPage.TAG, args.stockName);
     DLog.d(TradeIntroPage.TAG, args.stockCode);
-    // Bottom Navigation 안에서 페이지가 열릴 경우 SafeArea 삭제
-
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: _setLayout(),
-    );
-  }
-
-  Widget _setLayout() {
     return Scaffold(
-      //상단바 - 종목명, 종목코드, 종목홈
-      appBar: _setCustomAppBar(),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '',
+        elevation: 0,
+      ),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
           children: [
+            const SizedBox(
+              height: 15,
+            ),
+
+            _setSubTitle('$stkName의 매매신호'),
+
             //카드뷰 - 매수, 매도, 보유중, 관망중,
             Stack(
               children: [
@@ -206,22 +205,26 @@ class TradeIntroPageState extends State<TradeIntroPage> {
 
             // 매매신호 실시간 받기
             _setBtnRealtime(),
+
             const SizedBox(
-              height: 15.0,
+              height: 20.0,
             ),
 
             // 최근 1년간 AI 매매신호 차트
             _setSubTitle(
               "최근 1년간 AI 매매신호",
             ),
-            SizedBox(
+            Container(
               width: double.infinity,
               height: 270,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+              ),
               child: _setEChartView(),
             ),
 
             const SizedBox(
-              height: 10.0,
+              height: 15.0,
             ),
 
             // 모든 매매내역 보기
@@ -281,65 +284,15 @@ class TradeIntroPageState extends State<TradeIntroPage> {
     );
   }
 
-  PreferredSizeWidget _setCustomAppBar() {
-    return AppBar(
-      toolbarHeight: 65,
-      automaticallyImplyLeading: false,
-      backgroundColor: RColor.deepBlue,
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: RColor.deepBlue,
-      ),
-      elevation: 0,
-      title: Row(
-        children: [
-          const SizedBox(
-            width: 7,
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                TStyle.getLimitString(args.stockName, 12),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                args.stockCode,
-                style: TStyle.btnSTextWht,
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        //닫기
-        InkWell(
-          child: const Icon(
-            Icons.close,
-            color: Colors.white,
-          ),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-        const SizedBox(
-          width: 15.0,
-        ),
-      ],
-    );
-  }
-
   //소항목 타이틀
   Widget _setSubTitle(String subTitle) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: 15,
+        horizontal: 20,
       ),
       child: Text(
         subTitle,
-        style: TStyle.commonTitle,
+        style: TStyle.title17,
       ),
     );
   }
@@ -348,7 +301,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
   Widget _setStatusCard() {
     if (!_isSignalTargetYn) {
       return Container(
-        margin: const EdgeInsets.all(15),
+        margin: const EdgeInsets.all(20),
         padding: const EdgeInsets.all(15),
         decoration: UIStyle.boxSignalCard(),
         //decoration: UIStyle.boxWithOpacity(),
@@ -455,7 +408,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
                             width: 4.0,
                           ),
                           Text(
-                            '$stkProfit',
+                            stkProfit,
                             style: TextStyle(
                               color: profitColor,
                               fontWeight: FontWeight.w600,
@@ -480,7 +433,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
                             ),
                             Text(
                               '$holdDays일째',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 18,
@@ -518,7 +471,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
                         children: [
                           Text('$prePrc '),
                           Text(
-                            '${TStyle.getMoneyPoint(stkPrc)}',
+                            TStyle.getMoneyPoint(stkPrc),
                             style: TStyle.subTitle,
                           ),
                           const Text('원'),
@@ -596,7 +549,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
                       height: 5,
                     ),
                     Text(
-                      '$stkProfit',
+                      stkProfit,
                       style: TextStyle(
                         color: profitColor,
                         fontWeight: FontWeight.w600,
@@ -617,14 +570,11 @@ class TradeIntroPageState extends State<TradeIntroPage> {
   Widget _setBtnRealtime() {
     return InkWell(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+        margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
         padding: const EdgeInsets.only(
             left: 30.0, right: 30.0, bottom: 5.0, top: 5.0),
         height: 40,
-        decoration: const BoxDecoration(
-          color: RColor.mainColor,
-          borderRadius: BorderRadius.all(Radius.circular(20.0)),
-        ),
+        decoration: UIStyle.roundBtnStBox(),
         child: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -658,7 +608,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
         ),
       ),
       onTap: () {
-        _showDialogMsg('$stkName 의\nAI매매신호 실시간 받기는');
+        _showDialogMsg('$stkName의 AI매매신호 실시간 받기는');
       },
     );
   }
@@ -669,7 +619,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
       visible: _hasSignal,
       child: InkWell(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 15.0),
+          margin: const EdgeInsets.symmetric(horizontal: 20.0),
           padding: const EdgeInsets.only(
               left: 30.0, right: 30.0, bottom: 5.0, top: 5.0),
           height: 40,
@@ -710,7 +660,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
           ),
         ),
         onTap: () {
-          _showDialogMsg('$stkName 의\n모든 매매내역 보기는');
+          _showDialogMsg('$stkName의 모든 매매내역 보기는');
         },
       ),
     );
@@ -727,7 +677,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
       ),
       child: Center(
         child: Text(
-          '$statTxt', style: TStyle.btnTextWht20,
+          statTxt, style: TStyle.btnTextWht20,
           // style: theme.textTheme.body.apply(color: textColor),
         ),
       ),
@@ -738,7 +688,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
   Widget _setReturnCard() {
     return Container(
       margin: const EdgeInsets.symmetric(
-        horizontal: 15,
+        horizontal: 20,
         vertical: 20,
       ),
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -746,17 +696,17 @@ class TradeIntroPageState extends State<TradeIntroPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
-          color: RColor.lineGrey,
-          width: 0.8,
+          color: RColor.greyBoxLine_c9c9c9,
+          width: 1,
         ),
-        borderRadius: const BorderRadius.all(Radius.circular(6)),
+        borderRadius: const BorderRadius.all(Radius.circular(6.0)),
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 '투자수익은?',
                 style: TStyle.commonTitle,
               ),
@@ -846,7 +796,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
             height: 10.0,
           ),
           Text(
-            'AI매매신호를 따라 ${invAmt}만원 투자했을 경우, 현재 ${balAmt}만원 입니다.',
+            'AI매매신호를 따라 $invAmt만원 투자했을 경우, 현재 $balAmt만원 입니다.',
             style: TStyle.textGrey15,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -907,26 +857,6 @@ class TradeIntroPageState extends State<TradeIntroPage> {
           itemBuilder: (context, index) {
             return TileSignalAnal(_acvList[index]);
           }),
-    );
-  }
-
-  //매매신호 성과 Circle
-  Widget _setCircleStatus(String txt) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
-      width: 80.0,
-      height: 80.0,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(width: 1, color: Colors.grey),
-      ),
-      child: Center(
-        child: Text(
-          '$txt',
-          // '$index'
-          // style: theme.textTheme.body.apply(color: textColor),
-        ),
-      ),
     );
   }
 
@@ -1020,7 +950,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
       builder: (BuildContext dailogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
+            borderRadius: BorderRadius.circular(25.0),
           ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -1037,149 +967,56 @@ class TradeIntroPageState extends State<TradeIntroPage> {
             ],
           ),
           content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.asset(
-                  'images/rassibs_iconimg_01.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(
-                  height: 25.0,
-                ),
-                Text(
-                  '$msg\n라씨 매매비서 시작하기 후 제공됩니다.',
-                  textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                ),
-                const SizedBox(
-                  height: 20.0,
-                ),
-                const Text(
-                  '1초만에 하는\n간편하게 시작하기를 하세요.',
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                  style: TextStyle(
-                    //공통 중간 타이틀
-                    fontWeight: FontWeight.w600,
-                    fontSize: 17,
-                    color: Color(0xcc111111),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  Text(
+                    '$msg\n라씨 매매비서 시작하기 후 제공됩니다.',
+                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(
-                  height: 20.0,
-                ),
-                InkWell(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 20,
-                    ),
-                    decoration: UIStyle.roundBtnStBox(),
-                    child: const Center(
-                      child: Text(
-                        '라씨 매매비서 시작하기',
-                        style: TStyle.btnTextWht15,
-                        textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                      ),
-                    ),
+                  const SizedBox(
+                    height: 30.0,
                   ),
-                  onTap: () {
-                    Navigator.pop(dailogContext);
-                    if (LoginDivisionPage.globalKey.currentState == null) {
-                      Navigator.pushReplacementNamed(
-                          context, LoginDivisionPage.routeName);
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  //5종목 초과 검색시 알림
-  void _showDialogLimit(
-    String stockName,
-  ) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              InkWell(
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.black,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.asset(
-                  'images/rassibs_iconimg_01.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(
-                  height: 25.0,
-                ),
-                const Text(
-                  '알림',
-                  textAlign: TextAlign.center,
-                  style: TStyle.title18,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                ),
-                const SizedBox(
-                  height: 30.0,
-                ),
-                const Text(
-                  '로그인 전 매매비서 / 매매신호 열람은 하루 5종목까지 무료로 제공됩니다.',
-                  textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                ),
-                const SizedBox(
-                  height: 30.0,
-                ),
-                TextButton(
-                  child: Center(
+                  const Text(
+                    '1초만에 하는\n간편하게 시작하기를 하세요.',
+                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    style: TextStyle(
+                      //공통 중간 타이틀
+                      fontWeight: FontWeight.w600,
+                      fontSize: 17,
+                      color: Color(0xcc111111),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: 30.0,
+                  ),
+                  InkWell(
                     child: Container(
-                      width: 180,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: RColor.mainColor,
-                        borderRadius:
-                            BorderRadius.all(Radius.circular(20.0)),
-                      ),
+                      width: 200,
+                      height: 50,
+                      decoration: UIStyle.boxRoundFullColor25c(RColor.purpleBasic_6565ff,),
                       child: const Center(
                         child: Text(
-                          '확인',
-                          style: TStyle.btnTextWht16,
+                          '라씨 매매비서 시작하기',
+                          style: TStyle.btnTextWht15,
                           textScaleFactor: Const.TEXT_SCALE_FACTOR,
                         ),
                       ),
                     ),
+                    onTap: () {
+                      Navigator.pop(dailogContext);
+                      if (LoginDivisionPage.globalKey.currentState == null) {
+                        Navigator.pushReplacementNamed(
+                            context, LoginDivisionPage.routeName);
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -1274,7 +1111,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
       headers: Net.headers,
     );
 
-    if (_bYetDispose) _parseTrData(trStr, response);
+    _parseTrData(trStr, response);
   }
 
   // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
@@ -1403,15 +1240,19 @@ class TradeIntroPageState extends State<TradeIntroPage> {
         String tmpDate = '[';
         String tmpData = '[';
         for (int i = 0; i < chartData.length; i++) {
-          tmpDate = '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
+          tmpDate =
+              '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
 
           //0:없음, 1:매수, 2:매도
           if (chartData[i].flag == null || chartData[i].flag == '') {
-            tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
+            tmpData =
+                '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
           } else if (chartData[i].flag == 'B') {
-            tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: $upArrow, symbolOffset: [0,18],itemStyle: {color:\'red\'}},';
+            tmpData =
+                '$tmpData{value: ${chartData[i].tradePrc},symbol: $upArrow, symbolOffset: [0,18],itemStyle: {color:\'red\'}},';
           } else if (chartData[i].flag == 'S') {
-            tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: $downArrow, symbolOffset: [0,-18],itemStyle: {color:\'blue\'}},';
+            tmpData =
+                '$tmpData{value: ${chartData[i].tradePrc},symbol: $downArrow, symbolOffset: [0,-18],itemStyle: {color:\'blue\'}},';
             // 'symbol: \'arrow\', symbolRotate: 180, itemStyle: {color:\'blue\'}},';
           }
         }
@@ -1442,7 +1283,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
 
   //성과 데이터 중 매도 데이터가 있는지 확인한다.
   bool _hasSellDataCheck(List<SignalAnal> dataList) {
-    if (dataList != null && dataList.length > 0) {
+    if (dataList != null && dataList.isNotEmpty) {
       int count = 0;
       for (int i = 0; i < dataList.length; i++) {
         if (dataList[i].analTarget == 'S' && dataList[i].analType != null) {
@@ -1500,16 +1341,16 @@ class TradeIntroPageState extends State<TradeIntroPage> {
     }
 
     if (data.signalData.profitRate.contains('-')) {
-      stkProfit = data.signalData.profitRate + '%';
+      stkProfit = '${data.signalData.profitRate}%';
       profitColor = RColor.sigSell;
     } else {
-      stkProfit = '+' + data.signalData.profitRate + '%';
+      stkProfit = '+${data.signalData.profitRate}%';
       profitColor = RColor.sigBuy;
     }
 
     holdDays = data.signalData.elapsedDays;
     holdPeriod = data.signalData.termOfTrade;
-    stkPrc = '${data.signalData.tradePrc}';
+    stkPrc = data.signalData.tradePrc;
     dateTime = data.signalData.tradeDate + data.signalData.tradeTime;
 
     setState(() {});

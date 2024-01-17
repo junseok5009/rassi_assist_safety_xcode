@@ -19,36 +19,24 @@ import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
 import 'package:rassi_assist/models/tr_user/tr_user04.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/login/intro_start_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 /// 2020.12.
 /// 회원정보 관리
-class UserInfoPage extends StatelessWidget {
+
+class UserInfoPage extends StatefulWidget {
   static const routeName = '/page_user_info';
   static const String TAG = "[UserInfoPage] ";
   static const String TAG_NAME = 'MY_회원정보';
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: RColor.deepStat,
-        elevation: 0,
-      ),
-      body: UserInfoWidget(),
-    );
-  }
-}
-
-class UserInfoWidget extends StatefulWidget {
+  const UserInfoPage({Key? key}) : super(key: key);
   @override
   State<StatefulWidget> createState() => UserInfoState();
 }
 
-class UserInfoState extends State<UserInfoWidget> {
+class UserInfoState extends State<UserInfoPage> {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final String _appEnv = Platform.isIOS ? "EN20" : "EN10";
   static const channel = MethodChannel(Const.METHOD_CHANNEL_NAME);
@@ -117,22 +105,12 @@ class UserInfoState extends State<UserInfoWidget> {
 
   Widget _setLayout() {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        shadowColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            color: Colors.black,
-            onPressed: () => Navigator.of(context).pop(null),
-          ),
-          const SizedBox(
-            width: 10.0,
-          ),
-        ],
+      appBar: CommonAppbar.simpleNoTitleWithExit(
+        context,
+        Colors.white,
+        Colors.black,
       ),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
           children: [
