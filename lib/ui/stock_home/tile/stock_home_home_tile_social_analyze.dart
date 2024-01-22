@@ -1,16 +1,11 @@
-import 'dart:math';
-
-import 'package:charts_common/common.dart' as charts_common;
-import 'package:charts_flutter_new/flutter.dart' as charts;
-import 'package:charts_flutter_new/src/text_element.dart'
-    as charts_text_element;
-import 'package:charts_flutter_new/src/text_style.dart' as charts_text_style;
 import 'package:flutter/material.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/user/naver_community_page.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../../common/const.dart';
 import '../../../../models/pg_data.dart';
@@ -29,23 +24,20 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 원, true 이면 만원
   String _socialGrade = '';
   final List<SNS06ChartData> _listChartData = [];
-  final List<charts.TickSpec<num>> _tickSpecList = [];
-  final List<charts.Series<SNS06ChartData, int>> _seriesListData = [];
-  final List<charts.RangeAnnotationSegment> _optionListBombData = [];
-  final List<int> _optionListBombSoloData = [];
-  final List<int> _optionListBombLastData = [];
-  final _secondaryMeasureAxisId = 'secondaryMeasureAxisId';
-  final String _socialPopupMsg =
-      '라씨 매매비서는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집합니다.\n'
+  final String _socialPopupMsg = '라씨 매매비서는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집합니다.\n'
       '수집된 양을 이전기간과 비교하여 참여도의 증가와 감소를 수치화하여 참여 정도를 알려드립니다.\n'
       '커뮤니티 참여도가 높아지면 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
 
+  late TrackballBehavior _trackballBehavior;
+  final List<PlotBand> _listPlotBand = [];
+
   @override
   Widget build(BuildContext context) {
-    if (sns06 == null || sns06.listPriceChart.isEmpty) {
+    _initListData();
+    if (sns06.listPriceChart.isEmpty) {
       return const SizedBox();
     } else {
-      _initListData();
+      //_initListData();
       switch (sns06.concernGrade) {
         case '1':
           _socialGrade = '조용조용';
@@ -366,7 +358,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
+        /*  SizedBox(
           height: 240,
           child: charts.LineChart(
             _seriesListData,
@@ -431,7 +423,8 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
               tickFormatterSpec:
                   charts.BasicNumericTickFormatterSpec((measure) {
                 if (_isRightYAxisUpUnit) {
-                  return TStyle.getMoneyPoint((measure! / 10000).round().toString());
+                  return TStyle.getMoneyPoint(
+                      (measure! / 10000).round().toString());
                 }
                 return TStyle.getMoneyPoint(measure!.round().toString());
               }),
@@ -448,7 +441,8 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
             ),
             behaviors: [
               charts.RangeAnnotation(
-                _optionListBombData.cast<charts_common.AnnotationSegment<Object>>(),
+                _optionListBombData
+                    .cast<charts_common.AnnotationSegment<Object>>(),
               ),
               charts.LinePointHighlighter(
                 symbolRenderer: CustomCircleSymbolRenderer(
@@ -485,16 +479,191 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
               ),
             ],
           ),
+        ),*/
+        SizedBox(
+          width: double.infinity,
+          height: 240,
+          child: SfCartesianChart(
+            primaryXAxis: CategoryAxis(
+              plotBands: _listPlotBand,
+              labelPlacement: LabelPlacement.onTicks,
+            ),
+            primaryYAxis: NumericAxis(
+              minimum: 0,
+              maximum: 5,
+              axisLine: const AxisLine(
+                color: Colors.white,
+              ),
+              axisLabelFormatter: (axisLabelRenderArgs) {
+                return ChartAxisLabel(
+                  axisLabelRenderArgs.value % 5 == 0
+                      ? ''
+                      : axisLabelRenderArgs.value == 1
+                          ? '조용조용'
+                          : axisLabelRenderArgs.value == 2
+                              ? '수군수군'
+                              : axisLabelRenderArgs.value == 3
+                                  ? '왁자지껄'
+                                  : '폭발',
+                  const TextStyle(),
+                );
+              },
+              majorGridLines: const MajorGridLines(
+                color: Colors.white,
+              ),
+              majorTickLines: const MajorTickLines(
+                color: Colors.white,
+              ),
+              minorTickLines: const MinorTickLines(),
+            ),
+            axes: <ChartAxis>[
+              NumericAxis(
+                name: 'yAxis',
+                opposedPosition: true,
+                anchorRangeToVisiblePoints: true,
+                rangePadding: ChartRangePadding.round,
+                //desiredIntervals: 1000,
+                //rangePadding: ChartRangePadding.additional,
+                //maximumLabels: 4,
+                /* minimum: double.parse(_listChartData
+                    .reduce((curr, next) =>
+                        int.parse(curr.tp) < int.parse(next.tp) ? curr : next)
+                    .tp),*/
+                /*maximum: double.parse(_listChartData
+                    .reduce((curr, next) =>
+                        int.parse(curr.tp) > int.parse(next.tp) ? curr : next)
+                    .tp),*/
+                //rangePadding: ChartRangePadding.none,
+                axisLine: const AxisLine(
+                  color: Colors.white,
+                ),
+                majorTickLines: const MajorTickLines(),
+                /*axisLabelFormatter: (axisLabelRenderArgs) {
+                  DLog.e('axisLabelRenderArgs.value : ${axisLabelRenderArgs.value}');
+                  return ChartAxisLabel('ddd', TextStyle(),);
+                },*/
+                //desiredIntervals: 1,
+              )
+            ],
+            trackballBehavior: _trackballBehavior,
+            tooltipBehavior: TooltipBehavior(),
+            series: [
+              //SplineRangeAreaSeries
+              /*RangeAreaSeries<SNS06ChartData, String>(
+                dataSource: _listChartData,
+                xValueMapper: (item, index) => item.td,
+                //yValueMapper: (item, index) => int.parse(item.cg),
+                lowValueMapper: (SNS06ChartData item, _) => 0,
+                highValueMapper: (SNS06ChartData item, _) => int.parse(item.tp),
+                yAxisName: 'yAxis',
+                color: Colors.black.withOpacity(0.08),
+                borderWidth: 1.5,
+                borderColor: RColor.chartTradePriceColor,
+                enableTooltip: true,
+              ),*/
+              LineSeries<SNS06ChartData, String>(
+                yAxisName: 'yAxis',
+                dataSource: _listChartData,
+                xValueMapper: (item, index) => item.td,
+                yValueMapper: (item, index) => int.parse(item.tp),
+                color: RColor.chartTradePriceColor,
+              ),
+              LineSeries<SNS06ChartData, String>(
+                dataSource: _listChartData,
+                xValueMapper: (item, index) => item.td,
+                yValueMapper: (item, index) => int.parse(item.cg),
+                enableTooltip: false,
+                pointColorMapper: (item, index) {
+                  if ((int.tryParse(item.cg) ?? 0) == 4) {
+                    return RColor.chartPink;
+                  } else {
+                    return RColor.chartGreen;
+                  }
+                },
+                markerSettings: const MarkerSettings(
+                  isVisible: true,
+                  width: 4,
+                  height: 4,
+                  //color: Colors.red,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
   _initListData() {
-    _seriesListData.clear();
+    /* _seriesListData.clear();
     _optionListBombData.clear();
     _optionListBombSoloData.clear();
-    _optionListBombLastData.clear();
+    _optionListBombLastData.clear();*/
+
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      shouldAlwaysShow: true,
+      //tooltipDisplayMode: TrackballDisplayMode.floatAllPoints,
+      //enable: true,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        //color: Colors.red.shade500.withOpacity(0.5),
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      //tooltipAlignment: ChartAlignment.center,
+      tooltipSettings: const InteractiveTooltip(
+        enable: true,
+        format: 'point.x : point.y원',
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
+            'point : ${trackballDetails.point} / '
+            'seriesIndex : ${trackballDetails.seriesIndex} / '
+            'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
+            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices.toString()} / '
+            '\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
+            '\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
+            '\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}');
+        if (trackballDetails.seriesIndex == 0) {
+          return Container(
+            width: 100,
+            height: 100,
+            color: Colors.blue,
+            child: Container(
+              height: 80,
+              width: 100,
+              decoration: BoxDecoration(
+                color: Colors.amber.shade100.withOpacity(0.30),
+                border: Border.all(
+                  color: Colors.green,
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                    'xValue!',
+                  ),
+                  Text(
+                    //'yValue => ${_data[trackballDetails.pointIndex!].y.toString()}',
+                    'yValue!',
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return const SizedBox();
+      },
+    );
+
     _listChartData.clear();
     _listChartData.addAll(sns06.listPriceChart);
     _isRightYAxisUpUnit = _findMinValue >= 100000;
@@ -508,7 +677,6 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
       } else {
         isStartBomb = false;
       }
-
       _listChartData.asMap().forEach(
         (index, item) {
           if (item.cg == '4') {
@@ -517,40 +685,36 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
               isStartBomb = true;
               isStartBombIndex = index;
             } else if (isStartBomb && index == _listChartData.length - 1) {
-              _optionListBombData.add(
-                charts.RangeAnnotationSegment(isStartBombIndex, index,
-                    charts.RangeAnnotationAxisType.domain,
-                    middleLabel: '폭발',
-                    labelStyleSpec: charts.TextStyleSpec(
-                      color: charts.Color.fromHex(code: '#FF5050'),
-                      fontSize: 11,
-                    ),
-                    labelPosition: charts.AnnotationLabelPosition.margin,
-                    color: const charts.Color(r: 255, g: 80, b: 80, a: 35),
-                    labelDirection: charts.AnnotationLabelDirection.horizontal),
+              _listPlotBand.add(
+                PlotBand(
+                  isVisible: true,
+                  start: isStartBombIndex,
+                  end: index,
+                  color: RColor.chartRed2,
+                ),
               );
             }
           } else {
             if (isStartBomb) {
               isStartBomb = false;
-              _optionListBombData.add(
-                charts.RangeAnnotationSegment(isStartBombIndex, index - 1,
-                    charts.RangeAnnotationAxisType.domain,
-                    middleLabel: '폭발',
-                    labelStyleSpec: charts.TextStyleSpec(
-                      color: charts.Color.fromHex(code: '#FF5050'),
-                      fontSize: 11,
-                    ),
-                    labelPosition: charts.AnnotationLabelPosition.margin,
-                    color: const charts.Color(r: 255, g: 80, b: 80, a: 35),
-                    labelDirection: charts.AnnotationLabelDirection.horizontal),
+              _listPlotBand.add(
+                PlotBand(
+                  isVisible: true,
+                  start: isStartBombIndex,
+                  end: index - 1,
+                  color: RColor.chartRed2,
+                ),
               );
             }
           }
         },
       );
 
-      for (var element in _optionListBombData) {
+      for (var item in _listPlotBand) {
+        DLog.e('item : ${item.start} / ${item.end}');
+      }
+
+      /*for (var element in _optionListBombData) {
         if (element.startValue == element.endValue)
           _optionListBombSoloData.add(element.startValue);
         else
@@ -602,9 +766,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           measureFn: (SNS06ChartData yAxisItem, _) => int.parse(yAxisItem.cg),
           data: _listChartData,
         ),
-      ]);
+      ]);*/
 
-      _tickSpecList.clear();
+      /* _tickSpecList.clear();
       _tickSpecList.addAll([
         charts.TickSpec(
           _listChartData[0].index,
@@ -624,7 +788,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           _listChartData.last.index,
           label: TStyle.getDateSlashFormat3(_listChartData.last.td),
         ),
-      ]);
+      ]);*/
     }
   }
 
@@ -640,112 +804,5 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                 ? curr
                 : next);
     return double.parse(item.tp);
-  }
-}
-
-class CustomCircleSymbolRenderer extends charts_common.CircleSymbolRenderer {
-  final double deviceWidth;
-
-  CustomCircleSymbolRenderer(this.deviceWidth);
-
-  static late SNS06ChartData sns06chartData;
-  bool _isShow = false;
-  double xPoint = 0;
-
-  @override
-  void paint(charts_common.ChartCanvas canvas, Rectangle<num> bounds,
-      {List<int>? dashPattern,
-      charts.Color? fillColor,
-      charts.FillPatternType? fillPattern,
-      charts.Color? strokeColor,
-      double? strokeWidthPx}) {
-    super.paint(canvas, bounds,
-        dashPattern: dashPattern,
-        fillColor: fillColor,
-        strokeColor: strokeColor,
-        strokeWidthPx: strokeWidthPx);
-
-    if (_isShow) {
-      _isShow = false;
-    } else {
-      _isShow = true;
-
-      double minWidth = bounds.width + 80;
-      int cgLength = sns06chartData.cg.length;
-      int tpLength = sns06chartData.tp.length;
-      int maxLength = cgLength >= tpLength ? cgLength : tpLength;
-      if (maxLength > 6) {
-        minWidth += 5 * (maxLength - 6);
-      }
-
-      xPoint = (deviceWidth / 2) > bounds.left
-          ? bounds.left + 12
-          : bounds.left - minWidth - 4;
-
-      canvas.drawRect(
-        Rectangle(xPoint, 0, minWidth, bounds.height + 62),
-        fill: const charts.Color(
-          r: 102,
-          g: 102,
-          b: 102,
-          a: 200,
-        ),
-      );
-      var textStyle = charts_text_style.TextStyle();
-      textStyle.color = charts.Color.white;
-      textStyle.fontSize = 12;
-
-      String color = '#5DD68D';
-      String strTp = '${TStyle.getMoneyPoint(sns06chartData.tp)}원';
-      String strValue = sns06chartData.cg == '1'
-          ? '조용조용'
-          : sns06chartData.cg == '2'
-              ? '수군수군'
-              : sns06chartData.cg == '3'
-                  ? '왁자지껄'
-                  : '폭발';
-
-      if (sns06chartData.cg == '4') {
-        //color = '#FF5050';
-        color = '#5DD68D';
-      }
-
-      // 날짜
-      canvas.drawText(
-        charts_text_element.TextElement(
-            TStyle.getDateSlashFormat3(sns06chartData.td),
-            style: textStyle),
-        (xPoint + 8).round(),
-        12.round(),
-      );
-
-      canvas.drawPoint(
-        point: Point(xPoint + 12, 34),
-        radius: 4,
-        fill: charts.Color.fromHex(code: color),
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(strValue, style: textStyle),
-        (xPoint + 20).round(),
-        29.round(),
-      );
-
-      canvas.drawPoint(
-        point: Point(xPoint + 12, 54),
-        radius: 4,
-        fill: charts.Color.fromHex(code: '#454A63'),
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(strTp, style: textStyle),
-        (xPoint + 20).round(),
-        50.round(),
-      );
-    }
   }
 }

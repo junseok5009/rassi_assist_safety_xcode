@@ -99,6 +99,14 @@ class RColor {
   static const lightSell_2e70ff = Color(0xd92e70ff); // 쨍한 파랑
   static const lightBlue_5886fe = Color(0xff5886FE); // 연한 파랑
 
+  // 차트
+  static const chartGreen = Color(0xff5DD68D);
+  static const chartRed1 = Color(0xffFF5050);
+  static const chartRed2 = Color(0x80ffd6d6);
+  static const chartPink = Color(0xffFA8383);
+  static const chartGreyColor = Color(0xffDCDFE2);
+  static const chartTradePriceColor = Color(0xff454A63);
+
   static const mainColor = Color(0XFF7774F7); //메인 컬러
   static const deepBlue = Color(0xff3B3982); //메인 어두운 블루
   static const deepStat = Color(0xff353c73); //status bar 블루
@@ -119,10 +127,7 @@ class RColor {
   static const btnUnSelectGreyStroke = Color(0xffD2D2D2);
   static const btnUnSelectGreyText = Color(0xff999999);
 
-  static const chartRedColor = Color(0xffFF5050);
-  static const chartRedColordd = Color(0xfffa8383);
-  static const chartGreyColor = Color(0xffDCDFE2);
-  static const chartTradePriceColor = Color(0xff454A63);
+
 
   static const naver = Color(0xff3EC729); //네이버 컬러
   static const kakao = Color(0xfffee500); //카카오 컬러

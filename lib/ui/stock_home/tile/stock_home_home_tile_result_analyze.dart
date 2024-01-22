@@ -7,26 +7,27 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/d_log.dart';
+import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/tr_search/tr_search10.dart';
+import 'package:rassi_assist/models/tr_shome/tr_shome05.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
-
-import '../../../common/const.dart';
-import '../../../common/net.dart';
-import '../../../models/none_tr/app_global.dart';
-import '../../../models/tr_search/tr_search10.dart';
-import '../../../models/tr_shome/tr_shome05.dart';
-import '../../common/common_swiper_pagination.dart';
-import '../../main/base_page.dart';
-import '../page/result_analyze_page.dart';
+import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/stock_home/page/result_analyze_page.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// 2023.02.14_HJS
 /// 종목홈(개편)_홈_실적분석
 
 class StockHomeHomeTileResultAnalyze extends StatefulWidget {
-  static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey = GlobalKey();
+  static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey =
+      GlobalKey();
 
   StockHomeHomeTileResultAnalyze() : super(key: globalKey);
 
@@ -35,7 +36,8 @@ class StockHomeHomeTileResultAnalyze extends StatefulWidget {
       StockHomeHomeTileResultAnalyzeState();
 }
 
-class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultAnalyze>
+class StockHomeHomeTileResultAnalyzeState
+    extends State<StockHomeHomeTileResultAnalyze>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileResultAnalyze> {
   final AppGlobal _appGlobal = AppGlobal();
 
@@ -55,9 +57,10 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
     true,
   ]; // 매출액, 실적분석, 당기순이익 각각 데이터가 모든 날짜에 다 없으면 true, 하나라도 있으면 false
   final List<Search10Issue> _listIssueData = [];
-  InfoProvider? _infoProvider;
+  late InfoProvider _infoProvider;
 
   Shome05StructPrice _shome05structPrice = defShome05StructPrice;
+  int _initSelectBarIndex = 0;
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -87,13 +90,14 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
   @override
   void initState() {
     super.initState();
+    _infoProvider = Provider.of<InfoProvider>(context, listen: false);
     initPage();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    _infoProvider ??= Provider.of<InfoProvider>(context, listen: false);
+
     if (_isNoData.isEmpty) {
       return const SizedBox(
         width: 1,
@@ -160,8 +164,9 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
                                           ? '  당기순이익'
                                           : '  매출액',
                               style: const TextStyle(
-                                  fontSize: 11,
-                                  color: RColor.new_basic_text_color_grey),
+                                fontSize: 11,
+                                color: RColor.new_basic_text_color_grey,
+                              ),
                             ),
                             const SizedBox(
                               width: 20,
@@ -974,164 +979,122 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
   }
 
   Widget _setChartView() {
-    double minValue = _findMinValue;
-    double maxValue = _findMaxValue;
     return Padding(
       padding: const EdgeInsets.only(
         left: 20,
       ),
       //color: Colors.brown,
-      child: Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 240,
-            child: BarChart(
-              BarChartData(
-                barTouchData: barTouchData,
-                titlesData: titlesData,
-                borderData: FlBorderData(
-                  show: false,
-                ),
-                barGroups: barGroupsData,
-                gridData: FlGridData(
-                  show: true,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: Colors.grey,
-                    strokeWidth: 0.6,
-                    dashArray: [2, 2],
-                  ),
-                  drawVerticalLine: false,
-                ),
-                alignment: BarChartAlignment.spaceAround,
-                minY: minValue < 0
-                    ? minValue.roundToDouble() +
-                        (minValue.roundToDouble() * 0.15)
-                    : minValue < 2
-                        ? minValue - (minValue * 0.15)
-                        : minValue.roundToDouble() -
-                            (minValue.roundToDouble() * 0.15),
-                maxY: maxValue < 2
-                    ? maxValue * 1.05
-                    : maxValue.roundToDouble() * 1.05,
-                baselineY: minValue.roundToDouble() -
-                    (minValue.roundToDouble() * 0.15),
-                extraLinesData: ExtraLinesData(
-                  horizontalLines: [
-                    HorizontalLine(
-                      y: minValue >= 0
-                          ? minValue.toDouble() -
-                              (minValue.toDouble() * 0.15) +
-                              0.000001
-                          : maxValue > 0
-                              ? 0
-                              : -0.00001,
-                      color: RColor.lineGrey,
-                      strokeWidth: 1,
-                    ),
-                  ],
-                ),
-              ),
+      child: SizedBox(
+        height: 260,
+        child: SfCartesianChart(
+          enableMultiSelection: false,
+          primaryXAxis: CategoryAxis(
+            majorGridLines: const MajorGridLines(
+              color: Colors.white,
+            ),
+            majorTickLines: const MajorTickLines(
+              color: Colors.white,
             ),
           ),
-          SizedBox(
-            width: double.infinity,
-            height: 240,
-            child: LineChart(
-              LineChartData(
-                titlesData: _lineChartTitlesData,
-                gridData: FlGridData(
-                  show: false,
-                ),
-                borderData: FlBorderData(
-                  show: false,
-                ),
-                backgroundColor: Colors.transparent,
-                lineTouchData: LineTouchData(
-                  enabled: false,
-                ),
-                minY: _findMinTp.roundToDouble(),
-                maxY: _findMaxTp.roundToDouble() * 1.05,
-                baselineY: _findMinTp.roundToDouble(),
-                lineBarsData: [
-                  LineChartBarData(
-                    color: const Color(0xff454A63),
-                    barWidth: 1.5,
-                    //dashArray: [4,2],
-                    spots: _listData
-                        .asMap()
-                        .entries
-                        .map(
-                          (e) => FlSpot(
-                            e.key.toDouble(),
-                            double.parse(e.value.tradePrice),
-                          ),
-                        )
-                        .toList(),
-                    isCurved: false,
-                    dotData: FlDotData(
-                      show: false,
-                    ),
-                  ),
-                ],
-                extraLinesData: ExtraLinesData(
-                  verticalLines: [
-                    VerticalLine(
-                      strokeWidth: 0.8,
-                      x: _confirmSearch10SalesIndexInListData == -1
-                          ? 1
-                          : _listData.length.toDouble() - 4,
-                      color: _isQuart &&
-                              _confirmSearch10SalesIndexInListData != -1 &&
-                              (_divIndex != 2 ||
-                                  _listData[
-                                          _confirmSearch10SalesIndexInListData]
-                                      .netProfit
-                                      .isNotEmpty)
-                          ? RColor.sigBuy
-                          : Colors.transparent,
-                      dashArray: [4, 2],
-                    ),
-                  ],
-                ),
+          primaryYAxis: NumericAxis(
+            rangePadding: ChartRangePadding.additional,
+          ),
+          axes: <ChartAxis>[
+            CategoryAxis(
+              name: 'xAxis',
+              opposedPosition: true,
+              labelPlacement: LabelPlacement.onTicks,
+              axisLabelFormatter: (axisLabelRenderArgs) =>
+                  ChartAxisLabel('', const TextStyle()),
+              axisLine: const AxisLine(
+                color: Colors.white,
+                width: 0,
+              ),
+              majorGridLines: const MajorGridLines(
+                color: Colors.white,
+              ),
+              majorTickLines: const MajorTickLines(
+                color: Colors.white,
               ),
             ),
-          ),
-        ],
+            NumericAxis(
+              name: 'yAxis',
+              opposedPosition: true,
+              anchorRangeToVisiblePoints: true,
+              rangePadding: ChartRangePadding.round,
+              /*minimum: double.parse(_listData
+                  .reduce((curr, next) =>
+                      int.parse(curr.tradePrice) < int.parse(next.tradePrice)
+                          ? curr
+                          : next)
+                  .tradePrice),*/
+              axisLine: const AxisLine(
+                color: Colors.white,
+                width: 0,
+              ),
+              majorGridLines: const MajorGridLines(
+                color: Colors.white,
+              ),
+              majorTickLines: const MajorTickLines(
+                color: Colors.white,
+              ),
+            )
+          ],
+          selectionType: SelectionType.point,
+          onSelectionChanged: (SelectionArgs args) {
+            setState(() {
+              _initSelectBarIndex = args.pointIndex;
+            });
+          },
+          series: [
+            ColumnSeries<Search10Sales, String>(
+              dataSource: _listBarData,
+              xValueMapper: (Search10Sales data, index) =>
+                  '${data.year}/${data.quarter}',
+              yValueMapper: (Search10Sales data, index) =>
+                  double.tryParse(
+                    _divIndex == 0
+                        ? _listBarData[index].sales
+                        : _divIndex == 1
+                            ? _listBarData[index].salesProfit
+                            : _divIndex == 2
+                                ? _listBarData[index].netProfit
+                                : _listBarData[index].sales,
+                  ) ??
+                  0,
+              pointColorMapper: (Search10Sales data, index) {
+                if (index == _initSelectBarIndex) {
+                  return RColor.sigBuy;
+                } else {
+                  return RColor.chartGreyColor;
+                }
+              },
+              onPointTap: (pointInteractionDetails) {
+                if (pointInteractionDetails.pointIndex != null) {
+                  DLog.e('onPointTap : ${pointInteractionDetails.pointIndex}');
+                  setState(() {
+                    _initSelectBarIndex = pointInteractionDetails.pointIndex!;
+                  });
+                }
+              },
+            ),
+            LineSeries<Search10Sales, String>(
+              dataSource: _listData,
+              xValueMapper: (item, index) => index.toString(),
+              yValueMapper: (item, index) => int.parse(item.tradePrice),
+              color: RColor.chartTradePriceColor,
+              width: 2,
+              enableTooltip: false,
+              //selectionBehavior: _selectionBehavior,
+              //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
+              xAxisName: 'xAxis',
+              yAxisName: 'yAxis',
+            ),
+          ],
+        ),
       ),
     );
   }
-
-  FlTitlesData get _lineChartTitlesData => FlTitlesData(
-        show: true,
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize:
-                //_confirmSearch10Sales.tradeDate.isNotEmpty &&
-                //      _confirmSearch10Sales.sales.isNotEmpty &&
-                //    _confirmSearch10Sales.confirmYn == 'N'
-                _confirmSearch10SalesIndexInListData != -1 && _isQuart
-                    ? 40
-                    //: _findMinValue < 0 ? 80 : 30,
-                    : 30,
-            getTitlesWidget: emptyTitles,
-          ),
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        rightTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 40,
-            getTitlesWidget: emptyTitles,
-          ),
-        ),
-      );
 
   BarTouchData get barTouchData => BarTouchData(
         enabled: false,
@@ -1139,7 +1102,8 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
           if (response != null &&
               response.spot != null &&
               event is FlTapUpEvent) {
-            _infoProvider?.update(_listBarData[response.spot!.touchedBarGroup.x]);
+            _infoProvider
+                .update(_listBarData[response.spot!.touchedBarGroup.x]);
             setState(() {
               final x = response.spot!.touchedBarGroup.x;
               //final isShowing = _showingTooltip == x;
@@ -1185,12 +1149,11 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
                       (_divIndex == 2 &&
                           _listBarData[groupIndex].netProfit.isEmpty)
                   ? ' - '
-                  :
-              rod.toY.abs() < 2 ?
-                  '${rod.toY}억' :
-              TStyle.getBillionUnitWithMoneyPointByDouble(
-                      rod.toY.round().toString(),
-                    ),
+                  : rod.toY.abs() < 2
+                      ? '${rod.toY}억'
+                      : TStyle.getBillionUnitWithMoneyPointByDouble(
+                          rod.toY.round().toString(),
+                        ),
               const TextStyle(
                 //color: rod.color,
                 color: Colors.black,
@@ -1310,14 +1273,13 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
                 ? TStyle.getMoneyPoint(
                     (value.round() / 1000).floor().toString())
                 : (value.round() / 1000).toStringAsFixed(1)
-            :
-        axisValue.abs() < 2 ?
-        TStyle.getMoneyPoint(
-                value.toStringAsFixed(2),
-              ) : TStyle.getMoneyPoint(
-          value.round().toString(),
-        )
-        ,
+            : axisValue.abs() < 2
+                ? TStyle.getMoneyPoint(
+                    value.toStringAsFixed(2),
+                  )
+                : TStyle.getMoneyPoint(
+                    value.round().toString(),
+                  ),
         style: const TextStyle(
           fontSize: 12,
           color: RColor.new_basic_text_color_grey,
@@ -1466,7 +1428,6 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
               _listBarData.add(element);
             }
             if (_isQuart &&
-                element.confirmYn != null &&
                 element.confirmYn == 'N') {
               _confirmSearch10SalesIndexInListData = key;
             }
@@ -1477,7 +1438,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
             _divIndex = 2;
           }
           _isRightYAxisUpUnit = _findMaxValue >= 1000;
-          _infoProvider?.update(_listData[0]);
+          _infoProvider.update(_listData[0]);
           if (resData.retData.listIssue.isNotEmpty) {
             _listIssueData.addAll(resData.retData.listIssue);
           }
@@ -1494,7 +1455,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
       final TrShome05 resData = TrShome05.fromJson(jsonDecode(response.body));
       _shome05structPrice = defShome05StructPrice;
       if (resData.retCode == RT.SUCCESS) {
-        _shome05structPrice = resData.retData.shome05structPrice!;
+        _shome05structPrice = resData.retData.shome05structPrice;
       }
     }
   }
@@ -1632,241 +1593,239 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
     }
   }
 
-  void _showDialogNoConfirm(BuildContext _context) {
-    if (_context != null) {
-      var item = _listData[_confirmSearch10SalesIndexInListData];
-      showDialog(
-          context: _context,
-          barrierDismissible: true,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  void _showDialogNoConfirm(BuildContext context) {
+    var item = _listData[_confirmSearch10SalesIndexInListData];
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '잠정실적',
+                  style: TStyle.title18T,
+                ),
+                InkWell(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                    size: 26,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                //crossAxisAlignment: CrossAxisAlignment.c,
                 children: [
-                  const Text(
-                    '잠정실적',
-                    style: TStyle.title18T,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '${TStyle.getDateSlashFormat3(item.issueDate)}기준',
+                      style: TStyle.contentGrey14,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10.0,
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(10),
+                    decoration: UIStyle.boxNewBasicGrey10(),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              '매출액',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    RColor.new_basic_text_color_strong_grey,
+                              ),
+                            ),
+                            item.sales.isEmpty
+                                ? const Text(
+                                    '- ',
+                                    style: TStyle.subTitle,
+                                  )
+                                : Row(
+                                    children: [
+                                      Text(
+                                        TStyle
+                                            .getComboUnitWithMoneyPointByDouble(
+                                          item.sales,
+                                        ),
+                                        style: TStyle.contentSBLK,
+                                      ),
+                                      const SizedBox(
+                                        width: 4,
+                                      ),
+                                      Text(
+                                        item.salesIncRateYoY.isEmpty
+                                            ? ''
+                                            : '(YoY ${TStyle.getPercentString(item.salesIncRateYoY)})',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: TStyle.getMinusPlusColor(
+                                            item.salesIncRateYoY,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              '영업이익',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    RColor.new_basic_text_color_strong_grey,
+                              ),
+                            ),
+                            item.salesProfit.isEmpty
+                                ? const Text(
+                                    '- ',
+                                    style: TStyle.subTitle,
+                                  )
+                                : Row(
+                                    children: [
+                                      Text(
+                                        TStyle
+                                            .getBillionUnitWithMoneyPointByDouble(
+                                          item.salesProfit,
+                                        ),
+                                        style: TStyle.contentSBLK,
+                                      ),
+                                      const SizedBox(
+                                        width: 4,
+                                      ),
+                                      Text(
+                                        item.profitIncRateYoY.isEmpty
+                                            ? ''
+                                            : '(YoY ${TStyle.getPercentString(item.profitIncRateYoY)})',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: TStyle.getMinusPlusColor(
+                                              item.profitIncRateYoY),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              '당기순이익',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    RColor.new_basic_text_color_strong_grey,
+                              ),
+                            ),
+                            item.netProfit.isEmpty
+                                ? const Text(
+                                    '- ',
+                                    style: TStyle.subTitle,
+                                  )
+                                : Row(
+                                    children: [
+                                      Text(
+                                        TStyle
+                                            .getBillionUnitWithMoneyPointByDouble(
+                                                item.netProfit),
+                                        style: TStyle.contentSBLK,
+                                      ),
+                                      const SizedBox(
+                                        width: 4,
+                                      ),
+                                      Text(
+                                        item.netIncRateYoY.isEmpty
+                                            ? ''
+                                            : '(YoY ${TStyle.getPercentString(item.netIncRateYoY)})',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: TStyle.getMinusPlusColor(
+                                            item.netIncRateYoY,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20.0,
                   ),
                   InkWell(
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.black,
-                      size: 26,
+                    splashColor: Colors.transparent,
+                    child: SizedBox(
+                      width: 140,
+                      height: 36,
+                      //decoration: UIStyle.roundBtnStBox(),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Text(
+                              '자세히보기',
+                              style: TStyle.contentGrey14,
+                              textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios_sharp,
+                              color: Color(0xff919191),
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     onTap: () {
                       Navigator.pop(context);
+                      // 실적분석 상세페이지 이동
+                      basePageState.callPageRouteData(
+                        const ResultAnalyzePage(),
+                        PgData(
+                          stockName: _appGlobal.stkName,
+                          stockCode: _appGlobal.stkCode,
+                          booleanData: _isQuart,
+                        ),
+                      );
                     },
                   ),
                 ],
               ),
-              content: SingleChildScrollView(
-                child: Column(
-                  //crossAxisAlignment: CrossAxisAlignment.c,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '${TStyle.getDateSlashFormat3(item.issueDate)}기준',
-                        style: TStyle.contentGrey14,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10.0,
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(10),
-                      decoration: UIStyle.boxNewBasicGrey10(),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                '매출액',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      RColor.new_basic_text_color_strong_grey,
-                                ),
-                              ),
-                              item.sales.isEmpty
-                                  ? const Text(
-                                      '- ',
-                                      style: TStyle.subTitle,
-                                    )
-                                  : Row(
-                                      children: [
-                                        Text(
-                                          TStyle
-                                              .getComboUnitWithMoneyPointByDouble(
-                                            item.sales,
-                                          ),
-                                          style: TStyle.contentSBLK,
-                                        ),
-                                        const SizedBox(
-                                          width: 4,
-                                        ),
-                                        Text(
-                                          item.salesIncRateYoY.isEmpty
-                                              ? ''
-                                              : '(YoY ${TStyle.getPercentString(item.salesIncRateYoY)})',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: TStyle.getMinusPlusColor(
-                                              item.salesIncRateYoY,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                '영업이익',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      RColor.new_basic_text_color_strong_grey,
-                                ),
-                              ),
-                              item.salesProfit.isEmpty
-                                  ? const Text(
-                                      '- ',
-                                      style: TStyle.subTitle,
-                                    )
-                                  : Row(
-                                      children: [
-                                        Text(
-                                          TStyle
-                                              .getBillionUnitWithMoneyPointByDouble(
-                                            item.salesProfit,
-                                          ),
-                                          style: TStyle.contentSBLK,
-                                        ),
-                                        const SizedBox(
-                                          width: 4,
-                                        ),
-                                        Text(
-                                          item.profitIncRateYoY.isEmpty
-                                              ? ''
-                                              : '(YoY ${TStyle.getPercentString(item.profitIncRateYoY)})',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: TStyle.getMinusPlusColor(
-                                                item.profitIncRateYoY),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                '당기순이익',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      RColor.new_basic_text_color_strong_grey,
-                                ),
-                              ),
-                              item.netProfit.isEmpty
-                                  ? const Text(
-                                      '- ',
-                                      style: TStyle.subTitle,
-                                    )
-                                  : Row(
-                                      children: [
-                                        Text(
-                                          TStyle
-                                              .getBillionUnitWithMoneyPointByDouble(
-                                                  item.netProfit),
-                                          style: TStyle.contentSBLK,
-                                        ),
-                                        const SizedBox(
-                                          width: 4,
-                                        ),
-                                        Text(
-                                          item.netIncRateYoY.isEmpty
-                                              ? ''
-                                              : '(YoY ${TStyle.getPercentString(item.netIncRateYoY)})',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: TStyle.getMinusPlusColor(
-                                              item.netIncRateYoY,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    InkWell(
-                      splashColor: Colors.transparent,
-                      child: SizedBox(
-                        width: 140,
-                        height: 36,
-                        //decoration: UIStyle.roundBtnStBox(),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Text(
-                                '자세히보기',
-                                style: TStyle.contentGrey14,
-                                textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios_sharp,
-                                color: Color(0xff919191),
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        // 실적분석 상세페이지 이동
-                        basePageState.callPageRouteData(
-                          const ResultAnalyzePage(),
-                          PgData(
-                            stockName: _appGlobal.stkName,
-                            stockCode: _appGlobal.stkCode,
-                            booleanData: _isQuart,
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          });
-    }
+            ),
+          );
+        });
   }
 }
 
