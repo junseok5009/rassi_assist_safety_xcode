@@ -37,7 +37,11 @@ class WebPageState extends State<WebPage> {
       appBar: CommonAppbar.simpleNoTitleWithExit(
           context, Colors.white, Colors.black),
       body: SafeArea(
-        child: WebViewWidget(
+        child: WebView(
+          initialUrl: sUrl,
+          javascriptMode: JavascriptMode.unrestricted,
+        ),
+/*        child: WebViewWidget(
           // initialUrl: url,
           // javascriptMode: JavascriptMode.unrestricted,
           controller: WebViewController()
@@ -54,7 +58,7 @@ class WebPageState extends State<WebPage> {
               ),
             )
             ..loadRequest(Uri.parse(sUrl)),
-        ),
+        ),*/
       ),
     );
   }

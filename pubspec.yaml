@@ -35,7 +35,7 @@ dependencies:
   flutter_inapp_purchase: ^5.3.1
   card_swiper: ^3.0.1
   url_launcher: ^6.1.7
-  webview_flutter: ^4.4.2
+  webview_flutter: ^2.0.4
   flutter_inappwebview: ^5.8.0
   flutter_html: ^3.0.0-beta.2
   flutter_html_table: ^3.0.0-beta.2
@@ -73,9 +73,9 @@ dependencies:
   #차트
   fl_chart: ^0.60.0
   bubble_chart: ^0.4.0
-  flutter_echarts: ^2.4.0
-  charts_common: ^0.12.0
-  charts_flutter_new: ^0.12.0
+  flutter_echarts: ^2.3.0
+#  charts_common: ^0.12.0
+#  charts_flutter_new: ^0.12.0
   syncfusion_flutter_charts: ^20.4.52
 
   #간편로그인

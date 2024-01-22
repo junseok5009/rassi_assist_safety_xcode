@@ -42,7 +42,7 @@ class VerState extends State<VerWidget> {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(AiVersionPage.TAG_NAME,);
 
-
+/*
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
@@ -62,7 +62,7 @@ class VerState extends State<VerWidget> {
           // },
         ),
       )
-      ..loadRequest(Uri.parse(Net.URL_ENGINE_VER));
+      ..loadRequest(Uri.parse(Net.URL_ENGINE_VER));*/
   }
 
   @override
@@ -74,7 +74,11 @@ class VerState extends State<VerWidget> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SafeArea(
-        child: WebViewWidget(controller: _controller,),
+        child: WebView(
+          initialUrl: Net.URL_ENGINE_VER,
+          javascriptMode: JavascriptMode.unrestricted,
+        ),
+        // child: WebViewWidget(controller: _controller,),
       ),
     );
   }

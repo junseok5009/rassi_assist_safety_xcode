@@ -47,7 +47,7 @@ class WebViewState extends State<WebViewerWidget> {
     CustomFirebaseClass.logEvtScreenView(
       WebViewer.TAG_NAME,
     );
-
+/*
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
@@ -67,7 +67,7 @@ class WebViewState extends State<WebViewerWidget> {
           },
         ),
       )
-      ..loadRequest(Uri.parse(initUrl));
+      ..loadRequest(Uri.parse(initUrl));*/
   }
 
   // TODO  ios 에서 back key 가 없어서 뒤로 버튼을 따로 만들어줘야함.
@@ -92,7 +92,11 @@ class WebViewState extends State<WebViewerWidget> {
       ),
 
       body: SafeArea(
-        child:  WebViewWidget(controller: _controller,)
+          child: WebView(
+            initialUrl: initUrl,
+            javascriptMode: JavascriptMode.unrestricted,
+          ),
+        // child:  WebViewWidget(controller: _controller,)
       ),
     );
   }

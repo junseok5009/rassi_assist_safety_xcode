@@ -41,7 +41,7 @@ class WebChartState extends State<WebChartWidget> {
   void initState() {
     super.initState();
 
-
+/*
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
@@ -61,7 +61,7 @@ class WebChartState extends State<WebChartWidget> {
           },
         ),
       )
-      ..loadRequest(Uri.parse(_testUrl));
+      ..loadRequest(Uri.parse(_testUrl));*/
   }
 
 
@@ -75,7 +75,11 @@ class WebChartState extends State<WebChartWidget> {
     }
 
     return SafeArea(
-      child: WebViewWidget(controller: _controller,
+      child: WebView(
+        initialUrl: _testUrl,
+        javascriptMode: JavascriptMode.unrestricted,
+      ),
+/*      child: WebViewWidget(controller: _controller,
         // initialUrl: _testUrl,
         // javascriptMode: JavascriptMode.unrestricted,
 
@@ -89,7 +93,7 @@ class WebChartState extends State<WebChartWidget> {
         //   print('allowing navigation to $request');
         //   return NavigationDecision.navigate;
         // },
-      ),
+      ),*/
     );
 
 

@@ -35,7 +35,11 @@ class OnlyWebViewPage extends StatelessWidget {
             horizontal: 5,
             vertical: 10,
           ),
-          child: WebViewWidget(
+          child: WebView(
+            initialUrl: url,
+            javascriptMode: JavascriptMode.unrestricted,
+          ),
+/*          child: WebViewWidget(
             // initialUrl: url,
             // javascriptMode: JavascriptMode.unrestricted,
             controller: WebViewController()
@@ -52,7 +56,7 @@ class OnlyWebViewPage extends StatelessWidget {
                 ),
               )
               ..loadRequest(Uri.parse(url)),
-          ),
+          ),*/
         ),
       ),
     );

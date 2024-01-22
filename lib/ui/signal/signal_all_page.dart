@@ -51,6 +51,7 @@ class SignalAllState extends State<SignalAllWidget> {
   String _userId = "";
   late PgData args;
   bool _bYetDispose = true;    //true: 아직 화면이 사라지기 전
+  bool _bLoding = true;
 
   String stkName = "";
   String stkCode = "";
@@ -162,7 +163,7 @@ class SignalAllState extends State<SignalAllWidget> {
               Container(
                 width: double.infinity,
                 height: 270,
-                child: _setEChartView(),
+                child: _bLoding ? Container() : _setEChartView(),
               ),
 
               // Image.network(
@@ -517,7 +518,9 @@ class SignalAllState extends State<SignalAllWidget> {
           // _listData = item.listData;
           _listData.addAll(item.listData);
 
-          setState(() {});
+          setState(() {
+            _bLoding = false;
+          });
         }
       }
     }
