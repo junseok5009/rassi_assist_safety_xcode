@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
-import 'package:apple_sign_in_safety/apple_sign_in.dart' as asi;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -248,7 +247,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onTap: () {
-                    signInWithApple();
+                    _signInWithApple2();
                   },
                   child: Container(
                     width: 270,
@@ -393,16 +392,14 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       try {
         AccessTokenInfo tokenInfo = await UserApi.instance.accessTokenInfo();
         DLog.d(LoginDivisionPage.TAG, '회원정보 / tokenInfo.id : ${tokenInfo.id}');
-        DLog.d(LoginDivisionPage.TAG,
-            '토큰만료시간 / tokenInfo.expiresIn : ${tokenInfo.expiresIn}');
+        DLog.d(LoginDivisionPage.TAG, '토큰만료시간 / tokenInfo.expiresIn : ${tokenInfo.expiresIn}');
 
         String numId = tokenInfo.id.toString();
         String email = '';
         String name = '';
         if (numId != null && numId.isNotEmpty) {
           _reqPos = 'KAKAO';
-          _reqParam =
-              'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
+          _reqParam = 'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
           _requestThink(numId, email, name);
         }
       } catch (error) {
@@ -461,7 +458,35 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
   }
 
   //Apple 로그인
-  void signInWithApple() async {
+  void _signInWithApple2() async {
+    SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+    ).then((AuthorizationCredentialAppleID credential) {
+      String? aId = credential.userIdentifier;
+      // CredentialState state = SignInWithApple.getCredentialState(id ?? '') as CredentialState;
+      // DLog.w('#### AppleCredential: ${state.name}');     // 'authorized' / 'revoked' / 'notFound':
+      if(aId != null && aId.isNotEmpty) {
+        String email = credential.email ?? '';
+        String familyName = credential.familyName ?? '';
+        String givenName = credential.givenName ?? '';
+        if (aId != null && aId.length > 5) {
+          _reqPos = 'APPLE';
+          _reqParam = 'snsId=${Net.getEncrypt(aId)}&snsEmail=$email&snsPos=APPLE';
+          _requestThink(aId, email, familyName + givenName);
+        }
+      } else {
+        return;
+      }
+    }).onError((error, stackTrace) {
+      if (error is PlatformException) return;
+      print(error);
+    });
+  }
+
+/*  void _signInWithApple() async {
     bool isAvailable = await asi.AppleSignIn.isAvailable();
     if (!isAvailable) {
       commonShowToast('해당 기기에서 Apple 로그인이 지원되지 않습니다');
@@ -519,7 +544,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
         break;
     }
     return null;
-  }
+  }*/
 
   //Google 로그인
   void signInWithGoogle() async {
@@ -580,7 +605,9 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (context) => const BasePage(), settings: const RouteSettings(name: '/base')),
+              builder: (context) => const BasePage(),
+              settings: const RouteSettings(name: '/base'),
+          ),
           (route) => false);
     } else {}
   }

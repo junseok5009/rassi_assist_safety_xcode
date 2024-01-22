@@ -148,16 +148,16 @@ final routes = {
 
   PayHistoryPage.routeName: (BuildContext context) => const PayHistoryPage(),
   PayManagePage.routeName: (BuildContext context) => PayManagePage(),
-  PayWebPage.routeName: (BuildContext context) => PayWebPage(),
+  PayWebPage.routeName: (BuildContext context) => const PayWebPage(),
   PayCancelPage.routeName: (BuildContext context) => PayCancelPage(),
-  PaySubCancelPage.routeName: (BuildContext context) => PaySubCancelPage(),
+  PaySubCancelPage.routeName: (BuildContext context) => const PaySubCancelPage(),
   PayTestPage.routeName: (BuildContext context) => PayTestPage(),
   //PayPremiumPage.routeName: (BuildContext context) => PayPremiumPage(),
   BillingPage.routeName: (BuildContext context) => BillingPage(),
-  InAppPurchase.routeName: (BuildContext context) => InAppPurchase(),
+  InAppPurchase.routeName: (BuildContext context) => const InAppPurchase(),
 
   TestPage.routeName: (BuildContext context) => TestPage(),
-  WebChartPage.routeName: (BuildContext context) => WebChartPage(),
+  WebChartPage.routeName: (BuildContext context) => const WebChartPage(),
   // TestChart.routeName: (BuildContext context) => TestChart(),
   // EChartPage.routeName: (BuildContext context) => EChartPage(),
 };

@@ -73,15 +73,16 @@ dependencies:
   #차트
   fl_chart: ^0.60.0
   bubble_chart: ^0.4.0
-  flutter_echarts: ^2.5.0
+  flutter_echarts: ^2.4.0
   charts_common: ^0.12.0
   charts_flutter_new: ^0.12.0
+  syncfusion_flutter_charts: ^20.4.52
 
   #간편로그인
   kakao_flutter_sdk: ^1.2.2
   flutter_naver_login: ^1.7.0
   sign_in_with_apple: ^5.0.0
-  apple_sign_in_safety: ^0.0.6
+#  apple_sign_in_safety: ^0.0.6
   google_sign_in: ^6.0.2
 
 dev_dependencies:

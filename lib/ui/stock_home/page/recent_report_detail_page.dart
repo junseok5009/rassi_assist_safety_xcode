@@ -26,7 +26,7 @@ class RecentReportDetailPage extends StatelessWidget {
           shadowColor: Colors.white,
           actions: [
             IconButton(
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               color: Colors.black,
               onPressed: () => Navigator.of(context).pop(null),
             ),
@@ -41,7 +41,7 @@ class RecentReportDetailPage extends StatelessWidget {
             child: ListView(
               children: [
                 Text(
-                  '${item.title}',
+                  item.title,
                   style: TStyle.title18,
                 ),
                 const SizedBox(

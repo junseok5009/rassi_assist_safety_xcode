@@ -1,88 +1,60 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
 
 /// 2020.10.08
 /// 웹뷰
-class WebPage extends StatelessWidget {
+class WebPage extends StatefulWidget {
   static const routeName = '/page_web';
   static const String TAG = "[WebPage]";
   static const String TAG_NAME = '웹뷰';
 
-  const WebPage({super.key});
+  const WebPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(toolbarHeight: 0,
-          backgroundColor: RColor.deepStat, elevation: 0,),
-        body: const WebWidget(),
-      ),
-    );
-  }
+  State<StatefulWidget> createState() => WebPageState();
 }
 
-class WebWidget extends StatefulWidget {
-  const WebWidget({super.key});
-
-  @override
-  State<StatefulWidget> createState() => WebState();
-}
-
-class WebState extends State<WebWidget> {
+class WebPageState extends State<WebPage> {
   late PgData args;
-  String sUrl = 'https://www.thinkpool.com/policy/service';
-  late final WebViewController _controller;
+  String sUrl = '';
 
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: WebPage.TAG_NAME,
-      screenClassOverride: WebPage.TAG_NAME,);
-
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {
-            // Update loading bar.
-          },
-          onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
-          onWebResourceError: (WebResourceError error) {},
-        ),
-      )
-      ..loadRequest(Uri.parse(sUrl));
+    CustomFirebaseClass.logEvtScreenView(
+      WebPage.TAG_NAME,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     args = ModalRoute.of(context)!.settings.arguments as PgData;
     sUrl = args.pgData;
-
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 45,
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        shadowColor: Colors.white,
-        actions: [
-          IconButton(icon: const Icon(Icons.close),
-            color: Colors.black,
-            onPressed: () => Navigator.of(context).pop(null),),
-          const SizedBox(width: 10.0,),
-        ],
-      ),
-
+      appBar: CommonAppbar.simpleNoTitleWithExit(
+          context, Colors.white, Colors.black),
       body: SafeArea(
-        child: WebViewWidget(controller: _controller,),
+        child: WebViewWidget(
+          // initialUrl: url,
+          // javascriptMode: JavascriptMode.unrestricted,
+          controller: WebViewController()
+            ..setJavaScriptMode(JavaScriptMode.unrestricted)
+            ..setBackgroundColor(const Color(0x00000000))
+            ..setNavigationDelegate(
+              NavigationDelegate(
+                onProgress: (int progress) {
+                  // Update loading bar.
+                },
+                onPageStarted: (String url) {},
+                onPageFinished: (String url) {},
+                onWebResourceError: (WebResourceError error) {},
+              ),
+            )
+            ..loadRequest(Uri.parse(sUrl)),
+        ),
       ),
     );
   }

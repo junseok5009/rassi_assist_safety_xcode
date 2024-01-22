@@ -117,12 +117,14 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
           ],
         ),
       ),
+
       body: SafeArea(
         child: Stack(
           children: [
+
             // 인기 검색어 ------------------------------------------
             Visibility(
-              visible: false, //!isSearching,
+              visible: false,  //!isSearching,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -164,6 +166,7 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
               ),
             ),
 
+
             // 유저 검색어 ------------------------------------------
             Visibility(
               visible: isSearching,
@@ -173,6 +176,7 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
                 itemBuilder: (BuildContext context, index) => _tileSearch(_listData[index]),
               ),
             ),
+
           ],
         ),
       ),
@@ -216,6 +220,7 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
       ),
     );
   }
+
 
   // 검색버튼 선택시 TODO 짧은 시간에 중복된 요청이 일어날 경우 처리는??
   void _handleSubmit(String keyword) {

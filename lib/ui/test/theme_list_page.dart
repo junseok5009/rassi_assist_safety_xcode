@@ -94,7 +94,7 @@ class ThemeListState extends State<ThemeListWidget> {
 
   @override
   void dispose() {
-    _scrollController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 

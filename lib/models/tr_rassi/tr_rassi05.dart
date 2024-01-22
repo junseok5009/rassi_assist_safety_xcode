@@ -17,7 +17,6 @@ class TrRassi05 {
   factory TrRassi05.fromJson(Map<String, dynamic> json) {
     var list = json['retData']['list_Rassiro'] as List;
     List<Rassi05> rtList = list.map((i) => Rassi05.fromJson(i)).toList();
-    print(list.length);
 
     return TrRassi05(
         retCode: json['retCode'],

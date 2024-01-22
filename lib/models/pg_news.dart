@@ -1,4 +1,3 @@
-
 /// 페이지에 전달되는 데이터들
 class PgNews {
   final String stockCode;

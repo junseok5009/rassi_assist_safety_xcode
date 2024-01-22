@@ -756,8 +756,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
               } else if (_optionListBombLastData.isNotEmpty &&
                   _optionListBombLastData.contains(v2)) {
                 return charts.Color.fromHex(code: '#5DD68D');
-              } else
+              } else {
                 return charts.Color.fromHex(code: '#FA8383');
+              }
             } else {
               return charts.Color.fromHex(code: '#5DD68D');
             }
