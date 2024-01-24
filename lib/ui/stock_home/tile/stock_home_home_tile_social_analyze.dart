@@ -39,7 +39,6 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
     if (sns06.listPriceChart.isEmpty) {
       return const SizedBox();
     } else {
-      //_initListData();
       switch (sns06.concernGrade) {
         case '1':
           _socialGrade = '조용조용';
@@ -360,128 +359,6 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
             ),
           ),
         ),
-        /*  SizedBox(
-          height: 240,
-          child: charts.LineChart(
-            _seriesListData,
-            animate: false,
-            primaryMeasureAxis: charts.NumericAxisSpec(
-              renderSpec: charts.GridlineRendererSpec(
-                lineStyle: const charts.LineStyleSpec(
-                  color: charts.Color.transparent,
-                ),
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-              ),
-              tickProviderSpec: const charts.StaticNumericTickProviderSpec(
-                [
-                  charts.TickSpec<num>(0),
-                  charts.TickSpec<num>(1),
-                  charts.TickSpec<num>(2),
-                  charts.TickSpec<num>(3),
-                  charts.TickSpec<num>(4),
-                  charts.TickSpec<num>(5),
-                ],
-              ),
-              tickFormatterSpec:
-                  charts.BasicNumericTickFormatterSpec((measure) {
-                if (measure == 1) {
-                  return '조용조용';
-                } else if (measure == 2) {
-                  return '수군수군';
-                } else if (measure == 3) {
-                  return '왁자지껄';
-                } else if (measure == 4) {
-                  return '폭발';
-                } else {
-                  return '';
-                }
-              }),
-            ),
-            domainAxis: charts.NumericAxisSpec(
-              tickProviderSpec: charts.StaticNumericTickProviderSpec(
-                _tickSpecList,
-              ),
-              renderSpec: charts.SmallTickRendererSpec(
-                minimumPaddingBetweenLabelsPx: 30,
-                labelOffsetFromTickPx: 20,
-                labelOffsetFromAxisPx: 12,
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                lineStyle: charts.LineStyleSpec(
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
-                ),
-              ),
-            ),
-            secondaryMeasureAxis: charts.NumericAxisSpec(
-              tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                // desiredTickCount: 4,
-                zeroBound: false,
-              ),
-              tickFormatterSpec:
-                  charts.BasicNumericTickFormatterSpec((measure) {
-                if (_isRightYAxisUpUnit) {
-                  return TStyle.getMoneyPoint(
-                      (measure! / 10000).round().toString());
-                }
-                return TStyle.getMoneyPoint(measure!.round().toString());
-              }),
-              renderSpec: charts.GridlineRendererSpec(
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                lineStyle: charts.LineStyleSpec(
-                  dashPattern: const [2, 2],
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
-                ),
-              ),
-            ),
-            behaviors: [
-              charts.RangeAnnotation(
-                _optionListBombData
-                    .cast<charts_common.AnnotationSegment<Object>>(),
-              ),
-              charts.LinePointHighlighter(
-                symbolRenderer: CustomCircleSymbolRenderer(
-                    MediaQuery.of(context)
-                        .size
-                        .width), // add this line in behaviours
-              ),
-            ],
-            selectionModels: [
-              charts.SelectionModelConfig(
-                  changedListener: (charts.SelectionModel model) {
-                if (model.hasDatumSelection) {
-                  int? selectIndex = model.selectedDatum[0].index;
-                  CustomCircleSymbolRenderer.sns06chartData =
-                      _listChartData[selectIndex!];
-                }
-              })
-            ],
-            //defaultRenderer: new charts.LineRendererConfig(),
-            customSeriesRenderers: [
-              charts.PointRendererConfig(
-                // ID used to link series to this renderer.
-                radiusPx: 1.6,
-                strokeWidthPx: 1.6,
-                customRendererId: 'customPoint',
-              ),
-              charts.LineRendererConfig(
-                customRendererId: 'areaLine',
-                includeArea: true,
-                layoutPaintOrder: 30,
-                strokeWidthPx: 1.5,
-                //areaOpacity: 0.3,
-                includeLine: true,
-              ),
-            ],
-          ),
-        ),*/
         SizedBox(
           width: double.infinity,
           height: 240,
@@ -616,10 +493,6 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
   }
 
   _initListData() {
-    /* _seriesListData.clear();
-    _optionListBombData.clear();
-    _optionListBombSoloData.clear();
-    _optionListBombLastData.clear();*/
 
     _trackballBehavior = TrackballBehavior(
       enable: true,
@@ -643,45 +516,44 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
       ),
       builder: (BuildContext context, TrackballDetails trackballDetails) {
         DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
-            'point : ${trackballDetails.point} / '
-            'seriesIndex : ${trackballDetails.seriesIndex} / '
-            'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
-            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices.toString()} / '
-            '\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
-            '\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
-            '\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}');
-        if (trackballDetails.seriesIndex == 0) {
-          return Container(
+            //'point : ${trackballDetails.point} / '
+            //'seriesIndex : ${trackballDetails.seriesIndex} / '
+            //'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
+            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices[0]} / '
+            //'\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
+            //'\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
+            //'\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}'
+            '');
+        int selectedIndex = trackballDetails.groupingModeInfo?.currentPointIndices[0] ?? 0;
+        return Container(
+          width: 100,
+          height: 100,
+          color: Colors.black.withOpacity(0.1),
+          child: Container(
+            height: 80,
             width: 100,
-            height: 100,
-            color: Colors.blue,
-            child: Container(
-              height: 80,
-              width: 100,
-              decoration: BoxDecoration(
-                color: Colors.amber.shade100.withOpacity(0.30),
-                border: Border.all(
-                  color: Colors.green,
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Text(
-                    //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
-                    'xValue!',
-                  ),
-                  Text(
-                    //'yValue => ${_data[trackballDetails.pointIndex!].y.toString()}',
-                    'yValue!',
-                  ),
-                ],
+            decoration: BoxDecoration(
+              color: Colors.amber.shade100.withOpacity(0.30),
+              border: Border.all(
+                color: Colors.green,
+                width: 1,
               ),
             ),
-          );
-        }
-        return const SizedBox();
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                  _listChartData[selectedIndex].td,
+                ),
+                Text(
+                  //'yValue => ${_data[trackballDetails.pointIndex!].y.toString()}',
+                  _listChartData[selectedIndex].tp,
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
 
@@ -730,87 +602,6 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           }
         },
       );
-
-      for (var item in _listPlotBand) {
-        DLog.e('item : ${item.start} / ${item.end}');
-      }
-
-      /*for (var element in _optionListBombData) {
-        if (element.startValue == element.endValue)
-          _optionListBombSoloData.add(element.startValue);
-        else
-          _optionListBombLastData.add(element.endValue);
-      }
-
-      _seriesListData.clear();
-      _seriesListData.addAll([
-        charts.Series<SNS06ChartData, int>(
-          id: '주가(원)',
-          colorFn: (_, __) => charts.Color.fromHex(code: '#454A63'),
-          domainFn: (SNS06ChartData xAxisItem, _) => xAxisItem.index,
-          measureFn: (SNS06ChartData yAxisItem, _) => int.parse(yAxisItem.tp),
-          data: _listChartData,
-        )
-          ..setAttribute(charts.measureAxisIdKey, _secondaryMeasureAxisId)
-          ..setAttribute(charts.rendererIdKey, 'areaLine'),
-        charts.Series<SNS06ChartData, int>(
-          id: '소셜지수',
-          colorFn: (v1, v2) {
-            //DLog.w('v1 : $v1 / v2 : $v2');
-            if (v1.cg == '4') {
-              return charts.Color.fromHex(code: '#FA8383');
-            } else {
-              return charts.Color.fromHex(code: '#5DD68D');
-            }
-          },
-          domainFn: (SNS06ChartData xAxisItem, _) => xAxisItem.index,
-          measureFn: (SNS06ChartData yAxisItem, _) => int.parse(yAxisItem.cg),
-          data: _listChartData,
-        )..setAttribute(charts.rendererIdKey, 'customPoint'),
-        charts.Series<SNS06ChartData, int>(
-          id: '소셜지수',
-          colorFn: (v1, v2) {
-            if (v1.cg == '4') {
-              if (_optionListBombSoloData.isNotEmpty &&
-                  _optionListBombSoloData.contains(v2)) {
-                return charts.Color.fromHex(code: '#5DD68D');
-              } else if (_optionListBombLastData.isNotEmpty &&
-                  _optionListBombLastData.contains(v2)) {
-                return charts.Color.fromHex(code: '#5DD68D');
-              } else {
-                return charts.Color.fromHex(code: '#FA8383');
-              }
-            } else {
-              return charts.Color.fromHex(code: '#5DD68D');
-            }
-          },
-          domainFn: (SNS06ChartData xAxisItem, _) => xAxisItem.index,
-          measureFn: (SNS06ChartData yAxisItem, _) => int.parse(yAxisItem.cg),
-          data: _listChartData,
-        ),
-      ]);*/
-
-      /* _tickSpecList.clear();
-      _tickSpecList.addAll([
-        charts.TickSpec(
-          _listChartData[0].index,
-          label: TStyle.getDateSlashFormat3(_listChartData[0].td),
-        ),
-        charts.TickSpec(
-          _listChartData[(_listChartData.length ~/ 3)].index,
-          label: TStyle.getDateSlashFormat3(
-              _listChartData[_listChartData.length ~/ 3].td),
-        ),
-        charts.TickSpec(
-          _listChartData[(_listChartData.length ~/ 3) * 2].index,
-          label: TStyle.getDateSlashFormat3(
-              _listChartData[(_listChartData.length ~/ 3) * 2].td),
-        ),
-        charts.TickSpec(
-          _listChartData.last.index,
-          label: TStyle.getDateSlashFormat3(_listChartData.last.td),
-        ),
-      ]);*/
     }
   }
 

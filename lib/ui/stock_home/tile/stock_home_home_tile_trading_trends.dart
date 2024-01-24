@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,14 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/custom_lib/charts_common/common.dart'
-    as charts_common;
 import 'package:rassi_assist/custom_lib/charts_flutter_new/flutter.dart'
     as charts;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_element.dart'
-    as charts_text_element;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_style.dart'
-    as charts_text_style;
 import 'package:rassi_assist/models/tr_invest/tr_invest01.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest02.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
@@ -58,7 +51,6 @@ class StockHomeHomeTileTradingTrendsState
   List<charts.Series<Invest01ChartData, String>> _seriesListTrendsData =
       []; // 매매동향 - 외국인 / 기관 데이터
   final List<Invest01ChartData> _trendsListData = [];
-  List<charts.TickSpec<String>> _trendsTickSpecList = [];
 
   // 누적매매
   final List<Invest02ChartData> _sumListData = [];
@@ -985,84 +977,6 @@ class StockHomeHomeTileTradingTrendsState
     );
   }
 
-  _initTrendsChartData() {
-    //_isRightYAxisUpUnit = _findMaxValue >= 1000;
-    _isRightYAxisUpUnit = _findAbsMaxValue >= 1000;
-    _seriesListTrendsData = [
-      charts.Series<Invest01ChartData, String>(
-        id: '주가',
-        colorFn: (_, __) => charts.Color.fromHex(code: '#454A63'),
-        domainFn: (Invest01ChartData xAxisItem, _) => xAxisItem.td,
-        measureFn: (Invest01ChartData yAxisItem, _) => int.parse(yAxisItem.tp),
-        data: _trendsListData,
-      )..setAttribute(charts.rendererIdKey, 'line'),
-      charts.Series<Invest01ChartData, String>(
-        id: '매수/매도',
-        colorFn: (v1, __) {
-          if (_isTrendsDiv == 0) {
-            if (int.parse(v1.fv) > 0) {
-              return charts.Color.fromHex(code: '#FF5050');
-            } else {
-              return charts.Color.fromHex(code: '#5886FE');
-            }
-          } else if (_isTrendsDiv == 1) {
-            if (int.parse(v1.ov) > 0) {
-              return charts.Color.fromHex(code: '#FF5050');
-            } else {
-              return charts.Color.fromHex(code: '#5886FE');
-            }
-          } else {
-            if (int.parse(v1.pv) > 0) {
-              return charts.Color.fromHex(code: '#FF5050');
-            } else {
-              return charts.Color.fromHex(code: '#5886FE');
-            }
-          }
-        },
-        domainFn: (Invest01ChartData xAxisItem, _) => xAxisItem.td,
-        measureFn: (Invest01ChartData yAxisItem, _) {
-          return _isTrendsDiv == 0
-              ? int.parse(yAxisItem.fv)
-              : _isTrendsDiv == 1
-                  ? int.parse(yAxisItem.ov)
-                  : int.parse(yAxisItem.pv);
-        },
-        data: _trendsListData,
-      )..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
-    ];
-    _trendsTickSpecList = [
-      charts.TickSpec(
-        // Value must match the domain value.
-        _trendsListData[0].td,
-        // Optional label for this tick, defaults to domain value if not set.
-        //label: TStyle.getDateSFormat(_trendsListData[0].td),
-        label: TStyle.getDateSlashFormat3(_trendsListData[0].td),
-        // The styling for this tick.
-        /*style: new charts.TextStyleSpec(
-                          color: new charts.Color(r: 0, g: 0, b: 0),),*/
-      ),
-      charts.TickSpec(
-        _trendsListData[(_trendsListData.length ~/ 3)].td,
-        //label: TStyle.getDateSFormat(_trendsListData[_trendsListData.length ~/ 3].td),
-        label: TStyle.getDateSlashFormat3(
-            _trendsListData[_trendsListData.length ~/ 3].td),
-        //style: charts.TextStyleSpec(),
-      ),
-      charts.TickSpec(
-        _trendsListData[(_trendsListData.length ~/ 3) * 2].td,
-        //label: TStyle.getDateSFormat(_trendsListData[(_trendsListData.length ~/ 3) * 2].td),
-        label: TStyle.getDateSlashFormat3(
-            _trendsListData[(_trendsListData.length ~/ 3) * 2].td),
-      ),
-      charts.TickSpec(
-        _trendsListData.last.td,
-        //label: TStyle.getDateSFormat(_trendsListData.last.td),
-        label: TStyle.getDateSlashFormat3(_trendsListData.last.td),
-      ),
-    ];
-    setState(() {});
-  }
-
   _requestTrAll() async {
     await Future.wait([
       _fetchPosts(
@@ -1118,19 +1032,15 @@ class StockHomeHomeTileTradingTrendsState
       final TrInvest01 resData = TrInvest01.fromJson(jsonDecode(response.body));
       _seriesListTrendsData.clear();
       _trendsListData.clear();
-      _trendsTickSpecList.clear();
       if (resData.retCode == RT.SUCCESS) {
         Invest01 invest01 = resData.retData;
         _frnHoldRate = invest01.frnHoldRate;
         if (invest01.listChartData.isNotEmpty) {
           _trendsListData.addAll(List.from(invest01.listChartData.reversed));
-          _initTrendsChartData();
-        } else {
-          setState(() {});
+          _isRightYAxisUpUnit = _findAbsMaxValue >= 1000;
         }
-      } else {
-        setState(() {});
       }
+      setState(() {});
     }
 
     // NOTE 누적매매
@@ -1152,13 +1062,9 @@ class StockHomeHomeTileTradingTrendsState
             _sumListData[0].aov = '0';
           }
           _isRightYAxisUpUnit = _findAbsMaxValue >= 1000;
-          setState(() {});
-        } else {
-          setState(() {});
         }
-      } else {
-        setState(() {});
       }
+      setState(() {});
     }
   }
 
@@ -1250,211 +1156,6 @@ class StockHomeHomeTileTradingTrendsState
       return double.parse(itemAfv.afv).abs() > double.parse(itemAov.aov).abs()
           ? double.parse(itemAfv.afv).abs()
           : double.parse(itemAov.aov).abs();
-    }
-  }
-}
-
-class CustomCircleSymbolRenderer extends charts_common.CircleSymbolRenderer {
-  final double deviceWidth;
-
-  CustomCircleSymbolRenderer(this.deviceWidth);
-
-  static late Invest01ChartData invest01ChartData;
-  static int isTrendsDiv = 0;
-  bool _isShow = false;
-  double xPoint = 0;
-
-  @override
-  void paint(charts_common.ChartCanvas canvas, Rectangle<num> bounds,
-      {List<int>? dashPattern,
-      charts.Color? fillColor,
-      charts.FillPatternType? fillPattern,
-      charts.Color? strokeColor,
-      double? strokeWidthPx}) {
-    super.paint(canvas, bounds,
-        dashPattern: dashPattern,
-        fillColor: fillColor,
-        strokeColor: strokeColor,
-        strokeWidthPx: strokeWidthPx);
-    if (_isShow) {
-      _isShow = false;
-    } else {
-      _isShow = true;
-
-      double minWidth = bounds.width + 80;
-      int fvLength = invest01ChartData.fv.length;
-      int ovLength = invest01ChartData.ov.length;
-      int pvLength = invest01ChartData.pv.length;
-      int maxLength = (fvLength >= ovLength && fvLength >= pvLength)
-          ? fvLength
-          : (ovLength >= pvLength)
-              ? ovLength
-              : pvLength;
-      if (maxLength > 6) {
-        minWidth += 5 * (maxLength - 6);
-      }
-
-      xPoint = (deviceWidth / 2) > bounds.left
-          ? bounds.left + 12
-          : bounds.left - minWidth - 4;
-
-      canvas.drawRect(
-        Rectangle(xPoint, 0, minWidth, bounds.height + 62),
-        fill: const charts.Color(
-          r: 102,
-          g: 102,
-          b: 102,
-          a: 200,
-        ),
-      );
-      var textStyle = charts_text_style.TextStyle();
-      textStyle.color = charts.Color.white;
-      textStyle.fontSize = 12;
-
-      String color = '#FC525B';
-      String strTp = '${TStyle.getMoneyPoint(invest01ChartData.tp)}원';
-      String strValue = '';
-
-      if (isTrendsDiv == 0) {
-        if (int.parse(invest01ChartData.fv) < 0) {
-          color = '#5886FE';
-        }
-        strValue = '${TStyle.getMoneyPoint(invest01ChartData.fv)}K';
-      } else if (isTrendsDiv == 1) {
-        if (int.parse(invest01ChartData.ov) < 0) {
-          color = '#5886FE';
-        }
-        strValue = '${TStyle.getMoneyPoint(invest01ChartData.ov)}K';
-      } else if (isTrendsDiv == 2) {
-        if (int.parse(invest01ChartData.pv) < 0) {
-          color = '#5886FE';
-        }
-        strValue = '${TStyle.getMoneyPoint(invest01ChartData.pv)}K';
-      }
-
-      // 날짜
-      canvas.drawText(
-        charts_text_element.TextElement(
-            TStyle.getDateSlashFormat3(invest01ChartData.td),
-            style: textStyle),
-        (xPoint + 8).round(),
-        12.round(),
-      );
-
-      canvas.drawPoint(
-        point: Point(xPoint + 12, 34),
-        radius: 4,
-        fill: charts.Color.fromHex(code: color),
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(strValue, style: textStyle),
-        (xPoint + 20).round(),
-        29.round(),
-      );
-
-      canvas.drawPoint(
-        point: Point(xPoint + 12, 54),
-        radius: 4,
-        fill: charts.Color.fromHex(code: '#454A63'),
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(strTp, style: textStyle),
-        (xPoint + 20).round(),
-        50.round(),
-      );
-    }
-  }
-}
-
-class CustomCircleSymbolRendererSum extends charts_common.CircleSymbolRenderer {
-  CustomCircleSymbolRendererSum(this.deviceWidth);
-
-  static late Invest02ChartData invest02ChartData;
-  double _xPoint = 0;
-  final double deviceWidth;
-  final List<charts.Color> _listSymbolColor = [
-    charts.Color.fromHex(code: '#FBD240'),
-    charts.Color.fromHex(code: '#5DD68D'),
-    //charts.Color.fromHex(code: '#FFFF65'),
-    charts.Color.fromHex(code: '#454A63'),
-  ];
-  List<String> _listValue = [];
-
-  @override
-  void paint(charts_common.ChartCanvas canvas, Rectangle<num> bounds,
-      {List<int>? dashPattern,
-      charts.Color? fillColor,
-      charts.FillPatternType? fillPattern,
-      charts.Color? strokeColor,
-      double? strokeWidthPx}) {
-    super.paint(canvas, bounds,
-        dashPattern: dashPattern,
-        fillColor: fillColor,
-        strokeColor: strokeColor,
-        strokeWidthPx: strokeWidthPx);
-
-    double minWidth = bounds.width + 80;
-    int afvLength = invest02ChartData.afv.length;
-    int aovLength = invest02ChartData.aov.length;
-    //int apvLength = invest02ChartData.apv.length;
-    int maxLength = (afvLength >= aovLength) ? afvLength : aovLength;
-    if (maxLength > 6) {
-      minWidth += 5 * (maxLength - 5);
-    }
-
-    _xPoint = (deviceWidth / 2) > bounds.left
-        ? bounds.left + 12
-        : bounds.left - minWidth - 4;
-
-    canvas.drawRect(
-      Rectangle(_xPoint, 0, minWidth, bounds.height + 84),
-      fill: const charts.Color(
-        r: 102,
-        g: 102,
-        b: 102,
-        a: 80,
-      ),
-    );
-    var textStyle = charts_text_style.TextStyle();
-    textStyle.color = charts.Color.white;
-    textStyle.fontSize = 12;
-
-    _listValue = [
-      '${TStyle.getMoneyPoint(invest02ChartData.afv)}원',
-      '${TStyle.getMoneyPoint(invest02ChartData.aov)}원',
-      //'${TStyle.getMoneyPoint(invest02ChartData.apv)}원',
-      '${TStyle.getMoneyPoint(invest02ChartData.tp)}원',
-    ];
-
-    // 날짜
-    canvas.drawText(
-      charts_text_element.TextElement(
-          TStyle.getDateSlashFormat3(invest02ChartData.td),
-          style: textStyle),
-      (_xPoint + 8).round(),
-      12.round(),
-    );
-
-    for (int i = 0; i < 3; i++) {
-      canvas.drawPoint(
-        point: Point(_xPoint + 12, 34 + (20 * i)),
-        radius: 4,
-        fill: _listSymbolColor[i],
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(_listValue[i], style: textStyle),
-        (_xPoint + 20).round(),
-        29 + (20 * i),
-      );
     }
   }
 }

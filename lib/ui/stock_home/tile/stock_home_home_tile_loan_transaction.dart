@@ -54,6 +54,8 @@ class StockHomeHomeTileLoanTransactionState
   final List<Invest23ChartData> _loanListData = [];
   int _loanDateClickIndex = 0;
 
+  late TrackballBehavior _trackballBehavior;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -75,6 +77,81 @@ class StockHomeHomeTileLoanTransactionState
 
   @override
   void initState() {
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      shouldAlwaysShow: true,
+      //tooltipDisplayMode: TrackballDisplayMode.floatAllPoints,
+      //enable: true,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        //color: Colors.red.shade500.withOpacity(0.5),
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      //tooltipAlignment: ChartAlignment.center,
+      tooltipSettings: const InteractiveTooltip(
+        enable: true,
+        format: 'point.x : point.y원',
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
+        //'point : ${trackballDetails.point} / '
+        //'seriesIndex : ${trackballDetails.seriesIndex} / '
+        //'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
+            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices[0]} / '
+        //'\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
+        //'\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
+        //'\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}'
+            '');
+        int selectedIndex = trackballDetails.groupingModeInfo?.currentPointIndices[0] ?? 0;
+        return Container(
+          width: 100,
+          height: 100,
+          color: Colors.black.withOpacity(0.1),
+          child: Container(
+            height: 80,
+            width: 100,
+            decoration: BoxDecoration(
+              color: Colors.amber.shade100.withOpacity(0.30),
+              border: Border.all(
+                color: Colors.green,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                 _divIndex == 0 ?
+                 _lendingListData[selectedIndex].td :
+                 _divIndex == 1 ?
+                 _sellingListData[selectedIndex].td :
+                 _loanListData[selectedIndex].tradeDate,
+                ),
+                Text(
+                  _divIndex == 0 ?
+                  _lendingListData[selectedIndex].tp :
+                  _divIndex == 1 ?
+                  _sellingListData[selectedIndex].tp :
+                  _loanListData[selectedIndex].tradePrice,
+                ),
+                Text(
+                  _divIndex == 0 ?
+                  _lendingListData[selectedIndex].bl :
+                  _divIndex == 1 ?
+                  _sellingListData[selectedIndex].asv :
+                  _loanListData[selectedIndex].volumeBalance,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
     super.initState();
     initPage();
   }
@@ -557,6 +634,7 @@ class StockHomeHomeTileLoanTransactionState
         ],
         //trackballBehavior: _trackballBehavior,
         //tooltipBehavior: TooltipBehavior(),
+        trackballBehavior: _trackballBehavior,
         series: _getSeries,
       ),
     );
