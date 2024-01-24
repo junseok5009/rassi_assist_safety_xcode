@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:card_swiper/card_swiper.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
@@ -22,7 +21,7 @@ import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/result_analyze_page.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-/// 2023.02.14_HJS
+/// 2023.02.14ㅣ_HJS
 /// 종목홈(개편)_홈_실적분석
 
 class StockHomeHomeTileResultAnalyze extends StatefulWidget {
@@ -60,7 +59,10 @@ class StockHomeHomeTileResultAnalyzeState
   late InfoProvider _infoProvider;
 
   Shome05StructPrice _shome05structPrice = defShome05StructPrice;
-  int _initSelectBarIndex = 0;
+  late TooltipBehavior _tooltipBehavior;
+  double _seriesAnimation = 1000;
+
+  //int _initSelectBarIndex = 0;
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -78,6 +80,12 @@ class StockHomeHomeTileResultAnalyzeState
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Added 300 milliseconds to the series animation duration and provided it as the duration for the Timer.
+        Timer(Duration(milliseconds: _seriesAnimation.toInt()), () {
+          _tooltipBehavior.showByIndex(0, _swipeIndex);
+        });
+      });
     }
   }
 
@@ -89,6 +97,11 @@ class StockHomeHomeTileResultAnalyzeState
 
   @override
   void initState() {
+    _tooltipBehavior = TooltipBehavior(
+      enable: true,
+      shouldAlwaysShow: true,
+      activationMode: ActivationMode.none,
+    );
     super.initState();
     _infoProvider = Provider.of<InfoProvider>(context, listen: false);
     initPage();
@@ -97,7 +110,6 @@ class StockHomeHomeTileResultAnalyzeState
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     if (_isNoData.isEmpty) {
       return const SizedBox(
         width: 1,
@@ -534,6 +546,7 @@ class StockHomeHomeTileResultAnalyzeState
                 setState(
                   () {
                     _divIndex = 0;
+                    _seriesAnimation = 1000;
                     _isRightYAxisUpUnit = _findMaxValue >= 1000;
                   },
                 );
@@ -575,6 +588,7 @@ class StockHomeHomeTileResultAnalyzeState
               if (_divIndex != 1) {
                 setState(() {
                   _divIndex = 1;
+                  _seriesAnimation = 1000;
                   _isRightYAxisUpUnit = _findMaxValue >= 1000;
                 });
               }
@@ -614,6 +628,7 @@ class StockHomeHomeTileResultAnalyzeState
               if (_divIndex != 2) {
                 setState(() {
                   _divIndex = 2;
+                  _seriesAnimation = 1000;
                   _isRightYAxisUpUnit = _findMaxValue >= 1000;
                 });
               }
@@ -942,9 +957,7 @@ class StockHomeHomeTileResultAnalyzeState
           );
         },
         onIndexChanged: (int index) {
-          setState(() {
-            _swipeIndex = index;
-          });
+          setState(() => _swipeIndex = index);
         },
       ),
     );
@@ -990,14 +1003,33 @@ class StockHomeHomeTileResultAnalyzeState
           enableMultiSelection: false,
           primaryXAxis: CategoryAxis(
             majorGridLines: const MajorGridLines(
-              color: Colors.white,
+              width: 0,
             ),
             majorTickLines: const MajorTickLines(
-              color: Colors.white,
+              width: 0,
+            ),
+            axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+              _isQuart
+                  ? '${axisLabelRenderArgs.text.substring(2)}Q'
+                  : axisLabelRenderArgs.text.substring(0, 4),
+              const TextStyle(
+                fontSize: 12,
+                color: RColor.greyBasic_8c8c8c,
+              ),
             ),
           ),
           primaryYAxis: NumericAxis(
-            rangePadding: ChartRangePadding.additional,
+            rangePadding: ChartRangePadding.round,
+            isVisible: false,
+            axisLine: const AxisLine(
+              width: 0,
+            ),
+            majorGridLines: const MajorGridLines(
+              width: 0,
+            ),
+            majorTickLines: const MajorTickLines(
+              width: 0,
+            ),
           ),
           axes: <ChartAxis>[
             CategoryAxis(
@@ -1022,30 +1054,45 @@ class StockHomeHomeTileResultAnalyzeState
               opposedPosition: true,
               anchorRangeToVisiblePoints: true,
               rangePadding: ChartRangePadding.round,
-              /*minimum: double.parse(_listData
-                  .reduce((curr, next) =>
-                      int.parse(curr.tradePrice) < int.parse(next.tradePrice)
-                          ? curr
-                          : next)
-                  .tradePrice),*/
+              //desiredIntervals: 4,
+              interval: _getInterval,
               axisLine: const AxisLine(
-                color: Colors.white,
                 width: 0,
               ),
               majorGridLines: const MajorGridLines(
-                color: Colors.white,
+                color: RColor.chartGreyColor,
+                width: 1.5,
+                dashArray: [2, 4],
               ),
               majorTickLines: const MajorTickLines(
-                color: Colors.white,
+                width: 0,
               ),
+              axisLabelFormatter: (axisLabelRenderArgs) {
+                String value = axisLabelRenderArgs.text;
+                if (_isRightYAxisUpUnit) {
+                  value = TStyle.getMoneyPoint(
+                      (axisLabelRenderArgs.value / 1000).toString());
+                } else {
+                  value = TStyle.getMoneyPoint(
+                      axisLabelRenderArgs.value.round().toString());
+                }
+                return ChartAxisLabel(
+                  value,
+                  const TextStyle(
+                    fontSize: 12,
+                    color: RColor.greyBasic_8c8c8c,
+                  ),
+                );
+              },
             )
           ],
           selectionType: SelectionType.point,
           onSelectionChanged: (SelectionArgs args) {
-            setState(() {
-              _initSelectBarIndex = args.pointIndex;
-            });
+            _seriesAnimation = 0;
+            setState(() => _swipeIndex = args.pointIndex);
+            _swiperController.move(args.pointIndex);
           },
+          tooltipBehavior: _tooltipBehavior,
           series: [
             ColumnSeries<Search10Sales, String>(
               dataSource: _listBarData,
@@ -1063,274 +1110,49 @@ class StockHomeHomeTileResultAnalyzeState
                   ) ??
                   0,
               pointColorMapper: (Search10Sales data, index) {
-                if (index == _initSelectBarIndex) {
+                if (index == _swipeIndex) {
                   return RColor.sigBuy;
                 } else {
                   return RColor.chartGreyColor;
                 }
               },
               onPointTap: (pointInteractionDetails) {
-                if (pointInteractionDetails.pointIndex != null) {
-                  DLog.e('onPointTap : ${pointInteractionDetails.pointIndex}');
-                  setState(() {
-                    _initSelectBarIndex = pointInteractionDetails.pointIndex!;
-                  });
+                if (pointInteractionDetails.pointIndex != null &&
+                    pointInteractionDetails.pointIndex != _swipeIndex) {
+                  _seriesAnimation = 0;
+                  setState(() =>
+                      _swipeIndex = pointInteractionDetails.pointIndex ?? 0);
+                  _swiperController.move(
+                    pointInteractionDetails.pointIndex ?? 0,
+                  );
+                  //_tooltipBehavior.showByIndex(0, _swipeIndex);
                 }
               },
+              yAxisName: 'yAxis',
+              width: 0.4,
+              enableTooltip: true,
+              borderRadius: const BorderRadius.all(
+                Radius.circular(5),
+              ),
+              animationDuration: _seriesAnimation,
+              //BorderRadius.all(Radius.circular(15)),
             ),
             LineSeries<Search10Sales, String>(
               dataSource: _listData,
               xValueMapper: (item, index) => index.toString(),
               yValueMapper: (item, index) => int.parse(item.tradePrice),
               color: RColor.chartTradePriceColor,
-              width: 2,
+              width: 1.4,
               enableTooltip: false,
               //selectionBehavior: _selectionBehavior,
               //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
               xAxisName: 'xAxis',
-              yAxisName: 'yAxis',
             ),
           ],
         ),
       ),
     );
   }
-
-  BarTouchData get barTouchData => BarTouchData(
-        enabled: false,
-        touchCallback: (event, response) {
-          if (response != null &&
-              response.spot != null &&
-              event is FlTapUpEvent) {
-            _infoProvider
-                .update(_listBarData[response.spot!.touchedBarGroup.x]);
-            setState(() {
-              final x = response.spot!.touchedBarGroup.x;
-              //final isShowing = _showingTooltip == x;
-              final isShowing = _swipeIndex == x;
-              if (isShowing) {
-                //_showingTooltip = -1;
-              } else {
-                setState(() {
-                  _swipeIndex = x;
-                  _swiperController.move(x);
-                });
-                //_showingTooltip = x;
-              }
-            });
-          }
-        },
-        touchTooltipData: BarTouchTooltipData(
-          tooltipBgColor: Colors.white,
-          tooltipPadding: const EdgeInsets.only(
-            left: 5,
-            right: 5,
-            top: 2,
-          ),
-          tooltipMargin: 10,
-          tooltipBorder: const BorderSide(
-            width: 1.2,
-            color: RColor.btnUnSelectGreyStroke,
-          ),
-          getTooltipItem: (
-            BarChartGroupData group,
-            int groupIndex,
-            BarChartRodData rod,
-            int rodIndex,
-          ) {
-            if (groupIndex >= _listBarData.length) {
-              return null;
-            }
-//            DLog.e('rod.toY : ${rod.toY}');
-            return BarTooltipItem(
-              (_divIndex == 0 && _listBarData[groupIndex].sales.isEmpty) ||
-                      (_divIndex == 1 &&
-                          _listBarData[groupIndex].salesProfit.isEmpty) ||
-                      (_divIndex == 2 &&
-                          _listBarData[groupIndex].netProfit.isEmpty)
-                  ? ' - '
-                  : rod.toY.abs() < 2
-                      ? '${rod.toY}억'
-                      : TStyle.getBillionUnitWithMoneyPointByDouble(
-                          rod.toY.round().toString(),
-                        ),
-              const TextStyle(
-                //color: rod.color,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            );
-          },
-        ),
-      );
-
-  Widget getTitles(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: RColor.new_basic_text_color_grey,
-      fontSize: 10,
-    );
-    var item = _listBarData[value.toInt()];
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      //angle: 150.2,
-      //space: 20,
-      child: Text(
-          _isQuart
-              ? item.confirmYn == 'N'
-                  ? '${item.year.substring(2, 4)}/${item.quarter}Q\n(잠정)'
-                  : '${item.year.substring(2, 4)}/${item.quarter}Q'
-              : item.year,
-          style: style),
-    );
-    /*if (strValue.isEmpty) {
-      return SideTitleWidget(
-        axisSide: meta.axisSide,
-        child: Text(''),
-      );
-    } else {
-      return SideTitleWidget(
-        axisSide: meta.axisSide,
-        //angle: 150.2,
-        //space: 20,
-        child: Text(
-            _isQuart
-                ? item.confirmYn == 'N'
-                    ? '${item.year.substring(2, 4)}/${item.quarter}Q\n(잠정)'
-                    : '${item.year.substring(2, 4)}/${item.quarter}Q'
-                : '${item.year}',
-            style: style),
-      );
-    }*/
-  }
-
-  FlTitlesData get titlesData => FlTitlesData(
-        show: true,
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: _confirmSearch10SalesIndexInListData != -1 && _isQuart
-                ? 40
-                : 30,
-            getTitlesWidget: getTitles,
-          ),
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        rightTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: _isRightYAxisUpUnit ? 40 : 50,
-            getTitlesWidget: _barChartRightTitles,
-          ),
-        ),
-      );
-
-  Widget _barChartRightTitles(double value, TitleMeta meta) {
-    //DLog.e('_isRightYAxisUpUnit : $_isRightYAxisUpUnit');
-    if (value == meta.max) {
-      return const SizedBox();
-    } else if (value == meta.min) {
-      var axisValue =
-          _isRightYAxisUpUnit ? value.round() / 1000 : value.round();
-      if (value >= 0) {
-        return SideTitleWidget(
-          axisSide: meta.axisSide,
-          child: Text(
-            meta.min > 0
-                ? '0'
-                : _isRightYAxisUpUnit
-                    ? axisValue >= 100
-                        ? TStyle.getMoneyPoint(
-                            (value.round() / 1000).floor().toString())
-                        : (value.round() / 1000).toStringAsFixed(1)
-                    : TStyle.getMoneyPoint(
-                        value.round().toString(),
-                      ),
-            style: const TextStyle(
-              fontSize: 12,
-              color: RColor.new_basic_text_color_grey,
-            ),
-          ),
-        );
-      }
-      return const SizedBox();
-    }
-    var axisValue = _isRightYAxisUpUnit
-        ? (value / 1000).round()
-        : value.abs() > 2
-            ? value.round()
-            : value;
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: Text(
-        _isRightYAxisUpUnit
-            ? axisValue >= 100
-                ? TStyle.getMoneyPoint(
-                    (value.round() / 1000).floor().toString())
-                : (value.round() / 1000).toStringAsFixed(1)
-            : axisValue.abs() < 2
-                ? TStyle.getMoneyPoint(
-                    value.toStringAsFixed(2),
-                  )
-                : TStyle.getMoneyPoint(
-                    value.round().toString(),
-                  ),
-        style: const TextStyle(
-          fontSize: 12,
-          color: RColor.new_basic_text_color_grey,
-        ),
-      ),
-    );
-  }
-
-  Widget emptyTitles(double value, TitleMeta meta) {
-    return const SizedBox();
-  }
-
-  List<BarChartGroupData> get barGroupsData => List.generate(
-        _listBarData.length,
-        (index) => BarChartGroupData(
-          x: index,
-          barRods: [
-            BarChartRodData(
-              borderRadius: BorderRadius.zero,
-              width: _isQuart ? 14 : 18,
-              borderSide: BorderSide(
-                color: _swipeIndex == index
-                    ? Colors.transparent
-                    : const Color(0xffDCDFE2),
-                width: 1,
-              ),
-              color:
-                  //_isQuart && _listBarData[index].confirmYn == 'N' ? RColor.chartGreyColor :
-                  _swipeIndex == index
-                      ? const Color(0xffFF5050)
-                      : _isQuart && _listBarData[index].confirmYn == 'N'
-                          ? const Color(0xffF5F7F8)
-                          : RColor.chartGreyColor,
-              toY: double.tryParse(
-                    _divIndex == 0
-                        ? _listBarData[index].sales
-                        : _divIndex == 1
-                            ? _listBarData[index].salesProfit
-                            : _divIndex == 2
-                                ? _listBarData[index].netProfit
-                                : _listBarData[index].sales,
-                  ) ??
-                  0,
-              //borderRadius: BorderRadius.zero,
-            ),
-          ],
-          showingTooltipIndicators:
-              //_showingTooltip == index ?
-              _swipeIndex == index ? [0] : [],
-        ),
-      );
 
   _requestTrAll() async {
     await Future.wait(
@@ -1427,8 +1249,7 @@ class StockHomeHomeTileResultAnalyzeState
                 element.netProfit.isNotEmpty) {
               _listBarData.add(element);
             }
-            if (_isQuart &&
-                element.confirmYn == 'N') {
+            if (_isQuart && element.confirmYn == 'N') {
               _confirmSearch10SalesIndexInListData = key;
             }
           });
@@ -1446,11 +1267,9 @@ class StockHomeHomeTileResultAnalyzeState
       } else {
         _isNoData = 'Y';
       }
-      setState(() {
-        //_showingTooltip = _listBarData.length -1;
-        _swipeIndex = _listBarData.length - 1;
-        _swiperController.move(_swipeIndex);
-      });
+      _seriesAnimation = 0;
+      setState(() => _swipeIndex = _listBarData.length - 1);
+      _swiperController.move(_swipeIndex);
     } else if (trStr == TR.SHOME05) {
       final TrShome05 resData = TrShome05.fromJson(jsonDecode(response.body));
       _shome05structPrice = defShome05StructPrice;
@@ -1649,8 +1468,7 @@ class StockHomeHomeTileResultAnalyzeState
                               '매출액',
                               style: TextStyle(
                                 fontSize: 13,
-                                color:
-                                    RColor.new_basic_text_color_strong_grey,
+                                color: RColor.new_basic_text_color_strong_grey,
                               ),
                             ),
                             item.sales.isEmpty
@@ -1696,8 +1514,7 @@ class StockHomeHomeTileResultAnalyzeState
                               '영업이익',
                               style: TextStyle(
                                 fontSize: 13,
-                                color:
-                                    RColor.new_basic_text_color_strong_grey,
+                                color: RColor.new_basic_text_color_strong_grey,
                               ),
                             ),
                             item.salesProfit.isEmpty
@@ -1742,8 +1559,7 @@ class StockHomeHomeTileResultAnalyzeState
                               '당기순이익',
                               style: TextStyle(
                                 fontSize: 13,
-                                color:
-                                    RColor.new_basic_text_color_strong_grey,
+                                color: RColor.new_basic_text_color_strong_grey,
                               ),
                             ),
                             item.netProfit.isEmpty
@@ -1826,6 +1642,27 @@ class StockHomeHomeTileResultAnalyzeState
             ),
           );
         });
+  }
+
+  double get _getInterval {
+    double minValue = _findMinValue;
+    double maxValue = _findMaxValue;
+    /*if(_isRightYAxisUpUnit){
+      minValue /= 1000;
+      maxValue /= 1000;
+    }*/
+    // 최솟값과 최댓값을 이용하여 적절한 간격 계산
+    double range = double.parse((maxValue - minValue).toStringAsFixed(1));
+    double interval = range / 4; // 예시로 4개의 간격으로 나눔
+    double roundedInterval =
+        pow(10, (log(interval) / log(10)).floor()).toDouble();
+    /*if(_isRightYAxisUpUnit && interval < 4){
+      roundedInterval = double.parse(pow(10, (log(interval) / log(10)).floor()).toStringAsFixed(1));
+      DLog.e('_getInterval : ${double.parse((roundedInterval * ((range / 4) / roundedInterval).ceil()).toStringAsFixed(1))}');
+      return double.parse((roundedInterval * ((range / 4) / roundedInterval).ceil()).toStringAsFixed(1));
+    }*/
+    return (roundedInterval * ((range / 4) / roundedInterval).ceil())
+        .toDouble();
   }
 }
 

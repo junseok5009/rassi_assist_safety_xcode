@@ -100,10 +100,11 @@ class RColor {
   static const lightBlue_5886fe = Color(0xff5886FE); // 연한 파랑
 
   // 차트
-  static const chartGreen = Color(0xff5DD68D);
   static const chartRed1 = Color(0xffFF5050);
   static const chartRed2 = Color(0x80ffd6d6);
   static const chartPink = Color(0xffFA8383);
+  static const chartYellow = Color(0xffFBD240);
+  static const chartGreen = Color(0xff5DD68D);
   static const chartGreyColor = Color(0xffDCDFE2);
   static const chartTradePriceColor = Color(0xff454A63);
 

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -486,7 +488,21 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           child: SfCartesianChart(
             primaryXAxis: CategoryAxis(
               plotBands: _listPlotBand,
+              majorGridLines: const MajorGridLines(
+                width: 0,
+              ),
+              majorTickLines: const MajorTickLines(
+                width: 0,
+              ),
+              desiredIntervals: 4,
               labelPlacement: LabelPlacement.onTicks,
+              axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
+                const TextStyle(
+                  fontSize: 12,
+                  color: RColor.greyBasic_8c8c8c,
+                ),
+              ),
             ),
             primaryYAxis: NumericAxis(
               minimum: 0,
@@ -505,7 +521,10 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                               : axisLabelRenderArgs.value == 3
                                   ? '왁자지껄'
                                   : '폭발',
-                  const TextStyle(),
+                  const TextStyle(
+                    fontSize: 14,
+                    color: RColor.greyBasic_8c8c8c,
+                  ),
                 );
               },
               majorGridLines: const MajorGridLines(
@@ -521,52 +540,54 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                 name: 'yAxis',
                 opposedPosition: true,
                 anchorRangeToVisiblePoints: true,
-                rangePadding: ChartRangePadding.round,
-                //desiredIntervals: 1000,
-                //rangePadding: ChartRangePadding.additional,
-                //maximumLabels: 4,
-                /* minimum: double.parse(_listChartData
-                    .reduce((curr, next) =>
-                        int.parse(curr.tp) < int.parse(next.tp) ? curr : next)
-                    .tp),*/
-                /*maximum: double.parse(_listChartData
-                    .reduce((curr, next) =>
-                        int.parse(curr.tp) > int.parse(next.tp) ? curr : next)
-                    .tp),*/
-                //rangePadding: ChartRangePadding.none,
                 axisLine: const AxisLine(
-                  color: Colors.white,
+                  width: 0,
                 ),
-                majorTickLines: const MajorTickLines(),
-                /*axisLabelFormatter: (axisLabelRenderArgs) {
-                  DLog.e('axisLabelRenderArgs.value : ${axisLabelRenderArgs.value}');
-                  return ChartAxisLabel('ddd', TextStyle(),);
-                },*/
-                //desiredIntervals: 1,
+                majorGridLines: const MajorGridLines(
+                  color: RColor.chartGreyColor,
+                  width: 1.5,
+                  dashArray: [2, 4],
+                ),
+                majorTickLines: const MajorTickLines(
+                  width: 0,
+                ),
+                //desiredIntervals: 4,
+                rangePadding: ChartRangePadding.round,
+                interval: _getInterval,
+                axisLabelFormatter: (axisLabelRenderArgs) {
+                  String value = axisLabelRenderArgs.text;
+                  if (_isRightYAxisUpUnit) {
+                    value = TStyle.getMoneyPoint(
+                        (axisLabelRenderArgs.value / 10000).round().toString());
+                  } else {
+                    value = TStyle.getMoneyPoint(
+                        axisLabelRenderArgs.value.round().toString());
+                  }
+                  return ChartAxisLabel(
+                    value,
+                    const TextStyle(
+                      fontSize: 12,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  );
+                },
               )
             ],
             trackballBehavior: _trackballBehavior,
             tooltipBehavior: TooltipBehavior(),
             series: [
               //SplineRangeAreaSeries
-              /*RangeAreaSeries<SNS06ChartData, String>(
-                dataSource: _listChartData,
-                xValueMapper: (item, index) => item.td,
-                //yValueMapper: (item, index) => int.parse(item.cg),
-                lowValueMapper: (SNS06ChartData item, _) => 0,
-                highValueMapper: (SNS06ChartData item, _) => int.parse(item.tp),
-                yAxisName: 'yAxis',
-                color: Colors.black.withOpacity(0.08),
-                borderWidth: 1.5,
-                borderColor: RColor.chartTradePriceColor,
-                enableTooltip: true,
-              ),*/
-              LineSeries<SNS06ChartData, String>(
-                yAxisName: 'yAxis',
+              AreaSeries<SNS06ChartData, String>(
                 dataSource: _listChartData,
                 xValueMapper: (item, index) => item.td,
                 yValueMapper: (item, index) => int.parse(item.tp),
-                color: RColor.chartTradePriceColor,
+                //lowValueMapper: (SNS06ChartData item, _) => 0,
+                //highValueMapper: (SNS06ChartData item, _) => int.parse(item.tp),
+                yAxisName: 'yAxis',
+                color: RColor.chartTradePriceColor.withOpacity(0.08),
+                borderWidth: 1.4,
+                borderColor: RColor.chartTradePriceColor,
+                enableTooltip: true,
               ),
               LineSeries<SNS06ChartData, String>(
                 dataSource: _listChartData,
@@ -793,6 +814,19 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
     }
   }
 
+  double get _getInterval {
+    double minValue = _findMinValue;
+    double maxValue = _findMaxValue;
+    // 최솟값과 최댓값을 이용하여 적절한 간격 계산
+    double range = maxValue - minValue;
+    double interval = range / 4; // 예시로 5개의 간격으로 나눔
+
+    double roundedInterval =
+        pow(10, (log(interval) / log(10)).floor()).toDouble();
+    return (roundedInterval * ((range / 4) / roundedInterval).ceil())
+        .toDouble();
+  }
+
   double get _findMinValue {
     if (_listChartData.length < 2) {
       return 0;
@@ -804,6 +838,22 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
             : double.parse(curr.tp) < double.parse(next.tp)
                 ? curr
                 : next);
+    return double.parse(item.tp);
+  }
+
+  double get _findMaxValue {
+    if (_listChartData.length == 2) {
+      return double.tryParse(_listChartData[0].tp) ?? 0;
+    }
+    var item = _listChartData.reduce(
+      (curr, next) => double.parse(curr.tp) == 0
+          ? next
+          : double.parse(next.tp) == 0
+              ? curr
+              : double.parse(curr.tp) < double.parse(next.tp)
+                  ? next
+                  : curr,
+    );
     return double.parse(item.tp);
   }
 }

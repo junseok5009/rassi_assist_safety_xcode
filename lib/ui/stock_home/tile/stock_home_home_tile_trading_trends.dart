@@ -3,20 +3,25 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:rassi_assist/custom_lib/charts_common/common.dart' as charts_common;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/flutter.dart' as charts;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_element.dart'
-    as charts_text_element;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_style.dart' as charts_text_style;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/custom_lib/charts_common/common.dart'
+    as charts_common;
+import 'package:rassi_assist/custom_lib/charts_flutter_new/flutter.dart'
+    as charts;
+import 'package:rassi_assist/custom_lib/charts_flutter_new/text_element.dart'
+    as charts_text_element;
+import 'package:rassi_assist/custom_lib/charts_flutter_new/text_style.dart'
+    as charts_text_style;
 import 'package:rassi_assist/models/tr_invest/tr_invest01.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest02.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/stock_home/page/trading_trends_by_date_page.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../common/const.dart';
 import '../../../common/net.dart';
@@ -28,13 +33,18 @@ import '../../main/base_page.dart';
 
 class StockHomeHomeTileTradingTrends extends StatefulWidget {
   //const StockHomeHomeTileTradingTrends({Key? key}) : super(key: key);
-  static final GlobalKey<StockHomeHomeTileTradingTrendsState> globalKey = GlobalKey();
+  static final GlobalKey<StockHomeHomeTileTradingTrendsState> globalKey =
+      GlobalKey();
+
   StockHomeHomeTileTradingTrends() : super(key: globalKey);
+
   @override
-  State<StockHomeHomeTileTradingTrends> createState() => StockHomeHomeTileTradingTrendsState();
+  State<StockHomeHomeTileTradingTrends> createState() =>
+      StockHomeHomeTileTradingTrendsState();
 }
 
-class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTradingTrends>
+class StockHomeHomeTileTradingTrendsState
+    extends State<StockHomeHomeTileTradingTrends>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileTradingTrends> {
   final AppGlobal _appGlobal = AppGlobal();
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 주, true 이면 천주
@@ -51,11 +61,10 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
   List<charts.TickSpec<String>> _trendsTickSpecList = [];
 
   // 누적매매
-  List<charts.Series<Invest02ChartData, int>> _seriesListSumData = []; // 누적매매
   final List<Invest02ChartData> _sumListData = [];
-  List<charts.TickSpec<num>> _sumTickSpecList = [];
   int _sumDateClickIndex = 0;
   final List<String> sumDateDiveTitleList = ['3개월', '6개월', '1년'];
+  late TrackballBehavior _trackballBehavior;
 
   @override
   bool get wantKeepAlive => true;
@@ -70,13 +79,76 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
 
   @override
   void initState() {
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      shouldAlwaysShow: true,
+      //tooltipDisplayMode: TrackballDisplayMode.floatAllPoints,
+      //enable: true,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        //color: Colors.red.shade500.withOpacity(0.5),
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      //tooltipAlignment: ChartAlignment.center,
+      tooltipSettings: const InteractiveTooltip(
+        enable: true,
+        format: 'point.x : point.y원',
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
+            'point : ${trackballDetails.point} / '
+            'seriesIndex : ${trackballDetails.seriesIndex} / '
+            'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
+            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices.toString()} / '
+            '\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
+            '\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
+            '\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}');
+        if (trackballDetails.seriesIndex == 0) {
+          return Container(
+            width: 100,
+            height: 100,
+            color: Colors.blue,
+            child: Container(
+              height: 80,
+              width: 100,
+              decoration: BoxDecoration(
+                color: Colors.amber.shade100.withOpacity(0.30),
+                border: Border.all(
+                  color: Colors.green,
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                    'xValue!',
+                  ),
+                  Text(
+                    //'yValue => ${_data[trackballDetails.pointIndex!].y.toString()}',
+                    'yValue!',
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return const SizedBox();
+      },
+    );
     super.initState();
     initPage();
   }
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -133,13 +205,13 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
                 height: 20,
               ),
               _setTrendsDivButtons(),
-              _isTrends
-                  ? _setTrendsView()
-                  : _setSumView(),
+              _isTrends ? _setTrendsView() : _setSumView(),
             ],
           ),
         ),
-        const SizedBox(height: 10,),
+        const SizedBox(
+          height: 10,
+        ),
         Container(
           color: RColor.new_basic_grey,
           height: 15.0,
@@ -270,9 +342,9 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
                           style: _isTrendsDiv == 0
                               ? TStyle.commonTitle15
                               : const TextStyle(
-                            fontSize: 15,
-                            color: RColor.btnUnSelectGreyText,
-                          ),
+                                  fontSize: 15,
+                                  color: RColor.btnUnSelectGreyText,
+                                ),
                         ),
                       ),
                     ),
@@ -286,7 +358,10 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
                         }
                       },
                       child: Container(
-                        margin: const EdgeInsets.only(left: 5, right: 5,),
+                        margin: const EdgeInsets.only(
+                          left: 5,
+                          right: 5,
+                        ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 15,
                           vertical: 4,
@@ -299,8 +374,8 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
                           style: _isTrendsDiv == 1
                               ? TStyle.commonTitle15
                               : const TextStyle(
-                              fontSize: 15,
-                              color: RColor.btnUnSelectGreyText),
+                                  fontSize: 15,
+                                  color: RColor.btnUnSelectGreyText),
                         ),
                       ),
                     ),
@@ -326,8 +401,8 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
                           style: _isTrendsDiv == 2
                               ? TStyle.commonTitle15
                               : const TextStyle(
-                              fontSize: 15,
-                              color: RColor.btnUnSelectGreyText),
+                                  fontSize: 15,
+                                  color: RColor.btnUnSelectGreyText),
                         ),
                       ),
                     ),
@@ -347,8 +422,8 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
                         color: (_frnHoldRate.isEmpty || _frnHoldRate == '0')
                             ? Colors.grey
                             : _frnHoldRate.contains('-')
-                            ? RColor.sigSell
-                            : RColor.sigBuy,
+                                ? RColor.sigSell
+                                : RColor.sigBuy,
                         fontSize: 14,
                       ),
                     ),
@@ -371,86 +446,154 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
             ),
           ),
         ),
-        Container(
+        SizedBox(
           height: 240,
-          color: Colors.transparent,
-          child: charts.OrdinalComboChart(
-            _seriesListTrendsData,
-            animate: true,
-            primaryMeasureAxis: const charts.NumericAxisSpec(
-              tickProviderSpec: charts.BasicNumericTickProviderSpec(
-                //desiredTickCount: 2,
-                zeroBound: false,
+          child: SfCartesianChart(
+            enableMultiSelection: false,
+            primaryXAxis: CategoryAxis(
+              //labelPlacement: LabelPlacement.onTicks,
+              majorGridLines: const MajorGridLines(
+                width: 0,
               ),
-              showAxisLine: false,
-              renderSpec: charts.NoneRenderSpec(),
+              majorTickLines: const MajorTickLines(
+                width: 1,
+              ),
+              axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
+                const TextStyle(
+                  fontSize: 12,
+                  color: RColor.greyBasic_8c8c8c,
+                ),
+              ),
+              desiredIntervals: 4,
             ),
-            secondaryMeasureAxis: charts.NumericAxisSpec(
-              tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                  //desiredTickCount: 5,
-                  //zeroBound: true,
-                  ),
-              renderSpec: charts.GridlineRendererSpec(
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                lineStyle: charts.LineStyleSpec(
-                  dashPattern: const [2, 2],
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
-                ),
+            primaryYAxis: NumericAxis(
+              rangePadding: ChartRangePadding.round,
+              isVisible: false,
+              axisLine: const AxisLine(
+                width: 0,
               ),
-              tickFormatterSpec:
-                  charts.BasicNumericTickFormatterSpec((measure) {
-                if (_isRightYAxisUpUnit) {
-                  return TStyle.getMoneyPoint((measure! / 1000).round().toString());
-                }
-                return TStyle.getMoneyPoint(measure!.round().toString());
-              }),
-            ),
-            domainAxis: charts.OrdinalAxisSpec(
-              tickProviderSpec: charts.StaticOrdinalTickProviderSpec(
-                _trendsTickSpecList,
+              majorGridLines: const MajorGridLines(
+                width: 0,
               ),
-              renderSpec: charts.SmallTickRendererSpec(
-                minimumPaddingBetweenLabelsPx: 30,
-                labelOffsetFromTickPx: 20,
-                labelOffsetFromAxisPx: 12,
-                // Tick and Label styling here.
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                // Change the line colors to match text color.
-                lineStyle: charts.LineStyleSpec(
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
-                ),
+              majorTickLines: const MajorTickLines(
+                width: 0,
               ),
             ),
-            selectionModels: [
-              charts.SelectionModelConfig(
-                  changedListener: (charts.SelectionModel model) {
-                if (model.hasDatumSelection) {
-                  int? selectIndex = model.selectedDatum[0].index;
-                  CustomCircleSymbolRenderer.invest01ChartData =
-                      _trendsListData[selectIndex!];
-                  CustomCircleSymbolRenderer.isTrendsDiv = _isTrendsDiv;
-                }
-              })
+            axes: <ChartAxis>[
+              CategoryAxis(
+                name: 'xAxis',
+                isVisible: false,
+                opposedPosition: true,
+                //labelPlacement: LabelPlacement.onTicks,
+                axisLine: const AxisLine(
+                  color: Colors.white,
+                  width: 0,
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: Colors.white,
+                ),
+                majorTickLines: const MajorTickLines(
+                  color: Colors.white,
+                ),
+              ),
+              NumericAxis(
+                name: 'yAxis',
+                opposedPosition: true,
+                anchorRangeToVisiblePoints: true,
+                rangePadding: ChartRangePadding.round,
+                axisLine: const AxisLine(
+                  width: 0,
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: RColor.chartGreyColor,
+                  width: 1.5,
+                  dashArray: [2, 4],
+                ),
+                majorTickLines: const MajorTickLines(
+                  width: 0,
+                ),
+                axisLabelFormatter: (axisLabelRenderArgs) {
+                  String value = axisLabelRenderArgs.text;
+                  if (_isRightYAxisUpUnit) {
+                    value = TStyle.getMoneyPoint(
+                        (axisLabelRenderArgs.value / 1000).round().toString());
+                  } else {
+                    value = TStyle.getMoneyPoint(
+                        axisLabelRenderArgs.value.round().toString());
+                  }
+                  return ChartAxisLabel(
+                    value,
+                    const TextStyle(
+                      fontSize: 12,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  );
+                },
+              )
             ],
-            customSeriesRenderers: [
-              charts.LineRendererConfig(
-                // ID used to link series to this renderer.
-                customRendererId: 'line',
-                layoutPaintOrder: 30,
-                strokeWidthPx: 1.5,
+            selectionType: SelectionType.point,
+            series: [
+              ColumnSeries<Invest01ChartData, String>(
+                dataSource: _trendsListData,
+                xValueMapper: (Invest01ChartData data, index) => data.td,
+                yValueMapper: (Invest01ChartData data, index) {
+                  return _isTrendsDiv == 0
+                      ? int.parse(data.fv)
+                      : _isTrendsDiv == 1
+                          ? int.parse(data.ov)
+                          : int.parse(data.pv);
+                },
+                pointColorMapper: (Invest01ChartData data, index) {
+                  if (_isTrendsDiv == 0) {
+                    if (int.parse(data.fv) > 0) {
+                      return RColor.chartRed1;
+                    } else {
+                      return RColor.lightBlue_5886fe;
+                    }
+                  } else if (_isTrendsDiv == 1) {
+                    if (int.parse(data.ov) > 0) {
+                      return RColor.chartRed1;
+                    } else {
+                      return RColor.lightBlue_5886fe;
+                    }
+                  } else {
+                    if (int.parse(data.pv) > 0) {
+                      return RColor.chartRed1;
+                    } else {
+                      return RColor.lightBlue_5886fe;
+                    }
+                  }
+                },
+                /*onPointTap: (pointInteractionDetails) {
+                  if (pointInteractionDetails.pointIndex != null && pointInteractionDetails.pointIndex != _swipeIndex) {
+                    _seriesAnimation = 0;
+                    setState(() =>  _swipeIndex = pointInteractionDetails.pointIndex ?? 0);
+                    _swiperController.move(
+                      pointInteractionDetails.pointIndex ?? 0,
+                    );
+                    //_tooltipBehavior.showByIndex(0, _swipeIndex);
+                  }
+                },*/
+                yAxisName: 'yAxis',
+                width: 0.4,
+                enableTooltip: true,
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(5),
+                ),
+                //animationDuration: _seriesAnimation,
+                //BorderRadius.all(Radius.circular(15)),
               ),
-            ],
-            behaviors: [
-              charts.LinePointHighlighter(
-                symbolRenderer: CustomCircleSymbolRenderer(
-                  MediaQuery.of(context).size.width,
-                ), // add this line in behaviours
+              LineSeries<Invest01ChartData, String>(
+                dataSource: _trendsListData,
+                xValueMapper: (item, index) => index.toString(),
+                yValueMapper: (item, index) => int.parse(item.tp),
+                color: RColor.chartTradePriceColor,
+                width: 1.4,
+                enableTooltip: false,
+                //selectionBehavior: _selectionBehavior,
+                //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
+                xAxisName: 'xAxis',
               ),
             ],
           ),
@@ -576,87 +719,123 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
           ),
         ),
         SizedBox(
+          width: double.infinity,
           height: 240,
-          child: charts.LineChart(
-            _seriesListSumData,
-            animate: true,
-            primaryMeasureAxis: const charts.NumericAxisSpec(
-              tickProviderSpec: charts.BasicNumericTickProviderSpec(
-                //desiredTickCount: 2,
-                zeroBound: false,
+          child: SfCartesianChart(
+            primaryXAxis: CategoryAxis(
+              majorGridLines: const MajorGridLines(
+                width: 0,
               ),
-              showAxisLine: false,
-              renderSpec: charts.NoneRenderSpec(),
-            ),
-            secondaryMeasureAxis: charts.NumericAxisSpec(
-              tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                //desiredTickCount: 5,
-                zeroBound: true,
+              majorTickLines: const MajorTickLines(
+                width: 0,
               ),
-              renderSpec: charts.GridlineRendererSpec(
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                lineStyle: charts.LineStyleSpec(
-                  dashPattern: const [2, 2],
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
-                ),
-              ),
-              tickFormatterSpec:
-                  charts.BasicNumericTickFormatterSpec((measure) {
-                if (_isRightYAxisUpUnit) {
-                  return TStyle.getMoneyPoint((measure! / 1000).round().toString());
-                } else {
-                  return TStyle.getMoneyPoint(measure!.round().toString());
-                }
-              }),
-            ),
-            domainAxis: charts.NumericAxisSpec(
-              tickProviderSpec: charts.StaticNumericTickProviderSpec(
-                _sumTickSpecList,
-              ),
-              renderSpec: charts.SmallTickRendererSpec(
-                minimumPaddingBetweenLabelsPx: 30,
-                labelOffsetFromTickPx: 20,
-                labelOffsetFromAxisPx: 12,
-                // Tick and Label styling here.
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                // Change the line colors to match text color.
-                lineStyle: charts.LineStyleSpec(
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
+              desiredIntervals: 4,
+              labelPlacement: LabelPlacement.onTicks,
+              axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
+                const TextStyle(
+                  fontSize: 12,
+                  color: RColor.greyBasic_8c8c8c,
                 ),
               ),
             ),
-            selectionModels: [
-              charts.SelectionModelConfig(
-                  changedListener: (charts.SelectionModel model) {
-                if (model.hasDatumSelection) {
-                  int? selectIndex = model.selectedDatum[0].index;
-                  CustomCircleSymbolRendererSum.invest02ChartData =
-                      _sumListData[selectIndex!];
-                }
-              })
+            primaryYAxis: NumericAxis(
+              rangePadding: ChartRangePadding.round,
+              isVisible: false,
+              axisLine: const AxisLine(
+                width: 0,
+              ),
+              majorGridLines: const MajorGridLines(
+                width: 0,
+              ),
+              majorTickLines: const MajorTickLines(
+                width: 0,
+              ),
+            ),
+            axes: <ChartAxis>[
+              NumericAxis(
+                name: 'yAxis',
+                opposedPosition: true,
+                anchorRangeToVisiblePoints: true,
+                rangePadding: ChartRangePadding.round,
+                axisLine: const AxisLine(
+                  width: 0,
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: RColor.chartGreyColor,
+                  width: 1.5,
+                  dashArray: [2, 4],
+                ),
+                majorTickLines: const MajorTickLines(
+                  width: 0,
+                ),
+                desiredIntervals: 3,
+                axisLabelFormatter: (axisLabelRenderArgs) {
+                  String value = axisLabelRenderArgs.text;
+                  if (_isRightYAxisUpUnit) {
+                    value = TStyle.getMoneyPoint(
+                        (axisLabelRenderArgs.value / 1000).round().toString());
+                  } else {
+                    value = TStyle.getMoneyPoint(
+                        axisLabelRenderArgs.value.round().toString());
+                  }
+                  return ChartAxisLabel(
+                    value,
+                    const TextStyle(
+                      fontSize: 12,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  );
+                },
+                numberFormat: NumberFormat.decimalPattern(), // 라벨의 형식 지정
+                // numberFormat: NumberFormat.simpleCurrency(locale: 'ko_KR', decimalDigits: 0,),
+                //rangePadding: ChartRangePadding.additional,
+                //maximumLabels: 4,
+                /* minimum: double.parse(_listChartData
+                    .reduce((curr, next) =>
+                        int.parse(curr.tp) < int.parse(next.tp) ? curr : next)
+                    .tp),*/
+                /*maximum: double.parse(_listChartData
+                    .reduce((curr, next) =>
+                        int.parse(curr.tp) > int.parse(next.tp) ? curr : next)
+                    .tp),*/
+                /*axisLabelFormatter: (axisLabelRenderArgs) {
+                  DLog.e('axisLabelRenderArgs.value : ${axisLabelRenderArgs.value}');
+                  return ChartAxisLabel('ddd', TextStyle(),);
+                },*/
+              )
             ],
-            customSeriesRenderers: [
-              charts.LineRendererConfig(
-                customRendererId: 'areaLine',
-                includeArea: true,
-                //areaOpacity: 0.2,
-                layoutPaintOrder: 0,
-                //stacked: true,
+            trackballBehavior: _trackballBehavior,
+            tooltipBehavior: TooltipBehavior(),
+            series: [
+              //SplineRangeAreaSeries
+              // 외국인
+              AreaSeries<Invest02ChartData, String>(
+                dataSource: _sumListData,
+                xValueMapper: (item, index) => item.td,
+                yValueMapper: (item, index) => int.parse(item.afv),
+                yAxisName: 'yAxis',
+                color: RColor.chartYellow.withOpacity(0.08),
+                borderWidth: 1.5,
+                borderColor: RColor.chartYellow,
+                enableTooltip: true,
               ),
-            ],
-            behaviors: [
-              charts.LinePointHighlighter(
-                symbolRenderer: CustomCircleSymbolRendererSum(
-                    MediaQuery.of(context)
-                        .size
-                        .width,
-                ), // add this line in behaviours
+              AreaSeries<Invest02ChartData, String>(
+                dataSource: _sumListData,
+                xValueMapper: (item, index) => item.td,
+                yValueMapper: (item, index) => int.parse(item.aov),
+                yAxisName: 'yAxis',
+                color: RColor.chartGreen.withOpacity(0.08),
+                borderWidth: 1.5,
+                borderColor: RColor.chartGreen,
+                enableTooltip: true,
+              ),
+              LineSeries<Invest02ChartData, String>(
+                dataSource: _sumListData,
+                xValueMapper: (item, index) => item.td,
+                yValueMapper: (item, index) => int.parse(item.tp),
+                color: RColor.chartTradePriceColor,
+                width: 1.4,
               ),
             ],
           ),
@@ -865,86 +1044,20 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
       charts.TickSpec(
         _trendsListData[(_trendsListData.length ~/ 3)].td,
         //label: TStyle.getDateSFormat(_trendsListData[_trendsListData.length ~/ 3].td),
-        label: TStyle.getDateSlashFormat3(_trendsListData[_trendsListData.length ~/ 3].td),
+        label: TStyle.getDateSlashFormat3(
+            _trendsListData[_trendsListData.length ~/ 3].td),
         //style: charts.TextStyleSpec(),
       ),
       charts.TickSpec(
         _trendsListData[(_trendsListData.length ~/ 3) * 2].td,
         //label: TStyle.getDateSFormat(_trendsListData[(_trendsListData.length ~/ 3) * 2].td),
-        label: TStyle.getDateSlashFormat3(_trendsListData[(_trendsListData.length ~/ 3) * 2].td),
+        label: TStyle.getDateSlashFormat3(
+            _trendsListData[(_trendsListData.length ~/ 3) * 2].td),
       ),
       charts.TickSpec(
         _trendsListData.last.td,
         //label: TStyle.getDateSFormat(_trendsListData.last.td),
         label: TStyle.getDateSlashFormat3(_trendsListData.last.td),
-      ),
-    ];
-    setState(() {});
-  }
-
-  _initSumChartData() {
-    //_isRightYAxisUpUnit = _findMaxValue >= 1000;
-    _isRightYAxisUpUnit = _findAbsMaxValue >= 1000;
-    _seriesListSumData = [
-      charts.Series<Invest02ChartData, int>(
-        id: '기관',
-        colorFn: (v1, __) => charts.Color.fromHex(code: '#5DD68D'),
-        domainFn: (Invest02ChartData xAxisItem, _) => xAxisItem.index,
-        measureFn: (Invest02ChartData yAxisItem, _) => int.parse(yAxisItem.aov),
-        data: _sumListData,
-      )
-        ..setAttribute(charts.rendererIdKey, 'areaLine')
-        ..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
-      charts.Series<Invest02ChartData, int>(
-        id: '외국인',
-        colorFn: (v1, __) => charts.Color.fromHex(code: '#FBD240'),
-        domainFn: (Invest02ChartData xAxisItem, _) => xAxisItem.index,
-        measureFn: (Invest02ChartData yAxisItem, _) => int.parse(yAxisItem.afv),
-        data: _sumListData,
-      )
-        ..setAttribute(charts.rendererIdKey, 'areaLine')
-        ..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
-     /* new charts.Series<Invest02ChartData, int>(
-        id: '개인',
-        colorFn: (v1, __) => charts.Color.fromHex(code: '#FFFF65'),
-        domainFn: (Invest02ChartData xAxisItem, _) => xAxisItem.index,
-        measureFn: (Invest02ChartData yAxisItem, _) => int.parse(yAxisItem.apv),
-        data: _sumListData,
-      )
-        ..setAttribute(charts.rendererIdKey, 'areaLine')
-        ..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),*/
-
-      charts.Series<Invest02ChartData, int>(
-        id: '주가',
-        colorFn: (v1, __) => charts.Color.fromHex(code: '#454A63'),
-        domainFn: (Invest02ChartData xAxisItem, _) => xAxisItem.index,
-        measureFn: (Invest02ChartData yAxisItem, _) => int.parse(yAxisItem.tp),
-        data: _sumListData,
-        strokeWidthPxFn: (datum, index) => 1.5,
-        //네dashPatternFn: (datum, index) => [4,2],
-      )
-      //..setAttribute(charts.rendererIdKey, 'areaLine'),
-    ];
-    _sumTickSpecList = [
-      charts.TickSpec(
-        _sumListData[0].index,
-        //label: TStyle.getDateSFormat(_sumListData[0].td),
-        label: TStyle.getDateSlashFormat3(_sumListData[0].td),
-      ),
-      charts.TickSpec(
-        _sumListData[(_sumListData.length ~/ 3)].index,
-        //label: TStyle.getDateSFormat(_sumListData[_sumListData.length ~/ 3].td),
-        label: TStyle.getDateSlashFormat3(_sumListData[_sumListData.length ~/ 3].td),
-      ),
-      charts.TickSpec(
-        _sumListData[(_sumListData.length ~/ 3) * 2].index,
-        //label: TStyle.getDateSFormat(_sumListData[(_sumListData.length ~/ 3) * 2].td),
-        label: TStyle.getDateSlashFormat3(_sumListData[(_sumListData.length ~/ 3) * 2].td),
-      ),
-      charts.TickSpec(
-        _sumListData.last.index,
-        //label: TStyle.getDateSFormat(_sumListData.last.td),
-        label: TStyle.getDateSlashFormat3(_sumListData.last.td),
       ),
     ];
     setState(() {});
@@ -1013,10 +1126,10 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
           _trendsListData.addAll(List.from(invest01.listChartData.reversed));
           _initTrendsChartData();
         } else {
-          setState(() { });
+          setState(() {});
         }
       } else {
-        setState(() { });
+        setState(() {});
       }
     }
 
@@ -1024,9 +1137,7 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
     else if (trStr == TR.INVEST02) {
       final TrInvest02 resData =
           TrInvest02.fromJsonWithIndex(jsonDecode(response.body));
-      _seriesListSumData.clear();
       _sumListData.clear();
-      _sumTickSpecList.clear();
       if (resData.retCode == RT.SUCCESS) {
         Invest02 invest02 = resData.retData;
         _accFrnVol = invest02.accFrnVol;
@@ -1040,7 +1151,8 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
           if (_sumListData[0].aov != '0') {
             _sumListData[0].aov = '0';
           }
-          _initSumChartData();
+          _isRightYAxisUpUnit = _findAbsMaxValue >= 1000;
+          setState(() {});
         } else {
           setState(() {});
         }
@@ -1091,7 +1203,7 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
     }
   }
 
-  double get _findAbsMaxValue{
+  double get _findAbsMaxValue {
     // 매매동향
     if (_isTrends) {
       if (_trendsListData.length < 2) {
@@ -1101,17 +1213,23 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
       //외국인
       if (_isTrendsDiv == 0) {
         var item = _trendsListData.reduce((curr, next) =>
-        double.parse(curr.fv).abs() > double.parse(next.fv).abs() ? curr : next);
+            double.parse(curr.fv).abs() > double.parse(next.fv).abs()
+                ? curr
+                : next);
         return double.parse(item.fv).abs();
       }
       //기관
       else if (_isTrendsDiv == 1) {
         var item = _trendsListData.reduce((curr, next) =>
-        double.parse(curr.ov).abs() > double.parse(next.ov).abs() ? curr : next);
+            double.parse(curr.ov).abs() > double.parse(next.ov).abs()
+                ? curr
+                : next);
         return double.parse(item.ov).abs();
       } else {
         var item = _trendsListData.reduce((curr, next) =>
-        double.parse(curr.pv).abs() > double.parse(next.pv).abs() ? curr : next);
+            double.parse(curr.pv).abs() > double.parse(next.pv).abs()
+                ? curr
+                : next);
         return double.parse(item.pv).abs();
       }
     }
@@ -1122,15 +1240,18 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
         return 0;
       }
       var itemAfv = _sumListData.reduce((curr, next) =>
-      double.parse(curr.afv).abs() > double.parse(next.afv).abs() ? curr : next);
+          double.parse(curr.afv).abs() > double.parse(next.afv).abs()
+              ? curr
+              : next);
       var itemAov = _sumListData.reduce((curr, next) =>
-      double.parse(curr.aov).abs() > double.parse(next.aov).abs() ? curr : next);
+          double.parse(curr.aov).abs() > double.parse(next.aov).abs()
+              ? curr
+              : next);
       return double.parse(itemAfv.afv).abs() > double.parse(itemAov.aov).abs()
           ? double.parse(itemAfv.afv).abs()
           : double.parse(itemAov.aov).abs();
     }
   }
-
 }
 
 class CustomCircleSymbolRenderer extends charts_common.CircleSymbolRenderer {
