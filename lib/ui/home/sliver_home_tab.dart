@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
@@ -24,7 +25,8 @@ class SliverHomeTabWidget extends StatefulWidget {
   State<StatefulWidget> createState() => SliverHomeTabWidgetState();
 }
 
-class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> {
+class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
+    with SingleTickerProviderStateMixin {
   int initIndex = 0;
   final List<String> _tabs = ['홈', 'AI매매신호', '종목캐치', '마켓뷰'];
   final List<String> _dropdownItems = ['AI매매신호', '종목홈'];
@@ -33,10 +35,25 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> {
     '종목정보를 검색해 보세요!',
   ];
 
+  late TabController _tabController;
+
   String _dropdownValue = 'AI매매신호';
   int _dropdownSelectIndex = 0;
 
   final refreshKey = GlobalKey<RefreshIndicatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController =
+        TabController(length: 4, vsync: this, initialIndex: initIndex);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DLog.e('ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ'
+          // 'SliverHomeTabWidgetState ModalRoute.of(context).settings.name : ${ModalRoute.of(context).settings.name}'
+          'ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ');
+    });
+  }
 
   @override
   void setState(VoidCallback fn) {
@@ -53,11 +70,7 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> {
         RColor.bgBasic_fdfdfd,
       ),
       body: SafeArea(
-        child: DefaultTabController(
-          initialIndex: initIndex,
-          length: _tabs.length,
-          child: _setNestedScrollView(),
-        ),
+        child: _setNestedScrollView(),
       ),
     );
   }
@@ -91,7 +104,7 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> {
                     //상단 타이틀 영역 만큼의 공간[위로 숨겨지는 영역]
                     //const SizedBox(width: double.infinity, height: 60,),
                     const SizedBox(
-                      height: 10,
+                      height: 30,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -99,8 +112,8 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> {
                       children: [
                         Image.asset(
                           'images/icon_rassi_logo_purple.png',
-                          color: RColor.mainColor,
-                          height: 50,
+                          //color: RColor.mainColor,
+                          height: 28,
                         ),
                         const SizedBox(
                           width: 10,
@@ -126,22 +139,23 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> {
                       //padding: const EdgeInsets.fromLTRB(0, 0, 0, 2),
                       child: Column(
                         children: [
-                          const TabBar(
+                          TabBar(
+                            controller: _tabController,
                             indicatorColor: Colors.black,
                             indicatorWeight: 3,
                             labelColor: Colors.black,
-                            labelStyle: TextStyle(
+                            labelStyle: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
                               color: RColor.blackTitle_141414,
                             ),
                             unselectedLabelColor: RColor.greyTitle_cdcdcd,
-                            unselectedLabelStyle: TextStyle(
+                            unselectedLabelStyle: const TextStyle(
                               fontSize: 16,
                               color: RColor.greyTitle_cdcdcd,
                             ),
                             isScrollable: true,
-                            tabs: [
+                            tabs: const [
                               SizedBox(
                                 width: 32,
                                 child: Tab(
@@ -330,6 +344,7 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> {
   //하단 탭뷰
   Widget _setTabView() {
     return TabBarView(
+      controller: _tabController,
       children: [
         RefreshIndicator(
           //key: refreshKey,

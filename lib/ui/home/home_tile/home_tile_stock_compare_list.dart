@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_group.dart';
 
-import '../../../common/const.dart';
 import '../../../common/tstyle.dart';
 import '../../../common/ui_style.dart';
 import '../../../models/pg_data.dart';
 import '../../../models/tr_compare/tr_compare01.dart';
 import '../../main/base_page.dart';
 import '../../stock_home/page/stock_compare_page.dart';
-
 
 /// 비교해서 더 좋은 찾기 (종목비교)
 class HomeTileStockCompareList extends StatelessWidget {
@@ -21,30 +19,30 @@ class HomeTileStockCompareList extends StatelessWidget {
     return Column(
       children: [
         Container(
-          color: RColor.new_basic_grey,
-          height: 15.0,
+          color: const Color(
+            0xffF5F5F5,
+          ),
+          height: 13,
         ),
         Container(
-          margin: const EdgeInsets.fromLTRB(15, 25, 15, 10),
+          margin: const EdgeInsets.fromLTRB(15, 30, 15, 10),
           alignment: Alignment.centerLeft,
           child: const Text(
             '비교해서 더 좋은 찾기',
-            style: TStyle.commonTitle,
+            style: TStyle.title18T,
           ),
         ),
         Container(
           margin: const EdgeInsets.fromLTRB(15, 15, 15, 10),
-          decoration: UIStyle.boxWithOpacityNew(),
+          decoration: UIStyle.boxShadowBasic(16),
           child: ListView.builder(
             scrollDirection: Axis.vertical,
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: compare01.listData.length,
             itemBuilder: (BuildContext context, int index) {
-              return TileCompareItem(
-                  compare01.listData[index],
-                  index + 1 == compare01.listData.length
-              );
+              return TileCompareItem(compare01.listData[index],
+                  index + 1 == compare01.listData.length);
             },
           ),
         ),
@@ -52,7 +50,6 @@ class HomeTileStockCompareList extends StatelessWidget {
     );
   }
 }
-
 
 //화면구성
 class TileCompareItem extends StatelessWidget {
@@ -81,9 +78,12 @@ class TileCompareItem extends StatelessWidget {
                 children: [
                   Text(
                     stockGroup.stockGrpNm,
-                    style: TStyle.listItem,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Color(0xff111111),
+                    ),
                   ),
-
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -93,11 +93,13 @@ class TileCompareItem extends StatelessWidget {
                         '${stockGroup.groupStockCnt}종목',
                         style: TStyle.listItem,
                       ),
-                      const SizedBox(width: 10,),
+                      const SizedBox(
+                        width: 10,
+                      ),
 
                       Container(
-                        width: 75,
-                        height: 27,
+                        width: 80,
+                        height: 23,
                         alignment: Alignment.center,
                         decoration: UIStyle.boxRoundFullColor6c(
                           TStyle.getMinusPlusColor(stockGroup.groupfluctRate),
@@ -105,25 +107,24 @@ class TileCompareItem extends StatelessWidget {
                         child: Text(
                           TStyle.getPercentString(stockGroup.groupfluctRate),
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
                       ),
-
                     ],
                   ),
                 ],
               ),
             ),
-
-            isLast ? Container() :
-            Container(
-              margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-              color: RColor.new_basic_grey,
-              height: 1.5,
-            ),
+            isLast
+                ? Container()
+                : Container(
+                    margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                    color: Colors.black12,
+                    height: 1.2,
+                  ),
           ],
         ),
       ),

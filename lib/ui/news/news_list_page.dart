@@ -79,20 +79,24 @@ class NewsListState extends State<NewsListPage> {
 
   void _requestData() {
     // 아이패드 같은 경우에는 10개 이상의 리스트는 볼수 없다.
-    debugPrint("stock code : $stkCode");
-    if(stkCode != null && stkCode != '') {
-      _fetchPosts(TR.RASSI02, jsonEncode(<String, String>{
-        'userId': _userId,
-        'stockCode': stkCode,
-        'pageNo': pageNum.toString(),
-        'pageItemSize': pageSize,
-      }));
+    print("stock code : " + stkCode);
+    if (stkCode != null && stkCode != '') {
+      _fetchPosts(
+          TR.RASSI02,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'stockCode': stkCode,
+            'pageNo': pageNum.toString(),
+            'pageItemSize': pageSize,
+          }));
     } else {
-      _fetchPosts(TR.RASSI01, jsonEncode(<String, String>{
-        'userId': _userId,
-        'pageNo': pageNum.toString(),
-        'pageItemSize': pageSize,
-      }));
+      _fetchPosts(
+          TR.RASSI01,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'pageNo': pageNum.toString(),
+            'pageItemSize': pageSize,
+          }));
     }
   }
 

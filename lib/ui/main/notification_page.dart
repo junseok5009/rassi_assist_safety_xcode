@@ -478,6 +478,10 @@ class NotificationPageState extends State<NotificationPage> {
                       ? true
                       : false,
                   child: Chip(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      side: const BorderSide(color: Colors.white),
+                    ),
                     label: Text(getTypeString(div)),
                     backgroundColor: getTypeColor(div),
                   ),

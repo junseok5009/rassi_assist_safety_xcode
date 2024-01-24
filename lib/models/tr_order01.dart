@@ -110,10 +110,11 @@ class OrderChange {
 class TileOrder01 extends StatelessWidget {
   final Order01 item;
 
-  TileOrder01(this.item);
+  const TileOrder01(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
+
     String pdName = '';
     String period = '';
     bool _hasRefund = false;
@@ -133,8 +134,7 @@ class TileOrder01 extends StatelessWidget {
 
     if(item.chList.length > 0) {
       pdName = item.chList[0].prodName;
-      period = TStyle.getDateSFormat(item.chList[0].startDate)
-          + '~' + TStyle.getDateSFormat(item.chList[0].endDate);
+      period = '${TStyle.getDateSFormat(item.chList[0].startDate)}~${TStyle.getDateSFormat(item.chList[0].endDate)}';
     }
 
     return Container(
@@ -229,11 +229,11 @@ class TileOrder01 extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(7),
                       decoration: UIStyle.boxWeakGrey10(),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
-                        children: const [
+                        children: [
                           Text('', style: TStyle.contentMGrey,),
                           Text('- 해지하기  ', style: TStyle.contentMGrey,),
                         ],

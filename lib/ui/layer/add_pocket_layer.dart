@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
@@ -38,6 +39,9 @@ class _AddPocketLayerState extends State<AddPocketLayer> {
   @override
   void initState() {
     super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      '포켓_더_만들기_레이어',
+    );
     _pocketName =
         '나의 포켓${Provider.of<PocketProvider>(context, listen: false).getPocketList.length + 1}';
   }

@@ -1071,7 +1071,9 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     return Visibility(
       visible: prLOW,
       child: SizedBox(
-          width: double.infinity, height: 180, child: CardProm02(_listPrLow),
+        width: double.infinity,
+        height: 180,
+        child: CardProm02(_listPrLow),
       ),
     );
   }
@@ -1237,8 +1239,8 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                     _navigateRefreshPay(
                         context,
                         Platform.isIOS
-                            ? PayPremiumPage()
-                            : PayPremiumAosPage());
+                            ? const PayPremiumPage()
+                            : const PayPremiumAosPage());
                   },
                 ),
               ],
@@ -1389,7 +1391,8 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
             url,
             body: json,
             headers: Net.headers,
-          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {

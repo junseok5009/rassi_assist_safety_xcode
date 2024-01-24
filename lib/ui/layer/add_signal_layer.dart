@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
@@ -24,9 +25,13 @@ class AddSignalLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    CustomFirebaseClass.logEvtScreenView(
+      '나만의_매도_신호_만들기_레이어',
+    );
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => SignalLayerSliderProvider()),
+        ChangeNotifierProvider(
+            create: (context) => SignalLayerSliderProvider()),
       ],
       child: SafeArea(
         child: Column(

@@ -121,7 +121,7 @@ class MainActivity: FlutterFragmentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-//        Log.w("MainActivity", "@@@@@ onNewIntent()")
+//        Log.w("MainActivity", "@ onNewIntent()")
 
         if (intent != null) {
             if (intent.extras != null) {

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
@@ -17,13 +18,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/common_class.dart';
 import '../../common/custom_firebase_class.dart';
 import '../../common/net.dart';
-import '../../models/pg_news.dart';
 import '../../models/tr_basic.dart';
 import '../common/common_popup.dart';
 import '../common/only_web_view.dart';
-import '../main/base_page.dart';
 
 class PremiumCarePage extends StatefulWidget {
+  //const PremiumCarePage({super.key});
   static const String TAG_NAME = '프리미엄_케어';
 
   const PremiumCarePage({Key? key}) : super(key: key);
@@ -1218,12 +1218,14 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                   ],
                 ),
                 onTap: () {
-                  // basePageState.callPageRouteNews(
-                  //   OnlyWebView(),
-                  //   PgNews(
-                  //     linkUrl: 'https://www.thinkpool.com/policy/privacy',
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    CustomNvRouteClass.createRoute(
+                      const OnlyWebViewPage(
+                          title: '',
+                          url: 'https://www.thinkpool.com/policy/privacy'),
+                    ),
+                  );
                 },
               ),
             ],
@@ -1416,8 +1418,8 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                 width: 5,
               ),
               InkWell(
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Text(
                       '(→',
                       style: TextStyle(
@@ -1440,13 +1442,14 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                   ],
                 ),
                 onTap: () {
-                  //TODO @@@@@
-                  // basePageState.callPageRouteNews(
-                  //   OnlyWebView(),
-                  //   PgNews(
-                  //     linkUrl: 'https://www.thinkpool.com/policy/privacy',
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    CustomNvRouteClass.createRoute(
+                      const OnlyWebViewPage(
+                          title: '',
+                          url: 'https://www.thinkpool.com/policy/privacy'),
+                    ),
+                  );
                 },
               ),
             ],
@@ -1696,9 +1699,9 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
 
       if (_bYetDispose) _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

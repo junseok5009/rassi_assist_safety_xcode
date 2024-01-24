@@ -84,17 +84,21 @@ class ChipKeyword extends StatelessWidget {
   final KeywordData item;
   final Color bColor;
 
-  ChipKeyword(this.item, this.bColor);
+  const ChipKeyword(this.item, this.bColor, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       child: Chip(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+          side: const BorderSide(color: Colors.white),
+        ),
         label: Text(item.keyword, style: TStyle.puplePlainStyle(),),
         backgroundColor: RColor.bgWeakGrey,
       ),
       onTap: (){
-        basePageState.callPageRouteUpData(KeywordViewer(),
+        basePageState.callPageRouteUpData(const KeywordViewer(),
             PgData(userId: '', pgSn: '', pgData: item.keyword));
       },
     );

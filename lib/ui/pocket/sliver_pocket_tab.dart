@@ -106,6 +106,7 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
                               fontSize: 16,
                               color: RColor.greyTitle_cdcdcd,
                             ),
+                            //tabAlignment: TabAlignment.center,
                             isScrollable: true,
                             tabs: const [
                               SizedBox(

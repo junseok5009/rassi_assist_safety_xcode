@@ -202,7 +202,7 @@ class PushAosService {
     DLog.d(PushAosService.TAG, '# 상품구매요청 -> ${pdCode} |');
 
     _userId = AppGlobal().userId;
-    _prefs.setBool(Const.PREFS_PAY_FINISHED, false);
+    await _prefs.setBool(Const.PREFS_PAY_FINISHED, false);
 
     if(Platform.isAndroid) {
       DLog.d(PushAosService.TAG, '# 상품구매요청 -> channel');
@@ -219,7 +219,7 @@ class PushAosService {
     DLog.d(PushAosService.TAG, '# 상품업그레이드요청 -> ${pdCode} |');
 
     _userId = AppGlobal().userId;
-    _prefs.setBool(Const.PREFS_PAY_FINISHED, false);
+    await _prefs.setBool(Const.PREFS_PAY_FINISHED, false);
 
     if(Platform.isAndroid) {
       DLog.d(PushAosService.TAG, '# 상품업그레이드요청 -> channel');

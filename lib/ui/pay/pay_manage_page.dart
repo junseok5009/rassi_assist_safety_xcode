@@ -132,9 +132,9 @@ class PayManageState extends State<PayManageWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           AppBar(
-            title: Row(
+            title: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Text('정기결제 관리', style: TStyle.defaultTitle,),
                 SizedBox(width: 55.0,),
               ],
@@ -214,7 +214,7 @@ class PayManageState extends State<PayManageWidget> {
                     children: [
                       Container(
                         margin: const EdgeInsets.only(top: 2.0),
-                        child: Text('사용기한  ',
+                        child: const Text('사용기한  ',
                           style: TStyle.textGreyDefault,),),
                       const SizedBox(width: 4.0,),
                       Text(period, style: TStyle.defaultContent,),
@@ -240,7 +240,7 @@ class PayManageState extends State<PayManageWidget> {
                         children: [
                           Container(
                             margin: const EdgeInsets.only(top: 2.0),
-                            child: Text('다음 결제 예정일',
+                            child: const Text('다음 결제 예정일',
                               style: TStyle.textGrey15,),),
                           const SizedBox(width: 7.0,),
                           Text(TStyle.getDateMdKorFormat(item.nextPayDate),
@@ -252,7 +252,7 @@ class PayManageState extends State<PayManageWidget> {
                     Visibility(
                       visible: !isClosed,
                       child: InkWell(
-                        child: Text( '- 정기결제 해지하기 ', style: TStyle.textGrey14,),
+                        child: const Text( '- 정기결제 해지하기 ', style: TStyle.textGrey14,),
                         onTap: (){
                           DLog.d(PayManagePage.TAG, '정기결제 해지하기 클릭, orderChannel : ${item.orderChannel}');
                           if(item.orderChannel == 'CH33') {

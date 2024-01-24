@@ -2,14 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/routes.dart';
@@ -23,6 +24,7 @@ import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_push04.dart';
 import 'package:rassi_assist/models/tr_user/tr_user04.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
@@ -310,26 +312,96 @@ class MyPageState extends State<MyPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(
-              height: 40.0,
-            ),
-            Image.asset(
-              _imgGrade,
-              height: 40,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(
-              height: 5.0,
-            ),
-            Text(
-              _strGrade,
-              style: TStyle.textSGrey,
-              textAlign: TextAlign.center,
-            ),
-          ],
+        InkWell(
+          onTap: () {
+            // [포켓 > TODAY]
+            basePageState.goPocketPage(Const.PKT_INDEX_TODAY, todayIndex: 0,);
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 40.0,
+              ),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: RColor.bgSolidSky,
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  'images/icon_pocket_black.png',
+                  width: 10,
+                  height: 10,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(
+                height: 5.0,
+              ),
+              const Text(
+                '포켓\n바로가기',
+                style: TStyle.textSGrey,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(
+          width: 25.0,
+        ),
+        InkWell(
+          onTap: () async {
+            UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+            if(userInfoProvider.isPremiumUser()){
+              String result = await _showDialogPremiumAlready();
+              if(mounted && result == CustomNvRouteResult.landing){
+                basePageState.goLandingPage(
+                    LD.linkTypeUrl, 'https://thinkpoolost.wixsite.com/moneybot/service', '', '', '');
+              }
+            } else{
+              String result = '';
+              if(userInfoProvider.is3StockUser() ){
+                result = await _showDialogPremiumUpgrade();
+              }else{
+                result = await _showDialogPremium();
+              }
+              if(mounted && result == CustomNvRouteResult.landPremiumPage){
+                Platform.isIOS
+                    ? _navigateRefreshPay(
+                  context,
+                  const PayPremiumPage(),
+                )
+                    : _navigateRefreshPay(
+                  context,
+                  const PayPremiumAosPage(),
+                );
+              }
+            }
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 40.0,
+              ),
+              Image.asset(
+                _imgGrade,
+                height: 40,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(
+                height: 5.0,
+              ),
+              Text(
+                _strGrade,
+                style: TStyle.textSGrey,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
         const SizedBox(
           width: 7.0,
@@ -388,7 +460,7 @@ class MyPageState extends State<MyPage> {
             ],
           ),
           onTap: () {
-            basePageState.callPageRouteUP(UserInfoPage());
+            basePageState.callPageRouteUP(const UserInfoPage());
           },
         ),
 
@@ -870,85 +942,388 @@ class MyPageState extends State<MyPage> {
     _requestThink(type, param);
   }
 
-  //프리미엄 소개 다이얼로그
-  void _showDialogPremium() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: UIStyle.borderRoundedDialog(),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              InkWell(
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.black,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
+  // 베이직일때
+  Future<String> _showDialogPremium() async {
+    if (context != null && context.mounted) {
+      return showDialog<String>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Image.asset(
-                  'images/rassibs_img_infomation.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(
-                  height: 25.0,
-                ),
-                const Text(
-                  '종목 포켓을 추가로 만드시겠어요?',
-                  style: TStyle.commonTitle,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                ),
-                const SizedBox(
-                  height: 15.0,
-                ),
-                const Text(
-                  RString.desc_add_pocket_premium,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                  style: TStyle.contentMGrey,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(
-                  height: 30.0,
-                ),
-                MaterialButton(
-                  child: Center(
-                    child: Container(
-                      width: 180,
-                      height: 40,
-                      decoration: UIStyle.roundBtnStBox(),
-                      child: const Center(
-                        child: Text(
-                          '프리미엄 가입하기',
-                          style: TStyle.btnTextWht16,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                        ),
-                      ),
-                    ),
+                InkWell(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateRefreshPay(
-                      context,
-                      Platform.isIOS ? PayPremiumPage() : PayPremiumAosPage(),
-                    );
+                  onTap: () {
+                    Navigator.pop(context, CustomNvRouteResult.cancel);
                   },
                 ),
               ],
             ),
-          ),
-        );
-      },
-    );
+            content: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '알림',
+                      style: TStyle.title18T,
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    const Text(
+                      '계정을 업그레이드 하시고 매매비서를 더 완벽하게 이용해 보세요.',
+                      textAlign: TextAlign.start,
+                      style: TStyle.content15,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 25,
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      decoration: UIStyle.boxRoundFullColor6c(
+                        RColor.greyBox_f5f5f5,
+                      ),
+                      child: RichText(
+                        textAlign: TextAlign.center,
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '프리미엄에서는\n',
+                              style: TStyle.content15,
+                            ),
+                            TextSpan(
+                              text: '매매신호 무제한+실시간 알림\n',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: RColor.mainColor,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '+포켓추가+나만의 매도신호\n',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: RColor.mainColor,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '등을 모두 이용하실 수 있습니다.',
+                              style: TStyle.content15,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      child: Container(
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                        ),
+                        decoration: UIStyle.boxRoundFullColor50c(
+                          RColor.mainColor,
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '프리미엄계정 가입하기',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(
+                            context, CustomNvRouteResult.landPremiumPage);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ).then(
+            (value) {
+          if (value != null) {
+            return value;
+          } else {
+            return CustomNvRouteResult.cancel;
+          }
+        },
+      );
+    } else {
+      return CustomNvRouteResult.cancel;
+    }
+  }
+
+  // 3종목일때
+  Future<String> _showDialogPremiumUpgrade() async {
+    if (context != null && context.mounted) {
+      return showDialog<String>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context, CustomNvRouteResult.cancel);
+                  },
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '알림',
+                      style: TStyle.title18T,
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    const Text(
+                      '추가 결제 없이 계정을 업그레이드 하시고 매매비서를 더 완벽하게 이용해 보세요.',
+                      textAlign: TextAlign.start,
+                      style: TStyle.content15,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 25,
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      decoration: UIStyle.boxRoundFullColor6c(
+                        RColor.greyBox_f5f5f5,
+                      ),
+                      child: RichText(
+                        textAlign: TextAlign.center,
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '프리미엄에서는\n',
+                              style: TStyle.content15,
+                            ),
+                            TextSpan(
+                              text: '매매신호 무제한+실시간 알림\n',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: RColor.mainColor,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '+포켓추가+나만의 매도신호\n',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: RColor.mainColor,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '등을 모두 이용하실 수 있습니다.',
+                              style: TStyle.content15,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      child: Container(
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                        ),
+                        decoration: UIStyle.boxRoundFullColor50c(
+                          RColor.mainColor,
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '프리미엄계정 업그레이드',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(
+                            context, CustomNvRouteResult.landPremiumPage);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ).then(
+            (value) {
+          if (value != null) {
+            return value;
+          } else {
+            return CustomNvRouteResult.cancel;
+          }
+        },
+      );
+    } else {
+      return CustomNvRouteResult.cancel;
+    }
+  }
+
+  // 프리미임일때
+  Future<String> _showDialogPremiumAlready() async {
+    if (context != null && context.mounted) {
+      return showDialog<String>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context, CustomNvRouteResult.cancel);
+                  },
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '알림',
+                      style: TStyle.title18T,
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    const Text(
+                      '매매비서를 완벽하게 이용해 보세요.',
+                      textAlign: TextAlign.start,
+                      style: TStyle.content15,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 25,
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      decoration: UIStyle.boxRoundFullColor6c(
+                        RColor.greyBox_f5f5f5,
+                      ),
+                      child: RichText(
+                        textAlign: TextAlign.center,
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '프리미엄에서는\n',
+                              style: TStyle.content15,
+                            ),
+                            TextSpan(
+                              text: '매매신호 무제한+실시간 알림\n',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: RColor.mainColor,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '+포켓추가+나만의 매도신호\n',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: RColor.mainColor,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '등을 모두 이용하실 수 있습니다.',
+                              style: TStyle.content15,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      child: Container(
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                        ),
+                        decoration: UIStyle.boxRoundFullColor50c(
+                          RColor.mainColor,
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '활용법 자세히 보기',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(
+                            context, CustomNvRouteResult.landing);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ).then(
+            (value) {
+          if (value != null) {
+            return value;
+          } else {
+            return CustomNvRouteResult.cancel;
+          }
+        },
+      );
+    } else {
+      return CustomNvRouteResult.cancel;
+    }
   }
 
   //결제 연결 배너
@@ -972,11 +1347,11 @@ class MyPageState extends State<MyPage> {
           Platform.isIOS
               ? _navigateRefreshPay(
                   context,
-                  PayPremiumPage(),
+                  const PayPremiumPage(),
                 )
               : _navigateRefreshPay(
                   context,
-                  PayPremiumAosPage(),
+                  const PayPremiumAosPage(),
                 );
         },
       ),

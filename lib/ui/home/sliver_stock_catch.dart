@@ -349,7 +349,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
             width: double.infinity,
             child: Column(
               children: [
-                Container(
+                const SizedBox(
                   width: double.infinity,
                   height: 1.0,
                 ),
@@ -607,7 +607,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                     const SizedBox(
                       width: 10,
                     ),
-                    Container(
+                    const SizedBox(
                       width: 73,
                       height: 70,
                     ),
@@ -633,13 +633,13 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
           Row(
             children: [
               const Expanded(
-                child: SizedBox(
-                  width: 1,
-                  height: 170,
-                ),
-              ),
+                  child: SizedBox(
+                width: 1,
+                height: 170,
+              )),
               Expanded(
                 child: SizedBox(
+                  // color: RColor.jinbora_tran,
                   height: 70,
                   child: Swiper(
                     controller: _swiperTopController,
@@ -787,7 +787,6 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                   _swpTopList[idx].selTab = 'S';
                   _bsType = 'S';
                 });
-                DLog.d(SliverStockCatchWidget.TAG, 'Select 관망상태');
                 _requestStkCatch02(_topDiv, _bsType);
               }
             },
@@ -861,7 +860,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                 style: TStyle.commonTitle15,
               ),
               InkWell(
-                child: Container(
+                child: SizedBox(
                   height: 16,
                   child: Image.asset(
                     'images/rassi_icon_more_pink.gif',
@@ -1174,9 +1173,9 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                   onPressed: () {
                     Navigator.pop(context);
                     if (Platform.isIOS) {
-                      _navigateRefreshPay(context, PayPremiumPage());
+                      _navigateRefreshPay(context, const PayPremiumPage());
                     } else {
-                      _navigateRefreshPay(context, PayPremiumAosPage());
+                      _navigateRefreshPay(context, const PayPremiumAosPage());
                     }
                   },
                 ),
@@ -1343,8 +1342,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
       if (resData.retCode == RT.SUCCESS) {
         StkCatch01 scData = resData.retData;
         _bigDiv = scData.selectDiv;
-
-        if (scData.timeList.length > 0) {
+        if (scData.timeList.isNotEmpty) {
           if (scData.timeList[0].sigList.length > 4) {
             _stkCatchBigList.addAll(scData.timeList[0].sigList.getRange(0, 5));
           } else {
@@ -1354,7 +1352,8 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
             if (scData.timeList.length > 1) {
               int subLen = scData.timeList[1].sigList.length;
               if (subLen > 0 && subLen > (4 - len)) {
-                _stkCatchBigList.addAll(scData.timeList[1].sigList.getRange(0, 5 - len));
+                _stkCatchBigList
+                    .addAll(scData.timeList[1].sigList.getRange(0, 5 - len));
               } else {
                 _stkCatchBigList.addAll(scData.timeList[1].sigList);
               }
@@ -1438,14 +1437,16 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
       final TrPush04 resData = TrPush04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Push04 item = resData.retData;
-        if (item.catchBighandYn == 'Y')
+        if (item.catchBighandYn == 'Y') {
           _isPushOnBig = true;
-        else
+        } else {
           _isPushOnBig = false;
-        if (item.catchTopYn == 'Y')
+        }
+        if (item.catchTopYn == 'Y') {
           _isPushOnTop = true;
-        else
+        } else {
           _isPushOnTop = false;
+        }
 
         setState(() {});
       }

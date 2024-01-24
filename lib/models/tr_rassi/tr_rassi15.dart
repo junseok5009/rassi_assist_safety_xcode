@@ -38,9 +38,9 @@ class TagNew {
 
   factory TagNew.fromJson(Map<String, dynamic> json) {
     return TagNew(
-      tagDiv: json['tagDiv'],
-      tagCode: json['tagCode'],
-      tagName: json['tagName'],
+      tagDiv: json['tagDiv'] ?? '',
+      tagCode: json['tagCode'] ?? '',
+      tagName: json['tagName'] ?? '',
     );
   }
 
@@ -55,12 +55,16 @@ class TagNew {
 class TileChipTag extends StatelessWidget {
   final TagNew item;
 
-  TileChipTag(this.item,);
+  const TileChipTag(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       child: Chip(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+          side: const BorderSide(color: Colors.white),
+        ),
         label: Text(
           '#${item.tagName}',
           style: TStyle.pupleRegularStyle(),),

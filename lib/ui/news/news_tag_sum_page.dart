@@ -18,12 +18,14 @@ import 'package:rassi_assist/models/tr_rassi/tr_rassi15.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-/// 2022.04.26 - JY
+/// 2022.04.26
 /// 라씨로 (시장총정리)태그 리스트 (추후에 new_tag_page로 통합)
 class NewsTagSumPage extends StatelessWidget {
   static const routeName = '/page_news_tag_sum';
   static const String TAG = "[NewsTagSumPage]";
   static const String TAG_NAME = '시장정리용_태그_리스트';
+
+  const NewsTagSumPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +133,10 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
               children: List.generate(_tagList.length, (index) =>
                   InkWell(
                     child: Chip(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        side: const BorderSide(color: Colors.white),
+                      ),
                       label: Text('#${_tagList[index].tagName}',
                           style: TextStyle(
                             color: index == _selectedIdx ? Colors.black : RColor.mainColor,
@@ -156,7 +162,7 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
             const SizedBox(height: 15,),
 
             ListView.builder(
-              physics: ScrollPhysics(),
+              physics: const ScrollPhysics(),
               shrinkWrap: true,
               scrollDirection: Axis.vertical,
               itemCount: _newsList.length,
@@ -171,7 +177,7 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
                 margin: const EdgeInsets.only(top: 40.0),
                 width: double.infinity,
                 alignment: Alignment.topCenter,
-                child: Text('해당 태그 관련 뉴스는 아직 발생되지 않았습니다.'),
+                child: const Text('해당 태그 관련 뉴스는 아직 발생되지 않았습니다.'),
               ),
             ),
           ],
@@ -189,9 +195,9 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           AppBar(
-            title: Row(
+            title: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Text('태그별 AI 속보 리스트', style: TStyle.commonTitle,),
                 SizedBox(width: 55.0,),
               ],
@@ -233,7 +239,10 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
-                  child: Icon(Icons.close, color: Colors.black,),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                   },

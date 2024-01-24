@@ -106,6 +106,10 @@ class TileChipStock extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Chip(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+          side: const BorderSide(color: Colors.white),
+        ),
         label: Text(
           item.stockName,
         ),
@@ -137,6 +141,10 @@ class TileChipReport extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Chip(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+          side: const BorderSide(color: Colors.white),
+        ),
         label: Text(
           item.listTag[0].tagName,
         ),

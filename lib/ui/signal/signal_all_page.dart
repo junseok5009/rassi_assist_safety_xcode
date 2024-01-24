@@ -17,14 +17,15 @@ import 'package:rassi_assist/models/tr_signal/tr_signal07.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal08.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 /// 2020.12.22
 /// 매매신호 - 모든 내역
 class SignalAllPage extends StatelessWidget {
   static const routeName = '/page_signal_all';
   static const String TAG = "[SignalAllPage]";
   static const String TAG_NAME = '매매신호_전체내역';
+
   const SignalAllPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
@@ -33,7 +34,8 @@ class SignalAllPage extends StatelessWidget {
         appBar: AppBar(
           toolbarHeight: 0,
           backgroundColor: RColor.deepStat,
-          elevation: 0,),
+          elevation: 0,
+        ),
         body: const SignalAllWidget(),
       ),
     );
@@ -42,6 +44,7 @@ class SignalAllPage extends StatelessWidget {
 
 class SignalAllWidget extends StatefulWidget {
   const SignalAllWidget({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => SignalAllState();
 }
@@ -50,8 +53,7 @@ class SignalAllState extends State<SignalAllWidget> {
   late SharedPreferences _prefs;
   String _userId = "";
   late PgData args;
-  bool _bYetDispose = true;    //true: 아직 화면이 사라지기 전
-  bool _bLoding = true;
+  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
 
   String stkName = "";
   String stkCode = "";
@@ -65,29 +67,33 @@ class SignalAllState extends State<SignalAllWidget> {
   final String upArrow = '\'path://M16 1l-15 15h9v16h12v-16h9z\'';
   final String downArrow = '\'path://M16 31l15-15h-9v-16h-12v16h-9z\'';
 
-  String _tradePeriod = '';   //매매기간
-  String _tradeCnt = '';      //매매횟수
-  String _avgHolding = '';    //평균보유기간
+  String _tradePeriod = ''; //매매기간
+  String _tradeCnt = ''; //매매횟수
+  String _avgHolding = ''; //평균보유기간
 
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(SignalAllPage.TAG_NAME,);
+    CustomFirebaseClass.logEvtScreenView(
+      SignalAllPage.TAG_NAME,
+    );
 
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
 
     _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), (){
+    Future.delayed(const Duration(milliseconds: 400), () {
       DLog.d(SignalAllPage.TAG, "delayed user id : $_userId");
-      if(_userId != '' && args != null) {
+      if (_userId != '' && args != null) {
         DLog.d(SignalAllPage.TAG, args.pgData);
 
-        _fetchPosts(TR.SIGNAL08, jsonEncode(<String, String>{
-          'userId': _userId,
-          'stockCode': args.stockCode,
-          'includeData': 'Y',
-        }));
+        _fetchPosts(
+            TR.SIGNAL08,
+            jsonEncode(<String, String>{
+              'userId': _userId,
+              'stockCode': args.stockCode,
+              'includeData': 'Y',
+            }));
       }
     });
   }
@@ -121,7 +127,8 @@ class SignalAllState extends State<SignalAllWidget> {
         centerTitle: true,
         title: Text(
           '${TStyle.getLimitString(stkName, 10)}의 AI매매신호 내역',
-          style: TStyle.commonTitle,),
+          style: TStyle.commonTitle,
+        ),
         iconTheme: const IconThemeData(color: Colors.black),
         elevation: 1,
       ),
@@ -130,10 +137,10 @@ class SignalAllState extends State<SignalAllWidget> {
           controller: _scrollController,
           itemCount: _listData.length + 1,
           itemBuilder: (context, index) {
-            if(index == 0) {
+            if (index == 0) {
               return _setHeaderView();
             } else {
-              return TileSignal07(_listData[index -1]);
+              return TileSignal07(_listData[index - 1]);
             }
           },
         ),
@@ -156,14 +163,15 @@ class SignalAllState extends State<SignalAllWidget> {
                 alignment: Alignment.centerLeft,
                 child: const Text(
                   '최근 1년간 AI 매매신호',
-                  style: TStyle.commonTitle,),
+                  style: TStyle.commonTitle,
+                ),
               ),
-              const SizedBox(height: 10.0,),
+              const SizedBox(height: 10.0),
 
               Container(
                 width: double.infinity,
                 height: 270,
-                child: _bLoding ? Container() : _setEChartView(),
+                child: _setEChartView(),
               ),
 
               // Image.network(
@@ -171,7 +179,6 @@ class SignalAllState extends State<SignalAllWidget> {
               //   height: 240,),
             ],
           ),
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -188,12 +195,15 @@ class SignalAllState extends State<SignalAllWidget> {
                       Text(_tradeCnt),
                     ],
                   ),
-                  const SizedBox(height: 5.0,),
+                  const SizedBox(height: 5.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       //매매기간
-                      Text(_tradePeriod, style: TStyle.contentSBLK,),
+                      Text(
+                        _tradePeriod,
+                        style: TStyle.contentSBLK,
+                      ),
                       //평균보유기간
                       Text(_avgHolding),
                     ],
@@ -202,7 +212,6 @@ class SignalAllState extends State<SignalAllWidget> {
               ),
             ),
           ),
-
           _setColumeTitle(),
         ],
       ),
@@ -218,7 +227,8 @@ class SignalAllState extends State<SignalAllWidget> {
         color: Colors.white,
         border: Border(
           top: BorderSide(color: Colors.black, width: 1.5),
-          bottom: BorderSide(color: Colors.grey, width: 1),),
+          bottom: BorderSide(color: Colors.grey, width: 1),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -228,10 +238,15 @@ class SignalAllState extends State<SignalAllWidget> {
             child: Container(
               height: 50,
               decoration: const BoxDecoration(
-                border: Border(right: BorderSide(color: Colors.grey, width: 1),),
+                border: Border(
+                  right: BorderSide(color: Colors.grey, width: 1),
+                ),
               ),
               alignment: Alignment.center,
-              child: const Text('날짜', style: TStyle.commonSTitle,),
+              child: const Text(
+                '날짜',
+                style: TStyle.commonSTitle,
+              ),
             ),
           ),
           Expanded(
@@ -242,7 +257,10 @@ class SignalAllState extends State<SignalAllWidget> {
                 border: Border(right: BorderSide(color: Colors.grey, width: 1)),
               ),
               alignment: Alignment.center,
-              child: const Text('구분', style: TStyle.commonSTitle,),
+              child: const Text(
+                '구분',
+                style: TStyle.commonSTitle,
+              ),
             ),
           ),
           Expanded(
@@ -253,14 +271,20 @@ class SignalAllState extends State<SignalAllWidget> {
                 border: Border(right: BorderSide(color: Colors.grey, width: 1)),
               ),
               alignment: Alignment.center,
-              child: const Text('가격', style: TStyle.commonSTitle,),
+              child: const Text(
+                '가격',
+                style: TStyle.commonSTitle,
+              ),
             ),
           ),
           Expanded(
             flex: 2,
             child: Container(
               alignment: Alignment.center,
-              child: const Text('수익률', style: TStyle.commonSTitle,),
+              child: const Text(
+                '수익률',
+                style: TStyle.commonSTitle,
+              ),
             ),
           ),
         ],
@@ -270,22 +294,22 @@ class SignalAllState extends State<SignalAllWidget> {
 
   //리스트뷰 하단 리스너
   _scrollListener() {
-    if(_scrollController.offset >= _scrollController.position.maxScrollExtent
-        && !_scrollController.position.outOfRange) {
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent && !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
       _requestSIGNAL07();
-    } else {
-    }
+    } else {}
   }
 
   _requestSIGNAL07() {
-    _fetchPosts(TR.SIGNAL07, jsonEncode(<String, String> {
-      'userId': _userId,
-      'stockCode': stkCode,
-      'pageNo': pageNum.toString(),
-      'pageItemSize': '30',
-    }));
+    _fetchPosts(
+        TR.SIGNAL07,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'stockCode': stkCode,
+          'pageNo': pageNum.toString(),
+          'pageItemSize': '30',
+        }));
   }
 
   //새로운 차트 데이터
@@ -375,7 +399,10 @@ class SignalAllState extends State<SignalAllWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
-                  child: const Icon(Icons.close, color: Colors.black,),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                   },
@@ -385,20 +412,33 @@ class SignalAllState extends State<SignalAllWidget> {
             content: SingleChildScrollView(
               child: Column(
                 children: [
-                  Image.asset('images/rassibs_img_infomation.png',
-                    height: 60, fit: BoxFit.contain,),
-                  const SizedBox(height: 5.0,),
+                  Image.asset(
+                    'images/rassibs_img_infomation.png',
+                    height: 60,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(
+                    height: 5.0,
+                  ),
                   const Padding(
                     padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text('안내',
+                    child: Text(
+                      '안내',
                       style: TStyle.commonTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                      textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    ),
                   ),
-                  const SizedBox(height: 25.0,),
-                  const Text(RString.err_network,
+                  const SizedBox(
+                    height: 25.0,
+                  ),
+                  const Text(
+                    RString.err_network,
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,),
-                  const SizedBox(height: 30.0,),
+                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  ),
+                  const SizedBox(
+                    height: 30.0,
+                  ),
                   MaterialButton(
                     child: Center(
                       child: Container(
@@ -406,12 +446,15 @@ class SignalAllState extends State<SignalAllWidget> {
                         height: 40,
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
-                          child: Text('확인',
+                          child: Text(
+                            '확인',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,),),
+                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          ),
+                        ),
                       ),
                     ),
-                    onPressed: (){
+                    onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
@@ -419,8 +462,7 @@ class SignalAllState extends State<SignalAllWidget> {
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   //convert 패키지의 jsonDecode 사용
@@ -429,14 +471,15 @@ class SignalAllState extends State<SignalAllWidget> {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if(_bYetDispose) _parseTrData(trStr, response);
-
+      if (_bYetDispose) _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(SignalAllPage.TAG, 'ERR : TimeoutException (12 seconds)');
       _showDialogNetErr();
@@ -450,26 +493,24 @@ class SignalAllState extends State<SignalAllWidget> {
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(SignalAllPage.TAG, response.body);
 
-    if(trStr == TR.SIGNAL08) {
+    if (trStr == TR.SIGNAL08) {
       final TrSignal08 resData = TrSignal08.fromJson(jsonDecode(response.body));
 
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         final Signal08? mData = resData.retData;
-        if(mData != null) {
+        if (mData != null) {
           List<ChartData> chartData = mData.listChart;
           String tmpDate = '[';
           String tmpData = '[';
-          for(int i=0; i < chartData.length; i++) {
+          for (int i = 0; i < chartData.length; i++) {
             tmpDate = '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
 
             //0:없음, 1:매수, 2:매도
-            if(chartData[i].flag == null || chartData[i].flag == '') {
+            if (chartData[i].flag == null || chartData[i].flag == '') {
               tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
-            }
-            else if(chartData[i].flag == 'B') {
+            } else if (chartData[i].flag == 'B') {
               tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: $upArrow, symbolOffset: [0,18],itemStyle: {color:\'red\'}},';
-            }
-            else if(chartData[i].flag == 'S') {
+            } else if (chartData[i].flag == 'S') {
               tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: $downArrow, symbolOffset: [0,-18],itemStyle: {color:\'blue\'}},';
               // 'symbol: \'arrow\', symbolRotate: 180, itemStyle: {color:\'blue\'}},';
             }
@@ -487,24 +528,24 @@ class SignalAllState extends State<SignalAllWidget> {
     }
 
     //종목 매매신호 리스트
-    else if(trStr == TR.SIGNAL07) {
+    else if (trStr == TR.SIGNAL07) {
       final TrSignal07 resData = TrSignal07.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         Signal07? item = resData.retData;
-        if(item != null) {
-          if(pageNum == 0) {
+        if (item != null) {
+          if (pageNum == 0) {
             String beginD = '';
             String endD = '';
 
-            if(item.beginDate.isEmpty){
-              if(item.listData.length > 0){
+            if (item.beginDate.isEmpty) {
+              if (item.listData.length > 0) {
                 beginD = TStyle.getDateSFormat(item.listData[0].tradeDate);
                 endD = TStyle.getTodayDateStringDot();
-              }else{
+              } else {
                 beginD = '';
                 endD = '';
               }
-            }else{
+            } else {
               beginD = TStyle.getDateSFormat(item.beginDate);
               endD = TStyle.getDateSFormat(item.endDate);
             }
@@ -513,17 +554,13 @@ class SignalAllState extends State<SignalAllWidget> {
 
             item.holdingDays.isEmpty ? _avgHolding = '' : _avgHolding = '평균보유기간 ${item.holdingDays}일';
             item.tradeCount.isEmpty ? _tradeCnt = '' : _tradeCnt = '총 ${item.tradeCount}회 매매';
-
           }
           // _listData = item.listData;
           _listData.addAll(item.listData);
 
-          setState(() {
-            _bLoding = false;
-          });
+          setState(() {});
         }
       }
     }
   }
-
 }

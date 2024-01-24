@@ -54,6 +54,10 @@ class ChipKeyword extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Chip(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+          side: const BorderSide(color: Colors.white),
+        ),
         label: Text(item, style: TStyle.content15,),
         backgroundColor: bColor,
       ),

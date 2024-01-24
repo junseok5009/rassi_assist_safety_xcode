@@ -113,8 +113,8 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   final List<Prom02> _listPrPopup = [];
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  String deviceModel = '';
-  String deviceOsVer = '';
+  String? deviceModel = '';
+  String? deviceOsVer = '';
 
   @override
   void setState(VoidCallback fn) {
@@ -151,8 +151,8 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       DLog.d(SliverHomeWidget.TAG, 'Device Model : ${iosInfo.utsname.machine}');
       DLog.d(SliverHomeWidget.TAG, 'OS Ver : ${iosInfo.systemVersion}');
-      // deviceModel = iosInfo.utsname.machine;
-      // deviceOsVer = iosInfo.systemVersion;
+      deviceModel = iosInfo.utsname.machine;
+      deviceOsVer = iosInfo.systemVersion;
     } else if (Platform.isAndroid) {
       inAppBilling = PaymentAosService();
     }
@@ -1113,7 +1113,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => WebPage(),
+          builder: (context) => const WebPage(),
           settings: RouteSettings(
             arguments: PgData(pgData: desUrl),
           ),

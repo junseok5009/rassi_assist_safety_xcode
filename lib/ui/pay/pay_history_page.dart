@@ -443,19 +443,17 @@ class PayHistoryPageState extends State<PayHistoryPage> {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http
-          .post(
+      final http.Response response = await http.post(
             url,
             body: json,
             headers: Net.headers,
-          )
-          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

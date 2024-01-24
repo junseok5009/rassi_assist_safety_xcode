@@ -207,7 +207,7 @@ class _CardProm02State extends State<CardProm02> {
             buildContext,
             Platform.isIOS
                 ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-                : CustomNvRouteClass.createRoute( PayPremiumAosPage()),
+                : CustomNvRouteClass.createRoute(const PayPremiumAosPage()),
           );
           break;
         }
@@ -223,7 +223,7 @@ class _CardProm02State extends State<CardProm02> {
                     ),
                   )
                 : CustomNvRouteClass.createRouteData(
-                     PayPremiumPromotionAosPage(),
+                    const PayPremiumPromotionAosPage(),
                     RouteSettings(
                       arguments: PgData(data: 'ad5'),
                     ),
@@ -243,7 +243,7 @@ class _CardProm02State extends State<CardProm02> {
                     ),
                   )
                 : CustomNvRouteClass.createRouteData(
-                     PayPremiumPromotionAosPage(),
+                    const PayPremiumPromotionAosPage(),
                     RouteSettings(
                       arguments: PgData(data: 'ad4'),
                     ),
@@ -263,7 +263,7 @@ class _CardProm02State extends State<CardProm02> {
                     ),
                   )
                 : CustomNvRouteClass.createRouteData(
-                     PayPremiumPromotionAosPage(),
+                    const PayPremiumPromotionAosPage(),
                     RouteSettings(
                       arguments: PgData(data: 'ad3'),
                     ),
@@ -283,7 +283,7 @@ class _CardProm02State extends State<CardProm02> {
                     ),
                   )
                 : CustomNvRouteClass.createRouteData(
-                     PayPremiumPromotionAosPage(),
+                    const PayPremiumPromotionAosPage(),
                     RouteSettings(
                       arguments: PgData(data: 'at1'),
                     ),
@@ -303,7 +303,7 @@ class _CardProm02State extends State<CardProm02> {
                     ),
                   )
                 : CustomNvRouteClass.createRouteData(
-                     PayPremiumPromotionAosPage(),
+                    const PayPremiumPromotionAosPage(),
                     RouteSettings(
                       arguments: PgData(data: 'at2'),
                     ),

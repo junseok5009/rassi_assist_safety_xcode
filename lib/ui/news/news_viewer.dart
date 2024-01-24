@@ -240,6 +240,10 @@ class NewsViewerState extends State<NewsViewer> {
                   var item = _tagList[index];
                   return InkWell(
                     child: Chip(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        side: const BorderSide(color: Colors.white),
+                      ),
                       label: Text(item.tagName),
                       backgroundColor: RColor.isuBack[index % 6],
                     ),
