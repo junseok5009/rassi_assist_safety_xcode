@@ -555,11 +555,11 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Flexible(
+              Flexible(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: const [
                     Text(
                       '종목 제한없이',
                       style: TextStyle(

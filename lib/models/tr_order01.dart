@@ -229,11 +229,11 @@ class TileOrder01 extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(7),
                       decoration: UIStyle.boxWeakGrey10(),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
-                        children: [
+                        children: const [
                           Text('', style: TStyle.contentMGrey,),
                           Text('- 해지하기  ', style: TStyle.contentMGrey,),
                         ],

@@ -167,7 +167,7 @@ class TileIssue03 extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         decoration: BoxDecoration(
           color: tbColor,
-          borderRadius: BorderRadius.all(const Radius.circular(20.0)),
+          borderRadius: const BorderRadius.all(Radius.circular(20.0)),
         ),
         child: Center(
           child: Text(

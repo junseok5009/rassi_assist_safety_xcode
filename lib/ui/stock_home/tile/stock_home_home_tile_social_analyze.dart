@@ -75,9 +75,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                             context, '소셜지수란?', _socialPopupMsg);
                       },
                       splashColor: Colors.transparent,
-                      child: const Row(
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
+                        children: const [
                           Text(
                             '소셜분석',
                             style: TStyle.title18T,
@@ -95,8 +95,8 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                     ),
                     InkWell(
                       splashColor: Colors.transparent,
-                      child: const Row(
-                        children: [
+                      child: Row(
+                        children: const [
                           Text(
                             '표로 보기 ',
                             style: TextStyle(
@@ -258,9 +258,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                           alignment: Alignment.center,
                           padding: const EdgeInsets.all(10),
                           decoration: UIStyle.boxRoundLine6(),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
+                            children: const [
                               Text(
                                 'N ',
                                 style: TextStyle(
@@ -296,9 +296,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                           alignment: Alignment.center,
                           padding: const EdgeInsets.all(10),
                           decoration: UIStyle.boxRoundLine6(),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
+                            children: const [
                               Text(
                                 'TP ',
                                 style: TextStyle(
@@ -644,9 +644,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                   width: 1,
                 ),
               ),
-              child: const Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                children: const [
                   Text(
                     //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
                     'xValue!',

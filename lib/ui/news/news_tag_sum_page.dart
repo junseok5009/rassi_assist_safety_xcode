@@ -195,9 +195,9 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           AppBar(
-            title: const Row(
+            title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              children: const [
                 Text('태그별 AI 속보 리스트', style: TStyle.commonTitle,),
                 SizedBox(width: 55.0,),
               ],

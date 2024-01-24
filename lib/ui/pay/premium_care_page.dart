@@ -1418,8 +1418,8 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                 width: 5,
               ),
               InkWell(
-                child: const Row(
-                  children: [
+                child: Row(
+                  children: const [
                     Text(
                       '(→',
                       style: TextStyle(

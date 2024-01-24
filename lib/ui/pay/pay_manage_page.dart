@@ -132,7 +132,7 @@ class PayManageState extends State<PayManageWidget> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           AppBar(
-            title: const Row(
+            title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('정기결제 관리', style: TStyle.defaultTitle,),
