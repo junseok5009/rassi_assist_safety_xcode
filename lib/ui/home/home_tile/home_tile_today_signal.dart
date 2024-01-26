@@ -732,6 +732,9 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
       _listSigStatus.clear();
       if (resData.retCode == RT.SUCCESS) {
         _signal09 = resData.resData;
+
+
+
         if (!_signal09.isEmpty()) {
           _initData();
         } else {

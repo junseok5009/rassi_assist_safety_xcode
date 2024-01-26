@@ -88,7 +88,7 @@ class _IntroStartS1State extends State<IntroStartS1> {
                     ),
                     TextSpan(
                       text:
-                          '\n매도를 잘해야 수익이 납니다.\n궁금한 종목을 입력하시면\n정확한 시간과 가격을 알려드립니다.',
+                          '\n매도를 잘해야 수익이 납니다.\n궁금한 종목을 입력하시면\n정확한 시점과 가격을 알려드립니다.',
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,

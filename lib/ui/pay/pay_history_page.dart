@@ -386,7 +386,6 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                 const Text(
                   '해지안내',
                   style: TStyle.title20,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -395,7 +394,6 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                   '해당 상품의 해지문의는\n 결제 고객센터로 연결해 주세요.',
                   textAlign: TextAlign.center,
                   style: TStyle.defaultContent,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -403,7 +401,6 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                 const Text(
                   '결제 고객센터',
                   style: TStyle.defaultContent,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
                 ),
                 const SizedBox(
                   height: 5.0,
@@ -411,7 +408,6 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                 Text(
                   number,
                   style: TStyle.title22,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
                 ),
                 const SizedBox(
                   height: 15.0,

@@ -68,7 +68,7 @@ class _IntroStartS4State extends State<IntroStartS4> {
               ),
               TextSpan(
                 text:
-                    "\n실시간 업데이트 되는 '오늘의 이슈'\n대장주와 추세를 AI가 분석해주는 '테마주도주'\n시장을 움직이는 주류와 관련 종목을\n알려드립니다.",
+                    "\n실시간 업데이트 되는 '오늘의 이슈'\n대장주와 추세를 분석하는 '테마주도주'\n시장을 움직이는 주류와 관련 종목을\n알려드립니다.",
                 style: TextStyle(
                   //본문 내용 - 기준
                   fontWeight: FontWeight.w400,

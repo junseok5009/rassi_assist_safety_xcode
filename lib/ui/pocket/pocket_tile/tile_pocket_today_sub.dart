@@ -83,23 +83,14 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                   ),
                   //종목명
                   Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        basePageState.goStockHomePage(
-                          widget.item.stockCode,
-                          widget.item.stockName,
-                          Const.STK_INDEX_HOME,
-                        );
-                      },
-                      child: Text(
-                        widget.item.stockName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    child: Text(
+                      widget.item.stockName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -243,24 +234,35 @@ class TilePocketSig extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  decoration: UIStyle.boxRoundFullColor25c(
-                    const Color(0xffDCDFE2),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 3,
-                  ),
-                  child: Text(
-                    item.myTradeFlag == 'S'
-                        ? '나만의 매도신호'
-                        : item.pocketName,
-                    style: const TextStyle(
-                      fontSize: 11,
+                InkWell(
+                  onTap: (){
+                    if (item.myTradeFlag == 'S') {
+                      //나만의 매도신호는 나만의 매도 신호 탭으로 이동
+                      basePageState.goPocketPage(Const.PKT_INDEX_SIGNAL,);
+                    } else {
+                      //매매신호는 나의포켓-매매신호 리스트로
+                      basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: item.pocketSn, isSignalInfo: true,);
+                    }
+                  },
+                  child: Container(
+                    decoration: UIStyle.boxRoundFullColor25c(
+                      const Color(0xffDCDFE2),
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    child: Text(
+                      item.myTradeFlag == 'S'
+                          ? '나만의 매도신호'
+                          : item.pocketName,
+                      style: const TextStyle(
+                        fontSize: 11,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -269,6 +271,7 @@ class TilePocketSig extends StatelessWidget {
                 Expanded(
                   child: InkWell(
                     onTap: () {
+                      //종목홈_ai매매신호탭
                       basePageState.goStockHomePage(
                         item.stockCode,
                         item.stockName,
@@ -337,12 +340,27 @@ class TilePocketSig extends StatelessWidget {
   }
 
   _setSignalView(){
-    return Row(
-      children: [
-        _setBsInfo(),
-        const SizedBox(width: 10,),
-        _setBsIcon(),
-      ],
+    return InkWell(
+      onTap: () {
+        if (item.myTradeFlag == 'S') {
+          //나만의 매도신호는 나만의 매도 신호 탭으로 이동
+          basePageState.goPocketPage(Const.PKT_INDEX_SIGNAL,);
+        } else {
+          //종목홈_ai매매신호탭
+          basePageState.goStockHomePage(
+            item.stockCode,
+            item.stockName,
+            Const.STK_INDEX_SIGNAL,
+          );
+        }
+      },
+      child: Row(
+        children: [
+          _setBsInfo(),
+          const SizedBox(width: 10,),
+          _setBsIcon(),
+        ],
+      ),
     );
   }
 

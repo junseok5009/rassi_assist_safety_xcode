@@ -93,7 +93,7 @@ class _IntroStartS2State extends State<IntroStartS3> {
                 ),
                 TextSpan(
                   text:
-                      '\n종목이슈, 실적, 투자자별 매매동향, 대차공매 등 모든 종목정보를 시각화하여 쉽게 분석!\n이제 숫자가 아닌 이미지로 확인하세요!',
+                      '\n종목이슈, 실적, 투자자별 매매동향, 대차공매 등 모든 종목정보를 시각화하여 쉽게 분석!\n이제 숫자가 아닌 이미지로 보세요!',
                   style: TextStyle(
                     //본문 내용 - 기준
                     fontWeight: FontWeight.w400,

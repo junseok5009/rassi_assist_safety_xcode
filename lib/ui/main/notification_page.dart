@@ -274,7 +274,9 @@ class NotificationPageState extends State<NotificationPage> {
       width: 250,
       decoration: item.pushDiv2 == 'USER'
           ? UIStyle.boxRoundLine6bgColor(RColor.bgSkyBlue)
-          : UIStyle.boxRoundLine6bgColor(Colors.white),
+          : UIStyle.boxRoundLine6bgColor(
+              Colors.white,
+            ),
       child: _setListItem(div, item),
     );
   }
@@ -478,10 +480,6 @@ class NotificationPageState extends State<NotificationPage> {
                       ? true
                       : false,
                   child: Chip(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      side: const BorderSide(color: Colors.white),
-                    ),
                     label: Text(getTypeString(div)),
                     backgroundColor: getTypeColor(div),
                   ),

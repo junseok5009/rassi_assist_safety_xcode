@@ -249,7 +249,7 @@ class _TermsOfUsePageState extends State<TermsOfUsePage> {
                       Navigator.push(
                         context,
                         CustomNvRouteClass.createRouteData(
-                          WebPage(),
+                          const WebPage(),
                           RouteSettings(
                             arguments: PgData(
                               pgData: Net.AGREE_TERMS,
@@ -315,7 +315,7 @@ class _TermsOfUsePageState extends State<TermsOfUsePage> {
                       Navigator.push(
                         context,
                         CustomNvRouteClass.createRouteData(
-                          WebPage(),
+                          const WebPage(),
                           RouteSettings(
                             arguments: PgData(
                               pgData: Net.AGREE_POLICY_INFO_2,

@@ -7,6 +7,7 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gif/gif.dart';
 import 'package:http/http.dart' as http;
@@ -45,6 +46,7 @@ class IntroPage extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.light,
       theme: ThemeData(
+        useMaterial3: false,    //Flutter 3.16 릴리즈 부터 Material3 기본적용
         fontFamily: 'NotoSansKR',
         brightness: Brightness.light,
         primaryColor: RColor.mainColor,
@@ -73,8 +75,7 @@ class IntroPage extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context)
-            .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+        data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
         child: child!,
       ),
       home: const Scaffold(

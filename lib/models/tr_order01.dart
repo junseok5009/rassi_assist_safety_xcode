@@ -13,7 +13,7 @@ class TrOrder01 {
   TrOrder01({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrOrder01.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
+    var list = json['retData'] == null ? [] : json['retData'] as List;
     List<Order01>? rtList;
     list == null ? rtList = null : rtList = list.map((i) => Order01.fromJson(i)).toList();
     return TrOrder01(
@@ -52,7 +52,7 @@ class Order01 {
     this.chList = const []});
 
   factory Order01.fromJson(Map<String, dynamic> json) {
-    var list = json['list_OrderChange'] as List;
+    var list = json['list_OrderChange'] == null ? [] : json['list_OrderChange'] as List;
     List<OrderChange>? rtList;
     list == null ? rtList = null : rtList = list.map((i) => OrderChange.fromJson(i)).toList();
     return Order01(

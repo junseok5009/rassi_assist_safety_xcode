@@ -35,8 +35,6 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
     '종목정보를 검색해 보세요!',
   ];
 
-  late TabController _tabController;
-
   String _dropdownValue = 'AI매매신호';
   int _dropdownSelectIndex = 0;
 
@@ -45,12 +43,9 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
   @override
   void initState() {
     super.initState();
-    _tabController =
-        TabController(length: 4, vsync: this, initialIndex: initIndex);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DLog.e('ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ'
-          // 'SliverHomeTabWidgetState ModalRoute.of(context).settings.name : ${ModalRoute.of(context).settings.name}'
+          'SliverHomeTabWidgetState ModalRoute.of(context).settings.name : ${ModalRoute.of(context)?.settings.name}'
           'ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ');
     });
   }
@@ -70,7 +65,11 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
         RColor.bgBasic_fdfdfd,
       ),
       body: SafeArea(
-        child: _setNestedScrollView(),
+        child: DefaultTabController(
+          initialIndex: initIndex,
+          length: _tabs.length,
+          child: _setNestedScrollView(),
+        ),
       ),
     );
   }
@@ -139,8 +138,7 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
                       //padding: const EdgeInsets.fromLTRB(0, 0, 0, 2),
                       child: Column(
                         children: [
-                          TabBar(
-                            controller: _tabController,
+                          const TabBar(
                             indicatorColor: Colors.black,
                             indicatorWeight: 3,
                             labelColor: Colors.black,
@@ -344,7 +342,6 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
   //하단 탭뷰
   Widget _setTabView() {
     return TabBarView(
-      controller: _tabController,
       children: [
         RefreshIndicator(
           //key: refreshKey,

@@ -51,6 +51,7 @@ import 'package:rassi_assist/ui/user/user_info_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/net.dart';
+import '../common/common_appbar.dart';
 import 'test_http_page.dart';
 import 'test_popup_check.dart';
 
@@ -148,24 +149,11 @@ class TestState extends State<TestWidget> {
   Widget _setLayout() {
     return Scaffold(
       backgroundColor: RColor.bgWeakGrey,
-/*      appBar: CustomAppBar(
-        height: 60,
-        child: Container(
-          height: 60,
-          color: RColor.bgAiReport,
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.white,
-                ),
-                onPressed: () => Navigator.of(context).pop(null),
-              ),
-            ],
-          ),
-        ),
-      ),*/
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '라씨 매매비서의 TEST',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(
@@ -1150,8 +1138,7 @@ class TestState extends State<TestWidget> {
                         height: 40,
                         decoration: const BoxDecoration(
                           color: RColor.deepBlue,
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(20.0)),
+                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
                         ),
                         child: const Center(
                           child: Text(
@@ -1162,13 +1149,13 @@ class TestState extends State<TestWidget> {
                         ),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       String sId = _idController.text.trim();
                       if (sId.length == 0) {
-                        // showToast('매수가격을 입력해주세요');
+                        // showToast('바꿀 아이디 비어있어요');
                       } else {
+                        await setUserId(sId);
                         Navigator.pop(context);
-                        setUserId(sId);
                       }
                     },
                   ),
@@ -1231,17 +1218,17 @@ class TestState extends State<TestWidget> {
   //디바이스 정보
   void _getDeviceInfo() async {
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-/*    DLog.d(TestPage.TAG, '00000 : ' + iosInfo.model);
-    DLog.d(TestPage.TAG, '11111 : ' + iosInfo.name);
-    DLog.d(TestPage.TAG, '22222 : ' + iosInfo.systemName);
-    DLog.d(TestPage.TAG, '44444 : ' + iosInfo.localizedModel);
-    DLog.d(TestPage.TAG, '55555 : ' + iosInfo.isPhysicalDevice.toString());
-    DLog.d(TestPage.TAG, '66666 : ' + iosInfo.identifierForVendor);
-    DLog.d(TestPage.TAG, '77777 : ' + iosInfo.utsname.sysname);
-    DLog.d(TestPage.TAG, '88888 : ' + iosInfo.utsname.nodename);
+    DLog.d(TestPage.TAG, '00000 : ${iosInfo.model}');
+    DLog.d(TestPage.TAG, '11111 : ${iosInfo.name}');
+    DLog.d(TestPage.TAG, '22222 : ${iosInfo.systemName}');
+    DLog.d(TestPage.TAG, '44444 : ${iosInfo.localizedModel}');
+    DLog.d(TestPage.TAG, '55555 : ${iosInfo.isPhysicalDevice}');
+    DLog.d(TestPage.TAG, '66666 : ${iosInfo.identifierForVendor}');
+    DLog.d(TestPage.TAG, '77777 : ${iosInfo.utsname.sysname}');
+    DLog.d(TestPage.TAG, '88888 : ${iosInfo.utsname.nodename}');
 
-    DLog.d(TestPage.TAG, '+++++ : ' + iosInfo.systemVersion);
-    DLog.d(TestPage.TAG, '+++++ : ' + iosInfo.utsname.machine);*/
+    DLog.d(TestPage.TAG, '+++++ : ${iosInfo.systemVersion}');
+    DLog.d(TestPage.TAG, '+++++ : ${iosInfo.utsname.machine}');
     DLog.d(TestPage.TAG, 'Current Product : $_curProd');
   }
 
@@ -1274,18 +1261,16 @@ class TestState extends State<TestWidget> {
   }
 
   //로그아웃 잘 안되는듯
-  void makeRoutePage({BuildContext? context, Widget? desPage}) {
+  void makeRoutePage({required BuildContext context, required Widget desPage}) {
     // statefull 에서 프리퍼런스 아이디 초기화
     //방법1
     // Navigator.popUntil(context, ModalRoute.withName(RassiLoginPage.routeName));
-
     //방법2
-    // Navigator.pushAndRemoveUntil(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => desPage),
-    //   (route) => false,
-    // );
-
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => desPage),
+      (route) => false,
+    );
     //방법3
     // Navigator.of(context).pushNamedAndRemoveUntil(RassiLoginPage.routeName, (route) => false);
   }
@@ -1426,11 +1411,11 @@ class TestInfo {
   TestInfo(this.subItemTitle, this.childItem);
 }
 
-/*class CustomAppBar extends PreferredSize {
+/*class CustomAppBar extends PreferredSizeWidget {
   final Widget child;
   final double height;
 
-  CustomAppBar({@required this.child, this.height = kToolbarHeight});
+  CustomAppBar({this.child, this.height = kToolbarHeight});
 
   @override
   Size get preferredSize => Size.fromHeight(height);

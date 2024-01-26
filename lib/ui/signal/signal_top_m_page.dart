@@ -808,7 +808,7 @@ class SignalMTopPageState extends State<SignalMTopPage> {
       });
     } else if (topPrf) {
       _vList2.sort((a, b) {
-        return int.parse(b.winningRate).compareTo(int.parse(a.winningRate));
+        return double.parse(b.winningRate).compareTo(double.parse(a.winningRate));
       });
     } else if (topSta) {
       _vList3.sort((a, b) {

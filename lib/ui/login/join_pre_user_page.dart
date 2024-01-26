@@ -107,7 +107,7 @@ class JoinPreUserPageState extends State<JoinPreUserPage> {
                         style: TStyle.ulTextPurple,
                       ),
                       onTap: () {
-                        commonLaunchURL(Net.URL_KAKAO_QA);
+                        commonLaunchUrlAppOpen(Net.URL_KAKAO_QA);
                       },
                     )
                   ],
@@ -156,9 +156,9 @@ class JoinPreUserPageState extends State<JoinPreUserPage> {
   // 다음 페이지로 이동
   void _goNextRoute(String userId) {
     commonShowToast('로그인 되었습니다.');
-    CustomFirebaseClass.setUserProperty(CustomFirebaseProperty.LOGIN_STATUS, 'complete');
+    CustomFirebaseClass.setUserProperty(
+        CustomFirebaseProperty.LOGIN_STATUS, 'complete');
     CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.ssg));
-
     if (userId != '') {
       if (basePageState != null) {
         // basePageState = null;

@@ -162,6 +162,7 @@ class JoinRouteState extends State<JoinRoutePage> {
                   shrinkWrap: true,
                   controller: _scrollController,
                   itemCount: itemList.length + 1,
+                  padding: const EdgeInsets.symmetric(vertical: 20,),
                   itemBuilder: (context, i) {
                     if (i == 5) {
                       return _setFooterTile();
@@ -215,7 +216,6 @@ class JoinRouteState extends State<JoinRoutePage> {
         '라씨 매매비서를\n어떻게 만나시게 되셨나요?',
         //textAlign: TextAlign.center,
         style: TextStyle(
-          color: Colors.black,
           fontWeight: FontWeight.bold,
           fontSize: 24,
         ),
@@ -233,11 +233,8 @@ class JoinRouteState extends State<JoinRoutePage> {
         ),
         width: double.infinity,
         height: 56,
-        decoration: statList[10]
-            ? UIStyle.boxRoundLine8LineColor(RColor.purpleBasic_6565ff)
-            : UIStyle.boxRoundLine8LineColor(
-                RColor.greyBoxLine_c9c9c9,
-              ),
+        decoration:
+        statList[10] ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -247,7 +244,7 @@ class JoinRouteState extends State<JoinRoutePage> {
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
                   color:
-                      statList[10] ? RColor.purpleBasic_6565ff : Colors.black),
+                      statList[10] ? Colors.white : Colors.black),
             ),
           ],
         ),
@@ -267,11 +264,8 @@ class JoinRouteState extends State<JoinRoutePage> {
         top: 15,
       ),
       width: double.infinity,
-      decoration: expStat
-          ? UIStyle.boxRoundLine8LineColor(RColor.purpleBasic_6565ff)
-          : UIStyle.boxRoundLine8LineColor(
-              RColor.greyBoxLine_c9c9c9,
-            ),
+      decoration:
+      expStat ? UIStyle.boxSelectedLine12() : UIStyle.boxRoundLine6(),
       child: _setExpansionTile(idx),
     );
   }
@@ -331,34 +325,23 @@ class JoinRouteState extends State<JoinRoutePage> {
   Widget _setSubItem1(int idx, bool firstStat) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20,),
-        child: InkWell(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                itemList[idx].firstContent,
-                style: TextStyle(
-                  color: firstStat
-                      ? RColor.purpleBasic_6565ff
-                      : RColor.new_basic_text_color_strong_grey,
-                ),
-              ),
-              Image.asset(
-                firstStat
-                    ? 'images/icon_circle_check_y.png'
-                    : 'images/icon_circle_check_n.png',
-                width: 24,
-                fit: BoxFit.cover,
-              ),
-            ],
+      child: InkWell(
+        onTap: () {
+          _setSelectExpand(itemList[idx].expandStatus);
+          _setSelectStatus(itemList[idx].firstStatus);
+        },
+        child: Container(
+          width: double.infinity,
+          height: 50,
+          margin: const EdgeInsets.symmetric(horizontal: 20,),
+          decoration:
+          firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
+          child: Center(
+            child: Text(
+              itemList[idx].firstContent,
+              style: firstStat ? TStyle.btnTextWht16 : TStyle.content16,
+            ),
           ),
-          onTap: () {
-            _setSelectExpand(itemList[idx].expandStatus);
-            _setSelectStatus(itemList[idx].firstStatus);
-          },
         ),
       ),
     );
@@ -375,26 +358,15 @@ class JoinRouteState extends State<JoinRoutePage> {
           },
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20,),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  itemList[idx].firstContent,
-                  style: TextStyle(
-                    color: firstStat
-                        ? RColor.purpleBasic_6565ff
-                        : RColor.new_basic_text_color_strong_grey,
-                  ),
-                ),
-                Image.asset(
-                  firstStat
-                      ? 'images/icon_circle_check_y.png'
-                      : 'images/icon_circle_check_n.png',
-                  width: 24,
-                  fit: BoxFit.cover,
-                ),
-              ],
+            height: 50,
+            margin: const EdgeInsets.symmetric(horizontal: 20,),
+            decoration:
+            firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
+            child: Center(
+              child: Text(
+                itemList[idx].firstContent,
+                style: firstStat ? TStyle.btnTextWht16 : TStyle.content16,
+              ),
             ),
           ),
         ),
@@ -411,26 +383,16 @@ class JoinRouteState extends State<JoinRoutePage> {
           },
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20,),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  itemList[idx].secondContent,
-                  style: TextStyle(
-                    color: secondStat
-                        ? RColor.purpleBasic_6565ff
-                        : RColor.new_basic_text_color_strong_grey,
-                  ),
-                ),
-                Image.asset(
-                  secondStat
-                      ? 'images/icon_circle_check_y.png'
-                      : 'images/icon_circle_check_n.png',
-                  width: 24,
-                  fit: BoxFit.cover,
-                ),
-              ],
+            height: 50,
+            margin: const EdgeInsets.symmetric(horizontal: 20,),
+            decoration: secondStat
+                ? UIStyle.boxSelectedPurple()
+                : UIStyle.boxWeakGrey25(),
+            child: Center(
+              child: Text(
+                itemList[idx].secondContent,
+                style: secondStat ? TStyle.btnTextWht16 : TStyle.content16,
+              ),
             ),
           ),
         ),

@@ -129,18 +129,14 @@ class PayPremiumState extends State<PayPremiumPage> {
           _bProgress = false;
         });
       } else if (status == 'pay_success') {
-        var userInfoProvider =
-            Provider.of<UserInfoProvider>(context, listen: false);
+        var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
         if (userInfoProvider.isPremiumUser() && context.mounted) {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const PremiumCarePage()));
-          CommonPopup.instance
-              .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         } else {
           Navigator.pop(context);
-          CommonPopup.instance
-              .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         }
       } else {
         Navigator.pop(context);
@@ -240,23 +236,19 @@ class PayPremiumState extends State<PayPremiumPage> {
                       onTap: () async {
                         _isTryPayment = true;
                         if (_curProd.contains('ac_pr')) {
-                          commonShowToast(
-                              '이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+                          commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
                         } else {
                           DLog.d(PayPremiumPage.TAG, '단건 결제 요청');
                           setState(() {
                             _bProgress = true;
                           });
-                          //TODO @@@@@
-                          // if (_pdItemOnce != null && _isPaymentSingle) {
-                          //   dynamic result = await inAppBilling
-                          //       .requestStorePurchase(_pdItemOnce);
-                          //   DLog.e('result : ${result.toString()}');
-                          // } else if (_pdItemSub != null && _isPaymentSub) {
-                          //   dynamic result = await inAppBilling
-                          //       .requestStorePurchase(_pdItemSub);
-                          //   DLog.e('result : ${result.toString()}');
-                          // }
+                          if (_pdItemOnce != null && _isPaymentSingle) {
+                            dynamic result = await inAppBilling.requestStorePurchase(_pdItemOnce);
+                            DLog.e('result : ${result.toString()}');
+                          } else if (_pdItemSub != null && _isPaymentSub) {
+                            dynamic result = await inAppBilling.requestStorePurchase(_pdItemSub);
+                            DLog.e('result : ${result.toString()}');
+                          }
                         }
                       },
                       child: const Center(
@@ -281,8 +273,7 @@ class PayPremiumState extends State<PayPremiumPage> {
                   children: const [
                     Opacity(
                       opacity: 0.3,
-                      child:
-                          ModalBarrier(dismissible: false, color: Colors.grey),
+                      child: ModalBarrier(dismissible: false, color: Colors.grey),
                     ),
                     Center(
                       child: CircularProgressIndicator(),

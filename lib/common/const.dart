@@ -48,7 +48,7 @@ class Const {
   //static const JOIN_ROUTE_YNR = 'OLLAYNR';                      //애드브릭스 YNR JoinRoute
   //static const PREFS_DEEPLINK_ORG = 'deeplink_org';             //디퍼드 딥링크 들어온 내용 그대로 저장(OLLAYNR_01)
 
-  static const TEXT_SCALE_FACTOR = 1.0;
+  static const TEXT_SCALE_FACTOR = 1.0; //사용자 기기의 폰트 사이즈 설정을 무시하고 앱에서 설정
   static const HEIGHT_APP_BAR = 55.0;
   static const HEIGHT_PKT_ADD_CIRCLE = 220.0; //포켓 종목 추가 Circle 높이
 

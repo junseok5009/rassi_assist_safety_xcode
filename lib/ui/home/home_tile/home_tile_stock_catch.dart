@@ -118,7 +118,6 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
                         arguments: PgData(pgSn: ''),
                       );
                     }
-                    // DefaultTabController.of(context).animateTo(2);
                   },
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,

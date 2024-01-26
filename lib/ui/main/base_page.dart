@@ -590,7 +590,8 @@ class BasePageState extends State<BasePage> {
 
   //탭에서 뉴스 페이지로 전환
   callPageRouteNews(Widget instance, PgNews pgData) {
-    Navigator.push(context, _createRouteData(instance, RouteSettings(arguments: pgData)));
+    Navigator.push(
+        context, _createRouteData(instance, RouteSettings(arguments: pgData)));
   }
 
   //아래에서 올라오는 페이지 교체

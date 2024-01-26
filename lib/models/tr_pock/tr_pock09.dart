@@ -1,9 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 
 /// 2022.05.13
 /// 나의 포켓 종목의 현황 조회
@@ -22,8 +27,6 @@ class TrPock09 {
     );
   }
 }
-
-// const defPock09 = Pock09();
 
 class Pock09 {
   String selectDiv = '';
@@ -581,40 +584,54 @@ class TilePocketSig extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                decoration: UIStyle.boxRoundFullColor25c(
-                  const Color(0xffDCDFE2),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 3,
-                ),
-                child: Text(
-                  item.pocketName,
-                  style: const TextStyle(
-                    fontSize: 11,
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: UIStyle.boxRoundFullColor25c(
+                    const Color(0xffDCDFE2),
                   ),
-                  textAlign: TextAlign.center,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
+                  child: Text(
+                    item.pocketName,
+                    style: const TextStyle(
+                      fontSize: 11,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  item.stockName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                item.stockName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+              ],
+            ),
           ),
-          _setBsInfo(item),
+          const SizedBox(
+            width: 5,
+          ),
+          if (Provider.of<UserInfoProvider>(context, listen: false)
+              .isPremiumUser())
+              _setBsInfo(item)
+          else if (Provider.of<UserInfoProvider>(context,
+              listen: false)
+              .is3StockUser() &&
+              item.signalYn == 'Y')
+            _setBsInfo(item)
+          else
+            _setNoPremiumBlockView(context)
         ],
       ),
     );
@@ -686,6 +703,36 @@ class TilePocketSig extends StatelessWidget {
       ],
     );
   }
+
+  // 프리미엄 아닐때 매매신호 리스트 아이템들
+  _setNoPremiumBlockView(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        String result = await CommonPopup.instance.showDialogPremium(context);
+        if (result == CustomNvRouteResult.landPremiumPage) {
+          basePageState.navigateAndGetResultPayPremiumPage();
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Image.asset(
+            'images/icon_lock_grey.png',
+            height: 16,
+          ),
+          const Text(
+            '프리미엄으로 업그레이드하시고\n지금 바로 확인해 보세요',
+            style: TextStyle(
+              fontSize: 12,
+              color: RColor.greyMore_999999,
+            ),
+            textAlign: TextAlign.end,
+          ),
+        ],
+      ),
+    );
+  }
+
 }
 
 // 홈_홈 - 종목소식 타일 (Push 정보)

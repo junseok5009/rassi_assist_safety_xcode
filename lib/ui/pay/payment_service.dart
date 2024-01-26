@@ -15,12 +15,12 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/tr_inapp01.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 2022.04.20 - JY
+/// 2022.04.20
 /// https://ichi.pro/ko/fluttereseo-gudog-in-aeb-gumaeleul-guhyeonhaneun-bangbeob-137338297409674
 /// 결제를 모듈 이용하기 위한 방법
 class PaymentService {
   static const String TAG = "[PaymentService] ";
-  static late PaymentService _instance;
+  static PaymentService? _instance;
   factory PaymentService() => _instance ?? PaymentService._internal();
 
   //명명된 생성자 (private 으로 명명된 생성자)
@@ -58,9 +58,9 @@ class PaymentService {
           'ios.ac_pr.at2'
         ];
 
-  late StreamSubscription<ConnectionResult> _connectionSubscription;
-  late StreamSubscription<PurchasedItem?> _purchaseUpdatedSubscription;
-  late StreamSubscription<PurchaseResult?> _purchaseErrorSubscription;
+  StreamSubscription<ConnectionResult>? _connectionSubscription;
+  StreamSubscription<PurchasedItem?>? _purchaseUpdatedSubscription;
+  StreamSubscription<PurchaseResult?>? _purchaseErrorSubscription;
 
   // 사용 가능한 모든 제품 목록
   List<IAPItem> _products = [];
@@ -75,7 +75,7 @@ class PaymentService {
   final ObserverList<Function> _proStatusChangedListeners = ObserverList<Function(String)>();
 
   // 앱의 view는 구매의 오류를 얻기 위해 이것을 구독
-  final ObserverList<Function(String)?> _errorListeners = ObserverList<Function(String)>();
+  final ObserverList<Function> _errorListeners = ObserverList<Function(String)>();
 
   // TODO  이벤트 참여 사용자가 할인 상품 결제 할 경우 테스트
   // ?? 현재의 연결 상태 리턴
@@ -97,16 +97,38 @@ class PaymentService {
   /// 과금 서버와 필요한 모든 데이터 가져오기
   void _initConnection() async {
     var result = await FlutterInappPurchase.instance.initialize();
-    _connectionSubscription =
-        FlutterInappPurchase.connectionUpdated.listen((connected) {
+    _connectionSubscription = FlutterInappPurchase.connectionUpdated.listen((connected) {
       DLog.d(PaymentService.TAG, '[store connected]: $connected');
     });
-    _purchaseUpdatedSubscription = FlutterInappPurchase.purchaseUpdated.listen(
-            _handlePurchaseUpdate as void Function(PurchasedItem? event)?
-        );
-    _purchaseErrorSubscription = FlutterInappPurchase.purchaseError.listen(
-            _handlePurchaseError as void Function(PurchaseResult? event)?
-        );
+
+    /// 새 업데이트가 ``purchaseUpdated`` 스트림에 도착하면 호출됩니다.
+    _purchaseUpdatedSubscription = FlutterInappPurchase.purchaseUpdated.listen((PurchasedItem? event){
+      DLog.d(PaymentService.TAG, '[purchaseUpdated 리스너]:');
+      if(event != null){
+        if (Platform.isAndroid) {
+          _handlePurchaseUpdateAndroid(event);
+        } else {
+          _handlePurchaseUpdateIOS(event);
+        }
+      }
+    });
+
+    /// error 코드에 따르는 에러 처리
+    _purchaseErrorSubscription = FlutterInappPurchase.purchaseError.listen((PurchaseResult? purchaseError) {
+      DLog.d(PaymentService.TAG, '[purchaseError 리스너]:');
+      DLog.d(TAG, 'errCode : ${purchaseError?.code}');
+      DLog.d(TAG, 'resCode : ${purchaseError?.responseCode}');
+      if (purchaseError?.code == 'E_USER_CANCELLED') {
+        //사용자 취소일 경우 아무것도 안함
+        commonShowToast('구매를 취소하셨습니다.');
+        _callProStatusChangedListeners('md_exit');
+      } else {
+        String? msg = purchaseError?.message;
+        if(msg != null){
+          _callErrorListeners(msg);
+        }
+      }
+    });
 
     DLog.d(PaymentService.TAG, 'Connection result: $result');
     DLog.d(PaymentService.TAG, 'InApp Init Connection');
@@ -117,16 +139,16 @@ class PaymentService {
   /// 사용자가 앱을 닫을 때 호출
   void dispose() {
     if (_purchaseUpdatedSubscription != null) {
-      _purchaseUpdatedSubscription.cancel();
-      // _purchaseUpdatedSubscription = null;
+      _purchaseUpdatedSubscription?.cancel();
+      _purchaseUpdatedSubscription = null;
     }
     if (_purchaseErrorSubscription != null) {
-      _purchaseErrorSubscription.cancel();
-      // _purchaseErrorSubscription = null;
+      _purchaseErrorSubscription?.cancel();
+      _purchaseErrorSubscription = null;
     }
     if (_connectionSubscription != null) {
-      _connectionSubscription.cancel();
-      // _connectionSubscription = null;
+      _connectionSubscription?.cancel();
+      _connectionSubscription = null;
     }
     FlutterInappPurchase.instance.finalize();
   }
@@ -143,12 +165,12 @@ class PaymentService {
 
   // view는 이 방법을 사용하여 _errorListeners를 구독할 수 있습니다.
   addToErrorListeners(Function callback) {
-    _errorListeners.add(callback as Function(String err)?);
+    _errorListeners.add(callback);
   }
 
   // view는 이 방법을 사용하여 _errorListeners로 취소할 수 있습니다.
   removeFromErrorListeners(Function callback) {
-    _errorListeners.remove(callback as Function(String err)?);
+    _errorListeners.remove(callback);
   }
 
   // _proStatusChangedListeners의 모든 하위 구독자에게 알리려면 이 메서드를 호출하세요.
@@ -162,39 +184,15 @@ class PaymentService {
   void _callErrorListeners(String error) {
     _errorListeners.forEach((Function callback) {
       callback(error);
-    } as void Function(Function(String err)? element));
-  }
-
-  // error 코드에 따르는 에러 처리
-  void _handlePurchaseError(PurchaseResult purchaseError) {
-    DLog.d(TAG, 'errCode : ${purchaseError.code}');
-    DLog.d(TAG, 'resCode : ${purchaseError.responseCode}');
-
-    if (purchaseError.code == 'E_USER_CANCELLED') {
-      //사용자 취소일 경우 아무것도 안함
-      commonShowToast('구매를 취소하셨습니다.');
-      _callProStatusChangedListeners('md_exit');
-    } else {
-      _callErrorListeners(purchaseError.message ?? '');
-    }
+    });
   }
 
   //프로모션 코드 입력시트
   void showRedemptionSheet() {
     _prefs.setBool(Const.PREFS_PAY_FINISHED, false);
     final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
-        _inAppPurchase
-            .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+        _inAppPurchase.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
     iosPlatformAddition.presentCodeRedemptionSheet();
-  }
-
-  /// 새 업데이트가 ``purchaseUpdated`` 스트림에 도착하면 호출됩니다.
-  void _handlePurchaseUpdate(PurchasedItem productItem) async {
-    if (Platform.isAndroid) {
-      await _handlePurchaseUpdateAndroid(productItem);
-    } else {
-      await _handlePurchaseUpdateIOS(productItem);
-    }
   }
 
   Future<void> _handlePurchaseUpdateIOS(PurchasedItem purchasedItem) async {
@@ -272,13 +270,11 @@ class PaymentService {
   }
 
   //앱스토어 상품 구매 요청
-  void requestStorePurchase(IAPItem item) {
-    DLog.d(
-        PaymentService.TAG, '# 상품구매요청 -> ${item.productId} | ${item.price} |');
+  Future<dynamic> requestStorePurchase(IAPItem item) async {
+    DLog.d(PaymentService.TAG, '# 상품구매요청 -> ${item.productId} | ${item.price} |');
 
     _userId = AppGlobal().userId;
-    _prefs.setBool(Const.PREFS_PAY_FINISHED, false);
-
+    await _prefs.setBool(Const.PREFS_PAY_FINISHED, false);
 
     DLog.d(TAG, 'ㅡㅡㅡㅡㅡ requestStorePurchase ㅡㅡㅡㅡㅡ');
     DLog.d(TAG, '|    userId : $_userId    |');
@@ -287,8 +283,8 @@ class PaymentService {
     DLog.d(TAG, '|    currency : ${item.currency}    |');
     DLog.d(TAG, '|    localizedPrice : ${item.localizedPrice}    |');
     DLog.d(TAG, '|    title : ${item.title}    |');
-    DLog.d(TAG, '|    introductoryPrice : ${item.introductoryPrice}    |');
-    DLog.d(TAG, '\n|    <ONLY IOS>    |');
+    DLog.d(TAG, '|    introductoryPrice : ${item.introductoryPrice}    |\n');
+    DLog.d(TAG, '|    <ONLY IOS>    |');
     DLog.d(TAG, '|    subscriptionPeriodNumberIOS : ${item.subscriptionPeriodNumberIOS}    |');
     DLog.d(TAG, '|    subscriptionPeriodUnitIOS : ${item.subscriptionPeriodUnitIOS}    |');
     DLog.d(TAG, '|    introductoryPriceNumberIOS : ${item.introductoryPriceNumberIOS}    |');
@@ -298,13 +294,12 @@ class PaymentService {
     DLog.d(TAG, '|    discountsIOS : ${item.discountsIOS}    |');
     DLog.d(TAG, 'ㅡㅡㅡㅡㅡ requestStorePurchase ㅡㅡㅡㅡㅡ');
 
-    FlutterInappPurchase.instance.requestPurchase(item.productId ?? '');
+    return await FlutterInappPurchase.instance.requestPurchase(item.productId ?? '');
   }
 
   //구매 내역 가져오기 (결제는 되었지만 완전하게 finishTranscation 되지 않은 경우를 찾아서 finish)
   Future getPurchaseHistory() async {
-    List<PurchasedItem>? items =
-        await FlutterInappPurchase.instance.getPurchaseHistory();
+    List<PurchasedItem>? items = await FlutterInappPurchase.instance.getPurchaseHistory();
     for (var item in items ?? []) {
       if (item.transactionStateIOS == TransactionState.purchased) {
         DLog.d(
