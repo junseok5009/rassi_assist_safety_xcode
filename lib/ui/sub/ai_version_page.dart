@@ -73,7 +73,7 @@ class VerState extends State<VerWidget> {
         title: const Text('AI 버전 히스토리', style: TStyle.title18,),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: SafeArea(
+      body: const SafeArea(
         child: WebView(
           initialUrl: Net.URL_ENGINE_VER,
           javascriptMode: JavascriptMode.unrestricted,

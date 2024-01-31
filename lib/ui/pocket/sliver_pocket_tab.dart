@@ -29,7 +29,11 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this, initialIndex: Provider.of<PageNotifier>(context, listen: false).pktIndex);
+    _tabController = TabController(
+        length: 3,
+        vsync: this,
+        initialIndex: Provider.of<PageNotifier>(context, listen: false).pktIndex,
+    );
     _userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
     //TODO @@@@@
     // _userInfoProvider.addListener(refreshChildWithMoveTab(Provider.of<PageNotifier>(context, listen: false).pktIndex));
@@ -37,7 +41,7 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
 
   @override
   void dispose() {
-    _userInfoProvider.removeListener(refreshChildWithMoveTab(0));
+    // _userInfoProvider.removeListener(refreshChildWithMoveTab(0));
     super.dispose();
   }
 

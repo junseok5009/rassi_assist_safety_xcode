@@ -420,7 +420,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
         onTap: () {
           var item = _pock09.pushList[idx];
           basePageState.callPageRouteNews(
-            const NewsViewer(),
+            NewsViewer(),
             PgNews(
               stockCode: item.stockCode,
               stockName: item.stockName,

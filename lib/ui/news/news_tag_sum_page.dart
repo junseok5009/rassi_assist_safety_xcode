@@ -15,39 +15,26 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/rassiro.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi06.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi15.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-/// 2022.04.26
+/// 2022.04.26 - JY
 /// 라씨로 (시장총정리)태그 리스트 (추후에 new_tag_page로 통합)
-class NewsTagSumPage extends StatelessWidget {
+class NewsTagSumPage extends StatefulWidget {
   static const routeName = '/page_news_tag_sum';
   static const String TAG = "[NewsTagSumPage]";
   static const String TAG_NAME = '시장정리용_태그_리스트';
 
-  const NewsTagSumPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(toolbarHeight: 0,
-        backgroundColor: RColor.deepStat, elevation: 0,),
-      body: const NewsTagSumWidget(),
-    );
-  }
-}
-
-class NewsTagSumWidget extends StatefulWidget {
-  const NewsTagSumWidget({super.key});
+  const NewsTagSumPage({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => NewsTagSumState();
 }
 
-class NewsTagSumState extends State<NewsTagSumWidget> {
+class NewsTagSumState extends State<NewsTagSumPage> {
   late SharedPreferences _prefs;
   String _userId = "";
-  bool _bYetDispose = true;     //true: 아직 화면이 사라지기 전
+  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
 
   // PgNews args;
   late String tagCode;
@@ -64,7 +51,6 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String deviceModel = '';
 
-
   @override
   void initState() {
     super.initState();
@@ -72,16 +58,17 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
 
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), (){
-      if(deviceModel.contains('iPad')) {
+    _loadPrefData().then((_){
+      if (deviceModel.contains('iPad')) {
         pageSize = '20';
       }
 
-      _fetchPosts(TR.RASSI15, jsonEncode(<String, String>{
-        'userId': _userId,
-        'selectDiv': 'MKT',
-      }));
+      _fetchPosts(
+          TR.RASSI15,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'selectDiv': 'MKT',
+          }));
     });
   }
 
@@ -94,73 +81,80 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
 
   //리스트뷰 하단 리스너
   _scrollListener() {
-    if(_scrollController.offset >= _scrollController.position.maxScrollExtent
-        && !_scrollController.position.outOfRange) {
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
       _requestData();
     }
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      deviceModel = iosInfo.model!;
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    deviceModel = iosInfo.model!;
   }
 
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: _setLayout(),);
+      data: MediaQuery.of(context)
+          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      child: _setLayout(),
+    );
   }
 
   Widget _setLayout() {
     return Scaffold(
-      appBar: _setCustomAppBar(),
-
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '태그별 AI 속보 리스트',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: ListView(
           controller: _scrollController,
           children: [
+            const SizedBox(
+              height: 15,
+            ),
             Wrap(
               spacing: 7.0,
               alignment: WrapAlignment.center,
-              children: List.generate(_tagList.length, (index) =>
-                  InkWell(
-                    child: Chip(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        side: const BorderSide(color: Colors.white),
-                      ),
-                      label: Text('#${_tagList[index].tagName}',
-                          style: TextStyle(
-                            color: index == _selectedIdx ? Colors.black : RColor.mainColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+              children: List.generate(
+                  _tagList.length,
+                  (index) => InkWell(
+                        child: Chip(
+                          label: Text(
+                            '#${_tagList[index].tagName}',
+                            style: TextStyle(
+                              color: index == _selectedIdx
+                                  ? Colors.black
+                                  : RColor.mainColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
-                      ),
-                      backgroundColor: index == _selectedIdx
-                          ? RColor.yonbora
-                          : RColor.bgWeakGrey,
-                    ),
-                    onTap: (){
-                      setState(() {
-                        _selectedIdx = index;
-                        tagCode = _tagList[index].tagCode;
-                        pageNum = 0;
-                      });
-                      _newsList.clear();
-                      _requestData();
-                    },
-                  )),
+                          backgroundColor: index == _selectedIdx
+                              ? RColor.yonbora
+                              : RColor.bgWeakGrey,
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _selectedIdx = index;
+                            tagCode = _tagList[index].tagCode;
+                            pageNum = 0;
+                          });
+                          _newsList.clear();
+                          _requestData();
+                        },
+                      )),
             ),
-            const SizedBox(height: 15,),
-
+            const SizedBox(
+              height: 15,
+            ),
             ListView.builder(
               physics: const ScrollPhysics(),
               shrinkWrap: true,
@@ -170,7 +164,6 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
                 return TileRassiroList(_newsList[index]);
               },
             ),
-
             Visibility(
               visible: isNoData,
               child: Container(
@@ -186,42 +179,17 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
     );
   }
 
-
-  // 타이틀바(AppBar)
-  PreferredSizeWidget _setCustomAppBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(60),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          AppBar(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text('태그별 AI 속보 리스트', style: TStyle.commonTitle,),
-                SizedBox(width: 55.0,),
-              ],
-            ),
-            iconTheme: const IconThemeData(color: Colors.black),
-            backgroundColor: Colors.white,
-            toolbarHeight: 50,
-            elevation: 1,
-          ),
-
-        ],
-      ),
-    );
-  }
-
   _requestData() {
-    DLog.d(NewsTagSumPage.TAG, "tag code : $tagCode");
-    if(tagCode != '') {
-      _fetchPosts(TR.RASSI06, jsonEncode(<String, String>{
-        'userId': _userId,
-        'tagCode': tagCode,
-        'pageNo': pageNum.toString(),
-        'pageItemSize': pageSize,
-      }));
+    DLog.d(NewsTagSumPage.TAG, "tag code : " + tagCode);
+    if (tagCode != null && tagCode != '') {
+      _fetchPosts(
+          TR.RASSI06,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'tagCode': tagCode,
+            'pageNo': pageNum.toString(),
+            'pageItemSize': pageSize,
+          }));
     }
   }
 
@@ -252,16 +220,32 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
             content: SingleChildScrollView(
               child: Column(
                 children: [
-                  Image.asset('images/rassibs_img_infomation.png',
-                    height: 60, fit: BoxFit.contain,),
-                  const SizedBox(height: 5.0,),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text('안내', style: TStyle.commonTitle,),
+                  Image.asset(
+                    'images/rassibs_img_infomation.png',
+                    height: 60,
+                    fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 25.0,),
-                  const Text(RString.err_network, textAlign: TextAlign.center,),
-                  const SizedBox(height: 30.0,),
+                  const SizedBox(
+                    height: 5.0,
+                  ),
+                  const Padding(
+                    padding:
+                        EdgeInsets.only(top: 20, left: 10, right: 10),
+                    child: Text(
+                      '안내',
+                      style: TStyle.commonTitle,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 25.0,
+                  ),
+                  const Text(
+                    RString.err_network,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    height: 30.0,
+                  ),
                   MaterialButton(
                     child: Center(
                       child: Container(
@@ -271,10 +255,12 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
                         child: const Center(
                           child: Text(
                             '확인',
-                            style: TStyle.btnTextWht16,),),
+                            style: TStyle.btnTextWht16,
+                          ),
+                        ),
                       ),
                     ),
-                    onPressed: (){
+                    onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
@@ -282,8 +268,7 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   //convert 패키지의 jsonDecode 사용
@@ -292,14 +277,15 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if(_bYetDispose) _parseTrData(trStr, response);
-
+      if (_bYetDispose) _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(NewsTagSumPage.TAG, 'ERR : TimeoutException (12 seconds)');
       _showDialogNetErr();
@@ -313,16 +299,16 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(NewsTagSumPage.TAG, response.body);
 
-    if(trStr == TR.RASSI15) {
+    if (trStr == TR.RASSI15) {
       final TrRassi15 resData = TrRassi15.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
-        if(resData.listData != null && resData.listData.length > 0) {
-          for(int i=0; i < resData.listData.length; i++) {
+      if (resData.retCode == RT.SUCCESS) {
+        if (resData.listData != null && resData.listData.length > 0) {
+          for (int i = 0; i < resData.listData.length; i++) {
             _tagList.add(resData.listData[i]);
           }
         }
 
-        if(_tagList.length > 0) {
+        if (_tagList.length > 0) {
           setState(() {
             tagCode = _tagList[0].tagCode;
           });
@@ -334,19 +320,17 @@ class NewsTagSumState extends State<NewsTagSumWidget> {
       }
     }
 
-    if(trStr == TR.RASSI06) {
+    if (trStr == TR.RASSI06) {
       final TrRassi06 resData = TrRassi06.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         isNoData = false;
         _newsList..addAll(resData.listData);
         setState(() {});
-      }
-      else if(resData.retCode == RT.NO_DATA) {
-        if(_newsList.length == 0) isNoData = true;
+      } else if (resData.retCode == RT.NO_DATA) {
+        if (_newsList.length == 0) isNoData = true;
 
         setState(() {});
       }
     }
   }
-
 }

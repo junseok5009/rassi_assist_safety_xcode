@@ -96,34 +96,37 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
                   bottom: 0,
                 ),
                 centerTitle: false,
-                background: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    //상단 타이틀 영역 만큼의 공간[위로 숨겨지는 영역]
-                    //const SizedBox(width: double.infinity, height: 60,),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Image.asset(
-                          'images/icon_rassi_logo_purple.png',
-                          //color: RColor.mainColor,
-                          height: 28,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Image.asset(
-                          'images/img_rassi_title_maincolor.png',
-                          height: 23,
-                        ),
-                      ],
-                    ),
-                  ],
+                //backgroundColor 항목과 background 항목이 같이 쓰일경우 Opacity 설정
+                background: Opacity(
+                  opacity: 1,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      //상단 타이틀 영역 만큼의 공간[위로 숨겨지는 영역]
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Image.asset(
+                            'images/icon_rassi_logo_purple.png',
+                            //color: RColor.mainColor,
+                            height: 28,
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Image.asset(
+                            'images/img_rassi_title_maincolor.png',
+                            height: 23,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               bottom: PreferredSize(

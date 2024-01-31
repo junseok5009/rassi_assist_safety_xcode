@@ -196,7 +196,7 @@ class PaymentService {
   }
 
   Future<void> _handlePurchaseUpdateIOS(PurchasedItem purchasedItem) async {
-    DLog.d(TAG, '### transactionState Update ###');
+    DLog.d(TAG, '### transactionState Update ### ${purchasedItem.transactionStateIOS.toString()}');
     switch (purchasedItem.transactionStateIOS) {
       case TransactionState.purchased:
         //프로그래스 false
@@ -227,16 +227,7 @@ class PaymentService {
   }
 
   Future<void> _handlePurchaseUpdateAndroid(PurchasedItem purchasedItem) async {
-    /// 추후 안드로이드 까지 연동했을 경우
-    // switch (purchasedItem.purchaseStateAndroid) {
-    //   case 1:
-    //     if (!purchasedItem.isAcknowledgedAndroid) {
-    //       await _verifyAndFinishTransaction(purchasedItem);
-    //     }
-    //     break;
-    //   default:
-    //     _callErrorListeners("Something went wrong");
-    // }
+    // 추후 안드로이드 까지 연동
   }
 
   /// 구매 상태가 성공일 때 이 메소드 호출
@@ -265,7 +256,7 @@ class PaymentService {
     _products = [];
     for (var item in items) {
       DLog.d(TAG, '# Store Item : ${item.productId}');
-      this._products.add(item);
+      _products.add(item);
     }
   }
 

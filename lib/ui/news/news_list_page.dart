@@ -52,8 +52,8 @@ class NewsListState extends State<NewsListPage> {
     _scrollController.addListener(_scrollListener);
 
     _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), (){
-      if(deviceModel.contains('iPad')) {
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (deviceModel.contains('iPad')) {
         pageSize = '20';
       }
 
@@ -69,8 +69,9 @@ class NewsListState extends State<NewsListPage> {
 
   //리스트뷰 하단 리스너
   void _scrollListener() {
-    if(_scrollController.offset >= _scrollController.position.maxScrollExtent
-        && !_scrollController.position.outOfRange) {
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
       _requestData();
@@ -102,14 +103,17 @@ class NewsListState extends State<NewsListPage> {
 
   @override
   Widget build(BuildContext context) {
-    //TODO @@@@@
     args = ModalRoute.of(context)!.settings.arguments as PgNews;
-    stkName = args.stockName;
-    stkCode = args.stockCode;
+    if (args != null) {
+      stkName = args.stockName;
+      stkCode = args.stockCode;
+    }
 
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: _setLayout(),);
+      data: MediaQuery.of(context)
+          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      child: _setLayout(),
+    );
   }
 
   Widget _setLayout() {

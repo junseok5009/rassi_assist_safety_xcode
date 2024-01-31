@@ -242,7 +242,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
         highlightColor: Colors.transparent,
         onTap: () {
           if (!isOn) {
-            CommonPopup().showDialogMsg(context, '정보 발생 전 입니다.');
+            CommonPopup.instance.showDialogMsg(context, '정보 발생 전 입니다.');
           } else {
             if (item.contentDiv == 'MKT2' || item.contentDiv == 'MKT') {
               basePageState.callPageRouteNews(
@@ -363,7 +363,6 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
                         ),
                         onTap: () {
                           if (item.contentDiv == 'ISS') {
-                            // 개별 이슈 페이지로
                             basePageState.callPageRouteUpData(
                                 IssueViewer(),
                                 PgData(
@@ -388,10 +387,9 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
                             // 웹뷰로 띄우기
                           } */
                           else if (item.contentDiv == 'SCH') {
-                            // 개별 이슈 페이지로 TODO @@@@@
-                         /*   basePageState.callPageRouteUP(
-                              const SearchPage(),
-                            );*/
+                            basePageState.callPageRouteUP(
+                              SearchPage.goStockHome(),
+                            );
                           } else {
                             // 종목홈으로
                             basePageState.goStockHomePage(
@@ -545,9 +543,9 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

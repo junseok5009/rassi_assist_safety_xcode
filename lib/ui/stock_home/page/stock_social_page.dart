@@ -73,8 +73,8 @@ class _StockSocialPageState extends State<StockSocialPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Row(
-          children: const [
-            Text(
+          children: [
+            const Text(
               "소셜지수",
               style: TStyle.commonTitle,
             ),

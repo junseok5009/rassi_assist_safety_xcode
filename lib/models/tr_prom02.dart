@@ -91,7 +91,10 @@ class CardProm02 extends StatefulWidget {
   final List<Prom02> listItem;
   final SwiperController controller = SwiperController();
 
-  CardProm02(this.listItem, {Key? key,}) : super(key: key);
+  CardProm02(
+    this.listItem, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<CardProm02> createState() => _CardProm02State();
@@ -325,8 +328,7 @@ class _CardProm02State extends State<CardProm02> {
       } else if (SliverSignalWidget.globalKey.currentState != null) {
         // 홈_AI매매신호 화면 결제 후 갱신
         var childCurrentState0 = SliverSignalWidget.globalKey.currentState;
-        //TODO @@@@@
-        // childCurrentState0.reload();
+        childCurrentState0?.reload();
       }
     }
   }

@@ -146,7 +146,7 @@ class TileToday04 extends StatelessWidget {
           case 'MKT2': // 08:30
           case 'MKT': // 16시
             basePageState.callPageRouteNews(
-                NewsTagSumPage(), PgNews(tagCode: '', tagName: ''));
+                const NewsTagSumPage(), PgNews(tagCode: '', tagName: ''));
             break;
           case 'ISS': // 9시
             Navigator.push(
@@ -255,7 +255,7 @@ class TileToday04 extends StatelessWidget {
                                 if (item.contentDiv == 'ISS') {
                                   // 개별 이슈 페이지로
                                   basePageState.callPageRouteUpData(
-                                      IssueViewer(),
+                                      const IssueViewer(),
                                       PgData(
                                           userId: '',
                                           pgSn: item.listItem[index].itemCode));

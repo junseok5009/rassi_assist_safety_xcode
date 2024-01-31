@@ -18,14 +18,14 @@ import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tag_info.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi03.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
 import 'package:rassi_assist/ui/stock_home/stock_home_tab.dart';
 import 'package:rassi_assist/ui/tiles/tile_stock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-/// 2020.11.19
+/// 2020.11.19 - JY
 /// 뉴스 상세 페이지 (BottomSheet 뷰 테스트 하는 동안 임시로 사용)
 class NewsViewer extends StatefulWidget {
   static const routeName = '/page_news_detail';
@@ -116,25 +116,13 @@ class NewsViewerState extends State<NewsViewer> {
 
   Widget _setLayout() {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        shadowColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            color: Colors.black,
-            onPressed: () => Navigator.of(context).pop(null),
-          ),
-          const SizedBox(
-            width: 10.0,
-          ),
-        ],
-      ),
+      backgroundColor: RColor.bgBasic_fdfdfd,
+      appBar: CommonAppbar.simpleNoTitleWithExit(context, Colors.white, Colors.black,),
       body: SafeArea(
         child: ListView(
           children: [
             _setTitleDate(),
+
             Container(
               decoration: UIStyle.boxRoundLine17(),
               padding: const EdgeInsets.all(5.0),
@@ -147,6 +135,9 @@ class NewsViewerState extends State<NewsViewer> {
                     style: {
                       "html": Style(
                         fontSize: FontSize(15.0),
+                      ),
+                      "div": Style(
+                        width: Width.auto(),
                       ),
                     },
                     onLinkTap: (url, attributes, element) {
@@ -240,10 +231,6 @@ class NewsViewerState extends State<NewsViewer> {
                   var item = _tagList[index];
                   return InkWell(
                     child: Chip(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        side: const BorderSide(color: Colors.white),
-                      ),
                       label: Text(item.tagName),
                       backgroundColor: RColor.isuBack[index % 6],
                     ),
@@ -405,7 +392,8 @@ class NewsViewerState extends State<NewsViewer> {
                     height: 5.0,
                   ),
                   const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
+                    padding:
+                        EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,

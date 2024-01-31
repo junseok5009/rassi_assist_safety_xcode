@@ -644,42 +644,38 @@ class _StockInfoPageState extends State<StockInfoPage> {
                 const SizedBox(
                   height: 5,
                 ),
-  //TODO @@@@@
-  /*              SliderTheme(
+                SliderTheme(
                   data: SliderThemeData(
                     activeTrackColor: RColor.lineGrey3,
                     inactiveTrackColor: RColor.lineGrey3,
                     thumbColor: RColor.lineGrey2,
                     overlayShape: SliderComponentShape.noOverlay,
                     showValueIndicator: ShowValueIndicator.always,
-                    *//*thumbShape: RoundSliderThumbShape(
+                    /*thumbShape: RoundSliderThumbShape(
                       enabledThumbRadius: enabledThumbRadius,
                       elevation: elevation,
-                    ),*//*
+                    ),*/
                     trackShape: const RectangularSliderTrackShape(),
                     //valueIndicatorShape: PaddleSliderValueIndicatorShape(),
                     trackHeight: 7,
                   ),
                   child: Slider(
-                    value: double.tryParse(_shome04price.currentPrice) != null &&
-                        double.tryParse(_shome04price.top52Price) != null
-                        ? double.parse(_shome04price.currentPrice) >
-                        double.tryParse(_shome04price.top52Price)
-                        ? double.tryParse(_shome04price.top52Price)
-                        : double.parse(_shome04price.currentPrice)
+                    value: double.tryParse(_shome04price.currentPrice) != null
+                        && double.tryParse(_shome04price.top52Price) != null
+                        ? double.parse(_shome04price.currentPrice) > double.parse(_shome04price.top52Price)
+                            ? double.parse(_shome04price.top52Price)
+                            : double.parse(_shome04price.currentPrice)
                         : 0,
                     min: double.tryParse(_shome04price.low52Price) != null &&
-                        (double.parse(_shome04price.low52Price) > (double.tryParse(_shome04price.currentPrice) ?? 0)) ?
-                    (double.tryParse(_shome04price.currentPrice) ?? 0) :
-                    (double.parse(_shome04price.low52Price) ?? 0) ,
+                            (double.parse(_shome04price.low52Price) > (double.tryParse(_shome04price.currentPrice) ?? 0))
+                        ? (double.tryParse(_shome04price.currentPrice) ?? 0)
+                        : (double.tryParse(_shome04price.low52Price) ?? 0),
 
                     //((double.tryParse(_shome04price.currentPrice) ?? 0) : double.parse(_shome04price.low52Price) : 0,,
-                    max: double.tryParse(_shome04price.top52Price) != null
-                        ? double.parse(_shome04price.top52Price)
-                        : 0,
+                    max: double.tryParse(_shome04price.top52Price) != null ? double.parse(_shome04price.top52Price) : 0,
                     onChanged: (double value) {},
                   ),
-                ),*/
+                ),
                 const SizedBox(
                   height: 5,
                 ),

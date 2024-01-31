@@ -10,10 +10,10 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi17.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/const.dart';
@@ -413,7 +413,8 @@ class _RassiDeskPageState extends State<RassiDeskPage>
                         return Center(
                           child: CircularProgressIndicator(
                             value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
                                 : null,
                           ),
                         );
@@ -590,7 +591,7 @@ class _RassiDeskPageState extends State<RassiDeskPage>
                   : '외국인 순매매금액',
             ),
             Text(
-              '${TStyle.getMoneyPoint(item.netAmt)}억원',
+              '${TStyle.getMoneyPoint(item.netAmt)}백만',
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
               ),
@@ -726,18 +727,7 @@ class _RassiDeskPageState extends State<RassiDeskPage>
         <String, String>{
           "userId": _userId,
           "menuDiv":
-              "${_currentTabIndex == 0
-                  ? 5
-                  : _currentTabIndex == 1
-                  ? 1
-                  : _currentTabIndex == 2
-                  ? 3
-                  : _currentTabIndex == 3
-                  ? 2
-                  : _currentTabIndex == 4
-                  ? 4
-                  : 5
-              }",
+              "${_currentTabIndex == 0 ? 5 : _currentTabIndex == 1 ? 1 : _currentTabIndex == 2 ? 3 : _currentTabIndex == 3 ? 2 : _currentTabIndex == 4 ? 4 : 5}",
         },
       ),
     );
@@ -749,14 +739,16 @@ class _RassiDeskPageState extends State<RassiDeskPage>
       final http.Response response = await http.post(
         url,
         body: json,
-        headers: Net.headers,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       if (_bYetDispose) _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      CommonPopup().showDialogNetErr(context);
+      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

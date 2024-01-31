@@ -13,13 +13,13 @@ class TrOrder02 {
 
   factory TrOrder02.fromJson(Map<String, dynamic> json) {
     var list = json['retData'] as List;
-    // List<Order02>? rtList;
-    // list == null ? rtList = null : rtList = list.map((i) => Order02.fromJson(i)).toList();
+    List<Order02> rtList;
+    list == null ? rtList = [] : rtList = list.map((i) => Order02.fromJson(i)).toList();
 
     return TrOrder02(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      listData: list.map((i) => Order02.fromJson(i)).toList(),
+      listData: rtList,
     );
   }
 }
@@ -71,25 +71,25 @@ class Order02 {
 
   factory Order02.fromJson(Map<String, dynamic> json) {
     return Order02(
-      orderSn: json['orderSn'],
-      orderStatus: json['orderStatus'],
-      orderStatText: json['orderStatText'],
-      orderChannel: json['orderChannel'],
-      orderChanText: json['orderChanText'],
+      orderSn: json['orderSn'] ?? '',
+      orderStatus: json['orderStatus'] ?? '',
+      orderStatText: json['orderStatText'] ?? '',
+      orderChannel: json['orderChannel'] ?? '',
+      orderChanText: json['orderChanText'] ?? '',
       csPhoneNo: json['csPhoneNo'] ?? '',
-      svcCondition: json['svcCondition'],
-      svcCondText: json['svcCondText'],
-      svcDivision: json['svcDivision'],
-      payMethod: json['payMethod'],
-      paymentAmt: json['paymentAmt'],
-      prodCateg: json['prodCateg'],
-      prodSubdiv: json['prodSubdiv'],
-      prodCode: json['prodCode'],
-      prodName: json['prodName'],
-      startDate: json['startDate'],
-      endDate: json['endDate'],
-      nextPayDate: json['nextPayDate'],
-      transactId: json['transactId'],
+      svcCondition: json['svcCondition'] ?? '',
+      svcCondText: json['svcCondText'] ?? '',
+      svcDivision: json['svcDivision'] ?? '',
+      payMethod: json['payMethod'] ?? '',
+      paymentAmt: json['paymentAmt'] ?? '',
+      prodCateg: json['prodCateg'] ?? '',
+      prodSubdiv: json['prodSubdiv'] ?? '',
+      prodCode: json['prodCode'] ?? '',
+      prodName: json['prodName'] ?? '',
+      startDate: json['startDate'] ?? '',
+      endDate: json['endDate'] ?? '',
+      nextPayDate: json['nextPayDate'] ?? '',
+      transactId: json['transactId'] ?? '',
     );
   }
 }
