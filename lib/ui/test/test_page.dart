@@ -606,7 +606,7 @@ class TestState extends State<TestWidget> {
             onTap: () => basePageState.callPageRouteUpData(
               Platform.isIOS
                   ? const PayPremiumPromotionPage()
-                  : PayPremiumPromotionAosPage(),
+                  : const PayPremiumPromotionAosPage(),
               PgData(data: 'ad3'),
             ),
           ),
@@ -625,7 +625,7 @@ class TestState extends State<TestWidget> {
             onTap: () => basePageState.callPageRouteUpData(
               Platform.isIOS
                   ? const PayPremiumPromotionPage()
-                  : PayPremiumPromotionAosPage(),
+                  : const PayPremiumPromotionAosPage(),
               PgData(data: 'ad4'),
             ),
           ),
@@ -644,7 +644,7 @@ class TestState extends State<TestWidget> {
             onTap: () => basePageState.callPageRouteUpData(
               Platform.isIOS
                   ? const PayPremiumPromotionPage()
-                  : PayPremiumPromotionAosPage(),
+                  : const PayPremiumPromotionAosPage(),
               PgData(data: 'ad5'),
             ),
           ),
@@ -663,7 +663,7 @@ class TestState extends State<TestWidget> {
             onTap: () => basePageState.callPageRouteUpData(
               Platform.isIOS
                   ? const PayPremiumPromotionPage()
-                  : PayPremiumPromotionAosPage(),
+                  : const PayPremiumPromotionAosPage(),
               PgData(data: 'at1'),
             ),
           ),
@@ -682,11 +682,67 @@ class TestState extends State<TestWidget> {
             onTap: () => basePageState.callPageRouteUpData(
               Platform.isIOS
                   ? const PayPremiumPromotionPage()
-                  : PayPremiumPromotionAosPage(),
+                  : const PayPremiumPromotionAosPage(),
               PgData(data: 'at2'),
             ),
           ),
         ),
+
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.green[200],
+              child: const Text(
+                '6개월 정기구독',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () => basePageState.callPageRouteUpData(
+              Platform.isIOS
+                  ? const PayPremiumPromotionPage()
+                  : const PayPremiumPromotionAosPage(),
+              PgData(data: 'new_6m'),
+            ),
+          ),
+        ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.green[200],
+              child: const Text(
+                '6개월 정기구독(50%)',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () => basePageState.callPageRouteUpData(
+              Platform.isIOS
+                  ? const PayPremiumPromotionPage()
+                  : const PayPremiumPromotionAosPage(),
+              PgData(data: 'new_6m_50'),
+            ),
+          ),
+        ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.green[200],
+              child: const Text(
+                '1주일 이벤트',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () => basePageState.callPageRouteUpData(
+              Platform.isIOS
+                  ? const PayPremiumPromotionPage()
+                  : const PayPremiumPromotionAosPage(),
+              PgData(data: 'new_7d'),
+            ),
+          ),
+        ),
+
 
         Builder(
           builder: (context) => InkWell(
@@ -702,8 +758,8 @@ class TestState extends State<TestWidget> {
                 basePageState.callPageRouteUpData(
                   Platform.isIOS
                       ? const PayPremiumPromotionPage()
-                      : PayPremiumPromotionAosPage(),
-                  PgData(data: 'at2 '),
+                      : const PayPremiumPromotionAosPage(),
+                  PgData(data: 'at2'),
                 );
               }),
         ),

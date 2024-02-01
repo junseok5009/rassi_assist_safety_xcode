@@ -34,6 +34,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 // 계정결제_처음30할인	LPH9
 // 계정결제_7일무료	LPHA
 // 계정결제_14일무료	LPHB
+/// 6개월 정기구독 상품 -
+/// 6개월 정기구독 50% 할인 -
+/// 1주일 이벤트 특가 상품 -
 class PayPremiumPromotionAosPage extends StatefulWidget {
   static const routeName = '/page_pay_premium_promotion';
   static const String TAG = "[PayPremiumPromotionAos]";
@@ -129,6 +132,26 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
               {
                 TAG_NAME = '계정 결제 14일 무료 체험 포함';
                 VIEW_PAGE_CODE = 'LPHB';
+                break;
+              }
+
+              /// //////////////////////////////////
+            case 'new_6m':
+              {
+                TAG_NAME = '계정 결제 6개월 정기 구독';
+                VIEW_PAGE_CODE = 'LPHX';
+                break;
+              }
+            case 'new_6m_50':
+              {
+                TAG_NAME = '계정 결제 6개월 50% 할인';
+                VIEW_PAGE_CODE = 'LPHY';
+                break;
+              }
+            case 'new_7d':
+              {
+                TAG_NAME = '구글1주일 특가 상품';
+                VIEW_PAGE_CODE = 'LPHZ';
                 break;
               }
             default:
@@ -253,6 +276,32 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
           _buttonTitle = '결제 부담 없이 무료체험 시작하기';
           _buyInfo = '★ 결제 부담없이 무료체험으로 먼저 만나보세요.\n'
               '★ 무료체험 기간 중 언제든 가입을 해지하실 수 있으며, 결제 전 계정을 해지하시면 요금이 부과되지 않습니다';
+          break;
+        }
+
+        /// ////////////////////////////////////////////////
+      case 'new_6m':
+        {
+          _pageTitle = '프리미엄 계정 6개월 정기 구독';
+          _buttonTitle = '프리미엄 6개월 정기 구독 시작하기';
+          _buyInfo = '★ 장기적인 관점으로 먼저 만나보세요.\n'
+              '★ 계정 가입';
+          break;
+        }
+      case 'new_6m_50':
+        {
+          _pageTitle = '프리미엄 계정 6개월 정기 구독(50%할인)';
+          _buttonTitle = '프리미엄 6개월 정기 구독 시작하기';
+          _buyInfo = '★ 장기적인 관점으로 먼저 만나보세요.\n'
+              '★ 계정 가입';
+          break;
+        }
+      case 'new_7d':
+        {
+          _pageTitle = '1주일 이벤트 특가 상품';
+          _buttonTitle = '1주일 이벤트 특가 시작하기';
+          _buyInfo = '★ 1주일 체험으로 만나보세요.\n'
+              '★ 1주일 이벤트';
           break;
         }
     }
@@ -570,6 +619,29 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
           _isAt = true;
           break;
         }
+
+        /// ================================
+      case 'new_6m':
+        {
+          _priceInfo1 = '(6개월 정기)';
+          _priceInfo2 = '6개월 정기 구독';
+          _isAt = true;
+          break;
+        }
+      case 'new_6m_50':
+        {
+          _priceInfo1 = '(6개월 50%할인가)';
+          _priceInfo2 = '6개월 정기 구독(50%할인)';
+          _isAt = true;
+          break;
+        }
+      case 'new_7d':
+        {
+          _priceInfo1 = '(1주일 이벤트)';
+          _priceInfo2 = '1주일 이벤트';
+          _isAt = true;
+          break;
+        }
     }
 
     return Container(
@@ -726,29 +798,25 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
   //상품정보 가져오기
   Future _getProduct() async {
     DLog.d(PayPremiumPromotionAosPage.TAG, '# 상품정보 요청');
-    DLog.d(
-        PayPremiumPromotionAosPage.TAG, '_getProduct() pageCode : $pageCode');
+    DLog.d(PayPremiumPromotionAosPage.TAG, '_getProduct() pageCode : $pageCode');
     List<String> _productLists = [];
 
     switch (pageCode) {
       case 'ad3':
         {
-          _productLists =
-              Platform.isAndroid ? ['ac_pr.ad3'] : ['ios.ac_pr.ad3'];
+          _productLists = Platform.isAndroid ? ['ac_pr.ad3'] : ['ios.ac_pr.ad3'];
           _vProductId = _productLists.first;
           break;
         }
       case 'ad4':
         {
-          _productLists =
-              Platform.isAndroid ? ['ac_pr.ad4'] : ['ios.ac_pr.ad4'];
+          _productLists = Platform.isAndroid ? ['ac_pr.ad4'] : ['ios.ac_pr.ad4'];
           _vProductId = _productLists.first;
           break;
         }
       case 'ad5':
         {
-          _productLists =
-              Platform.isAndroid ? ['ac_pr.ad5'] : ['ios.ac_pr.ad5'];
+          _productLists = Platform.isAndroid ? ['ac_pr.ad5'] : ['ios.ac_pr.ad5'];
           _vProductId = _productLists.first;
           break;
         }
@@ -763,6 +831,29 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         {
           _productLists =
               Platform.isAndroid ? ['ac_pr.at2'] : ['ios.ac_pr.at2'];
+          _vProductId = _productLists.first;
+          break;
+        }
+
+        ///====================================================
+      case 'new_6m':
+        {
+          _productLists =
+          Platform.isAndroid ? ['ac_pr.am6d0'] : [''];
+          _vProductId = _productLists.first;
+          break;
+        }
+      case 'new_6m_50':
+        {
+          _productLists =
+          Platform.isAndroid ? ['ac_pr.am6d5'] : [''];
+          _vProductId = _productLists.first;
+          break;
+        }
+      case 'new_7d':
+        {
+          _productLists =
+          Platform.isAndroid ? ['ac_pr.mw1e1'] : [''];
           _vProductId = _productLists.first;
           break;
         }

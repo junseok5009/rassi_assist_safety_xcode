@@ -125,7 +125,7 @@ class PaymentAosService {
   final ObserverList<Function> _proStatusChangedListeners = ObserverList<Function(String)>();
 
   // 앱의 view는 구매의 오류를 얻기 위해 이것을 구독
-  final ObserverList<Function(String)?> _errorListeners = ObserverList<Function(String)>();
+  final ObserverList<Function> _errorListeners = ObserverList<Function(String)>();
 
   // view 는 이 방법을 사용하여 _proStatusChangedListeners를 구독할 수 있습니다.
   addToProStatusChangedListeners(Function callback) {
@@ -138,11 +138,11 @@ class PaymentAosService {
 
   // view는 이 방법을 사용하여 _errorListeners를 구독할 수 있습니다.
   addToErrorListeners(Function callback) {
-    _errorListeners.add(callback as Function(String p1)?);
+    _errorListeners.add(callback);
   }
   // view는 이 방법을 사용하여 _errorListeners로 취소할 수 있습니다.
   removeFromErrorListeners(Function callback) {
-    _errorListeners.remove(callback as Function(String p1)?);
+    _errorListeners.remove(callback);
   }
 
   // _proStatusChangedListeners의 모든 하위 구독자에게 알리려면 이 메서드를 호출하세요.
@@ -156,7 +156,7 @@ class PaymentAosService {
   void _callErrorListeners(String error) {
     _errorListeners.forEach((Function callback) {
       callback(error);
-    } as void Function(Function(String p1)? element));
+    });
   }
 
   /// 구글플레이 결제 요청에 대한 승인 처리
@@ -173,7 +173,11 @@ class PaymentAosService {
       String currency = json['currency'];
       String inappMsg = json['inappMsg'];
 
-      requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
+      // requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
+
+      Future.delayed(const Duration(seconds: 5), () {
+        requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
+      });
     }
   }
 
