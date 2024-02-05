@@ -1,7 +1,6 @@
 # 라씨 매매비서 ios / android
 
 
-
 ### ===== android build =====
 1. 버전코드 변경 (pubspec.yaml, build.gradle, const.dart)
 2. 프로젝트 폴더에서 빌드
@@ -9,29 +8,9 @@
 $flutter build apk --release --no-sound-null-safety --target-platform=android-arm64
 ~~~
 
-### 널세이프티 기준 버전
-23.09.18 메인_홈 개편된 버전
-  
-### 22.08.19 기준 버전
-Flutter 2.10.4 / Dart 2.16.2 • DevTools 2.9.2
 
-### 예정 업데이트
-- 1.0.30 ( 22 / 10 ~  )
-  (1) 파이어베이스 ScreenView Event / Class Name 정리 및 추가 업데이트
-  (2) GTM 추가 (진행중)
-  (3) 버전 업데이트 (예정)
-  (2) IOS 상시 수정 업데이트
 
-### 최근 업데이트
-- 1.0.29 ( 22 / 08 ~ 09 )
-  (1) 마켓뷰 개편
-  (2) IOS 상시 수정 업데이트
-  (3) 회원가입 웹 joinChannel=SM 추가 ( 핸드폰 번호 없는 간편로그인에만 )
-  (4) 배너 수정 작업 ( Ipad 와 같은 디스플레이 큰 화면에서 배너 영역 최적화 )
-
-### 현재 테스트중
-- AppDelegate 에서 인앱메시지에 대한 incomingUrl 이 들어올 경우 return false
-- 
+#### 라씨 기본 색상 코드 : 6565FF (2024.01.04)
 
 ### TODO List
 - 홈_홈 테마 추가 예정
@@ -44,10 +23,6 @@ Flutter 2.10.4 / Dart 2.16.2 • DevTools 2.9.2
 - 종목 추가 UI 좀더 자연스럽게 변경 필요
 - 날짜 캘린더 호출 팝업 흐름을 자연스럽게 변경 필요
 - 홈_홈 - 마케팅동의 팝업
-
-### App 전역데이터
-- Provider 를 이용한 공통 데이터 사용예시 : UserCenterPage
-- Singleton 패턴을 이용한 공통 데이터 사용예시 : 캐치에서 userId
 
 ### 참고사항
 - ios 에뮬레이터에서는 notification payload 받지 못함.

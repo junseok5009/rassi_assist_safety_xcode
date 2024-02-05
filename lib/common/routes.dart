@@ -18,8 +18,8 @@ import 'package:rassi_assist/ui/news/catch_list_page.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
 import 'package:rassi_assist/ui/news/news_viewer.dart';
-import 'package:rassi_assist/ui/pay/billing_page.dart';
 import 'package:rassi_assist/ui/pay/inapp_purchase_page.dart';
+import 'package:rassi_assist/ui/pay/inapp_purchase_test.dart';
 import 'package:rassi_assist/ui/pay/pay_cancel_page.dart';
 import 'package:rassi_assist/ui/pay/pay_cancel_sub.dart';
 import 'package:rassi_assist/ui/pay/pay_history_page.dart';
@@ -153,7 +153,7 @@ final routes = {
   PaySubCancelPage.routeName: (BuildContext context) => const PaySubCancelPage(),
   PayTestPage.routeName: (BuildContext context) => PayTestPage(),
   //PayPremiumPage.routeName: (BuildContext context) => PayPremiumPage(),
-  BillingPage.routeName: (BuildContext context) => BillingPage(),
+  InAppPurchaseTest.routeName: (BuildContext context) => const InAppPurchaseTest(),
   InAppPurchase.routeName: (BuildContext context) => const InAppPurchase(),
 
   TestPage.routeName: (BuildContext context) => TestPage(),

@@ -474,7 +474,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebPage(),
+                    builder: (context) => const WebPage(),
                     settings: RouteSettings(
                       arguments: PgData(pgData: Net.AGREE_TERMS),
                     ),
@@ -493,7 +493,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebPage(),
+                    builder: (context) => const WebPage(),
                     settings: RouteSettings(
                       arguments: PgData(pgData: Net.AGREE_POLICY_INFO),
                     ),

@@ -49,10 +49,10 @@ class _PayTestState extends State<PayTestPage> {
       ),
       onRefresh: () async {
         if (Platform.isAndroid) {
-          webViewController?.reload();
+          webViewController.reload();
         } else if (Platform.isIOS) {
-          webViewController?.loadUrl(
-              urlRequest: URLRequest(url: await webViewController?.getUrl()));
+          webViewController.loadUrl(
+              urlRequest: URLRequest(url: await webViewController.getUrl()));
         }
       },
     );

@@ -61,12 +61,12 @@ class Rassi11 {
   });
 
   factory Rassi11.fromJson(Map<String, dynamic> json) {
-    var listT = json['list_Tag'] as List;
+    var listT = json['list_Tag'] as List<dynamic>?;
     List<Tag> rtList;
     listT == null
         ? rtList = []
         : rtList = listT.map((e) => Tag.fromJson(e)).toList();
-    var listS = json['list_Stock'] as List;
+    var listS = json['list_Stock'] as List<dynamic>?;
     List<Stock> rtListS;
     listS == null
         ? rtListS = []

@@ -59,7 +59,7 @@ class BasePageState extends State<BasePage> {
   DateTime? currentPressTime;
   int _selectedIndex = 0;
 
-  static final List<Widget> _widgetOptions = <Widget>[
+  final List<Widget> _widgetOptions = <Widget>[
     const SliverHomeTabWidget(),
     SliverPocketTab(),
     const NotificationPage(),
@@ -130,9 +130,7 @@ class BasePageState extends State<BasePage> {
     Provider.of<UserInfoProvider>(context, listen: false).init();
     Provider.of<PocketProvider>(context, listen: false).setList();
     Provider.of<SignalProvider>(context, listen: false).setList();
-
-    //_userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-    //_userInfoProvider.addListener(listenPayFunction);
+    //SchedulerBinding.instance.addPostFrameCallback((_) => Provider.of<PurchaseHistoryProvider>(context, listen: false).init());
   }
 
   //시작시 포그라운드 푸시 받기 설정
@@ -281,7 +279,7 @@ class BasePageState extends State<BasePage> {
 
       goLandingPage(linkPage, stockCode, stockName, pushDiv3, pocketSn);
     } catch (e) {
-      print(e);
+      //print(e);
     }
   }
 

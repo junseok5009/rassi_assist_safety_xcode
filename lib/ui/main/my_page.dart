@@ -31,6 +31,7 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/pay/pay_history_page.dart';
 import 'package:rassi_assist/ui/pay/pay_manage_page.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_aos_new_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
@@ -1359,7 +1360,7 @@ class MyPageState extends State<MyPage> {
                 )
               : _navigateRefreshPay(
                   context,
-                  const PayPremiumAosPage(),
+                  const PayPremiumAosNewPage(), //TODO @@@@@
                 );
         },
       ),

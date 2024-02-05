@@ -290,10 +290,9 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         }
       case 'new_6m_50':
         {
-          _pageTitle = '프리미엄 계정 6개월 정기 구독(50%할인)';
-          _buttonTitle = '프리미엄 6개월 정기 구독 시작하기';
-          _buyInfo = '★ 장기적인 관점으로 먼저 만나보세요.\n'
-              '★ 계정 가입';
+          _pageTitle = '프리미엄 계정 가입 (6개월 50% 특별 할인)';
+          _buttonTitle = '6개월간 50%할인된 금액으로 프리미엄 시작하기';
+          _buyInfo = '★ 6개월간 50% 할인 혜택과 이후 30% 이상 할인 혜택을 모두 드립니다.\n';
           break;
         }
       case 'new_7d':
@@ -546,7 +545,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebPage(),
+                    builder: (context) => const WebPage(),
                     settings: RouteSettings(
                       arguments: PgData(pgData: Net.AGREE_TERMS),
                     ),
@@ -565,7 +564,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebPage(),
+                    builder: (context) => const WebPage(),
                     settings: RouteSettings(
                       arguments: PgData(pgData: Net.AGREE_POLICY_INFO),
                     ),
@@ -630,8 +629,8 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         }
       case 'new_6m_50':
         {
-          _priceInfo1 = '(6개월 50%할인가)';
-          _priceInfo2 = '6개월 정기 구독(50%할인)';
+          _priceInfo1 = '(1년)';
+          _priceInfo2 = '50% 특별 할인!';
           _isAt = true;
           break;
         }
@@ -838,29 +837,26 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         ///====================================================
       case 'new_6m':
         {
-          _productLists =
-          Platform.isAndroid ? ['ac_pr.am6d0'] : [''];
+          _productLists = Platform.isAndroid ? ['ac_pr.am6d0'] : [''];
           _vProductId = _productLists.first;
           break;
         }
       case 'new_6m_50':
         {
-          _productLists =
-          Platform.isAndroid ? ['ac_pr.am6d5'] : [''];
+          _productLists = Platform.isAndroid ? ['ac_pr.am6d5'] : [''];
           _vProductId = _productLists.first;
           break;
         }
       case 'new_7d':
         {
-          _productLists =
-          Platform.isAndroid ? ['ac_pr.mw1e1'] : [''];
+          _productLists = Platform.isAndroid ? ['ac_pr.mw1e1'] : [''];
           _vProductId = _productLists.first;
           break;
         }
     }
 
     if (Platform.isAndroid) {
-      DLog.d(PayPremiumPromotionAosPage.TAG, '##### Platform Android');
+      DLog.d(PayPremiumPromotionAosPage.TAG, '##### Platform Android 상품정보 요청');
 
       try {
         final String result = await channel.invokeMethod('getProductList', {'pd_code': _productLists[0]});

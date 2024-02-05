@@ -186,13 +186,23 @@ class UIStyle {
     );
   }
 
-  static BoxDecoration boxRoundLine8() {
+  static BoxDecoration boxSelectedLineMainColor() {
     return BoxDecoration(
       border: Border.all(
-        color: RColor.lineGrey,
-        width: 1,
+        color: RColor.mainColor,
+        width: 1.0,
       ),
-      borderRadius: const BorderRadius.all(Radius.circular(8)),
+      borderRadius: const BorderRadius.all(Radius.circular(14)),
+    );
+  }
+
+  static BoxDecoration boxUnSelectedLineMainGrey() {
+    return BoxDecoration(
+      border: Border.all(
+        color: RColor.greyBasic_8c8c8c,
+        width: 0.8,
+      ),
+      borderRadius: const BorderRadius.all(Radius.circular(14)),
     );
   }
 

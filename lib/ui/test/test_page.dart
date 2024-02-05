@@ -28,9 +28,10 @@ import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
 import 'package:rassi_assist/ui/login/join_route_page.dart';
 import 'package:rassi_assist/ui/login/login_rassi_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/pay/billing_page.dart';
 import 'package:rassi_assist/ui/pay/inapp_purchase_page.dart';
+import 'package:rassi_assist/ui/pay/inapp_purchase_test.dart';
 import 'package:rassi_assist/ui/pay/pay_manage_page.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_aos_new_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_promotion_aos.dart';
@@ -303,7 +304,7 @@ class TestState extends State<TestWidget> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StockIssuePage(),
+                  builder: (context) => const StockIssuePage(),
                 ),
               );
             },
@@ -489,8 +490,7 @@ class TestState extends State<TestWidget> {
                 context,
                 WebChartPage.routeName,
                 arguments: PgData(
-                  pgData:
-                      'https://kiwoom.thinkpool.com/my-stock?svcJoin=SS&customNo=999999905',
+                  pgData: 'https://kiwoom.thinkpool.com/my-stock?svcJoin=SS&customNo=999999905',
                 ),
               );
             },
@@ -511,8 +511,7 @@ class TestState extends State<TestWidget> {
                 context,
                 WebChartPage.routeName,
                 arguments: PgData(
-                  pgData:
-                      'https://kiwoom.thinkpool.com/market-view?svcJoin=SS&customNo=999999905',
+                  pgData: 'https://kiwoom.thinkpool.com/market-view?svcJoin=SS&customNo=999999905',
                 ),
               );
             },
@@ -572,6 +571,27 @@ class TestState extends State<TestWidget> {
               }
               if (Platform.isAndroid) {
                 basePageState.callPageRouteUP(const PayPremiumAosPage());
+              }
+            },
+          ),
+        ),
+        // 프리미엄 결제 new (android)
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.green[200],
+              child: const Text(
+                '프리미엄\n결제 New',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () {
+              if (Platform.isIOS) {
+                basePageState.callPageRouteUP(const PayPremiumPage());
+              }
+              if (Platform.isAndroid) {
+                basePageState.callPageRouteUP(const PayPremiumAosNewPage());
               }
             },
           ),
@@ -796,11 +816,15 @@ class TestState extends State<TestWidget> {
 
         //결제 테스트?
         _setAButton(
-          '[인앱]',
+          '[인앱] in_app_purchase',
           InAppPurchase.routeName,
           Colors.green[200]!,
         ),
-        _setAButton('[인앱2]', BillingPage.routeName, Colors.green[200]!),
+        _setAButton(
+          '[인앱] flutter_inapp',
+          InAppPurchaseTest.routeName,
+          Colors.green[200]!,
+        ),
       ],
     );
   }
