@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:http/http.dart' as http;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
@@ -121,7 +120,8 @@ class PayPremiumAosNewState extends State<PayPremiumAosNewPage> {
 
     _initStoreInfo().then((value) => {
       for(ProductDetails tmp in _products) {
-        DLog.d('Inapp', '*****************\n'
+        DLog.d('Inapp',
+            '*****************\n'
             '${tmp.title}\n'
             '${tmp.id}\n'
             '${tmp.price}\n'
@@ -355,14 +355,18 @@ class PayPremiumAosNewState extends State<PayPremiumAosNewPage> {
                             });
                             if (Platform.isAndroid) {
                               if (_isUpgradeOn) {
+                                //TODO @@@@@
                                 inAppBilling.requestGStoreUpgrade(_productLists[0]);
                               }
                               else if (_isFirstBtn) {
-                                if(_isLongTermSub) inAppBilling.requestGStorePurchase(_productLists[1]);
-                                else inAppBilling.requestGStorePurchase(_productLists[1]);
+                                if(_isLongTermSub) {
+                                  inAppBilling.requestGStorePurchase(_productLists[1]);
+                                } else {
+                                  inAppBilling.requestGStorePurchase(_productLists[0]);
+                                }
                               }
                               else if (!_isFirstBtn) {
-                                inAppBilling.requestGStorePurchase(_productLists[0]);
+                                inAppBilling.requestGStorePurchase(_productLists[2]);
                               }
                             }
                           }
@@ -571,8 +575,8 @@ class PayPremiumAosNewState extends State<PayPremiumAosNewPage> {
                       children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
+                          children: const [
+                            Text(
                               '매월정기결제',
                               style: TextStyle(
                                 fontSize: 15,

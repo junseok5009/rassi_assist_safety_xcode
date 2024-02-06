@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
@@ -9,12 +11,16 @@ import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/ui/pay/consumable_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'consumable_store.dart';
+import '../../common/const.dart';
+import '../../common/net.dart';
+import '../../models/none_tr/app_global.dart';
+import '../../models/tr_user/tr_user04.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
   runApp(const InAppPurchaseTest());
 }
 
@@ -66,6 +72,11 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
   bool _loading = true;
   String? _queryProductError;
 
+  var appGlobal = AppGlobal();
+  late SharedPreferences _prefs;
+  String _userId = '';
+  String _curProd = ''; //현재 사용중인 상품은
+
   @override
   void initState() {
     DLog.d('Inapp', '=> initState');
@@ -78,6 +89,21 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
       // handle error here.
     });
     initStoreInfo();
+
+    _loadPrefData().then((value) {
+      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? appGlobal.userId ?? '';
+      _curProd = _prefs.getString(Const.PREFS_CUR_PROD) ?? '';
+      if (_userId == '') {
+        Navigator.pop(context);
+      } else {
+        _fetchPosts(
+            TR.USER04,
+            jsonEncode(<String, String>{
+              'userId': _userId,
+            }));
+      }
+    });
+
     super.initState();
   }
 
@@ -147,6 +173,17 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
       _purchasePending = false;
       _loading = false;
     });
+  }
+
+  Future<void> _loadPrefData() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -437,12 +474,20 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
     });
   }
 
-  Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) {
+  Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) async {
     // IMPORTANT!! Always verify a purchase before delivering the product.
     // For the purpose of an example, we directly return true.
-    return Future<bool>.value(true);
+    try {
+      _requestAosInApp01(purchaseDetails);
+    } on Exception {
+      // _callErrorListeners("Something went wrong");
+      // return;
+    }
+
+    return Future<bool>.value(false);
   }
 
+  //승인되지 않은 구매 처리
   void _handleInvalidPurchase(PurchaseDetails purchaseDetails) {
     // handle invalid purchase here if  _verifyPurchase` failed.
   }
@@ -454,7 +499,8 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
       } else {
         if (purchaseDetails.status == PurchaseStatus.error) {
           handleError(purchaseDetails.error!);
-        } else if (purchaseDetails.status == PurchaseStatus.purchased || purchaseDetails.status == PurchaseStatus.restored) {
+        } else if (purchaseDetails.status == PurchaseStatus.purchased ||
+            purchaseDetails.status == PurchaseStatus.restored) {
           final bool valid = await _verifyPurchase(purchaseDetails); //서버승인과정
           if (valid) {
             unawaited(deliverProduct(purchaseDetails));
@@ -463,16 +509,16 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
             return;
           }
         }
-        if (Platform.isAndroid) {
-          if (!_kAutoConsume && purchaseDetails.productID == _kConsumableId) {
-            final InAppPurchaseAndroidPlatformAddition androidAddition =
-              _inAppPurchase.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
-            await androidAddition.consumePurchase(purchaseDetails);
-          }
-        }
-        if (purchaseDetails.pendingCompletePurchase) {
-          await _inAppPurchase.completePurchase(purchaseDetails);
-        }
+        // if (Platform.isAndroid) {
+        //   if (!_kAutoConsume && purchaseDetails.productID == _kConsumableId) {
+        //     final InAppPurchaseAndroidPlatformAddition androidAddition =
+        //       _inAppPurchase.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>();
+        //     await androidAddition.consumePurchase(purchaseDetails);
+        //   }
+        // }
+        // if (purchaseDetails.pendingCompletePurchase) {
+        //   await _inAppPurchase.completePurchase(purchaseDetails);
+        // }
       }
     }
   }
@@ -503,6 +549,76 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
       oldSubscription = purchases[_kSilverSubscriptionId]! as GooglePlayPurchaseDetails;
     }
     return oldSubscription;
+  }
+
+  //구매확인(구매승인 절차) - 영수증 검증 요청
+  void _requestAosInApp01(PurchaseDetails purchaseDetails) {
+    DLog.d('INAPP_TEST', '# requestInApp01 -> ${purchaseDetails.toString()}');
+    DLog.d('INAPP_TEST',
+        '# requestInApp01 ->'
+            ' ${purchaseDetails.productID} |'
+            ' ${purchaseDetails.purchaseID} |'
+            ' ${purchaseDetails.status} |'
+            ' ${purchaseDetails.status.name} |'
+            ' ${purchaseDetails.error?.message} |'
+            ' ${purchaseDetails.pendingCompletePurchase} |'
+            ' ${purchaseDetails.transactionDate} |'
+            ' ${purchaseDetails.verificationData.localVerificationData} |'
+            ' ${purchaseDetails.verificationData.serverVerificationData} |'
+            ' ${purchaseDetails.verificationData.source} |'
+            // ' _getPaymentAmount : ${_getPaymentAmount(purchaseDetails.productId!)} |'
+            // ' ${_getPaymentCurrency(purchaseDetails.productId!)}'
+    );
+  }
+
+  // convert 패키지의 jsonDecode 사용
+  void _fetchPosts(String trStr, String json) async {
+    DLog.d('INAPP', '$trStr $json');
+    var url = Uri.parse(Net.TR_BASE + trStr);
+    final http.Response response = await http.post(
+      url,
+      body: json,
+      headers: Net.headers,
+    );
+    _parseTrData(trStr, response);
+  }
+
+  // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
+  void _parseTrData(String trStr, final http.Response response) {
+    DLog.d('INAPP', response.body);
+
+    if (trStr == TR.USER04) {
+      final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        User04 data = resData.retData;
+        DLog.d('INAPP', data.accountData.toString());
+
+        if (data.accountData != null) {
+          final AccountData accountData = data.accountData;
+          accountData.initUserStatus();
+          _curProd = accountData.productId;
+          // _payMethod = accountData.payMethod;
+          if (accountData.prodName == '프리미엄') {
+            //이미 프리미엄 계정으로 결제 화면 종료
+          }
+          else if (accountData.prodCode == 'AC_S3') {
+            // if (_payMethod == 'PM50') {
+            //   //인앱으로 결제한 경우
+            //   // _isUpgradeOn = true;
+            //   // _isPaymentSub = true;
+            // }
+          } else {
+            //베이직 계정
+          }
+        } else {
+          //회원정보 가져오지 못함
+          AccountData().setFreeUserStatus();
+        }
+        setState(() {});
+      } else {
+        AccountData().setFreeUserStatus();
+      }
+    }
   }
 }
 

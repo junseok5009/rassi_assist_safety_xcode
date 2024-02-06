@@ -580,7 +580,7 @@ class TestState extends State<TestWidget> {
           builder: (context) => InkWell(
             child: Container(
               padding: const EdgeInsets.all(5),
-              color: Colors.green[200],
+              color: Colors.green[300],
               child: const Text(
                 '프리미엄\n결제 New',
                 style: TStyle.subTitle,
@@ -823,7 +823,7 @@ class TestState extends State<TestWidget> {
         _setAButton(
           '[인앱] flutter_inapp',
           InAppPurchaseTest.routeName,
-          Colors.green[200]!,
+          Colors.green[300]!,
         ),
       ],
     );
@@ -1042,7 +1042,7 @@ class TestState extends State<TestWidget> {
           ),
         ),
         onTap: () {
-          basePageState.callPageRouteUP(UserInfoPage());
+          basePageState.callPageRouteUP(const UserInfoPage());
         },
       ),
       const SizedBox(
@@ -1224,7 +1224,6 @@ class TestState extends State<TestWidget> {
                           child: Text(
                             'ID 변경하기',
                             style: TStyle.btnTextWht15,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
                           ),
                         ),
                       ),

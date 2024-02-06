@@ -34,6 +34,9 @@ import android.content.pm.PackageManager;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
 import androidx.core.app.ActivityCompat
+import java.net.URISyntaxException
+import android.content.ActivityNotFoundException
+import android.content.Intent.URI_INTENT_SCHEME
 import com.example.rassi_assist.OllaSeedUtil
 
 
@@ -43,6 +46,7 @@ class MainActivity: FlutterFragmentActivity() {
     private val CHANNEL_NAME = "thinkpool.flutter.dev/channel_method"
     private val CHANNEL_PUSH_NAME = "thinkpool.flutter.dev/channel_method_push"
     private val CHANNEL_NAME_INAPP = "thinkpool.flutter.dev/channel_method_inapp"
+    private val CHANNEL_NAME_URL = "thinkpool.flutter.dev/channel_method_url"
     private val handler = Handler(Looper.getMainLooper())
 
     private val PREFS_NAME = "rassi_trade_prefs";    // 프리퍼런스 이름
@@ -153,6 +157,23 @@ class MainActivity: FlutterFragmentActivity() {
 
         //push methodChannel
         channel_push = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_PUSH_NAME)
+
+        //url methodChannel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME_URL).setMethodCallHandler { call, result ->
+            when {
+                call.method.equals("getAppUrlFromAos") -> {
+                    try {
+                        val url: String = call.argument("url")!!
+                        val intent = Intent.parseUri(url, URI_INTENT_SCHEME)
+                        result.success(intent.dataString)
+                    } catch (e: URISyntaxException) {
+                        result.notImplemented()
+                    } catch (e: ActivityNotFoundException) {
+                        result.notImplemented()
+                    }
+                }
+            }
+        }
 
         channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
         channel.setMethodCallHandler { call, result ->
@@ -457,7 +478,7 @@ class MainActivity: FlutterFragmentActivity() {
     private fun setBillingPrice(purchase: Purchase) {
         val pdCode = purchase.products[0]
         var pdType = BillingClient.ProductType.SUBS
-        if(pdCode == "ac_pr.m01")
+        if(pdCode == "ac_pr.m01" || pdCode == "ac_pr.mw1e1")
             pdType = BillingClient.ProductType.INAPP
 
         val queryProductDetailsParams =
@@ -508,7 +529,7 @@ class MainActivity: FlutterFragmentActivity() {
                 + ", isScreenName=MainActivity")
 
         if(purchase.products.size > 0){
-            sIsSubs = if(purchase.products[0] == "ac_pr.m01") "N"
+            sIsSubs = if(purchase.products[0] == "ac_pr.m01" || purchase.products[0] == "ac_pr.mw1e1") "N"
             else "Y"    //정기결제
         }
 
@@ -528,6 +549,7 @@ class MainActivity: FlutterFragmentActivity() {
             e.printStackTrace()
         }
 
+        orderPrc = ""
         channel.invokeMethod("billing_ok", jsonObj.toString())
     }
 
@@ -541,7 +563,7 @@ class MainActivity: FlutterFragmentActivity() {
                 + ", isScreenName=MainActivity")
 
         if(purchase.products.size > 0){
-            sIsSubs = if(purchase.products[0] == "ac_pr.m01") "N"
+            sIsSubs = if(purchase.products[0] == "ac_pr.m01" || purchase.products[0] == "ac_pr.mw1e1") "N"
             else "Y"    //정기결제
         }
 
@@ -582,7 +604,7 @@ class MainActivity: FlutterFragmentActivity() {
     // NOTE  3.상품 정보 조회 (구독상품 조회 ??) -> 가격 표시만 조회
     private fun queryProductDetails(pdCode: String, callback: ProductCallback) {
         var pdType = BillingClient.ProductType.SUBS
-        if(pdCode == "ac_pr.m01")
+        if(pdCode == "ac_pr.m01" || pdCode == "ac_pr.mw1e1")
             pdType = BillingClient.ProductType.INAPP
 
         val queryProductDetailsParams =
@@ -627,7 +649,7 @@ class MainActivity: FlutterFragmentActivity() {
     // NOTE  4.상품 정보 조회 후 결제 요청
     private fun flowProductDetails(pdCode: String) {
         var pdType = BillingClient.ProductType.SUBS
-        if(pdCode == "ac_pr.m01")
+        if(pdCode == "ac_pr.m01" || pdCode == "ac_pr.mw1e1")
             pdType = BillingClient.ProductType.INAPP
 
         val queryProductDetailsParams =
@@ -737,7 +759,7 @@ class MainActivity: FlutterFragmentActivity() {
     }
     private fun flowUpgradeDetails(pdCode: String, preCode: String) {
         var pdType = BillingClient.ProductType.SUBS
-        if(pdCode == "ac_pr.m01")
+        if(pdCode == "ac_pr.m01" || pdCode == "ac_pr.mw1e1")
             pdType = BillingClient.ProductType.INAPP
 
         val queryProductDetailsParams =
@@ -777,6 +799,7 @@ class MainActivity: FlutterFragmentActivity() {
             }
         }
     }
+
     // NOTE 업그레이드 결제 요청
     private fun doBillingUpgradeFlow(productDetails: ProductDetails, oldToken: String) {
         val updateParams = SubscriptionUpdateParams.newBuilder()

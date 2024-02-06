@@ -173,12 +173,11 @@ class PaymentAosService {
       String currency = json['currency'];
       String inappMsg = json['inappMsg'];
 
-      // requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
+      requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
 
-      //TODO @@@@@
-      Future.delayed(const Duration(seconds: 5), () {
-        requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
-      });
+      // Future.delayed(const Duration(seconds: 5), () {
+      //   requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
+      // });
     }
   }
 
@@ -294,7 +293,7 @@ class PaymentAosService {
 
   // 결제 완료 고객 5년간 휴면회원 전환 방지
   void _requestThink() async {
-    String param = "userid=" + Net.getEncrypt(_userId) + '&gb=settle';
+    String param = 'userid=${Net.getEncrypt(_userId)}&gb=settle';
     DLog.d(TAG, 'param : $param');
 
     String nUrl = Net.THINK_CHECK_DAILY; //로그인/결제 휴면 방지

@@ -34,9 +34,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 // 계정결제_처음30할인	LPH9
 // 계정결제_7일무료	LPHA
 // 계정결제_14일무료	LPHB
-/// 6개월 정기구독 상품 -
-/// 6개월 정기구독 50% 할인 -
-/// 1주일 이벤트 특가 상품 -
+// 6개월 정기구독 상품 -
+// 6개월 정기구독 50% 할인 -
+// 1주일 이벤트 특가 상품 -
 class PayPremiumPromotionAosPage extends StatefulWidget {
   static const routeName = '/page_pay_premium_promotion';
   static const String TAG = "[PayPremiumPromotionAos]";
@@ -279,12 +279,13 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
           break;
         }
 
-        /// ////////////////////////////////////////////////
+
+
       case 'new_6m':
         {
           _pageTitle = '프리미엄 계정 6개월 정기 구독';
           _buttonTitle = '프리미엄 6개월 정기 구독 시작하기';
-          _buyInfo = '★ 장기적인 관점으로 먼저 만나보세요.\n'
+          _buyInfo = '★ 정기결제는 언제든 구독을 해지하실 수 있습니다.\n'
               '★ 계정 가입';
           break;
         }
@@ -456,7 +457,9 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         Padding(
           padding: EdgeInsets.all(10.0),
           child: Text(
-            "혼자하는 투자가 어려우세요?\n대한민국 대표 AI의 전문적인 종목분석과 관리를 받아보세요.\n라씨 매매비서는 투자를 쉽게 만들어 드립니다.",
+            "혼자하는 투자가 어려우세요?"
+                "\n대한민국 대표 AI의 전문적인 종목분석과 관리를 받아보세요."
+                "\n라씨 매매비서는 투자를 쉽게 만들어 드립니다.",
             style: TStyle.content14,
           ),
         ),
@@ -619,26 +622,27 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
           break;
         }
 
-        /// ================================
+
+
       case 'new_6m':
         {
           _priceInfo1 = '(6개월 정기)';
           _priceInfo2 = '6개월 정기 구독';
-          _isAt = true;
+          _isAt = false;
           break;
         }
       case 'new_6m_50':
         {
-          _priceInfo1 = '(1년)';
+          _priceInfo1 = '(6개월)';
           _priceInfo2 = '50% 특별 할인!';
-          _isAt = true;
+          _isAt = false;
           break;
         }
       case 'new_7d':
         {
           _priceInfo1 = '(1주일 이벤트)';
           _priceInfo2 = '1주일 이벤트';
-          _isAt = true;
+          _isAt = false;
           break;
         }
     }
@@ -834,7 +838,8 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
           break;
         }
 
-        ///====================================================
+
+
       case 'new_6m':
         {
           _productLists = Platform.isAndroid ? ['ac_pr.am6d0'] : [''];
@@ -869,20 +874,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
       } on PlatformException catch (e) {}
       // DLog.d(PayPremiumPage.TAG, '##### Platform Android');
     } else if (Platform.isIOS) {
-      // List<IAPItem> items = await FlutterInappPurchase.instance.getProducts(_productLists);
-      // for (var item in items) {
-      //   print(item.toString());
-      //   _items.add(item);
-      //   if (item.productId == _vProductId) {
-      //     DLog.d(PayPremiumPromotionAosPage.TAG, '# item : ${item.toString()}');
-      //     _pdItem = item;
-      //     _priceOnce = item.introductoryPrice;
-      //     _priceOriginal = item.localizedPrice;
-      //   }
-      // }
-      // setState(() {
-      //   _items = items;
-      // });
+
     }
   }
 
