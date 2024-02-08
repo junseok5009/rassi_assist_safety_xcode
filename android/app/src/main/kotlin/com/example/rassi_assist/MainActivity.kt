@@ -37,7 +37,6 @@ import androidx.core.app.ActivityCompat
 import java.net.URISyntaxException
 import android.content.ActivityNotFoundException
 import android.content.Intent.URI_INTENT_SCHEME
-import com.example.rassi_assist.OllaSeedUtil
 
 
 class MainActivity: FlutterFragmentActivity() {
@@ -194,19 +193,6 @@ class MainActivity: FlutterFragmentActivity() {
                     setPrefLogout()
                 }
 
-                // 암호화 ================================================
-                else if(call.method == "getSeedEncodeData") {
-//                    Log.w("MainActivity", "### getSeedEncodeData")
-                    val encodeData = call.argument<String>("data_code")
-                    if (encodeData != null) {
-                        val encResult = getSeedEncodeData(encodeData)
-                        if (encResult != null) {
-                            result.success(encResult)
-                        } else {
-                            result.error("UNAVAILABLE", "getSeedEncodeData not available.", null)
-                        }
-                    }
-                }
 
                 // 결제 ================================================
                 // [BillingClient] 초기화
@@ -252,12 +238,22 @@ class MainActivity: FlutterFragmentActivity() {
 //                        Log.w("MainActivity", "##### 표시가격 $fPrice")
                     }
                 }
+                // [결제 Upgrade 시작 요청 (New) ]
+                else if(call.method == "startBillingUpgradeNew") {
+                    Log.w("MainActivity", "##### startBillingUpgradeNew")
+                    // 특정 조건이 충족 되었다면 결제 플로우 시작 -> 특정 조건?
+                    val preCode = call.argument<String>("pd_pre")   //이전 상품
+                    val newCode = call.argument<String>("pd_new")   //새로운 상품
+                    if (newCode != null && preCode != null) {
+                        Log.w("MainActivity", "##### 상품 업그레이드 [$preCode] ===> [$newCode] ")
+                        flowPrePdToken(newCode, preCode)
+                    }
+                }
                 // [승인되지 않은 결제리스트  처리]
                 else if(call.method == "requestPurchasesAsync") {
                     Log.w("MainActivity", "##### requestPurchasesAsync")
                     requestQueryPurchasesAsync()
                 }
-
                 else {
                     result.notImplemented()
                 }
@@ -278,9 +274,6 @@ class MainActivity: FlutterFragmentActivity() {
         }
     }
 
-    private fun getSeedEncodeData(userId: String): String? {
-        return OllaSeedUtil.setSeedEncodeData(userId)
-    }
 
     //TODO [ 결제처리 ]
     // ===============================================================================
@@ -748,7 +741,7 @@ class MainActivity: FlutterFragmentActivity() {
                                 "\n${purchaseRecord.signature} \n${purchaseRecord.originalJson}")
                         if (preCode == sSku) {
                             val preToken = purchaseRecord.purchaseToken
-                            Log.w("MainActivity", "[preToken] " + sSku + " | " + purchaseRecord.purchaseToken)
+                            Log.w("MainActivity", "[preToken(사용중인_상품토큰)] " + sSku + " | " + purchaseRecord.purchaseToken)
                             flowUpgradeDetails(pdCode, preToken)
                             break
                         }
@@ -757,7 +750,7 @@ class MainActivity: FlutterFragmentActivity() {
             }
         }
     }
-    private fun flowUpgradeDetails(pdCode: String, preCode: String) {
+    private fun flowUpgradeDetails(pdCode: String, oldPurchaseToken: String) {
         var pdType = BillingClient.ProductType.SUBS
         if(pdCode == "ac_pr.m01" || pdCode == "ac_pr.mw1e1")
             pdType = BillingClient.ProductType.INAPP
@@ -777,7 +770,7 @@ class MainActivity: FlutterFragmentActivity() {
                 billingResult, productDetailsList ->
             Log.w("MainActivity", "<<상품정보 조회>> : ${billingResult.debugMessage}")
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                Log.w("MainActivity", "<<상품정보 조회 후 결제>> : ${productDetailsList.toString()}")
+                Log.w("MainActivity", "<<상품정보 조회 후 업그레이드>> : ${productDetailsList.toString()}")
 
                 if(pdType == BillingClient.ProductType.SUBS) {
                     orderPrc = productDetailsList[0]
@@ -791,7 +784,11 @@ class MainActivity: FlutterFragmentActivity() {
                 }
 
                 val productDetails = productDetailsList[0]
-                doBillingUpgradeFlow(productDetails, preCode)
+                if(pdCode == "ac_pr.am6d0"){
+                    doBillingUpgradeFlow(productDetails, oldPurchaseToken, ReplacementMode.CHARGE_FULL_PRICE)
+                } else {
+                    doBillingUpgradeFlow(productDetails, oldPurchaseToken, ReplacementMode.WITH_TIME_PRORATION)
+                }
             }
             else {
                 Log.w("MainActivity", "!!!Error getting available Products to buy: " +
@@ -801,10 +798,10 @@ class MainActivity: FlutterFragmentActivity() {
     }
 
     // NOTE 업그레이드 결제 요청
-    private fun doBillingUpgradeFlow(productDetails: ProductDetails, oldToken: String) {
+    private fun doBillingUpgradeFlow(productDetails: ProductDetails, oldToken: String, replacemode: Int) {
         val updateParams = SubscriptionUpdateParams.newBuilder()
             .setOldPurchaseToken(oldToken)
-            .setSubscriptionReplacementMode(ReplacementMode.WITH_TIME_PRORATION)
+            .setSubscriptionReplacementMode(replacemode)
             .build()
         val productDetailsParamsList = productDetails.subscriptionOfferDetails?.get(0)?.let { offerDetails ->
             val offerToken = offerDetails.offerToken.toString()

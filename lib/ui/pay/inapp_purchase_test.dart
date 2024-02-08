@@ -32,14 +32,29 @@ const String _kConsumableId = 'consumable';
 const String _kUpgradeId = 'upgrade';
 const String _kSilverSubscriptionId = 'subscription_silver';
 const String _kGoldSubscriptionId = 'subscription_gold';
-const List<String> _kProductIds = <String>[
-  'ac_s3.a01',
-  'ac_pr.a01',
-  'ac_pr.m01',
-  'ac_pr.am6d0',
-  'ac_pr.am6d5',  //231000, 330000  (첫결제 미실행시 2가지로 표시됨)
-  'ac_pr.mw1e1',
-];
+List<String> _kProductIds = Platform.isAndroid
+    ? [
+        'ac_s3.a01',
+        'ac_pr.a01',
+        'ac_pr.m01',
+        'ac_pr.am6d0',
+        'ac_pr.am6d5', //231000, 330000  (첫결제 미실행시 2가지로 표시됨)
+        'ac_pr.mw1e1',
+        'ac_pr.ad3',
+        'ac_pr.ad4',
+        'ac_pr.ad5',
+        'ac_pr.at1',
+        'ac_pr.at2',
+      ]
+    : [
+        'ios.ac_pr.a01',
+        'ios.ac_pr.m01',
+        'ios.ac_pr.ad5',
+        'ios.ac_pr.ad4',
+        'ios.ac_pr.ad3',
+        'ios.ac_pr.at1',
+        'ios.ac_pr.at2',
+      ];
 const List<String> _kProductIds_ = <String>[
   _kConsumableId,
   _kUpgradeId,

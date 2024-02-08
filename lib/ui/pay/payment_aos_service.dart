@@ -39,23 +39,6 @@ class PaymentAosService {
   bool get isProUser => _isProUser;
   String _userId = '';
 
-
-  // 가져오려는 제품 ID 목록
-  final List<String> _productIds = Platform.isAndroid
-      ? [
-          'ac_pr.a01',
-          'ac_pr.m01',
-        ]
-      : [
-          'ios.ac_pr.a01',
-          'ios.ac_pr.m01',
-          'ios.ac_pr.ad5',
-          'ios.ac_pr.ad4',
-          'ios.ac_pr.ad3',
-          'ios.ac_pr.at1',
-          'ios.ac_pr.at2'
-        ];
-
   /// 사용자가 앱을 닫을 때 호출
   void dispose() {
   }
@@ -204,19 +187,6 @@ class PaymentAosService {
     }
   }
 
-  // error 코드에 따르는 에러 처리
-/*  void _handlePurchaseError(PurchaseResult purchaseError) {
-    DLog.d(TAG, 'errCode : ${purchaseError.code}');
-    DLog.d(TAG, 'resCode : ${purchaseError.responseCode}');
-
-    if (purchaseError.code == 'E_USER_CANCELLED') {
-      //사용자 취소일 경우 아무것도 안함
-      commonShowToast('구매를 취소하셨습니다.');
-      _callProStatusChangedListeners('md_exit');
-    } else {
-      _callErrorListeners(purchaseError.message);
-    }
-  }*/
 
   //구글플레이 상품 구매 요청
   void requestGStorePurchase(String pdCode) async {
@@ -247,6 +217,23 @@ class PaymentAosService {
 
       try {
         final String result = await channel.invokeMethod('startBillingUpgrade', {'pd_code': pdCode});
+      } on PlatformException catch (e) {}
+      // DLog.d(PayPremiumPage.TAG, '##### Platform Android');
+    }
+  }
+
+  //구글플레이 상품 업그레이드 요청
+  void requestGStoreUpgradeNew(String preCode, String newCode) async {
+    DLog.d(PaymentAosService.TAG, '# 상품업그레이드요청 [${preCode}] -> [${newCode}]');
+
+    _userId = AppGlobal().userId;
+    _prefs.setBool(Const.PREFS_PAY_FINISHED, false);
+
+    if(Platform.isAndroid) {
+      DLog.d(PaymentAosService.TAG, '# 상품업그레이드요청 -> channel');
+
+      try {
+        final String result = await channel.invokeMethod('startBillingUpgradeNew', {'pd_new': newCode, 'pd_pre': preCode});
       } on PlatformException catch (e) {}
       // DLog.d(PayPremiumPage.TAG, '##### Platform Android');
     }

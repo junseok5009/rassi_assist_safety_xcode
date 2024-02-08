@@ -345,17 +345,36 @@ class PayPremiumAosNewState extends State<PayPremiumAosNewPage> {
                           ),
                         ),
                         onTap: () {
-                          DLog.d(PayPremiumAosNewPage.TAG, '결제 요청시 pdCode : $_curProd');
-                          if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
-                            commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
-                          } else {
-                            DLog.d(PayPremiumAosNewPage.TAG, '프리미엄 결제 요청');
-                            setState(() {
-                              _bProgress = true;
-                            });
-                            if (Platform.isAndroid) {
+                          DLog.d(PayPremiumAosNewPage.TAG, '결제 요청시 사용중인 pdCode : $_curProd');
+                          //  'ac_pr.a01',
+                          //  'ac_pr.am6d0',
+                          //  'ac_pr.m01',
+
+                          //NOTE 이미 6개월 상품 사용시 return
+
+                          //NOTE 6개월 상품 버튼 선택시
+                            //1개월 정기결제를 사용하는 경우
+                            //1개월 단건결제를 사용하는 경우
+                            //3종목알림 상품을 사용하는 경우
+                            //1주일 이벤트상품 사용하는 경우
+                          if(_isFirstBtn && _isLongTermSub) {
+                            if(_curProd == 'ac_s3.a01' || _curProd == 'ac_pr.a01'
+                                || _curProd == 'ac_pr.m01' || _curProd == 'ac_pr.mw1e1') {
+                              inAppBilling.requestGStoreUpgradeNew(_curProd, 'ac_pr.am6d0');
+                            }
+                          }
+                          //NOTE 아무것도 사용하지 않는 경우 -> 기존처럼
+                          //NOTE 1개월 상품 버튼 선택시 -> 기존 처럼
+                          else {
+                            if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
+                              commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+                            } else {
+                              DLog.d(PayPremiumAosNewPage.TAG, '프리미엄 결제 요청');
+                              setState(() {
+                                _bProgress = true;
+                              });
+
                               if (_isUpgradeOn) {
-                                //TODO @@@@@
                                 inAppBilling.requestGStoreUpgrade(_productLists[0]);
                               }
                               else if (_isFirstBtn) {
@@ -370,6 +389,7 @@ class PayPremiumAosNewState extends State<PayPremiumAosNewPage> {
                               }
                             }
                           }
+
                         },
                       ),
                     ),

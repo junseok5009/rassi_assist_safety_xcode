@@ -247,10 +247,8 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                       child: InkWell(
                         onTap: () {
                           _isTryPayment = true;
-                          DLog.d(
-                              PayPremiumAosPage.TAG, '결제 요청시 Prod : $_curProd');
-                          if (_curProd.contains('ac_pr') ||
-                              _curProd.contains('AC_PR')) {
+                          DLog.d(PayPremiumAosPage.TAG, '결제 요청시 사용중인 상품코드 : $_curProd');
+                          if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
                             commonShowToast(
                                 '이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
                           } else {
@@ -259,21 +257,16 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                               _bProgress = true;
                             });
                             if (Platform.isIOS) {
-                              /*  if (_pdItemOnce != null && _isPaymentSingle) {
-                              inAppBilling.requestStorePurchase(_pdItemOnce);
-                            } else if (_pdItemSub != null && _isPaymentSub) {
-                              inAppBilling.requestStorePurchase(_pdItemSub);
-                            }*/
+                              /* */
                             } else if (Platform.isAndroid) {
                               if (_isUpgradeOn) {
-                                inAppBilling
-                                    .requestGStoreUpgrade(_productLists[0]);
-                              } else if (_isPaymentSingle) {
-                                inAppBilling
-                                    .requestGStorePurchase(_productLists[1]);
-                              } else if (_isPaymentSub) {
-                                inAppBilling
-                                    .requestGStorePurchase(_productLists[0]);
+                                inAppBilling.requestGStoreUpgrade(_productLists[0]);
+                              }
+                              else if (_isPaymentSingle) {
+                                inAppBilling.requestGStorePurchase(_productLists[1]);
+                              }
+                              else if (_isPaymentSub) {
+                                inAppBilling.requestGStorePurchase(_productLists[0]);
                               }
                             }
                           }
