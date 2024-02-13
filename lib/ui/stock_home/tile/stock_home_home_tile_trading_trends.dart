@@ -37,8 +37,8 @@ class StockHomeHomeTileTradingTrends extends StatefulWidget {
 }
 
 class StockHomeHomeTileTradingTrendsState
-    extends State<StockHomeHomeTileTradingTrends>
-    with AutomaticKeepAliveClientMixin<StockHomeHomeTileTradingTrends> {
+    extends State<StockHomeHomeTileTradingTrends> {
+  // with AutomaticKeepAliveClientMixin<StockHomeHomeTileTradingTrends> {
   final AppGlobal _appGlobal = AppGlobal();
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 주, true 이면 천주
   bool _isTrends = false; // true : 매매동향 / false : 누적매매
@@ -48,7 +48,7 @@ class StockHomeHomeTileTradingTrendsState
   String _accOrgVol = '0'; // 기관 누적
 
   // 매매동향
-  List<charts.Series<Invest01ChartData, String>> _seriesListTrendsData =
+  final List<charts.Series<Invest01ChartData, String>> _seriesListTrendsData =
       []; // 매매동향 - 외국인 / 기관 데이터
   final List<Invest01ChartData> _trendsListData = [];
 
@@ -56,10 +56,12 @@ class StockHomeHomeTileTradingTrendsState
   final List<Invest02ChartData> _sumListData = [];
   int _sumDateClickIndex = 0;
   final List<String> sumDateDiveTitleList = ['3개월', '6개월', '1년'];
-  late TrackballBehavior _trackballBehavior;
 
-  @override
-  bool get wantKeepAlive => true;
+  late TrackballBehavior _sumTrackballBehavior;
+  late TrackballBehavior _trendsTrackballBehavior;
+
+  /*@override
+  bool get wantKeepAlive => true;*/
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -71,25 +73,19 @@ class StockHomeHomeTileTradingTrendsState
 
   @override
   void initState() {
-    _trackballBehavior = TrackballBehavior(
+    _sumTrackballBehavior = TrackballBehavior(
       enable: true,
-      shouldAlwaysShow: true,
-      //tooltipDisplayMode: TrackballDisplayMode.floatAllPoints,
-      //enable: true,
+      shouldAlwaysShow: false,
+      lineDashArray: const [4, 3],
+      lineWidth: 1,
       tooltipAlignment: ChartAlignment.near,
       tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
       activationMode: ActivationMode.singleTap,
       markerSettings: const TrackballMarkerSettings(
         markerVisibility: TrackballVisibilityMode.visible,
-        //color: Colors.red.shade500.withOpacity(0.5),
         borderWidth: 0,
         width: 0,
         height: 0,
-      ),
-      //tooltipAlignment: ChartAlignment.center,
-      tooltipSettings: const InteractiveTooltip(
-        enable: true,
-        format: 'point.x : point.y원',
       ),
       builder: (BuildContext context, TrackballDetails trackballDetails) {
         DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
@@ -100,38 +96,194 @@ class StockHomeHomeTileTradingTrendsState
             '\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
             '\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
             '\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}');
-        if (trackballDetails.seriesIndex == 0) {
-          return Container(
-            width: 100,
-            height: 100,
-            color: Colors.blue,
-            child: Container(
-              height: 80,
-              width: 100,
-              decoration: BoxDecoration(
-                color: Colors.amber.shade100.withOpacity(0.30),
-                border: Border.all(
-                  color: Colors.green,
-                  width: 1,
+        int index =
+            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        var item = _sumListData[index];
+        return Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 6,
+                offset: const Offset(0, 0),
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: FittedBox(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      TStyle.getDateSlashFormat1(item.td),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                      '${TStyle.getMoneyPoint(item.tp)}원',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Text(
-                    //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
-                    'xValue!',
+                Row(
+                  children: [
+                    const Text(
+                      '외국인',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xffFBD240),
+                      ),
+                    ),
+                    Text(
+                      ' : ${TStyle.getMoneyPoint(item.afv)}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Row(
+                    children: [
+                      const Text(
+                        '기관',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xff5DD68D),
+                        ),
+                      ),
+                      Text(
+                        ' : ${TStyle.getMoneyPoint(item.aov)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    //'yValue => ${_data[trackballDetails.pointIndex!].y.toString()}',
-                    'yValue!',
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
+          ),
+        );
+      },
+    );
+    _trendsTrackballBehavior = TrackballBehavior(
+      enable: true,
+      shouldAlwaysShow: false,
+      //tooltipDisplayMode: TrackballDisplayMode.floatAllPoints,
+      //enable: true,
+      lineDashArray: const [4, 3],
+      lineWidth: 1,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        //color: Colors.red.shade500.withOpacity(0.5),
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
+            'point : ${trackballDetails.point} / '
+            'seriesIndex : ${trackballDetails.seriesIndex} / '
+            'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
+            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices.toString()} / '
+            '\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
+            '\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
+            '\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}');
+        int index =
+            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        var item = _trendsListData[index];
+        String title = '매도';
+        if(_isTrendsDiv == 0 && int.parse(item.fv) > 0){
+          title = '매수';
+        }else if(_isTrendsDiv == 1 && int.parse(item.ov) > 0){
+          title = '매수';
+        }else if(_isTrendsDiv == 2 && int.parse(item.pv) > 0){
+          title = '매수';
         }
-        return const SizedBox();
+        return Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 6,
+                offset: const Offset(0, 0),
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: FittedBox(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      TStyle.getDateSlashFormat1(item.td),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                      '${TStyle.getMoneyPoint(item.tp)}원',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                    title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: title == '매수' ? RColor.bgBuy : RColor.bgSell,
+                      ),
+                    ),
+                    Text(
+                      ' : ${_isTrendsDiv == 0
+                          ? TStyle.getMoneyPoint(item.fv)
+                          : _isTrendsDiv == 1
+                          ? TStyle.getMoneyPoint(item.ov)
+                          : TStyle.getMoneyPoint(item.pv)} 주',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
     super.initState();
@@ -147,7 +299,7 @@ class StockHomeHomeTileTradingTrendsState
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    //super.build(context);
     return Column(
       children: [
         Padding(
@@ -439,17 +591,20 @@ class StockHomeHomeTileTradingTrendsState
           ),
         ),
         SizedBox(
+          width: double.infinity,
           height: 240,
           child: SfCartesianChart(
+            plotAreaBorderWidth: 0,
             enableMultiSelection: false,
             primaryXAxis: CategoryAxis(
-              //labelPlacement: LabelPlacement.onTicks,
               majorGridLines: const MajorGridLines(
                 width: 0,
               ),
               majorTickLines: const MajorTickLines(
-                width: 1,
+                width: 0,
               ),
+              desiredIntervals: 4,
+              //labelPlacement: LabelPlacement.onTicks,
               axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
                 TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
                 const TextStyle(
@@ -457,7 +612,7 @@ class StockHomeHomeTileTradingTrendsState
                   color: RColor.greyBasic_8c8c8c,
                 ),
               ),
-              desiredIntervals: 4,
+              //desiredIntervals: 4,
             ),
             primaryYAxis: NumericAxis(
               rangePadding: ChartRangePadding.round,
@@ -472,35 +627,28 @@ class StockHomeHomeTileTradingTrendsState
                 width: 0,
               ),
             ),
+            trackballBehavior: _trendsTrackballBehavior,
             axes: <ChartAxis>[
               CategoryAxis(
                 name: 'xAxis',
                 isVisible: false,
                 opposedPosition: true,
                 //labelPlacement: LabelPlacement.onTicks,
-                axisLine: const AxisLine(
-                  color: Colors.white,
-                  width: 0,
-                ),
-                majorGridLines: const MajorGridLines(
-                  color: Colors.white,
-                ),
-                majorTickLines: const MajorTickLines(
-                  color: Colors.white,
-                ),
               ),
               NumericAxis(
                 name: 'yAxis',
                 opposedPosition: true,
                 anchorRangeToVisiblePoints: true,
                 rangePadding: ChartRangePadding.round,
+                //edgeLabelPlacement: EdgeLabelPlacement.shift,
+                //labelPlacement: LabelPlacement.onTicks,
                 axisLine: const AxisLine(
                   width: 0,
                 ),
                 majorGridLines: const MajorGridLines(
                   color: RColor.chartGreyColor,
-                  width: 1.5,
-                  dashArray: [2, 4],
+                  width: 0.6,
+                  dashArray: [2, 2],
                 ),
                 majorTickLines: const MajorTickLines(
                   width: 0,
@@ -571,7 +719,7 @@ class StockHomeHomeTileTradingTrendsState
                 width: 0.4,
                 enableTooltip: true,
                 borderRadius: const BorderRadius.all(
-                  Radius.circular(5),
+                  Radius.circular(1),
                 ),
                 //animationDuration: _seriesAnimation,
                 //BorderRadius.all(Radius.circular(15)),
@@ -714,7 +862,13 @@ class StockHomeHomeTileTradingTrendsState
           width: double.infinity,
           height: 240,
           child: SfCartesianChart(
+            plotAreaBorderWidth: 0,
             primaryXAxis: CategoryAxis(
+              axisBorderType: AxisBorderType.withoutTopAndBottom,
+              axisLine: const AxisLine(
+                width: 1.2,
+                color: RColor.chartGreyColor,
+              ),
               majorGridLines: const MajorGridLines(
                 width: 0,
               ),
@@ -734,15 +888,6 @@ class StockHomeHomeTileTradingTrendsState
             primaryYAxis: NumericAxis(
               rangePadding: ChartRangePadding.round,
               isVisible: false,
-              axisLine: const AxisLine(
-                width: 0,
-              ),
-              majorGridLines: const MajorGridLines(
-                width: 0,
-              ),
-              majorTickLines: const MajorTickLines(
-                width: 0,
-              ),
             ),
             axes: <ChartAxis>[
               NumericAxis(
@@ -755,13 +900,13 @@ class StockHomeHomeTileTradingTrendsState
                 ),
                 majorGridLines: const MajorGridLines(
                   color: RColor.chartGreyColor,
-                  width: 1.5,
-                  dashArray: [2, 4],
+                  width: 0.6,
+                  dashArray: [2, 2],
                 ),
                 majorTickLines: const MajorTickLines(
                   width: 0,
                 ),
-                desiredIntervals: 3,
+                desiredIntervals: 4,
                 axisLabelFormatter: (axisLabelRenderArgs) {
                   String value = axisLabelRenderArgs.text;
                   if (_isRightYAxisUpUnit) {
@@ -797,7 +942,7 @@ class StockHomeHomeTileTradingTrendsState
                 },*/
               )
             ],
-            trackballBehavior: _trackballBehavior,
+            trackballBehavior: _sumTrackballBehavior,
             tooltipBehavior: TooltipBehavior(),
             series: [
               //SplineRangeAreaSeries
@@ -860,8 +1005,8 @@ class StockHomeHomeTileTradingTrendsState
               width: 20,
             ),
             Container(
-              width: 8,
-              height: 8,
+              width: 7,
+              height: 7,
               decoration: const BoxDecoration(
                 color: Color(0xff5DD68D),
                 shape: BoxShape.circle,

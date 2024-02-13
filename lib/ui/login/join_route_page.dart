@@ -638,26 +638,31 @@ class JoinRouteState extends State<JoinRoutePage> {
       case 'SSGOLLA':
         {
           CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.ssg));
+          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.ssg));
           break;
         }
       case 'KAKAO':
         {
           CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.kakao));
+          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.kakao));
           break;
         }
       case 'NAVER':
         {
           CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.naver));
+          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.naver));
           break;
         }
       case 'APPLE':
         {
           CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.apple));
+          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.apple));
           break;
         }
       case 'RASSI':
         {
           CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.rassi));
+          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.rassi));
           break;
         }
     }

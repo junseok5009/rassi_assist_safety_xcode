@@ -561,7 +561,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Text(
-                      '종목 제한없이',
+                      '내 종목 소식과 AI매매신호',
                       style: TextStyle(
                         color: RColor.mainColor,
                         fontSize: 12,
@@ -569,7 +569,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
                     ),
                     FittedBox(
                       child: Text(
-                        'AI매매신호 실시간 알림 받기',
+                        '제한없이 실시간 알림 받기',
                         style: TextStyle(
                           fontSize: 16,
                         ),

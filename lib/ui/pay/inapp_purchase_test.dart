@@ -237,8 +237,8 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
     if (_purchasePending) {
       DLog.d('Inapp', '=> => @3');
       stack.add(
-        const Stack(
-          children: <Widget>[
+        Stack(
+          children: const [
             Opacity(
               opacity: 0.3,
               child: ModalBarrier(dismissible: false, color: Colors.grey),

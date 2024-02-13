@@ -21,6 +21,7 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_issue03.dart';
+import 'package:rassi_assist/models/tr_pock/tr_pock11.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi15.dart';
@@ -33,6 +34,7 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_ddinfo.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_hot_theme.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_mystock_status.dart';
+import 'package:rassi_assist/ui/home/home_tile/home_tile_mystock_status_2.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_today_signal.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_trading_stock.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
@@ -84,15 +86,13 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   // 라씨 매매비서의 매매종목은?
   final List<Today01Model> _listToday01Model = [];
 
-  // 커뮤니티 활동 급상승
-
-  // 라씨 매매비서가 캐치한 항목
+  // 내 종목 현황
+  Pock11 _pock11 = Pock11();
 
   // 비교해서 더 좋은 찾기
   Compare01 _compare01 = defCompare01;
 
   // 지금, 마켓뷰는?
-
   final List<Issue03> _listIssue03 = [];
 
   bool bSelPktA = true,
@@ -205,7 +205,8 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               ),
 
               // 내 종목 현황
-              const HomeTileMystockStatus(),
+              //const HomeTileMystockStatus(),
+              HomeTileMystockStatus2(_pock11,),
 
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 20),
@@ -1208,6 +1209,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(SliverHomeWidget.TAG, response.body);
 
+    // 라씨데스크
     if (trStr == TR.TODAY05) {
       _today05 = defToday05;
       final TrToday05 resData = TrToday05.fromJson(jsonDecode(response.body));
@@ -1220,7 +1222,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
-    } else if (trStr == TR.TODAY01) {
+    }
+
+    // 라씨의 종목은?
+    else if (trStr == TR.TODAY01) {
       final TrToday01 resData = TrToday01.fromJson(jsonDecode(response.body));
       _listToday01Model.clear();
 
@@ -1292,11 +1297,28 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       }
       setState(() {});
       _fetchPosts(
+          TR.POCK11,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+          }));
+    }
+
+    // 내 종목 현황
+    else if (trStr == TR.POCK11) {
+      final TrPock11 resData = TrPock11.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        _pock11 = resData.retData;
+        setState(() {});
+      }
+      _fetchPosts(
           TR.ISSUE03,
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
-    } else if (trStr == TR.ISSUE03) {
+    }
+
+    // 오늘의 이슈
+    else if (trStr == TR.ISSUE03) {
       final TrIssue03 resData = TrIssue03.fromJson(jsonDecode(response.body));
       _listIssue03.clear();
       if (resData.retCode == RT.SUCCESS) {

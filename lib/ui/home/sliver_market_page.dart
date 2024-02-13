@@ -620,7 +620,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
         color: txtColor,
       );
 
-      name = item.keyword.replaceAll(' ', '\n');
+      name = item.keyword.replaceAll(' ', '');
       if (name.length == 4 || name.length == 5) {
         name = '${name.substring(0, 2)}\n${name.substring(2, 4)}';
       }

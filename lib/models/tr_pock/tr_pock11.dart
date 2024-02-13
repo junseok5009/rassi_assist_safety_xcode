@@ -3,15 +3,16 @@
 class TrPock11 {
   final String retCode;
   final String retMsg;
-  final Pock11? retData;
+  final Pock11 retData;
 
-  TrPock11({this.retCode = '', this.retMsg = '', this.retData});
+  TrPock11({this.retCode = '', this.retMsg = '', required this.retData});
 
   factory TrPock11.fromJson(Map<String, dynamic> json) {
     return TrPock11(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData: json['retData'] == null ? null : Pock11.fromJson(json['retData']),
+      retData:
+          json['retData'] == null ? Pock11() : Pock11.fromJson(json['retData']),
     );
   }
 }

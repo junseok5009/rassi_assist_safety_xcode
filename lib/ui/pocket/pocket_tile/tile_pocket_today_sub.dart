@@ -31,7 +31,6 @@ class TileUpAndDown extends StatefulWidget {
 }
 
 class _TileUpAndDownState extends State<TileUpAndDown> {
-
   @override
   void setState(VoidCallback fn) {
     if (mounted) {
@@ -41,89 +40,91 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        width: double.infinity,
-        height: 83,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 13,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  //포켓명
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      decoration: UIStyle.boxRoundFullColor25c(
-                        const Color(0xffDCDFE2),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 3,
-                      ),
-                      child: Text(
-                        widget.item.pocketName,
-                        style: const TextStyle(
-                          fontSize: 11,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+    return Container(
+      width: double.infinity,
+      height: 83,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 13,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //포켓명
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    decoration: UIStyle.boxRoundFullColor25c(
+                      const Color(0xffDCDFE2),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  //종목명
-                  Expanded(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
                     child: Text(
-                      widget.item.stockName,
+                      widget.item.pocketName,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                        fontSize: 11,
                       ),
+                      textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 5,),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  //등락률
-                  Text(
-                    TStyle.getPercentString(
-                      widget.item.fluctuationRate,
-                    ),
-                    style: TextStyle(
-                      fontSize: 16,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                //종목명
+                Expanded(
+                  child: Text(
+                    widget.item.stockName,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: TStyle.getMinusPlusColor(
-                        widget.item.fluctuationRate,
-                      ),
+                      fontSize: 16,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(width: 5,),
-            _setChartView(),
-          ],
-        ),
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                //등락률
+                Text(
+                  TStyle.getPercentString(
+                    widget.item.fluctuationRate,
+                  ),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: TStyle.getMinusPlusColor(
+                      widget.item.fluctuationRate,
+                    ),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          _setChartView(),
+        ],
       ),
     );
   }
@@ -235,13 +236,19 @@ class TilePocketSig extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 InkWell(
-                  onTap: (){
+                  onTap: () {
                     if (item.myTradeFlag == 'S') {
                       //나만의 매도신호는 나만의 매도 신호 탭으로 이동
-                      basePageState.goPocketPage(Const.PKT_INDEX_SIGNAL,);
+                      basePageState.goPocketPage(
+                        Const.PKT_INDEX_SIGNAL,
+                      );
                     } else {
                       //매매신호는 나의포켓-매매신호 리스트로
-                      basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: item.pocketSn, isSignalInfo: true,);
+                      basePageState.goPocketPage(
+                        Const.PKT_INDEX_MY,
+                        pktSn: item.pocketSn,
+                        isSignalInfo: true,
+                      );
                     }
                   },
                   child: Container(
@@ -253,9 +260,7 @@ class TilePocketSig extends StatelessWidget {
                       vertical: 3,
                     ),
                     child: Text(
-                      item.myTradeFlag == 'S'
-                          ? '나만의 매도신호'
-                          : item.pocketName,
+                      item.myTradeFlag == 'S' ? '나만의 매도신호' : item.pocketName,
                       style: const TextStyle(
                         fontSize: 11,
                       ),
@@ -298,9 +303,8 @@ class TilePocketSig extends StatelessWidget {
           if (Provider.of<UserInfoProvider>(context, listen: false)
               .isPremiumUser())
             _setSignalView()
-          else if (Provider.of<UserInfoProvider>(context,
-              listen: false)
-              .is3StockUser() &&
+          else if (Provider.of<UserInfoProvider>(context, listen: false)
+                  .is3StockUser() &&
               item.signalYn == 'Y')
             _setSignalView()
           else
@@ -339,12 +343,14 @@ class TilePocketSig extends StatelessWidget {
     );
   }
 
-  _setSignalView(){
+  _setSignalView() {
     return InkWell(
       onTap: () {
         if (item.myTradeFlag == 'S') {
           //나만의 매도신호는 나만의 매도 신호 탭으로 이동
-          basePageState.goPocketPage(Const.PKT_INDEX_SIGNAL,);
+          basePageState.goPocketPage(
+            Const.PKT_INDEX_SIGNAL,
+          );
         } else {
           //종목홈_ai매매신호탭
           basePageState.goStockHomePage(
@@ -357,7 +363,9 @@ class TilePocketSig extends StatelessWidget {
       child: Row(
         children: [
           _setBsInfo(),
-          const SizedBox(width: 10,),
+          const SizedBox(
+            width: 10,
+          ),
           _setBsIcon(),
         ],
       ),
@@ -652,7 +660,10 @@ class _TileSupplyAndDemandState extends State<TileSupplyAndDemand> {
               //포켓명
               InkWell(
                 onTap: () {
-                  basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: widget.item.pocketSn,);
+                  basePageState.goPocketPage(
+                    Const.PKT_INDEX_MY,
+                    pktSn: widget.item.pocketSn,
+                  );
                 },
                 child: Container(
                   decoration: UIStyle.boxRoundFullColor25c(
@@ -751,7 +762,10 @@ class _TileStockChartState extends State<TileStockChart> {
               //포켓명
               InkWell(
                 onTap: () {
-                  basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: widget.item.pocketSn,);
+                  basePageState.goPocketPage(
+                    Const.PKT_INDEX_MY,
+                    pktSn: widget.item.pocketSn,
+                  );
                 },
                 child: Container(
                   decoration: UIStyle.boxRoundFullColor25c(

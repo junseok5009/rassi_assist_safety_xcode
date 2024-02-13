@@ -19,6 +19,11 @@ class AppGlobal {
   bool isFreeUser = true;
   var pageData = '';
 
+  // IOS는 한 애플 계정당 프로모션 전제 상품 중 1회 적용 가능 / AOS는 한 구글 계정당 전체 상품 각 1회 적용 가능
+  // 24.02.06 (Only IOS) 프로모션 결제를 한 적이 있는 유저 유무
+  //List<String> purchaseHistoryList = [];
+  bool isAlreadyPromotionProductPayUser = false;
+
   //종목홈 일시적 전달 데이터
   String stkCode = '';
   String stkName = '';

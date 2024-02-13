@@ -22,6 +22,8 @@ import com.android.billingclient.api.PurchaseHistoryRecord
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.SkuDetailsParams
+import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.PurchasesResponseListener
 import com.google.android.gms.tasks.Task
 import com.google.common.collect.ImmutableList
 import com.google.firebase.messaging.FirebaseMessaging
@@ -29,6 +31,7 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import org.json.JSONObject
+import org.json.JSONArray
 import android.os.Build;
 import android.content.pm.PackageManager;
 import androidx.core.content.ContextCompat;
@@ -154,6 +157,8 @@ class MainActivity: FlutterFragmentActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
+        initBillingClient()
+
         //push methodChannel
         channel_push = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_PUSH_NAME)
 
@@ -257,6 +262,22 @@ class MainActivity: FlutterFragmentActivity() {
                 else {
                     result.notImplemented()
                 }
+        }
+    }
+
+    private fun purchasedHistoryJsonResult(purchasesList: List<PurchaseHistoryRecord>): String {
+        Log.w("MainActivity", "##### getPurchaseHistory purchasedHistoryJsonResult() purchasesList :${purchasesList.toString()} ")
+        return if (purchasesList.isNotEmpty()) {
+            val purchasesJsonArray = JSONArray()
+            for (purchase in purchasesList) {
+                val purchaseJson = JSONObject()
+                purchaseJson.put("originalJson", purchase.originalJson)
+                purchaseJson.put("productId", purchase.skus)
+                purchasesJsonArray.put(purchaseJson)
+            }
+            purchasesJsonArray.toString()
+        } else {
+            ""
         }
     }
 
@@ -501,7 +522,23 @@ class MainActivity: FlutterFragmentActivity() {
                     orderPrc = productDetailsList[0].oneTimePurchaseOfferDetails?.formattedPrice.toString()
                     currency = productDetailsList[0].oneTimePurchaseOfferDetails?.priceCurrencyCode.toString()
                 }
-
+                // 결제 히스토리 조회
+                else if(call.method == "getPurchaseHistory") {
+                    Log.w("MainActivity", "##### getPurchaseHistory")
+                    if (!isStoreReady) {
+                        Log.w("MainActivity", "isStoreReady false!")
+                        initBillingClient()
+                    }
+                    billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.SUBS) { billingResult, purchaseHistoryRecordList ->
+                        if(billingResult.responseCode == BillingClient.BillingResponseCode.OK){
+                            if(purchaseHistoryRecordList != null && purchaseHistoryRecordList.size>0){
+                                result.success(purchasedHistoryJsonResult(purchaseHistoryRecordList))
+                            }else{
+                                result.success("")
+                            }
+                        }
+                    }
+                }
                 val price:String = orderPrc.replace("[^0-9.]".toRegex(), "")
                 sendBillingSuccess(purchase, price)
             }

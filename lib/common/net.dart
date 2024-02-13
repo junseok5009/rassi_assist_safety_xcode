@@ -303,6 +303,7 @@ class RT {
   static const EXCEEDED_FREE_LOOK = "8021";     //무료 조회가능 종목수 초과
   static const ESSENTIAL_FIELD_MISSING = "0205";     //필수 입력 필드값 누락
   static const NOT_RASSI_USER = "0222"; // 등록된 회원이 아님 (TR_USER02 result)
+  static const NOT_RASSI_USER_NEW = "1222"; // 등록된 회원이 아님 (TR_USER02 result)
 }
 
 /// 공통 네트워크를 위한 클래스

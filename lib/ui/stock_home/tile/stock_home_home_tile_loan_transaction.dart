@@ -79,72 +79,83 @@ class StockHomeHomeTileLoanTransactionState
   void initState() {
     _trackballBehavior = TrackballBehavior(
       enable: true,
-      shouldAlwaysShow: true,
-      //tooltipDisplayMode: TrackballDisplayMode.floatAllPoints,
-      //enable: true,
+      lineDashArray: const [4, 3],
+      shouldAlwaysShow: false,
       tooltipAlignment: ChartAlignment.near,
       tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
       activationMode: ActivationMode.singleTap,
       markerSettings: const TrackballMarkerSettings(
         markerVisibility: TrackballVisibilityMode.visible,
-        //color: Colors.red.shade500.withOpacity(0.5),
         borderWidth: 0,
         width: 0,
         height: 0,
       ),
-      //tooltipAlignment: ChartAlignment.center,
-      tooltipSettings: const InteractiveTooltip(
-        enable: true,
-        format: 'point.x : point.y원',
-      ),
       builder: (BuildContext context, TrackballDetails trackballDetails) {
-        DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
-        //'point : ${trackballDetails.point} / '
-        //'seriesIndex : ${trackballDetails.seriesIndex} / '
-        //'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
-            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices[0]} / '
-        //'\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
-        //'\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
-        //'\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}'
-            '');
-        int selectedIndex = trackballDetails.groupingModeInfo?.currentPointIndices[0] ?? 0;
+        int selectedIndex =
+            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        String tradeDate = '';
+        if (_divIndex == 0) {
+          tradeDate = _lendingListData[selectedIndex].td;
+        } else if (_divIndex == 1) {
+          tradeDate = _sellingListData[selectedIndex].td;
+        } else if (_divIndex == 2) {
+          tradeDate = _loanListData[selectedIndex].tradeDate;
+        }
+
         return Container(
-          width: 100,
-          height: 100,
-          color: Colors.black.withOpacity(0.1),
-          child: Container(
-            height: 80,
-            width: 100,
-            decoration: BoxDecoration(
-              color: Colors.amber.shade100.withOpacity(0.30),
-              border: Border.all(
-                color: Colors.green,
-                width: 1,
-              ),
-            ),
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 6,
+                offset: const Offset(0, 0),
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: FittedBox(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              //mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                 _divIndex == 0 ?
-                 _lendingListData[selectedIndex].td :
-                 _divIndex == 1 ?
-                 _sellingListData[selectedIndex].td :
-                 _loanListData[selectedIndex].tradeDate,
+                Row(
+                  children: [
+                    Text(
+                      TStyle.getDateSlashFormat1(_divIndex == 0
+                          ? _lendingListData[selectedIndex].td
+                          : _divIndex == 1
+                              ? _sellingListData[selectedIndex].td
+                              : _loanListData[selectedIndex].tradeDate),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                      '${TStyle.getMoneyPoint(_divIndex == 0 ? _lendingListData[selectedIndex].tp : _divIndex == 1 ? _sellingListData[selectedIndex].tp : _loanListData[selectedIndex].tradePrice)}원',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
                 Text(
-                  _divIndex == 0 ?
-                  _lendingListData[selectedIndex].tp :
-                  _divIndex == 1 ?
-                  _sellingListData[selectedIndex].tp :
-                  _loanListData[selectedIndex].tradePrice,
-                ),
-                Text(
-                  _divIndex == 0 ?
-                  _lendingListData[selectedIndex].bl :
-                  _divIndex == 1 ?
-                  _sellingListData[selectedIndex].asv :
-                  _loanListData[selectedIndex].volumeBalance,
+                  _divIndex == 0
+                      ? '대차잔고 : ${TStyle.getMoneyPoint(_lendingListData[selectedIndex].bl)}주'
+                      : _divIndex == 1
+                          ? '공매도량 : ${TStyle.getMoneyPoint(_sellingListData[selectedIndex].asv)}주'
+                          : '신용잔고 : ${TStyle.getMoneyPoint(_loanListData[selectedIndex].volumeBalance)}주',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    //color: Color(0xffFBD240),
+                  ),
                 ),
               ],
             ),
@@ -565,15 +576,25 @@ class StockHomeHomeTileLoanTransactionState
       width: double.infinity,
       height: 240,
       child: SfCartesianChart(
+        enableAxisAnimation: true,
+        plotAreaBorderWidth: 0,
         primaryXAxis: CategoryAxis(
+          axisLine: const AxisLine(
+            width: 1.2,
+            color: RColor.chartGreyColor,
+          ),
           majorGridLines: const MajorGridLines(
             width: 0,
           ),
           majorTickLines: const MajorTickLines(
             width: 0,
           ),
+          //rangePadding: ChartRangePadding.none,
+          //edgeLabelPlacement: EdgeLabelPlacement.shift,
+          //labelAlignment: LabelAlignment.center,
           desiredIntervals: 4,
-          labelPlacement: LabelPlacement.onTicks,
+          //labelPlacement: LabelPlacement.onTicks,
+          //labelIntersectAction: AxisLabelIntersectAction.multipleRows,
           axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
             TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
             const TextStyle(
@@ -584,15 +605,6 @@ class StockHomeHomeTileLoanTransactionState
         ),
         primaryYAxis: NumericAxis(
           isVisible: false,
-          majorGridLines: const MajorGridLines(
-            width: 0,
-          ),
-          majorTickLines: const MajorTickLines(
-            width: 0,
-          ),
-          minorTickLines: const MinorTickLines(
-            width: 0,
-          ),
           rangePadding: ChartRangePadding.round,
         ),
         axes: <ChartAxis>[
@@ -605,8 +617,8 @@ class StockHomeHomeTileLoanTransactionState
             ),
             majorGridLines: const MajorGridLines(
               color: RColor.chartGreyColor,
-              width: 1.5,
-              dashArray: [2, 4],
+              width: 0.6,
+              dashArray: [2, 2],
             ),
             majorTickLines: const MajorTickLines(
               width: 0,
@@ -883,7 +895,7 @@ class StockHomeHomeTileLoanTransactionState
           _lendingListData.addAll(
             List.from(invest21.listChartData.reversed),
           );
-          _isRightYAxisUpUnit = _findAbsMaxValue >= 1000;
+          _isRightYAxisUpUnit = _findAbsMaxValue >= 100000;
         }
         setState(() {});
       }

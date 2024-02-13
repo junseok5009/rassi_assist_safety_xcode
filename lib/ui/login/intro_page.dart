@@ -295,20 +295,65 @@ class IntroState extends State<IntroWidget>
   }
 
   // 다음 페이지로 이동
-  _goNextRoute(String userId) {
-    if (userId != '') {
-      Navigator.pushReplacementNamed(context, '/base',
-          result: MaterialPageRoute(builder: (context) => const BasePage()));
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const IntroStartPage(),
-          settings: const RouteSettings(
-            name: '/intro_start',
+  _goNextRoute(String userId) async {
+    // 23.02.07 only ios 프로모션 결제 구입한 이력있는지 체크
+    if (Platform.isIOS) {
+      await FlutterInappPurchase.instance.initialize();
+      List<PurchasedItem>? purchasedHistoryItemList =
+      await FlutterInappPurchase.instance.getPurchaseHistory();
+
+      List<IAPItem> getProductItemList =
+      await FlutterInappPurchase.instance.getProducts([]);
+      List<IAPItem> promotionProductList = [];
+
+      for (var item in getProductItemList) {
+        if (item.introductoryPrice != null && item.introductoryPrice!.isNotEmpty) {
+          promotionProductList.add(item);
+        }
+      }
+
+      AppGlobal().isAlreadyPromotionProductPayUser =
+          purchasedHistoryItemList!.any((purchasedHistoryItem) =>
+              promotionProductList.any((promotionProduct) =>
+              promotionProduct.productId ==
+                  purchasedHistoryItem.productId));
+    } else if (Platform.isAndroid) {
+      // 추후 추가 예정
+      /*var channel = const MethodChannel(Const.METHOD_CHANNEL_NAME);
+      try {
+        //final String result = await channel.invokeMethod('initBillingClient');
+        final String purchasesJson = await channel.invokeMethod('getPurchaseHistory');
+        if(purchasesJson.isEmpty){
+          DLog.e('purchasesJson.isEmpty !!!!');
+        }else{
+          final List<dynamic> purchases = json.decode(purchasesJson);
+          DLog.e('purchasesJson : ${purchases.toString()}');
+          for(int a =0; a < purchases.length; a++){
+            String aa = purchases[a]['productId'];
+            _purchasedHistoryStringList.add(aa);
+            DLog.e('productId : $aa');
+          }
+          setState(() {});
+        }
+      } catch (e) {
+        throw Exception('Failed to get purchase history: $e');
+      }*/
+    }
+    if (mounted) {
+      if (userId != '') {
+        Navigator.pushReplacementNamed(context, '/base',
+            result: MaterialPageRoute(builder: (context) => const BasePage()));
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const IntroStartPage(),
+            settings: const RouteSettings(
+              name: '/intro_start',
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 

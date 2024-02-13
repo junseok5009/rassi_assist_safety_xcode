@@ -106,7 +106,7 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme>
             height: 15.0,
           ),
           if (_listTheme08.isEmpty)
-            CommonView.setNoDataTextView(150, '테마 데이터가 없습니다.')
+            CommonView.setNoDataTextView(150, '현재 HOT 테마가 없습니다.')
           else
             Column(
               children: [

@@ -113,7 +113,7 @@ class PaymentService {
       }
     });
 
-    /// error 코드에 따르는 에러 처리
+    /// 에러 코드에 따르는 에러 처리
     _purchaseErrorSubscription = FlutterInappPurchase.purchaseError.listen((PurchaseResult? purchaseError) {
       DLog.d(PaymentService.TAG, '[purchaseError 리스너]:');
       DLog.d(TAG, 'errCode : ${purchaseError?.code}');
@@ -434,16 +434,17 @@ class PaymentService {
           return item.price;
         }else {
           DLog.d(PaymentService.TAG, 'introductoryPrice.isNotEmpty');
-          if (item.introductoryPriceNumberOfPeriodsIOS!.isEmpty) {
+          DLog.e('item.introductoryPriceNumberOfPeriodsIOS.isEmpty : ${(item.introductoryPriceNumberOfPeriodsIOS?.isEmpty ?? true)} / '
+              'AppGlobal().isAlreadyPromotionProductPayUser : ${AppGlobal().isAlreadyPromotionProductPayUser}');
+          if ((item.introductoryPriceNumberOfPeriodsIOS?.isEmpty ?? true) || AppGlobal().isAlreadyPromotionProductPayUser) {
             return item.price;
           } else {
             int integerIntroductoryPriceNumberOfPeriodsIOS = int.parse(
-                item.introductoryPriceNumberOfPeriodsIOS!);
+                (item.introductoryPriceNumberOfPeriodsIOS ?? '0'));
             if (integerIntroductoryPriceNumberOfPeriodsIOS > 1) {
-              DLog.d(PaymentService.TAG, '${item.productId} / 0');
               return '0';
             } else {
-              String str = item.introductoryPrice ?? '';
+              String str = item.introductoryPrice ?? '0';
               String intStr = str.replaceAll(RegExp('[^0-9.]+'), '');
               DLog.d(PaymentService.TAG,
                   '${item.productId} / ${item.price} / $intStr');

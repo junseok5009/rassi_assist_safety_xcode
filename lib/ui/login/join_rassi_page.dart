@@ -89,7 +89,9 @@ class RassiJoinState extends State<RassiJoinPage> {
             children: [
               _setInputField(),
               _setBtns(),
-              const SizedBox(height: 40,),
+              const SizedBox(
+                height: 40,
+              ),
               Column(
                 children: [
                   CommonView.setConfirmBtnView(() {
@@ -676,15 +678,13 @@ class RassiJoinState extends State<RassiJoinPage> {
       CommonPopup.instance
           .showDialogBasicConfirm(context, '알림', '전화번호를 인증해 주세요.');
     } else if (!_checkBoolList[0]) {
-      CommonPopup.instance
-          .showDialogBasic(context, '알림', '서비스 이용약관에 동의해 주세요.');
+      CommonPopup.instance.showDialogBasic(context, '알림', '서비스 이용약관에 동의해 주세요.');
     } else if (!_checkBoolList[1]) {
       CommonPopup.instance
           .showDialogBasic(context, '알림', '개인정보 수집 및 이용에 동의해 주세요.');
     } else if (!_checkBoolList[2]) {
-      CommonPopup.instance
-          .showDialogBasic(context, '알림', '만 14세 이상을 확인해 주세요.');
-    } else{
+      CommonPopup.instance.showDialogBasic(context, '알림', '만 14세 이상을 확인해 주세요.');
+    } else {
       //씽크풀 회원가입 페이지로 이동
       Navigator.pushNamed(
         context,
@@ -934,11 +934,9 @@ class RassiJoinState extends State<RassiJoinPage> {
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'complete');
     CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.rassi));
+    CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.rassi));
     if (userId != '') {
-      if (basePageState != null) {
-        // basePageState = null;
-        basePageState = BasePageState();
-      }
+      basePageState = BasePageState();
       // Navigator.pushReplacement(
       //     context, MaterialPageRoute(builder: (context) => BasePage()));
       Navigator.pushAndRemoveUntil(

@@ -20,6 +20,14 @@ class _HomeTileTradingStockState extends State<HomeTileTradingStock> {
   int _today01Index = 0;
 
   @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(

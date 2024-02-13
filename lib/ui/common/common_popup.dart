@@ -22,7 +22,7 @@ class CommonPopup {
 
   // 네트워크 에러 알림
   void showDialogNetErr(BuildContext funcBuildContext) {
-    if (basePageState.context != null && basePageState.context.mounted /*&& ModalRoute.of(basePageState.context).isCurrent*/) {
+    if (basePageState.context.mounted /*&& ModalRoute.of(basePageState.context).isCurrent*/) {
       showDialog(
           context: basePageState.context,
           barrierDismissible: false,

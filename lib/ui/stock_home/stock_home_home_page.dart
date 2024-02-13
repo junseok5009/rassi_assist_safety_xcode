@@ -13,8 +13,8 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
+import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest24.dart';
 import 'package:rassi_assist/models/tr_issue06.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi04.dart';
@@ -130,7 +130,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
     );
     stkCode = _appGlobal.stkCode;
     stkName = _appGlobal.stkName;
-    _stockTabNameProvider = Provider.of<StockTabNameProvider>(context, listen: false);
+    _stockTabNameProvider =
+        Provider.of<StockTabNameProvider>(context, listen: false);
     _showBottomSheet = true;
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -155,7 +156,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
           }
         } else {}
       } else {
-        if (_stockTabNameProvider.getIsTop && _scrollController.position.pixels > 0) {
+        if (_stockTabNameProvider.getIsTop &&
+            _scrollController.position.pixels > 0) {
           _stockTabNameProvider.setTopFalse();
         }
       }
@@ -216,7 +218,9 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                 builder: (context) => SafeArea(
                   child: Container(
                     margin: EdgeInsets.only(
-                      bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom,
+                      bottom: MediaQuery.of(_scaffoldKey.currentState!.context)
+                          .viewPadding
+                          .bottom,
                     ),
                     child: _setAddPocket(),
                   ),
@@ -281,7 +285,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                     StockHomeHomeTileSocialAnalyze(_sns06),
 
                     // 보호 예수
-                    if (_invest24.listInvest24Lockup.isNotEmpty) _setLockupList(),
+                    if (_invest24.listInvest24Lockup.isNotEmpty)
+                      _setLockupList(),
 
                     // AI속보
                     _setRassiroList(),
@@ -388,7 +393,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                 autoplay: _listRassi04News.length > 1,
                 autoplayDelay: 3000,
                 itemCount: _listRassi04News.length,
-                itemBuilder: (BuildContext context, int index) => _setTodayBriefView(_listRassi04News[index]),
+                itemBuilder: (BuildContext context, int index) =>
+                    _setTodayBriefView(_listRassi04News[index]),
               ),
             ),
           if (_stkBriefing.isEmpty)
@@ -412,7 +418,9 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                     child: const Center(
                       child: Text(
                         '!',
-                        style: TextStyle(fontSize: 18, color: RColor.new_basic_text_color_grey),
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: RColor.new_basic_text_color_grey),
                       ),
                     ),
                   ),
@@ -431,7 +439,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
             )
           else
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
               child: Wrap(
                 children: [
                   Text(
@@ -576,7 +585,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
   Widget _setRassiNoSignalFreeView() {
     return InkWell(
       onTap: () {
-        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
+        StockHomeTab.globalKey.currentState!
+            .funcTabMove(Const.STK_INDEX_SIGNAL);
       },
       child: Column(
         children: [
@@ -648,7 +658,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
   Widget _setRassiSignalFreeView() {
     return InkWell(
       onTap: () {
-        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
+        StockHomeTab.globalKey.currentState!
+            .funcTabMove(Const.STK_INDEX_SIGNAL);
       },
       child: Column(
         children: [
@@ -853,7 +864,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
     }
     return InkWell(
       onTap: () {
-        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
+        StockHomeTab.globalKey.currentState!
+            .funcTabMove(Const.STK_INDEX_SIGNAL);
       },
       child: Column(
         children: [
@@ -923,11 +935,13 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
               const SizedBox(
                 height: 4,
               ),
-              if (_signal01Data.signalData.tradeFlag == 'B' || _signal01Data.signalData.tradeFlag == 'S')
+              if (_signal01Data.signalData.tradeFlag == 'B' ||
+                  _signal01Data.signalData.tradeFlag == 'S')
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    TStyle.getPercentString(_signal01Data.signalData.profitRate),
+                    TStyle.getPercentString(
+                        _signal01Data.signalData.profitRate),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -1077,13 +1091,19 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                             _listShome07StockContent[index].title,
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: (contentDiv == 'SCR' || contentDiv == 'DIS' || contentDiv == 'RPT') ? FontWeight.w600 : FontWeight.w400,
+                              fontWeight: (contentDiv == 'SCR' ||
+                                      contentDiv == 'DIS' ||
+                                      contentDiv == 'RPT')
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
                             ),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),
                         ),
-                        if (contentDiv == 'SCR' || contentDiv == 'DIS' || contentDiv == 'RPT')
+                        if (contentDiv == 'SCR' ||
+                            contentDiv == 'DIS' ||
+                            contentDiv == 'RPT')
                           Row(
                             children: [
                               const SizedBox(
@@ -1099,7 +1119,11 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                       ],
                     ),
                   ),
-                  if (contentDiv == 'GPT' || contentDiv == 'BIZ' || contentDiv == 'SCR' || contentDiv == 'DIS' || contentDiv == 'RPT')
+                  if (contentDiv == 'GPT' ||
+                      contentDiv == 'BIZ' ||
+                      contentDiv == 'SCR' ||
+                      contentDiv == 'DIS' ||
+                      contentDiv == 'RPT')
                     Row(
                       children: const [
                         SizedBox(
@@ -1404,9 +1428,12 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                                           ),
                                         ),
                                         onTap: () {
-                                          _appGlobal.stkCode = item.stkList[index].stockCode;
-                                          _appGlobal.stkName = item.stkList[index].stockName;
-                                          StockHomeTab.globalKey.currentState!.refreshChild();
+                                          _appGlobal.stkCode =
+                                              item.stkList[index].stockCode;
+                                          _appGlobal.stkName =
+                                              item.stkList[index].stockName;
+                                          StockHomeTab.globalKey.currentState!
+                                              .refreshChild();
                                         },
                                       );
                                     },
@@ -1472,7 +1499,9 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
               style: TextStyle(
                 color: _issueSelectIndex == index ? Colors.white : Colors.black,
                 fontSize: 15,
-                fontWeight: _issueSelectIndex == index ? FontWeight.bold : FontWeight.w400,
+                fontWeight: _issueSelectIndex == index
+                    ? FontWeight.bold
+                    : FontWeight.w400,
               ),
             ),
           ),
@@ -1685,7 +1714,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
         setState(() {
           _showBottomSheet = false;
         });
-        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
+        StockHomeTab.globalKey.currentState!
+            .funcTabMove(Const.STK_INDEX_SIGNAL);
       },
       child: Container(
         height: AppGlobal().isTablet ? 130 : 110,
@@ -2026,10 +2056,13 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       final TrSignal01 resData = TrSignal01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _signal01Data = resData.retData;
-        _isForbiddenShow = _signal01Data.signalData.isForbidden == 'Y' || _signal01Data.signalData.signalTargetYn == 'N' ? true : false;
+        _isForbiddenShow = _signal01Data.signalData.isForbidden == 'Y' ||
+                _signal01Data.signalData.signalTargetYn == 'N'
+            ? true
+            : false;
         _isFreeVisible = false;
       } else {
-        _signal01Data = defSignal01;  //TODO 널로 처리 할지 빈값으로 처리 할지
+        _signal01Data = defSignal01; //TODO 널로 처리 할지 빈값으로 처리 할지
         _isFreeVisible = true;
         _fetchPosts(
             TR.SIGNAL02,
@@ -2064,7 +2097,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
     else if (trStr == TR.SHOME07) {
       _listShome07StockContent.clear();
       final TrShome07 resData = TrShome07.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS && resData.retData!.listStockContent.isNotEmpty) {
+      if (resData.retCode == RT.SUCCESS &&
+          resData.retData!.listStockContent.isNotEmpty) {
         _listShome07StockContent.addAll(resData.retData!.listStockContent);
       }
     }
@@ -2115,7 +2149,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
 
     // NOTE 공시
     else if (trStr == TR.DISCLOS01) {
-      final TrDisclos01 resData = TrDisclos01.fromJson(jsonDecode(response.body));
+      final TrDisclos01 resData =
+          TrDisclos01.fromJson(jsonDecode(response.body));
       _listDisclos.clear();
       if (resData.retCode == RT.SUCCESS) {
         Disclos01 data = resData.retData;
@@ -2136,12 +2171,12 @@ class StockHomeMainChartModel {
   String cnt;
 
   StockHomeMainChartModel({
-    this.td='',
-    this.tl='',
-    this.th='',
-    this.ts='',
-    this.tp='',
-    this.cnt='',
+    this.td = '',
+    this.tl = '',
+    this.th = '',
+    this.ts = '',
+    this.tp = '',
+    this.cnt = '',
   });
 
   factory StockHomeMainChartModel.fromJson(Map<String, dynamic> json) {
@@ -2167,7 +2202,8 @@ class StockHomeMainChartModel {
 
 class MyBehavior extends ScrollBehavior {
   @override
-  Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) {
+  Widget buildOverscrollIndicator(
+      BuildContext context, Widget child, ScrollableDetails details) {
     return child;
   }
 }

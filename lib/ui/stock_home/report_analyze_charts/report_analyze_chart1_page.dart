@@ -1,30 +1,26 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
-import 'package:rassi_assist/custom_lib/charts_common/common.dart' as charts_common;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/flutter.dart' as charts;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_element.dart'
-    as charts_text_element;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_style.dart' as charts_text_style;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/d_log.dart';
+import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/tr_report01.dart';
-
-import '../../../common/const.dart';
-import '../../../common/net.dart';
-import '../../../models/none_tr/app_global.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// 2023.02.21_HJS
 /// 종목홈(개편)_홈_리포트분석_목표가
 class ReportAnalyzeChart1Page extends StatefulWidget {
   static final GlobalKey<ReportAnalyzeChart1PageState> globalKey = GlobalKey();
+
   ReportAnalyzeChart1Page() : super(key: globalKey);
+
   @override
   State<ReportAnalyzeChart1Page> createState() =>
       ReportAnalyzeChart1PageState();
@@ -37,9 +33,9 @@ class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
   String _isNoData = '';
 
   Report01 _report01 = defReport01;
-  List<charts.Series<Report01ChartData, int>> _seriesList = [];
   final List<Report01ChartData> _listData = [];
-  List<charts.TickSpec<num>> _tickSpecList = [];
+
+  late TrackballBehavior _trackballBehavior;
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -49,13 +45,82 @@ class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
 
   @override
   void initState() {
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      lineDashArray: const [4, 3],
+      shouldAlwaysShow: false,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        int selectedIndex =
+            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        return Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 6,
+                offset: const Offset(0, 0),
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: FittedBox(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      TStyle.getDateSlashFormat1(_listData[selectedIndex].td),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                      '${TStyle.getMoneyPoint(_listData[selectedIndex].tp)}원',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  '목표가 : ${TStyle.getMoneyPoint(_listData[selectedIndex].agp)}원',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    //color: Color(0xffFBD240),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
     super.initState();
     _requestTrReport01();
   }
@@ -149,54 +214,6 @@ class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
     }
   }
 
-  _initChartData() {
-    _isRightYAxisUpUnit = _findMinValue >= 100000;
-    _seriesList = [
-      charts.Series<Report01ChartData, int>(
-        id: '전체 증권사 목표주가 평균값',
-        colorFn: (v1, __) {
-          if (v1.agp == '0') {
-            return charts.Color.fromHex(code: '#FF5050');
-          } else {
-            return charts.Color.fromHex(code: '#5DD68D');
-          }
-        },
-        domainFn: (Report01ChartData xAxisItem, _) => xAxisItem.index!,
-        measureFn: (Report01ChartData yAxisItem, _) =>
-            yAxisItem.agp.isEmpty ? null : int.parse(yAxisItem.agp),
-        data: _listData,
-      )..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
-      charts.Series<Report01ChartData, int>(
-        id: '주가',
-        colorFn: (v1, __) => charts.Color.fromHex(code: '#454A63'),
-        domainFn: (Report01ChartData xAxisItem, _) => xAxisItem.index!,
-        measureFn: (Report01ChartData yAxisItem, _) => int.parse(yAxisItem.tp),
-        data: _listData,
-      )
-        ..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId')
-        ..setAttribute(charts.rendererIdKey, 'areaLine'),
-    ];
-    _tickSpecList = [
-      charts.TickSpec(
-        _listData[0].index as num,
-        label: TStyle.getDateSlashFormat3(_listData[0].td),
-      ),
-      charts.TickSpec(
-        _listData[(_listData.length ~/ 3)].index as num,
-        label: TStyle.getDateSlashFormat3(_listData[_listData.length ~/ 3].td),
-      ),
-      charts.TickSpec(
-        _listData[(_listData.length ~/ 3) * 2].index as num,
-        label: TStyle.getDateSlashFormat3(_listData[(_listData.length ~/ 3) * 2].td),
-      ),
-      charts.TickSpec(
-        _listData.last.index as num,
-        label: TStyle.getDateSlashFormat3(_listData.last.td),
-      ),
-    ];
-    setState(() {});
-  }
-
   Widget _setNoDataView() {
     return Container(
       width: double.infinity,
@@ -222,12 +239,13 @@ class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
               child: Text(
                 '!',
                 style: TextStyle(
-                    fontSize: 18,
-                    color: RColor.new_basic_text_color_grey),
+                    fontSize: 18, color: RColor.new_basic_text_color_grey),
               ),
             ),
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(
+            height: 10,
+          ),
           const Text(
             '발행된 리포트가 없습니다.',
             style: TextStyle(
@@ -254,91 +272,7 @@ class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
             ),
           ),
         ),
-        Container(
-          height: 240,
-          color: Colors.transparent,
-          child: charts.LineChart(
-            _seriesList,
-            animate: true,
-            primaryMeasureAxis: const charts.NumericAxisSpec(
-              tickProviderSpec: charts.BasicNumericTickProviderSpec(
-                zeroBound: false,
-              ),
-              renderSpec: charts.NoneRenderSpec(),
-            ),
-            secondaryMeasureAxis: charts.NumericAxisSpec(
-              tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                zeroBound: false,
-              ),
-              tickFormatterSpec:
-                  charts.BasicNumericTickFormatterSpec((measure) {
-                if (_isRightYAxisUpUnit) {
-                  return TStyle.getMoneyPoint((measure! / 10000).round().toString());
-                  //return '$measure';
-                }
-                //return '$measure';
-                return TStyle.getMoneyPoint(measure!.round().toString());
-              }),
-              renderSpec: charts.GridlineRendererSpec(
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                lineStyle: charts.LineStyleSpec(
-                  dashPattern: [2, 2],
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
-                ),
-              ),
-            ),
-            domainAxis: charts.NumericAxisSpec(
-              tickProviderSpec: charts.StaticNumericTickProviderSpec(
-                _tickSpecList,
-              ),
-              renderSpec: charts.SmallTickRendererSpec(
-                minimumPaddingBetweenLabelsPx: 30,
-                labelOffsetFromTickPx: 20,
-                labelOffsetFromAxisPx: 12,
-                // Tick and Label styling here.
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                // Change the line colors to match text color.
-                lineStyle: charts.LineStyleSpec(
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
-                ),
-              ),
-            ),
-            customSeriesRenderers: [
-              charts.LineRendererConfig(
-                customRendererId: 'areaLine',
-                includeArea: true,
-                stacked: true,
-                layoutPaintOrder: 1,
-                strokeWidthPx: 1.5,
-              ),
-            ],
-            behaviors: [
-              charts.LinePointHighlighter(
-                symbolRenderer: CustomCircleSymbolRenderer(
-                  MediaQuery.of(context).size.width,
-                ), // add this line in behaviours
-              ),
-            ],
-            selectionModels: [
-              charts.SelectionModelConfig(
-                changedListener: (charts.SelectionModel model) {
-                  if (model.hasDatumSelection) {
-                    int? selectIndex = model.selectedDatum[0].index;
-                    if(selectIndex != null) {
-                      CustomCircleSymbolRenderer.report01chartData = _listData[selectIndex];
-                    }
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
+        _setChartView(),
         const SizedBox(
           height: 16,
         ),
@@ -473,6 +407,92 @@ class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
     );
   }
 
+  Widget _setChartView() {
+    return SizedBox(
+      width: double.infinity,
+      height: 240,
+      child: SfCartesianChart(
+        enableAxisAnimation: true,
+        plotAreaBorderWidth: 0,
+        primaryXAxis: CategoryAxis(
+          axisLine: const AxisLine(
+            width: 1.2,
+            color: RColor.chartGreyColor,
+          ),
+          majorGridLines: const MajorGridLines(
+            width: 0,
+          ),
+          majorTickLines: const MajorTickLines(
+            width: 0,
+          ),
+          desiredIntervals: 4,
+          axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+            TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
+            const TextStyle(
+              fontSize: 12,
+              color: RColor.greyBasic_8c8c8c,
+            ),
+          ),
+
+        ),
+        primaryYAxis:  NumericAxis(
+          opposedPosition: true,
+          anchorRangeToVisiblePoints: true,
+          axisLine: const AxisLine(
+            width: 0,
+          ),
+          majorGridLines: const MajorGridLines(
+            color: RColor.chartGreyColor,
+            width: 0.6,
+            dashArray: [2, 2],
+          ),
+          majorTickLines: const MajorTickLines(
+            width: 0,
+          ),
+          rangePadding: ChartRangePadding.round,
+          //interval: _getInterval,
+          axisLabelFormatter: (axisLabelRenderArgs) {
+            String value = axisLabelRenderArgs.text;
+            if (_isRightYAxisUpUnit) {
+              value = TStyle.getMoneyPoint(
+                  (axisLabelRenderArgs.value / 10000).round().toString());
+            } else {
+              value = TStyle.getMoneyPoint(
+                  axisLabelRenderArgs.value.round().toString());
+            }
+            return ChartAxisLabel(
+              value,
+              const TextStyle(
+                fontSize: 12,
+                color: RColor.greyBasic_8c8c8c,
+              ),
+            );
+          },
+        ),
+        trackballBehavior: _trackballBehavior,
+        series: [
+          AreaSeries<Report01ChartData, String>(
+            dataSource: _listData,
+            xValueMapper: (item, index) => item.td,
+            yValueMapper: (item, index) => int.parse(item.tp),
+            color: RColor.chartTradePriceColor.withOpacity(0.08),
+            borderWidth: 1.4,
+            borderColor: RColor.chartTradePriceColor,
+            enableTooltip: true,
+          ),
+          LineSeries<Report01ChartData, String>(
+            dataSource: _listData,
+            xValueMapper: (item, index) => item.td,
+            yValueMapper: (item, index) => int.parse(item.agp),
+            color: RColor.chartGreen,
+            width: 1.4,
+            enableTooltip: false,
+          ),
+        ],
+      ),
+    );
+  }
+
   _requestTrReport01() {
     _fetchPosts(
       TR.REPORT01,
@@ -511,34 +531,27 @@ class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
     DLog.w(trStr + response.body);
     if (trStr == TR.REPORT01) {
       _report01 = defReport01;
-      _seriesList.clear();
       _listData.clear();
-      _tickSpecList.clear();
       final TrReport01 resData = TrReport01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _report01 = resData.retData;
         if (_report01.priceAvg.isEmpty ||
             _report01.priceMin.isEmpty ||
             _report01.priceMax.isEmpty) {
-          setState(() {
-            _isNoData = 'Y';
-          });
+          _isNoData = 'Y';
         } else {
-          if (_report01.listChartData.length > 0) {
+          if (_report01.listChartData.isNotEmpty) {
             _listData.addAll(_report01.listChartData);
             _isNoData = 'N';
-            _initChartData();
+            _isRightYAxisUpUnit = _findMinValue >= 100000;
           } else {
-            setState(() {
-              _isNoData = 'Y';
-            });
+            _isNoData = 'Y';
           }
         }
       } else {
-        setState(() {
-          _isNoData = 'Y';
-        });
+        _isNoData = 'Y';
       }
+      setState(() {});
     }
   }
 
@@ -559,124 +572,5 @@ class ReportAnalyzeChart1PageState extends State<ReportAnalyzeChart1Page> {
       }
     });
     return double.parse(item.agp);
-  }
-}
-
-class CustomCircleSymbolRenderer extends charts_common.CircleSymbolRenderer {
-  final double deviceWidth;
-
-  CustomCircleSymbolRenderer(this.deviceWidth);
-
-  static late Report01ChartData report01chartData;
-  bool _isShow = false;
-  double xPoint = 0;
-
-  @override
-  void paint(charts_common.ChartCanvas canvas, Rectangle<num> bounds,
-      {List<int>? dashPattern,
-      charts.Color? fillColor,
-      charts.FillPatternType? fillPattern,
-      charts.Color? strokeColor,
-      double? strokeWidthPx}
-      ){
-    super.paint(canvas, bounds,
-        dashPattern: dashPattern,
-        fillColor: fillColor,
-        strokeColor: strokeColor,
-        strokeWidthPx: strokeWidthPx);
-    if (_isShow) {
-      _isShow = false;
-    } else {
-      _isShow = true;
-
-      double minWidth = bounds.width + 80;
-      int tpLength = report01chartData.tp.length;
-      int agpLength =
-          report01chartData.agp.isEmpty ? 0 : report01chartData.agp.length;
-      int maxLength = tpLength >= agpLength ? tpLength : agpLength;
-      if (maxLength > 6) minWidth += 5 * (maxLength - 6);
-
-      xPoint = (deviceWidth / 2) > bounds.left
-          ? bounds.left + 12
-          : bounds.left - minWidth - 4;
-
-      canvas.drawRect(
-        Rectangle(
-            xPoint,
-            0,
-            minWidth,
-            report01chartData.agp.isEmpty
-                ? bounds.height + 42
-                : bounds.height + 62),
-        fill: const charts.Color(
-          r: 102,
-          g: 102,
-          b: 102,
-          a: 200,
-        ),
-      );
-      var textStyle = charts_text_style.TextStyle();
-      textStyle.color = charts.Color.white;
-      textStyle.fontSize = 12;
-
-      // 날짜
-      canvas.drawText(
-        charts_text_element.TextElement(
-          TStyle.getDateSlashFormat3(report01chartData.td),
-          style: textStyle,
-        ),
-        (xPoint + 8).round(),
-        12.round(),
-      );
-
-      if (report01chartData.agp.isEmpty) {
-        canvas.drawPoint(
-          point: Point(xPoint + 12, 34),
-          radius: 4,
-          fill: charts.Color.fromHex(code: '#454A63'),
-          stroke: charts.Color.white,
-          strokeWidthPx: 1,
-        );
-        canvas.drawText(
-          charts_text_element.TextElement(
-            '${TStyle.getMoneyPoint(report01chartData.tp)}원',
-            style: textStyle,
-          ),
-          (xPoint + 20).round(),
-          30.round(),
-        );
-      } else {
-        canvas.drawPoint(
-          point: Point(xPoint + 12, 34),
-          radius: 4,
-          fill: charts.Color.fromHex(code: '#5DD68D'),
-          stroke: charts.Color.white,
-          strokeWidthPx: 1,
-        );
-        canvas.drawText(
-          charts_text_element.TextElement(
-            '${TStyle.getMoneyPoint(report01chartData.agp)}원',
-            style: textStyle,
-          ),
-          (xPoint + 20).round(),
-          29.round(),
-        );
-        canvas.drawPoint(
-          point: Point(xPoint + 12, 54),
-          radius: 4,
-          fill: charts.Color.fromHex(code: '#454A63'),
-          stroke: charts.Color.white,
-          strokeWidthPx: 1,
-        );
-        canvas.drawText(
-          charts_text_element.TextElement(
-            '${TStyle.getMoneyPoint(report01chartData.tp)}원',
-            style: textStyle,
-          ),
-          (xPoint + 20).round(),
-          50.round(),
-        );
-      }
-    }
   }
 }

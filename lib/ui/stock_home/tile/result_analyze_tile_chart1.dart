@@ -64,7 +64,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
     super.initState();
     _loadPrefData().then((_) => {
           Future.delayed(Duration.zero, () {
-            _isQuart = widget.initIsQuart!;
+            _isQuart = widget.initIsQuart;
             _requestTrSearch10();
           }),
         });

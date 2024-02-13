@@ -97,7 +97,7 @@ class JoinPreUserPageState extends State<JoinPreUserPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      '02-2174-6445  /  ',
+                      '02-2174-6446  /  ',
                       style: TStyle.contentGrey14,
                     ),
                     InkWell(

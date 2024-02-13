@@ -390,7 +390,7 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
             height: 1,
             color: RColor.new_basic_line_grey,
           ),
-          _set1stItemView('포켓과\n종목관리', '포켓 1개\n포켓당 3종목', '포켓 20개\n포켓당 30종목'),
+          _set1stItemView('포켓과\n종목관리', '포켓 1개\n포켓당 50종목', '포켓 10개\n포켓당 50종목'),
           Container(
             width: double.infinity,
             height: 1,

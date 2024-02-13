@@ -178,7 +178,7 @@ class HttpProcessClass {
                 'adId': await utilsGetIDFA(),
               }));
         }
-      } else if(resData.retCode == RT.NOT_RASSI_USER){
+      } else if (resData.retCode == RT.NOT_RASSI_USER || resData.retCode == RT.NOT_RASSI_USER_NEW) {
         await _fetchPosts(
             TR.USER01,
             jsonEncode(<String, String>{

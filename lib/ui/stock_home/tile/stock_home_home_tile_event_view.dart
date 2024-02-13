@@ -1360,7 +1360,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
     }                  
 ''';
 
-    DLog.d('tag', _eventChartOption);
+    //DLog.d('tag', _eventChartOption);
 
     _commonChartOption = '''
                   {
