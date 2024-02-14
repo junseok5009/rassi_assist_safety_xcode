@@ -298,7 +298,7 @@ class MainActivity: FlutterFragmentActivity() {
         }
     }
 
-    private fun getPrefUserId(): String {
+    private fun getPrefUserId(): String? {
         if(sharedPreference != null) {
             return sharedPreference.getString(PREFS_USER_ID, "")
         }
