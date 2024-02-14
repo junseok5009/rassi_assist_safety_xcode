@@ -1,13 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-
-import 'package:rassi_assist/custom_lib/charts_common/common.dart' as charts_common;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/flutter.dart' as charts;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_element.dart'
-    as charts_text_element;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_style.dart' as charts_text_style;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -19,6 +12,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_search/tr_search11.dart';
 import 'package:rassi_assist/ui/stock_home/tile/result_analyze_tile_chart1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../common/d_log.dart';
 import '../../../common/net.dart';
@@ -45,29 +39,109 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
 
   // 기업의 안정성 지표
   bool _isPer = true;
-  List<charts.Series<Search11PerPbr, String>> _chart3SeriesListData = [];
   final List<Search11PerPbr> _listPerPbrData = [];
-  final List<Search11Dividend> _listDividendData = [];
+  late TrackballBehavior _trackballBehavior;
 
   // 기업의 배당 정보
+  final List<Search11Dividend> _listDividendData = [];
   final List<String> _tableTitleList = ['', '주당배당금', '배당수익률'];
 
   @override
   void initState() {
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      shouldAlwaysShow: false,
+      lineDashArray: const [4, 3],
+      lineWidth: 1,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        int index =
+            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        var item = _listPerPbrData[index];
+        return Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 6,
+                offset: const Offset(0, 0),
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: FittedBox(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '${item.tradeDate.substring(2, 4)}/${item.tradeDate.substring(4)}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                      '${TStyle.getMoneyPoint(item.tradePrice)}원',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      _isPer ? 'PER' : 'PBR',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        //color: title == '매수' ? RColor.bgBuy : RColor.bgSell,
+                      ),
+                    ),
+                    Text(
+                      ' : ${_isPer ? item.per : item.pbr}배',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
       ResultAnalyzePage.TAG_NAME,
     );
     _loadPrefData().then((_) => {
           Future.delayed(Duration.zero, () {
-            PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
+            PgData pgData =
+                ModalRoute.of(context)!.settings.arguments as PgData;
             if (_userId != '' &&
-                pgData.stockCode != null &&
                 pgData.stockCode.isNotEmpty &&
                 pgData.stockName.isNotEmpty) {
               _stockName = pgData.stockName;
               _stockCode = pgData.stockCode;
-              //_initChart1IsQuart = _pgData.booleanData ?? true;
               _requestTrSearch11();
             }
           }),
@@ -89,8 +163,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
   @override
   Widget build(BuildContext context) {
     _initChart1IsQuart =
-        ((ModalRoute.of(context)!.settings.arguments) as PgData).booleanData ??
-            true;
+        ((ModalRoute.of(context)!.settings.arguments) as PgData).booleanData;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -194,7 +267,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
           const SizedBox(
             height: 20,
           ),
-          _listPerPbrData.length > 0
+          _listPerPbrData.isNotEmpty
               ? Column(
                   children: [
                     Row(
@@ -214,7 +287,125 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                         ),
                       ],
                     ),
-                    _setChart3View(),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 240,
+                      child: SfCartesianChart(
+                        plotAreaBorderWidth: 0,
+                        enableMultiSelection: false,
+                        margin: const EdgeInsets.only(
+                          bottom: 1,
+                        ),
+                        primaryXAxis: CategoryAxis(
+                          //axisBorderType: AxisBorderType.withoutTopAndBottom,
+                          axisLine: const AxisLine(
+                            width: 1.2,
+                            color: RColor.chartGreyColor,
+                          ),
+                          majorGridLines: const MajorGridLines(
+                            width: 0,
+                          ),
+                          majorTickLines: const MajorTickLines(
+                            width: 0,
+                          ),
+                          //desiredIntervals: 4,
+                          //labelPlacement: LabelPlacement.onTicks,
+                          axisLabelFormatter: (axisLabelRenderArgs) =>
+                              ChartAxisLabel(
+                            '${axisLabelRenderArgs.text.substring(2, 4)}/${axisLabelRenderArgs.text.substring(4)}',
+                            const TextStyle(
+                              fontSize: 11,
+                              color: RColor.greyBasic_8c8c8c,
+                            ),
+                          ),
+                          labelIntersectAction:
+                              AxisLabelIntersectAction.multipleRows,
+                          //desiredIntervals: 4,
+                        ),
+                        primaryYAxis: NumericAxis(
+                          rangePadding: ChartRangePadding.round,
+                          isVisible: false,
+                          axisLine: const AxisLine(
+                            width: 0,
+                          ),
+                          majorGridLines: const MajorGridLines(
+                            width: 0,
+                          ),
+                          majorTickLines: const MajorTickLines(
+                            width: 0,
+                          ),
+                        ),
+                        trackballBehavior: _trackballBehavior,
+                        axes: <ChartAxis>[
+                          CategoryAxis(
+                            name: 'xAxis',
+                            isVisible: false,
+                            opposedPosition: true,
+                          ),
+                          NumericAxis(
+                            name: 'yAxis',
+                            opposedPosition: true,
+                            anchorRangeToVisiblePoints: true,
+                            rangePadding: ChartRangePadding.round,
+                            axisLine: const AxisLine(
+                              width: 0,
+                            ),
+                            majorGridLines: const MajorGridLines(
+                              color: RColor.chartGreyColor,
+                              width: 0.6,
+                              dashArray: [2, 2],
+                            ),
+                            majorTickLines: const MajorTickLines(
+                              width: 0,
+                            ),
+                            axisLabelFormatter: (axisLabelRenderArgs) =>
+                                ChartAxisLabel(
+                              axisLabelRenderArgs.text,
+                              const TextStyle(
+                                fontSize: 12,
+                                color: RColor.greyBasic_8c8c8c,
+                              ),
+                            ),
+                          )
+                        ],
+                        selectionType: SelectionType.point,
+                        series: [
+                          ColumnSeries<Search11PerPbr, String>(
+                            dataSource: _listPerPbrData,
+                            xValueMapper: (Search11PerPbr data, index) =>
+                                data.tradeDate,
+                            yValueMapper: (Search11PerPbr data, index) {
+                              return _isPer
+                                  ? double.parse(data.per)
+                                  : double.parse(data.pbr);
+                            },
+                            /*  pointColorMapper: (Search11PerPbr data, index) {
+                              if (index == _swipeIndex) {
+                                return RColor.sigBuy;
+                              } else {
+                                return RColor.chartGreyColor;
+                              }
+                            },*/
+                            color: RColor.chartGreyColor,
+                            yAxisName: 'yAxis',
+                            enableTooltip: true,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(1),
+                            ),
+                          ),
+                          LineSeries<Search11PerPbr, String>(
+                            dataSource: _listPerPbrData,
+                            xValueMapper: (item, index) => index.toString(),
+                            yValueMapper: (item, index) =>
+                                int.parse(item.tradePrice),
+                            color: RColor.chartTradePriceColor,
+                            width: 1.4,
+                            enableTooltip: false,
+                            xAxisName: 'xAxis',
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(
                       height: 10,
                     ),
@@ -283,7 +474,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
             '기업의 배당 정보',
             style: TStyle.title18T,
           ),
-          _listDividendData.length > 0
+          _listDividendData.isNotEmpty
               ? Column(
                   children: [
                     const SizedBox(
@@ -341,9 +532,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                   style: _isPer
                       ? TStyle.commonTitle15
                       : const TextStyle(
-                    fontSize: 15,
-                    color: RColor.lineGrey,
-                  ),
+                          fontSize: 15,
+                          color: RColor.lineGrey,
+                        ),
                 ),
               ),
             ),
@@ -352,7 +543,6 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                 setState(
                   () {
                     _isPer = true;
-                    _initChart3Data();
                   },
                 );
               }
@@ -393,7 +583,6 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
               if (_isPer) {
                 setState(() {
                   _isPer = false;
-                  _initChart3Data();
                 });
               }
             },
@@ -403,91 +592,14 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
     );
   }
 
-  Widget _setChart3View() {
-    return SizedBox(
-      width: double.infinity,
-      height: 240,
-      child: charts.OrdinalComboChart(
-        _chart3SeriesListData,
-        animate: true,
-        primaryMeasureAxis: const charts.NumericAxisSpec(
-          tickProviderSpec: charts.BasicNumericTickProviderSpec(
-            zeroBound: false,
-          ),
-          showAxisLine: false,
-          renderSpec: charts.NoneRenderSpec(),
-        ),
-        secondaryMeasureAxis: charts.NumericAxisSpec(
-            tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-              //desiredTickCount: 5,
-              zeroBound: true,
-            ),
-            renderSpec: charts.GridlineRendererSpec(
-              labelStyle: charts.TextStyleSpec(
-                fontSize: 12, // size in Pts.
-                color: charts.Color.fromHex(code: '#8C8C8C'),
-              ),
-              lineStyle: charts.LineStyleSpec(
-                dashPattern: [2, 2],
-                color: charts.Color.fromHex(code: '#DCDFE2'),
-              ),
-            )),
-        domainAxis: charts.OrdinalAxisSpec(
-          renderSpec: charts.SmallTickRendererSpec(
-            minimumPaddingBetweenLabelsPx: 30,
-            labelOffsetFromTickPx: 20,
-            labelOffsetFromAxisPx: 12,
-            // Tick and Label styling here.
-            labelStyle: charts.TextStyleSpec(
-              fontSize: 10, // size in Pts.
-              color: charts.Color.fromHex(code: '#8C8C8C'),
-            ),
-            // Change the line colors to match text color.
-            lineStyle: charts.LineStyleSpec(
-              //dashPattern: [2,2],
-              color: charts.Color.fromHex(code: '#DCDFE2'),
-            ),
-          ),
-        ),
-        selectionModels: [
-          charts.SelectionModelConfig(
-              changedListener: (charts.SelectionModel model) {
-                if (model.hasDatumSelection) {
-                  int? selectIndex = model.selectedDatum[0].index;
-                  if(selectIndex != null) {
-                    CustomCircleSymbolRenderer.search11perPbr = _listPerPbrData[selectIndex];
-                  }
-                  CustomCircleSymbolRenderer.isPer = _isPer;
-                }
-              })
-        ],
-        customSeriesRenderers: [
-          charts.LineRendererConfig(
-            // ID used to link series to this renderer.
-            customRendererId: 'line',
-            layoutPaintOrder: 30,
-            strokeWidthPx: 1.5,
-          )
-        ],
-        behaviors: [
-          charts.LinePointHighlighter(
-            symbolRenderer: CustomCircleSymbolRenderer(
-              MediaQuery.of(context).size.width,
-            ), // add this line in behaviours
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _setChart4View() {
-    if (_listDividendData.length < 1) {
+    if (_listDividendData.isEmpty) {
       return const SizedBox(
         width: 1,
         height: 1,
       );
     }
-    final _lineBarsData = [
+    final lineBarsData = [
       LineChartBarData(
         showingIndicators: _getShowingIndicatorsIndexList,
         color: RColor.lineGrey,
@@ -537,9 +649,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                   _getShowingIndicatorsIndexList.map((index) {
                 return ShowingTooltipIndicators([
                   LineBarSpot(
-                    _lineBarsData[0],
-                    _lineBarsData.indexOf(_lineBarsData[0]),
-                    _lineBarsData[0].spots[index],
+                    lineBarsData[0],
+                    lineBarsData.indexOf(lineBarsData[0]),
+                    lineBarsData[0].spots[index],
                   ),
                 ]);
               }).toList(),
@@ -591,7 +703,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
               //minY: _findMinTp.roundToDouble(),
               //maxY: _findMaxTp.roundToDouble() * 1.05,
               //baselineY: _findMinTp.roundToDouble(),
-              lineBarsData: _lineBarsData,
+              lineBarsData: lineBarsData,
             ),
           ),
         ),
@@ -631,8 +743,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
           Text(
             message,
             style: const TextStyle(
-                fontSize: 14,
-                color: RColor.new_basic_text_color_grey),
+                fontSize: 14, color: RColor.new_basic_text_color_grey),
           ),
         ],
       ),
@@ -687,7 +798,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
     return TableRow(
       children: List.generate(
         3,
-            (index) => _setTableView(row, index),
+        (index) => _setTableView(row, index),
       ),
     );
   }
@@ -703,10 +814,10 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         ),
         row == 0
             ? Container(
-            color: RColor.bgTableGrey,
-            height: 32,
-            alignment: Alignment.center,
-            child: _setTitleView(column))
+                color: RColor.bgTableGrey,
+                height: 32,
+                alignment: Alignment.center,
+                child: _setTitleView(column))
             : _setValueView(row - 1, column),
         Visibility(
           visible: _listDividendData.length == row,
@@ -760,42 +871,10 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
       return SizedBox(
         height: 36,
         child: Center(
-          child: Text(
-            '${TStyle.getMoneyPoint(item.dividendRate)}%'
-          ),
+          child: Text('${TStyle.getMoneyPoint(item.dividendRate)}%'),
         ),
       );
     }
-  }
-
-  _initChart3Data() {
-    _chart3SeriesListData = [
-      charts.Series<Search11PerPbr, String>(
-        id: '주가',
-        colorFn: (_, __) => charts.Color.fromHex(code: '#454A63'),
-        domainFn: (Search11PerPbr xAxisItem, _) =>
-            '${xAxisItem.tradeDate.substring(2, 4)}\'${xAxisItem.tradeDate.substring(4, 6)}',
-        measureFn: (Search11PerPbr yAxisItem, _) =>
-            int.parse(yAxisItem.tradePrice),
-        data: _listPerPbrData,
-      )..setAttribute(charts.rendererIdKey, 'line'),
-      charts.Series<Search11PerPbr, String>(
-        id: 'Per/Pbr',
-        colorFn: (datum, index) => charts.Color.fromHex(code: '#DCDFE2'),
-        domainFn: (Search11PerPbr xAxisItem, _) =>
-            '${xAxisItem.tradeDate.substring(2, 4)}\'${xAxisItem.tradeDate.substring(4, 6)}',
-        measureFn: (Search11PerPbr yAxisItem, _) {
-          return _isPer
-              ? double.tryParse(yAxisItem.per) == null
-                  ? 0
-                  : double.parse(yAxisItem.per)
-              : double.tryParse(yAxisItem.pbr) == null
-                  ? 0
-                  : double.parse(yAxisItem.pbr);
-        },
-        data: _listPerPbrData,
-      )..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
-    ];
   }
 
   _showBottomSheetPerPbrInfo() {
@@ -879,7 +958,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
   }
 
   _requestTrSearch11() async {
-    String _jsonSEARCH11 = jsonEncode(
+    String jsonSEARCH11 = jsonEncode(
       <String, String>{
         'userId': _userId,
         'stockCode': _stockCode,
@@ -889,7 +968,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
       [
         _fetchPosts(
           TR.SEARCH11,
-          _jsonSEARCH11,
+          jsonSEARCH11,
         ),
       ],
     );
@@ -927,114 +1006,12 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData.listPerPbr.isNotEmpty) {
           _listPerPbrData.addAll(resData.retData.listPerPbr);
-          _initChart3Data();
         }
         if (resData.retData.listDividend.isNotEmpty) {
           _listDividendData.addAll(resData.retData.listDividend);
         }
       }
       setState(() {});
-    }
-  }
-}
-
-class CustomCircleSymbolRenderer extends charts_common.CircleSymbolRenderer {
-  final double deviceWidth;
-
-  CustomCircleSymbolRenderer(this.deviceWidth);
-
-  static late Search11PerPbr search11perPbr;
-  static bool isPer = true;
-  bool _isShow = false;
-  double xPoint = 0;
-
-  @override
-  void paint(charts_common.ChartCanvas canvas, Rectangle<num> bounds,
-      {List<int>? dashPattern,
-        charts.Color? fillColor,
-        charts.FillPatternType? fillPattern,
-        charts.Color? strokeColor,
-        double? strokeWidthPx}) {
-    super.paint(canvas, bounds,
-        dashPattern: dashPattern,
-        fillColor: fillColor,
-        strokeColor: strokeColor,
-        strokeWidthPx: strokeWidthPx);
-    if (_isShow) {
-      _isShow = false;
-    } else {
-      _isShow = true;
-
-      double minWidth = bounds.width + 80;
-      int valueLength =
-      isPer ? search11perPbr.per.length : search11perPbr.pbr.length;
-      if (valueLength > 6) {
-        minWidth += 5 * (valueLength - 6);
-      }
-
-      xPoint = (deviceWidth / 2) > bounds.left
-          ? bounds.left + 12
-          : bounds.left - minWidth - 4;
-
-      canvas.drawRect(
-        Rectangle(xPoint, 0, minWidth, bounds.height + 62),
-        fill: const charts.Color(
-          r: 102,
-          g: 102,
-          b: 102,
-          a: 200,
-        ),
-      );
-      var textStyle = charts_text_style.TextStyle();
-      textStyle.color = charts.Color.white;
-      textStyle.fontSize = 12;
-
-      String color = '#DCDFE2';
-      String strTp = '${TStyle.getMoneyPoint(search11perPbr.tradePrice)}원';
-      String strValue = '';
-
-      if (isPer) {
-        strValue = '${TStyle.getMoneyPoint(search11perPbr.per)}배';
-      } else {
-        strValue = '${TStyle.getMoneyPoint(search11perPbr.pbr)}배';
-      }
-
-      // 날짜
-      canvas.drawText(
-        charts_text_element.TextElement(
-            TStyle.getDateSFormat(search11perPbr.tradeDate),
-            style: textStyle),
-        (xPoint + 8).round(),
-        12.round(),
-      );
-
-      canvas.drawPoint(
-        point: Point(xPoint + 12, 34),
-        radius: 4,
-        fill: charts.Color.fromHex(code: color),
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(strValue, style: textStyle),
-        (xPoint + 20).round(),
-        29.round(),
-      );
-
-      canvas.drawPoint(
-        point: Point(xPoint + 12, 54),
-        radius: 4,
-        fill: charts.Color.fromHex(code: '#6565FF'),
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(strTp, style: textStyle),
-        (xPoint + 20).round(),
-        50.round(),
-      );
     }
   }
 }

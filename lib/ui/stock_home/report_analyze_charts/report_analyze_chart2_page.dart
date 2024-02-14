@@ -2,23 +2,24 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:rassi_assist/custom_lib/charts_flutter_new/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../../../common/const.dart';
 import '../../../../../common/net.dart';
-import '../../../models/none_tr/app_global.dart';
 import '../../../../../models/tr_report02.dart';
+import '../../../models/none_tr/app_global.dart';
 
 /// 2023.02.21_HJS
 /// 종목홈(개편)_홈_리포트분석_발생트렌드
 class ReportAnalyzeChart2Page extends StatefulWidget {
   const ReportAnalyzeChart2Page({Key? key}) : super(key: key);
+
   @override
   State<ReportAnalyzeChart2Page> createState() =>
       ReportAnalyzeChart2PageState();
@@ -31,9 +32,7 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
   String _isNoData = '';
 
   Report02 _report02 = defReport02;
-  List<charts.Series<Report02ChartData, String>> _seriesList = [];
   final List<Report02ChartData> _listData = [];
-  final List<charts.TickSpec<String>> _tickSpecList = [];
 
   @override
   bool get wantKeepAlive => true;
@@ -46,7 +45,7 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -163,12 +162,13 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
               child: Text(
                 '!',
                 style: TextStyle(
-                    fontSize: 18,
-                    color: RColor.new_basic_text_color_grey),
+                    fontSize: 18, color: RColor.new_basic_text_color_grey),
               ),
             ),
           ),
-          const SizedBox(height: 10,),
+          const SizedBox(
+            height: 10,
+          ),
           const Text(
             '발행된 리포트가 없습니다.',
             style: TextStyle(
@@ -196,50 +196,134 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
           ),
         ),
         Container(
-          height: 240,
-          color: Colors.transparent,
-          child: charts.BarChart(
-            _seriesList,
-            animate: true,
-            defaultInteractions: false,
-            secondaryMeasureAxis: charts.NumericAxisSpec(
-              tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-                zeroBound: true,
-                //desiredTickCount: 5,
-              ),
-              renderSpec: charts.GridlineRendererSpec(
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
+            width: double.infinity,
+            height: 240,
+            color: Colors.transparent,
+            child: SfCartesianChart(
+                plotAreaBorderWidth: 0,
+                primaryXAxis: CategoryAxis(
+                  //axisBorderType: AxisBorderType.withoutTopAndBottom,
+                  axisLine: const AxisLine(
+                    width: 1.2,
+                    color: RColor.chartGreyColor,
+                  ),
+                  majorGridLines: const MajorGridLines(
+                    width: 0,
+                  ),
+                  majorTickLines: const MajorTickLines(
+                    width: 0,
+                  ),
+                  axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                    _isQuart
+                        ? '${axisLabelRenderArgs.text.substring(2)}Q'
+                        : '${axisLabelRenderArgs.text.substring(2, 4)}/${axisLabelRenderArgs.text.substring(4)}',
+                    const TextStyle(
+                      fontSize: 10,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  ),
                 ),
-                lineStyle: charts.LineStyleSpec(
-                  dashPattern: [2, 2],
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
+                primaryYAxis: NumericAxis(
+                  opposedPosition: true,
+                  //axisBorderType: AxisBorderType.withoutTopAndBottom,
+                  //anchorRangeToVisiblePoints: true,
+                  axisLine: const AxisLine(
+                    width: 0,
+                  ),
+                  majorGridLines: const MajorGridLines(
+                    color: RColor.chartGreyColor,
+                    width: 0.6,
+                    dashArray: [2, 2],
+                  ),
+                  majorTickLines: const MajorTickLines(
+                    width: 0,
+                  ),
+                  minorGridLines: const MinorGridLines(
+                    width: 0,
+                  ),
+                  minorTickLines: const MinorTickLines(
+                    width: 0,
+                  ),
+                  rangePadding: ChartRangePadding.none,
+                  desiredIntervals: getMaxValue % 2 == 0
+                      ? getMaxValue < 4
+                          ? getMaxValue
+                          : 4
+                      : getMaxValue < 3
+                          ? getMaxValue
+                          : 3,
+                  axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                    axisLabelRenderArgs.text,
+                    const TextStyle(
+                      fontSize: 12,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            domainAxis: charts.OrdinalAxisSpec(
-              tickProviderSpec:
-                  charts.StaticOrdinalTickProviderSpec(_tickSpecList),
-              renderSpec: charts.SmallTickRendererSpec(
-                //minimumPaddingBetweenLabelsPx: 30,
-                //labelOffsetFromTickPx: 20,
-                //labelOffsetFromAxisPx: 12,
-                // Tick and Label styling here.
-                labelStyle: charts.TextStyleSpec(
-                  fontSize: 12, // size in Pts.
-                  color: charts.Color.fromHex(code: '#8C8C8C'),
-                ),
-                // Change the line colors to match text color.
-                lineStyle: charts.LineStyleSpec(
-                  color: charts.Color.fromHex(code: '#DCDFE2'),
-                ),
-              ),
-            ),
-            barGroupingType: charts.BarGroupingType.stacked,
-            behaviors: [],
-          ),
-        ),
+                series: <CartesianSeries>[
+                  //기타
+                  StackedColumnSeries<Report02ChartData, String>(
+                    dataSource: _listData,
+                    xValueMapper: (Report02ChartData data, _) => data.td,
+                    yValueMapper: (Report02ChartData data, _) =>
+                        int.parse(data.rce),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(1),
+                    ),
+                    color: RColor.greyBox_dcdfe2,
+                    dataLabelSettings: const DataLabelSettings(
+                      isVisible: true,
+                      showZeroValue: false,
+                      labelPosition: ChartDataLabelPosition.inside,
+                      labelAlignment: ChartDataLabelAlignment.middle,
+                      alignment: ChartAlignment.center,
+                      overflowMode: OverflowMode.shift,
+                      textStyle: TextStyle(
+                        fontSize: 9,
+                      ),
+                    ),
+                  ),
+                  //매도
+                  StackedColumnSeries<Report02ChartData, String>(
+                    dataSource: _listData,
+                    xValueMapper: (Report02ChartData data, _) => data.td,
+                    yValueMapper: (Report02ChartData data, _) =>
+                        int.parse(data.rcs),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(1),
+                    ),
+                    color: RColor.lightBlue_5886fe,
+                    dataLabelSettings: const DataLabelSettings(
+                      isVisible: true,
+                      showZeroValue: false,
+                      labelPosition: ChartDataLabelPosition.inside,
+                      labelAlignment: ChartDataLabelAlignment.middle,
+                      textStyle: TextStyle(
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                  //매수
+                  StackedColumnSeries<Report02ChartData, String>(
+                    dataSource: _listData,
+                    xValueMapper: (Report02ChartData data, _) => data.td,
+                    yValueMapper: (Report02ChartData data, _) =>
+                        int.parse(data.rcb),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(1),
+                    ),
+                    color: RColor.chartRed1,
+                    dataLabelSettings: const DataLabelSettings(
+                      isVisible: true,
+                      showZeroValue: false,
+                      labelPosition: ChartDataLabelPosition.inside,
+                      labelAlignment: ChartDataLabelAlignment.middle,
+                      textStyle: TextStyle(
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                ])),
         const SizedBox(
           height: 5,
         ),
@@ -317,13 +401,10 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    _isQuart
-                        ? '전분기 대비 발생'
-                        : '전월 대비 발생',
+                    _isQuart ? '전분기 대비 발생' : '전월 대비 발생',
                     style: const TextStyle(
                       fontSize: 16,
-                      color:
-                      RColor.new_basic_text_color_strong_grey,
+                      color: RColor.new_basic_text_color_strong_grey,
                     ),
                   ),
                   Text(
@@ -332,7 +413,9 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
                   ),
                 ],
               ),
-              const SizedBox(height: 2,),
+              const SizedBox(
+                height: 2,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -340,8 +423,7 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
                     '총 발생 개수',
                     style: TextStyle(
                       fontSize: 16,
-                      color:
-                      RColor.new_basic_text_color_strong_grey,
+                      color: RColor.new_basic_text_color_strong_grey,
                     ),
                   ),
                   Text(
@@ -350,23 +432,22 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
                   ),
                 ],
               ),
-              const SizedBox(height: 2,),
+              const SizedBox(
+                height: 2,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    _isQuart
-                        ? '최근 분기 발생 개수'
-                        : '이번달 발생 개수',
+                    _isQuart ? '최근 분기 발생 개수' : '이번달 발생 개수',
                     style: const TextStyle(
                       fontSize: 16,
-                      color:
-                      RColor.new_basic_text_color_strong_grey,
+                      color: RColor.new_basic_text_color_strong_grey,
                     ),
                   ),
                   Text(
                     _isQuart
-                        ? '${_getLastQuartCount()}개'
+                        ? '$_getLastQuartCount개'
                         : '${_report02.reportMonth}개',
                     style: TStyle.commonTitle,
                   ),
@@ -379,7 +460,7 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
     );
   }
 
-  int _getLastQuartCount() {
+  int get _getLastQuartCount {
     if (_isQuart) {
       int result = 0;
       result += int.parse(_report02.listChartData.last.rcb);
@@ -389,6 +470,19 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
     } else {
       return 0;
     }
+  }
+
+  int get getMaxValue {
+    int maxValue = 0;
+    for (var item in _listData) {
+      int sumValue = 0;
+      sumValue +=
+          int.parse(item.rcb) + int.parse(item.rcs) + int.parse(item.rce);
+      if (sumValue > maxValue) {
+        maxValue = sumValue;
+      }
+    }
+    return maxValue;
   }
 
   _requestTrReport02() {
@@ -402,60 +496,6 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
         },
       ),
     );
-  }
-
-  _initChartData() {
-    _seriesList = [
-      charts.Series<Report02ChartData, String>(
-        id: 'BUY',
-        colorFn: (v1, __) => charts.Color.fromHex(code: '#FF5050'),
-        domainFn: (Report02ChartData xAxisItem, _) => xAxisItem.td,
-        measureFn: (Report02ChartData yAxisItem, _) => int.parse(yAxisItem.rcb),
-        data: _listData,
-      )..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
-      charts.Series<Report02ChartData, String>(
-        id: 'SELL',
-        colorFn: (v1, __) => charts.Color.fromHex(code: '#5886FE'),
-        domainFn: (Report02ChartData xAxisItem, _) => xAxisItem.td,
-        measureFn: (Report02ChartData yAxisItem, _) => int.parse(yAxisItem.rcs),
-        data: _listData,
-      )..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
-      charts.Series<Report02ChartData, String>(
-        id: 'ETC',
-        colorFn: (v1, __) => charts.Color.fromHex(code: '#DCDFE2'),
-        domainFn: (Report02ChartData xAxisItem, _) => xAxisItem.td,
-        measureFn: (Report02ChartData yAxisItem, _) => int.parse(yAxisItem.rce),
-        data: _listData,
-      )..setAttribute(charts.measureAxisIdKey, 'secondaryMeasureAxisId'),
-    ];
-    _listData.forEach((element) {
-      _tickSpecList.add(
-        charts.TickSpec(
-          element.td,
-          label: _formatterLableXAxis(element.td),
-          style: charts.TextStyleSpec(
-            fontSize: 10,
-          ),
-        ),
-      );
-    });
-    setState(() {});
-  }
-
-  String _formatterLableXAxis(String domainAxis) {
-    if (_isQuart) {
-      if (domainAxis.isNotEmpty && domainAxis.length >= 6) {
-        return domainAxis.substring(2, 4) + '/' + domainAxis.substring(5) + 'Q';
-      } else {
-        return domainAxis;
-      }
-    } else {
-      if (domainAxis.isNotEmpty && domainAxis.length >= 6) {
-        return domainAxis.substring(2, 4) + '/' + domainAxis.substring(4);
-      } else {
-        return domainAxis;
-      }
-    }
   }
 
   Future<void> _fetchPosts(String trStr, String json) async {
@@ -483,27 +523,21 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
     DLog.w(trStr + response.body);
     if (trStr == TR.REPORT02) {
       _report02 = defReport02;
-      _seriesList.clear();
       _listData.clear();
-      _tickSpecList.clear();
       final TrReport02 resData = TrReport02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _isNoData = 'N';
         _report02 = resData.retData;
-        if (_report02.listChartData.length > 0 &&
+        if (_report02.listChartData.isNotEmpty &&
             _report02.reportTotal != '0') {
           _listData.addAll(_report02.listChartData);
-          _initChartData();
         } else {
-          setState(() {
-            _isNoData = 'Y';
-          });
+          _isNoData = 'Y';
         }
       } else {
-        setState(() {
-          _isNoData = 'Y';
-        });
+        _isNoData = 'Y';
       }
+      setState(() {});
     }
   }
 }

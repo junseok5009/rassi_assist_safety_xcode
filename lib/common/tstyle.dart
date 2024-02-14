@@ -801,11 +801,11 @@ class TStyle {
   //날짜 형식 표시 (01/01)
   static String getDateDivFormat(String date) {
     String rtStr = '';
-    if (date.length > 5) {
+    if (date.length >= 8) {
       rtStr = '${date.substring(4, 6)}/${date.substring(6, 8)}';
       return rtStr;
     }
-    return '';
+    return date;
   }
 
   //날짜 형식 표시 (0101)

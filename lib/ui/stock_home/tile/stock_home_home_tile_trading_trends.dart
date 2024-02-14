@@ -8,8 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/custom_lib/charts_flutter_new/flutter.dart'
-    as charts;
 import 'package:rassi_assist/models/tr_invest/tr_invest01.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest02.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
@@ -48,8 +46,6 @@ class StockHomeHomeTileTradingTrendsState
   String _accOrgVol = '0'; // 기관 누적
 
   // 매매동향
-  final List<charts.Series<Invest01ChartData, String>> _seriesListTrendsData =
-      []; // 매매동향 - 외국인 / 기관 데이터
   final List<Invest01ChartData> _trendsListData = [];
 
   // 누적매매
@@ -212,11 +208,11 @@ class StockHomeHomeTileTradingTrendsState
             trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
         var item = _trendsListData[index];
         String title = '매도';
-        if(_isTrendsDiv == 0 && int.parse(item.fv) > 0){
+        if (_isTrendsDiv == 0 && int.parse(item.fv) > 0) {
           title = '매수';
-        }else if(_isTrendsDiv == 1 && int.parse(item.ov) > 0){
+        } else if (_isTrendsDiv == 1 && int.parse(item.ov) > 0) {
           title = '매수';
-        }else if(_isTrendsDiv == 2 && int.parse(item.pv) > 0){
+        } else if (_isTrendsDiv == 2 && int.parse(item.pv) > 0) {
           title = '매수';
         }
         return Container(
@@ -262,18 +258,14 @@ class StockHomeHomeTileTradingTrendsState
                 Row(
                   children: [
                     Text(
-                    title,
+                      title,
                       style: TextStyle(
                         fontSize: 13,
                         color: title == '매수' ? RColor.bgBuy : RColor.bgSell,
                       ),
                     ),
                     Text(
-                      ' : ${_isTrendsDiv == 0
-                          ? TStyle.getMoneyPoint(item.fv)
-                          : _isTrendsDiv == 1
-                          ? TStyle.getMoneyPoint(item.ov)
-                          : TStyle.getMoneyPoint(item.pv)} 주',
+                      ' : ${_isTrendsDiv == 0 ? TStyle.getMoneyPoint(item.fv) : _isTrendsDiv == 1 ? TStyle.getMoneyPoint(item.ov) : TStyle.getMoneyPoint(item.pv)} 주',
                       style: const TextStyle(
                         fontSize: 13,
                       ),
@@ -597,6 +589,10 @@ class StockHomeHomeTileTradingTrendsState
             plotAreaBorderWidth: 0,
             enableMultiSelection: false,
             primaryXAxis: CategoryAxis(
+              axisLine: const AxisLine(
+                width: 1.2,
+                color: RColor.chartGreyColor,
+              ),
               majorGridLines: const MajorGridLines(
                 width: 0,
               ),
@@ -1175,7 +1171,6 @@ class StockHomeHomeTileTradingTrendsState
     // NOTE 매매동향 - 외국인/기관
     if (trStr == TR.INVEST01) {
       final TrInvest01 resData = TrInvest01.fromJson(jsonDecode(response.body));
-      _seriesListTrendsData.clear();
       _trendsListData.clear();
       if (resData.retCode == RT.SUCCESS) {
         Invest01 invest01 = resData.retData;

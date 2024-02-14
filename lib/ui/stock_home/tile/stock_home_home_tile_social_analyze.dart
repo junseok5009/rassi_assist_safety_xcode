@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -114,7 +113,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                       ),
                       onTap: () {
                         // 종목 최근 소셜지수 페이지
-                        basePageState.callPageRouteData(
+                        basePageState.callPageRouteUpData(
                           const RecentSocialListPage(),
                           PgData(
                             stockName: appGlobal.stkName,
@@ -363,15 +362,21 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           width: double.infinity,
           height: 240,
           child: SfCartesianChart(
+            enableAxisAnimation: true,
+            plotAreaBorderWidth: 0,
             primaryXAxis: CategoryAxis(
               plotBands: _listPlotBand,
+              axisLine: const AxisLine(
+                width: 1.2,
+                color: RColor.chartGreyColor,
+              ),
               majorGridLines: const MajorGridLines(
                 width: 0,
               ),
               majorTickLines: const MajorTickLines(
                 width: 0,
               ),
-              desiredIntervals: 4,
+              desiredIntervals: 3,
               labelPlacement: LabelPlacement.onTicks,
               axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
                 TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
@@ -405,12 +410,14 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                 );
               },
               majorGridLines: const MajorGridLines(
-                color: Colors.white,
+                width: 0,
               ),
               majorTickLines: const MajorTickLines(
-                color: Colors.white,
+                width: 0,
               ),
-              minorTickLines: const MinorTickLines(),
+              minorTickLines: const MinorTickLines(
+                width: 0,
+              ),
             ),
             axes: <ChartAxis>[
               NumericAxis(
@@ -422,13 +429,12 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                 ),
                 majorGridLines: const MajorGridLines(
                   color: RColor.chartGreyColor,
-                  width: 1.5,
-                  dashArray: [2, 4],
+                  width: 0.6,
+                  dashArray: [2, 2],
                 ),
                 majorTickLines: const MajorTickLines(
                   width: 0,
                 ),
-                //desiredIntervals: 4,
                 rangePadding: ChartRangePadding.round,
                 interval: _getInterval,
                 axisLabelFormatter: (axisLabelRenderArgs) {
@@ -493,62 +499,75 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
   }
 
   _initListData() {
-
     _trackballBehavior = TrackballBehavior(
       enable: true,
-      shouldAlwaysShow: true,
-      //tooltipDisplayMode: TrackballDisplayMode.floatAllPoints,
-      //enable: true,
+      lineDashArray: const [4, 3],
+      shouldAlwaysShow: false,
       tooltipAlignment: ChartAlignment.near,
       tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
       activationMode: ActivationMode.singleTap,
       markerSettings: const TrackballMarkerSettings(
         markerVisibility: TrackballVisibilityMode.visible,
-        //color: Colors.red.shade500.withOpacity(0.5),
         borderWidth: 0,
         width: 0,
         height: 0,
       ),
-      //tooltipAlignment: ChartAlignment.center,
-      tooltipSettings: const InteractiveTooltip(
-        enable: true,
-        format: 'point.x : point.y원',
-      ),
       builder: (BuildContext context, TrackballDetails trackballDetails) {
-        DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
-            //'point : ${trackballDetails.point} / '
-            //'seriesIndex : ${trackballDetails.seriesIndex} / '
-            //'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
-            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices[0]} / '
-            //'\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
-            //'\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
-            //'\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}'
-            '');
-        int selectedIndex = trackballDetails.groupingModeInfo?.currentPointIndices[0] ?? 0;
+        int selectedIndex =
+            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
         return Container(
-          width: 100,
-          height: 100,
-          color: Colors.black.withOpacity(0.1),
-          child: Container(
-            height: 80,
-            width: 100,
-            decoration: BoxDecoration(
-              color: Colors.amber.shade100.withOpacity(0.30),
-              border: Border.all(
-                color: Colors.green,
-                width: 1,
-              ),
-            ),
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.4),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 6,
+                offset: const Offset(0, 0),
+                blurStyle: BlurStyle.outer,
+              )
+            ],
+          ),
+          child: FittedBox(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              //mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
-                  _listChartData[selectedIndex].td,
+                Row(
+                  children: [
+                    Text(
+                      TStyle.getDateSlashFormat1(
+                          _listChartData[selectedIndex].td),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                      '${TStyle.getMoneyPoint(_listChartData[selectedIndex].tp)}원',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
                 Text(
-                  //'yValue => ${_data[trackballDetails.pointIndex!].y.toString()}',
-                  _listChartData[selectedIndex].tp,
+                  _listChartData[selectedIndex].cg == '1'
+                      ? '조용조용'
+                      : _listChartData[selectedIndex].cg == '2'
+                          ? '수군수군'
+                          : _listChartData[selectedIndex].cg == '3'
+                              ? '왁자지껄'
+                              : '폭발',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    //color: Color(0xffFBD240),
+                  ),
                 ),
               ],
             ),

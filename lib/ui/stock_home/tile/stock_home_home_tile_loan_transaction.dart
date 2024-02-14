@@ -93,15 +93,6 @@ class StockHomeHomeTileLoanTransactionState
       builder: (BuildContext context, TrackballDetails trackballDetails) {
         int selectedIndex =
             trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
-        String tradeDate = '';
-        if (_divIndex == 0) {
-          tradeDate = _lendingListData[selectedIndex].td;
-        } else if (_divIndex == 1) {
-          tradeDate = _sellingListData[selectedIndex].td;
-        } else if (_divIndex == 2) {
-          tradeDate = _loanListData[selectedIndex].tradeDate;
-        }
-
         return Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
@@ -589,12 +580,7 @@ class StockHomeHomeTileLoanTransactionState
           majorTickLines: const MajorTickLines(
             width: 0,
           ),
-          //rangePadding: ChartRangePadding.none,
-          //edgeLabelPlacement: EdgeLabelPlacement.shift,
-          //labelAlignment: LabelAlignment.center,
           desiredIntervals: 4,
-          //labelPlacement: LabelPlacement.onTicks,
-          //labelIntersectAction: AxisLabelIntersectAction.multipleRows,
           axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
             TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
             const TextStyle(

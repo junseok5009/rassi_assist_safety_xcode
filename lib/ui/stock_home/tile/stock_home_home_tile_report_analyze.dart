@@ -1,16 +1,8 @@
-import 'dart:math';
-
-import 'package:rassi_assist/custom_lib/charts_common/common.dart' as charts_common;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/flutter.dart' as charts;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_element.dart'
-    as charts_text_element;
-import 'package:rassi_assist/custom_lib/charts_flutter_new/text_style.dart' as charts_text_style;
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_invest/tr_invest01.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
 import '../../../../common/const.dart';
@@ -256,94 +248,3 @@ class StockHomeHomeTileReportAnalyzeState
   }
 }
 
-class CustomCircleSymbolRenderer extends charts_common.CircleSymbolRenderer {
-  static late Invest01ChartData invest01ChartData;
-  static late bool isForeign;
-  bool _isShow = false;
-
-  @override
-  void paint(charts_common.ChartCanvas canvas, Rectangle<num> bounds,
-      {List<int>? dashPattern,
-      charts.Color? fillColor,
-      charts.FillPatternType? fillPattern,
-      charts.Color? strokeColor,
-      double? strokeWidthPx}) {
-    super.paint(canvas, bounds,
-        dashPattern: dashPattern,
-        fillColor: fillColor,
-        strokeColor: strokeColor,
-        strokeWidthPx: strokeWidthPx);
-
-    if (_isShow) {
-      _isShow = false;
-    } else {
-      _isShow = true;
-
-      canvas.drawRect(
-        Rectangle(bounds.left + 12, 0, bounds.width + 80, bounds.height + 62),
-        fill: const charts.Color(
-          r: 102,
-          g: 102,
-          b: 102,
-          a: 200,
-        ),
-      );
-      var textStyle = charts_text_style.TextStyle();
-      textStyle.color = charts.Color.white;
-      textStyle.fontSize = 12;
-
-      String color = '#FC525B';
-      String strTp = '${TStyle.getMoneyPoint(invest01ChartData.tp)}원';
-      String strValue = '';
-
-      if (isForeign) {
-        if (int.parse(invest01ChartData.fv) < 0) {
-          color = '#6A86E7';
-        }
-        strValue = '${TStyle.getMoneyPoint(invest01ChartData.fv)}K';
-      } else {
-        if (int.parse(invest01ChartData.ov) < 0) {
-          color = '#6A86E7';
-        }
-        strValue = '${TStyle.getMoneyPoint(invest01ChartData.ov)}K';
-      }
-
-      // 날짜
-      canvas.drawText(
-        charts_text_element.TextElement(
-            TStyle.getDateSFormat(invest01ChartData.td),
-            style: textStyle),
-        (bounds.left + 20).round(),
-        12.round(),
-      );
-
-      canvas.drawPoint(
-        point: Point((bounds.left + 23), 34),
-        radius: 4,
-        fill: charts.Color.fromHex(code: color),
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(strValue, style: textStyle),
-        (bounds.left + 30).round(),
-        29.round(),
-      );
-
-      canvas.drawPoint(
-        point: Point((bounds.left + 23), 54),
-        radius: 4,
-        fill: charts.Color.fromHex(code: '#94b2ff'),
-        stroke: charts.Color.white,
-        strokeWidthPx: 1,
-      );
-
-      canvas.drawText(
-        charts_text_element.TextElement(strTp, style: textStyle),
-        (bounds.left + 30).round(),
-        50.round(),
-      );
-    }
-  }
-}
