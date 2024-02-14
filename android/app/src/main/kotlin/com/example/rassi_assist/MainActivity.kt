@@ -32,10 +32,10 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import org.json.JSONObject
 import org.json.JSONArray
-import android.os.Build;
-import android.content.pm.PackageManager;
-import androidx.core.content.ContextCompat;
-import android.Manifest;
+import android.os.Build
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import android.Manifest
 import androidx.core.app.ActivityCompat
 import java.net.URISyntaxException
 import android.content.ActivityNotFoundException
@@ -51,8 +51,8 @@ class MainActivity: FlutterFragmentActivity() {
     private val CHANNEL_NAME_URL = "thinkpool.flutter.dev/channel_method_url"
     private val handler = Handler(Looper.getMainLooper())
 
-    private val PREFS_NAME = "rassi_trade_prefs";    // 프리퍼런스 이름
-    private val PREFS_USER_ID = "rassi_id";          // 씽크풀 ID
+    private val PREFS_NAME = "rassi_trade_prefs"    // 프리퍼런스 이름
+    private val PREFS_USER_ID = "rassi_id"          // 씽크풀 ID
     lateinit var sharedPreference: SharedPreferences
     lateinit var billingClient: BillingClient
     lateinit var channel: MethodChannel
@@ -259,6 +259,23 @@ class MainActivity: FlutterFragmentActivity() {
                     Log.w("MainActivity", "##### requestPurchasesAsync")
                     requestQueryPurchasesAsync()
                 }
+                // 결제 히스토리 조회
+                else if(call.method == "getPurchaseHistory") {
+                    Log.w("MainActivity", "##### getPurchaseHistory")
+                    if (!isStoreReady) {
+                        Log.w("MainActivity", "isStoreReady false!")
+                        initBillingClient()
+                    }
+                    billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.SUBS) { billingResult, purchaseHistoryRecordList ->
+                        if(billingResult.responseCode == BillingClient.BillingResponseCode.OK){
+                            if(purchaseHistoryRecordList != null && purchaseHistoryRecordList.size>0){
+                                result.success(purchasedHistoryJsonResult(purchaseHistoryRecordList))
+                            }else{
+                                result.success("")
+                            }
+                        }
+                    }
+                }
                 else {
                     result.notImplemented()
                 }
@@ -281,7 +298,7 @@ class MainActivity: FlutterFragmentActivity() {
         }
     }
 
-    private fun getPrefUserId(): String? {
+    private fun getPrefUserId(): String {
         if(sharedPreference != null) {
             return sharedPreference.getString(PREFS_USER_ID, "")
         }
@@ -522,23 +539,7 @@ class MainActivity: FlutterFragmentActivity() {
                     orderPrc = productDetailsList[0].oneTimePurchaseOfferDetails?.formattedPrice.toString()
                     currency = productDetailsList[0].oneTimePurchaseOfferDetails?.priceCurrencyCode.toString()
                 }
-                // 결제 히스토리 조회
-                else if(call.method == "getPurchaseHistory") {
-                    Log.w("MainActivity", "##### getPurchaseHistory")
-                    if (!isStoreReady) {
-                        Log.w("MainActivity", "isStoreReady false!")
-                        initBillingClient()
-                    }
-                    billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.SUBS) { billingResult, purchaseHistoryRecordList ->
-                        if(billingResult.responseCode == BillingClient.BillingResponseCode.OK){
-                            if(purchaseHistoryRecordList != null && purchaseHistoryRecordList.size>0){
-                                result.success(purchasedHistoryJsonResult(purchaseHistoryRecordList))
-                            }else{
-                                result.success("")
-                            }
-                        }
-                    }
-                }
+
                 val price:String = orderPrc.replace("[^0-9.]".toRegex(), "")
                 sendBillingSuccess(purchase, price)
             }
@@ -878,7 +879,7 @@ class MainActivity: FlutterFragmentActivity() {
             }
         }
 
-    private fun getErrMsg(code: Int): String? {
+    private fun getErrMsg(code: Int): String {
         return when (code) {
             -3 -> "SERVICE_TIMEOUT(-3)"
             -2 -> "FEATURE_NOT_SUPPORTED(-2)"
