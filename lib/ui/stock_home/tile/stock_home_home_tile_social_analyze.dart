@@ -600,8 +600,14 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
               _listPlotBand.add(
                 PlotBand(
                   isVisible: true,
+                  text: '폭발',
+                  textAngle: 0,
+                  verticalTextAlignment: TextAnchor.start,
+                  verticalTextPadding:'0%',
+                  textStyle: TextStyle(fontSize: 12,color: RColor.chartRed1,),
                   start: isStartBombIndex,
                   end: index,
+                  opacity: 0.55,
                   color: RColor.chartRed2,
                 ),
               );
@@ -612,8 +618,14 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
               _listPlotBand.add(
                 PlotBand(
                   isVisible: true,
+                  text: '폭발',
+                  textAngle: 0,
+                  verticalTextAlignment: TextAnchor.start,
+                  verticalTextPadding:'0%',
+                  textStyle: TextStyle(fontSize: 12,color: RColor.chartRed1,),
                   start: isStartBombIndex,
                   end: index - 1,
+                  opacity: 0.55,
                   color: RColor.chartRed2,
                 ),
               );

@@ -50,6 +50,7 @@ class StockHomeHomeTileResultAnalyzeState
   int _swipeIndex = 0;
 
   int _confirmSearch10SalesIndexInListData = -1;
+  int _confirmSearch10SalesIndexInListBarData = -1;
   final List<Search10Sales> _listData = [];
   final List<Search10Sales> _listBarData = [];
   final List<bool> _listDivIndexIsNoData = [
@@ -190,10 +191,9 @@ class StockHomeHomeTileResultAnalyzeState
           'WidgetsBinding.instance.addPostFrameCallback !!! _swipeIndex : $_swipeIndex / _listBarData : ${_listBarData.length}');
       if (_swipeIndex <= _listBarData.length - 1) {
         _tooltipBehavior.hide();
+
         _tooltipBehavior.showByIndex(0, _swipeIndex);
         Timer(Duration(milliseconds: _seriesAnimation.toInt() + 100), () {
-          DLog.e('Timer !!!\n'
-              '_swipeIndex : $_swipeIndex');
           _tooltipBehavior.showByIndex(0, _swipeIndex);
         });
       }
@@ -1116,6 +1116,9 @@ class StockHomeHomeTileResultAnalyzeState
       child: SfCartesianChart(
         enableMultiSelection: false,
         plotAreaBorderWidth: 0,
+        margin: EdgeInsets.only(
+          bottom: 1,
+        ),
         primaryXAxis: CategoryAxis(
           axisBorderType: AxisBorderType.withoutTopAndBottom,
           axisLine: const AxisLine(
@@ -1130,13 +1133,18 @@ class StockHomeHomeTileResultAnalyzeState
           ),
           axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
             _isQuart
-                ? '${axisLabelRenderArgs.text.substring(2)}Q'
+                ? (_confirmSearch10SalesIndexInListBarData != -1 &&
+                        axisLabelRenderArgs.value ==
+                            _confirmSearch10SalesIndexInListBarData)
+                    ? '${axisLabelRenderArgs.text.substring(2)}Q\n(잠정)'
+                    : '${axisLabelRenderArgs.text.substring(2)}Q'
                 : axisLabelRenderArgs.text.substring(0, 4),
             const TextStyle(
               fontSize: 12,
               color: RColor.greyBasic_8c8c8c,
             ),
           ),
+
         ),
         primaryYAxis: NumericAxis(
           axisBorderType: AxisBorderType.withoutTopAndBottom,
@@ -1146,23 +1154,20 @@ class StockHomeHomeTileResultAnalyzeState
         ),
         axes: <ChartAxis>[
           CategoryAxis(
-              name: 'xAxis',
-              opposedPosition: true,
-              isVisible: false,
-              axisBorderType: AxisBorderType.withoutTopAndBottom,
-              labelPlacement: LabelPlacement.onTicks,
-              plotBands: [
-                PlotBand(
-                  isVisible: false,
-                ),
-              ]),
+            name: 'xAxis',
+            opposedPosition: true,
+            isVisible: false,
+            axisBorderType: AxisBorderType.withoutTopAndBottom,
+            labelPlacement: LabelPlacement.onTicks,
+            plotBands: getPlotBand,
+          ),
           NumericAxis(
             axisBorderType: AxisBorderType.withoutTopAndBottom,
             name: 'yAxis',
             opposedPosition: true,
             anchorRangeToVisiblePoints: true,
-            rangePadding: ChartRangePadding.round,
-            //desiredIntervals: 4,
+            rangePadding: ChartRangePadding.additional,
+            //desiredIntervals: 3,
             //interval: _getInterval,
             axisLine: const AxisLine(
               width: 0,
@@ -1247,7 +1252,11 @@ class StockHomeHomeTileResultAnalyzeState
               if (index == _swipeIndex) {
                 return RColor.sigBuy;
               } else {
-                return RColor.chartGreyColor;
+                if(_isQuart && index == _confirmSearch10SalesIndexInListBarData){
+                  return RColor.chartGreyColor.withOpacity(0.4);
+                }else{
+                  return RColor.chartGreyColor;
+                }
               }
             },
             onPointTap: (pointInteractionDetails) {
@@ -1292,6 +1301,24 @@ class StockHomeHomeTileResultAnalyzeState
         ],
       ),
     );
+  }
+
+  List<PlotBand> get getPlotBand {
+    if(_isQuart && _confirmSearch10SalesIndexInListData != -1){
+      return [
+        PlotBand(
+          isVisible: true,
+          start: _confirmSearch10SalesIndexInListData - 1,
+          end: _confirmSearch10SalesIndexInListData - 1,
+          dashArray: const [3,5],
+          borderWidth: 1,
+          borderColor: RColor.chartRed1,
+          opacity: 0.8,
+        ),
+      ];
+    }else{
+      return [];
+    }
   }
 
   _requestTrAll() async {
@@ -1361,6 +1388,7 @@ class StockHomeHomeTileResultAnalyzeState
     if (trStr == TR.SEARCH10) {
       final TrSearch10 resData = TrSearch10.fromJson(jsonDecode(response.body));
       _confirmSearch10SalesIndexInListData = -1;
+      _confirmSearch10SalesIndexInListBarData = -1;
       DLog.e(
           'List.generate(_listBarData.length, (index) => index), : ${List.generate(_listBarData.length, (index) => index).toString()}');
 
@@ -1401,9 +1429,10 @@ class StockHomeHomeTileResultAnalyzeState
                 element.salesProfit.isNotEmpty ||
                 element.netProfit.isNotEmpty) {
               _listBarData.add(element);
-            }
-            if (_isQuart && element.confirmYn == 'N') {
-              _confirmSearch10SalesIndexInListData = key;
+              if (_isQuart && element.confirmYn == 'N') {
+                _confirmSearch10SalesIndexInListData = key;
+                _confirmSearch10SalesIndexInListBarData = _listBarData.length -1;
+              }
             }
           });
           if (_listDivIndexIsNoData[0]) {
@@ -1421,8 +1450,6 @@ class StockHomeHomeTileResultAnalyzeState
         _isNoData = 'Y';
       }
       _seriesAnimation = 0;
-
-      DLog.e('나까지 오는거 맞지?');
 
       setState(() => _swipeIndex = _listBarData.length - 1);
 
