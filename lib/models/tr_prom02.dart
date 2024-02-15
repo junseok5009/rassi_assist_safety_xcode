@@ -314,6 +314,51 @@ class _CardProm02State extends State<CardProm02> {
           );
           break;
         }
+      case 'LPHD':
+        {
+          if(Platform.isAndroid) {
+            result = await Navigator.push(
+              buildContext,
+              CustomNvRouteClass.createRouteData(
+                const PayPremiumPromotionAosPage(),
+                RouteSettings(
+                  arguments: PgData(data: 'new_6m'),
+                ),
+              ),
+            );
+          }
+          break;
+        }
+      case 'LPHE':
+        {
+          if(Platform.isAndroid) {
+            result = await Navigator.push(
+              buildContext,
+              CustomNvRouteClass.createRouteData(
+                const PayPremiumPromotionAosPage(),
+                RouteSettings(
+                  arguments: PgData(data: 'new_6m_50'),
+                ),
+              ),
+            );
+          }
+          break;
+        }
+      case 'LPHF':
+        {
+          if(Platform.isAndroid) {
+            result = await Navigator.push(
+              buildContext,
+              CustomNvRouteClass.createRouteData(
+                const PayPremiumPromotionAosPage(),
+                RouteSettings(
+                  arguments: PgData(data: 'new_7d'),
+                ),
+              ),
+            );
+          }
+          break;
+        }
       default:
         {
           basePageState.goLandingPage(item.linkPage, '', '', '', '');

@@ -405,17 +405,31 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
       }
     }
 
-    /* 새로운 업그레이드 과정은 보류
-    if(_isFirstBtn && _isLongTermSub) {
-      if(_curProd.isEmpty) {
+/*    // 새로운 업그레이드 과정은 보류
+    if(_curProd.isEmpty) {
+      if (_isUpgradeOn) {
+        //3종목 -> 1개월정기(ac_pr.a01)
+        inAppBilling.requestGStoreUpgrade(_productLists[0]);
+      }
+      else if (_isPaymentSingle) {
+        //ac_pr.m01
+        inAppBilling.requestGStorePurchase(_productLists[2]);
+      }
+      else if (_isPaymentSub) {
+        //ac_pr.a01
+        inAppBilling.requestGStorePurchase(_productLists[0]);
+      }
+      else if (_isLongTermSub) {
+        //ac_pr.am6d0
         inAppBilling.requestGStorePurchase(_productLists[1]);
       }
-      //새로운 업그레이드
-      else if(_curProd == 'ac_s3.a01' || _curProd == 'ac_pr.a01'
-          || _curProd == 'ac_pr.m01' || _curProd == 'ac_pr.mw1e1') {
-        inAppBilling.requestGStoreUpgradeNew(_curProd, 'ac_pr.am6d0');
-      }
+    }
+    //새로운 업그레이드
+    else if(_curProd == 'ac_s3.a01' || _curProd == 'ac_pr.a01'
+        || _curProd == 'ac_pr.m01' || _curProd == 'ac_pr.mw1e1') {
+      inAppBilling.requestGStoreUpgradeNew(_curProd, 'ac_pr.am6d0');
     }*/
+
   }
 
   //결제 선택 버튼
@@ -578,8 +592,10 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                     ),
                   ],
                 ),
-
-                _setPromotionText('20% 이상!'),
+                Visibility(
+                  visible: _isPaymentSub,
+                  child: _setPromotionText('22% 이상!'),
+                ),
               ],
             ),
           ),
@@ -659,6 +675,10 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                       ],
                     ),
                   ],
+                ),
+                Visibility(
+                  visible: _isLongTermSub,
+                  child: _setPromotionText('28% 이상!'),
                 ),
               ],
             ),

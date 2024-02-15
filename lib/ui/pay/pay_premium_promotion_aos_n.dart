@@ -167,19 +167,19 @@ class PayPremiumPromotionNewState extends State<PayPremiumPromotionAosNewPage> {
       case 'new_6m':
         {
           TAG_NAME = '계정 결제 6개월 정기 구독';
-          VIEW_PAGE_CODE = 'LPHX';
+          VIEW_PAGE_CODE = 'LPHD';
           break;
         }
       case 'new_6m_50':
         {
           TAG_NAME = '계정 결제 6개월 50% 할인';
-          VIEW_PAGE_CODE = 'LPHY';
+          VIEW_PAGE_CODE = 'LPHE';
           break;
         }
       case 'new_7d':
         {
           TAG_NAME = '프리미엄 계정(1주일)';
-          VIEW_PAGE_CODE = 'LPHZ';
+          VIEW_PAGE_CODE = 'LPHF';
           break;
         }
       default:
@@ -653,7 +653,7 @@ class PayPremiumPromotionNewState extends State<PayPremiumPromotionAosNewPage> {
         {
           priceType = '6개월씩 정기결제';
           priceInfo1 = '(6개월 이용)';
-          priceInfo2 = '50% 이상!';
+          priceInfo2 = '52% 이상!';
           perText = '(1달 약 36,600)';
           onPrText = true;
           isAt = false;
