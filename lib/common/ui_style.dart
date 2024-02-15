@@ -190,7 +190,7 @@ class UIStyle {
     return BoxDecoration(
       border: Border.all(
         color: RColor.mainColor,
-        width: 1.0,
+        width: 2.0,
       ),
       borderRadius: const BorderRadius.all(Radius.circular(14)),
     );

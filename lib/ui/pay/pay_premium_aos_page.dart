@@ -4,8 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:http/http.dart' as http;
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
@@ -26,14 +26,16 @@ import 'package:rassi_assist/ui/pay/premium_care_page.dart';
 import 'package:rassi_assist/ui/sub/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 2023.06
-/// 프리미엄 계정 결제
+import '../../common/ui_style.dart';
+
+/// 2024.02
+/// 프리미엄 계정 결제 new
 class PayPremiumAosPage extends StatefulWidget {
   static const routeName = '/page_pay_premium';
   static const String TAG = "[PayPremiumAosPage]";
   static const String TAG_NAME = '프리미엄_계정결제';
 
-  const PayPremiumAosPage({Key? key}) : super(key: key);
+  const PayPremiumAosPage({super.key});
 
   @override
   State<StatefulWidget> createState() => PayPremiumAosState();
@@ -42,19 +44,27 @@ class PayPremiumAosPage extends StatefulWidget {
 class PayPremiumAosState extends State<PayPremiumAosPage> {
   var appGlobal = AppGlobal();
   var inAppBilling = PaymentAosService();
-  static const channel = MethodChannel(Const.METHOD_CHANNEL_NAME);
+
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  List<ProductDetails> _products = <ProductDetails>[];
+  List<PurchaseDetails> _purchases = <PurchaseDetails>[];
+  bool _isAvailable = false;
+  bool _purchasePending = false;
+  bool _loading = true;
+  String? _queryProductError;
+
 
   late SharedPreferences _prefs;
   String _userId = '';
   String _curProd = ''; //현재 사용중인 상품은
   String _payMethod = '';
-  String _pageTitle = '프리미엄 계정 가입';
   bool _isUpgradeOn = false;
-  bool _isVisibleOnce = true;
+  bool _isFirstBtn = true;
 
   final List<String> _productLists = Platform.isAndroid
       ? [
           'ac_pr.a01',
+          'ac_pr.am6d0',
           'ac_pr.m01',
         ]
       : [
@@ -62,17 +72,16 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
           'ios.ac_pr.m01',
         ];
 
-  late IAPItem _pdItemSub;
-  late IAPItem _pdItemOnce;
-  String _priceSub = '';
   String _priceSingle = '';
+  String _priceSub = '';
+  String _priceLongSub = '';
 
-  bool _isPaymentSingle = false; //단건결제이면 true
-  bool _isPaymentSub = true; //구독결제이면 true
+  bool _isPaymentSingle = false;  //단건결제이면 true
+  bool _isPaymentSub = true;      //1개월 구독결제이면 true
+  bool _isLongTermSub = false;    //6개월 구독결제이면 true
 
   bool statusCon = false; //결제모듈 연결상태
   bool _bProgress = false; //결제 완료 전까지 프로그래스
-  bool _isTryPayment = false; //결제버튼을 눌렀다면 화면이 닫히고 화면갱신 (true 일때 화면 갱신)
 
   var statCallback;
   var errCallback;
@@ -82,12 +91,11 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
 
   // 23.10.11 추가 구매 안내 문구 전문으로 가져오기
   final List<App03PaymentGuide> _listApp03 = [];
-
   // 23.10.13 프리미엄 결제 원래 가격 APP03 에서 가져오기
   String _originalPriceA01 = '';
 
-  // TODO 1. 이미 결제된 상품 확인 (프리미엄일 경우 결제 불가)
-  // TODO 2. 결제 가능 상태 확인 (매매비서 서버에 확인, 앱스토어 모듈에 확인)
+  // NOTE 1. 이미 결제된 상품 확인 (프리미엄일 경우 결제 불가)
+  // NOTE 2. 결제 가능 상태 확인 (매매비서 서버에 확인, 앱스토어 모듈에 확인)
 
   @override
   void initState() {
@@ -108,6 +116,81 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
             }));
       }
     });
+
+    _initStoreInfo().then((value) => {
+      for(ProductDetails tmp in _products) {
+        DLog.d('Inapp',
+            '*****************\n'
+            '${tmp.title}\n'
+            '${tmp.id}\n'
+            '${tmp.price}\n'
+            '${tmp.rawPrice}\n'
+            '${tmp.description}\n'
+            '*****************'),
+        if(tmp.id == 'ac_pr.a01'){
+          _priceSub = tmp.price
+        },
+        if(tmp.id == 'ac_pr.am6d0') {
+          _priceLongSub = tmp.price
+        },
+        if(tmp.id == 'ac_pr.m01') {
+          _priceSingle = tmp.price
+        }
+      },
+      setState(() { })
+    });
+  }
+
+  // in_app_purchase 모듈 초기화 & 상품정보 가져오기
+  Future<void> _initStoreInfo() async {
+    DLog.d('Inapp', '=> initStoreInfo');
+    final bool isAvailable = await _inAppPurchase.isAvailable();
+    DLog.d('Inapp', '#1 isAvailable $isAvailable');
+    if (!isAvailable) {
+      setState(() {
+        _isAvailable = isAvailable;
+        _products = <ProductDetails>[];
+        _purchases = <PurchaseDetails>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    final ProductDetailsResponse productDetailResponse =
+      await _inAppPurchase.queryProductDetails(_productLists.toSet());
+    if (productDetailResponse.error != null) {
+      DLog.d('Inapp', '#2 productDetailResponse.error');
+      setState(() {
+        _queryProductError = productDetailResponse.error!.message;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = <PurchaseDetails>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+    if (productDetailResponse.productDetails.isEmpty) {
+      DLog.d('Inapp', '#3 productDetails.isEmpty');
+      setState(() {
+        _queryProductError = null;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = <PurchaseDetails>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    DLog.d('Inapp', '#4 product isAvailable');
+    setState(() {
+      _isAvailable = isAvailable;
+      _products = productDetailResponse.productDetails;
+      _purchasePending = false;
+      _loading = false;
+    });
   }
 
   //저장된 데이터를 가져오는 것에 시간이 필요함
@@ -125,7 +208,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
   //결제 동작은 비동기적으로 구동되어서 초기화 작업이 필요
   Future<void> _initBillingState() async {
     //상품정보 요청
-    _getProduct();
+    // _getProduct();
 
     //결제 상태 리스너
     statCallback = (status) async {
@@ -138,10 +221,13 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
       } else if (status == 'pay_success') {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
-        if(userInfoProvider.isPremiumUser() && context.mounted){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
+        if (userInfoProvider.isPremiumUser() && context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const PremiumCarePage()),
+          );
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
-        }else{
+        } else {
           Navigator.pop(context);
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         }
@@ -154,7 +240,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     //결제 에러 상태 리스너
     errCallback = (retStr) async {
       await CommonPopup.instance.showDialogBasicConfirm(context, '알림', retStr);
-      if(context.mounted){
+      if (context.mounted) {
         Navigator.pop(context);
       }
     };
@@ -191,14 +277,9 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                       child: ListView(
                         children: [
                           _setTopDesc(),
-                          const SizedBox(
-                            height: 10,
-                          ),
-
+                          const SizedBox(height: 10),
                           _setBanner(),
-                          const SizedBox(
-                            height: 15,
-                          ),
+                          const SizedBox(height: 15),
 
                           const Padding(
                             padding: EdgeInsets.symmetric(
@@ -206,71 +287,43 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                               horizontal: 10,
                             ),
                             child: Text(
-                              '결제 방식',
+                              '결제 방식을 선택하세요',
                               style: TStyle.commonTitle,
                             ),
                           ),
-                          Visibility(
-                            visible: _isVisibleOnce,
-                            child: _setButtonSingle(),
-                          ),
-                          _setButtonSub(),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(
+                          const SizedBox(height: 15),
+
+                          //결제 선택
+                          _setButtonSelect(),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
                               vertical: 6,
                               horizontal: 20,
                             ),
                             child: Text(
-                              '★ 정기결제는 언제든 구독을 취소하실 수 있어요.',
-                              style: TextStyle(
+                              _isFirstBtn ? '★ 정기결제는 언제든 구독을 취소하실 수 있습니다.' : '',
+                              style: const TextStyle(
                                 fontSize: 13,
                               ),
                             ),
                           ),
-                          const SizedBox(
-                            height: 15,
-                          ),
+                          const SizedBox(height: 15),
 
                           //구매안내
                           Platform.isIOS ? _setPayInfo() : _setPayInfoAOS(),
-
-                          ////이용약관, 개인정보처리방침(ios만 표시)
+                          //이용약관, 개인정보처리방침(ios만 표시)
                           Platform.isIOS ? _setTerms() : Container(),
                         ],
                       ),
                     ),
+
+                    //프리미엄 계정 시작하기
                     Container(
                       color: RColor.mainColor,
                       height: 70,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                       child: InkWell(
-                        onTap: () {
-                          _isTryPayment = true;
-                          DLog.d(PayPremiumAosPage.TAG, '결제 요청시 사용중인 상품코드 : $_curProd');
-                          if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
-                            commonShowToast(
-                                '이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
-                          } else {
-                            DLog.d(PayPremiumAosPage.TAG, '프리미엄 결제 요청');
-                            setState(() {
-                              _bProgress = true;
-                            });
-                            if (Platform.isIOS) {
-                              /* */
-                            } else if (Platform.isAndroid) {
-                              if (_isUpgradeOn) {
-                                inAppBilling.requestGStoreUpgrade(_productLists[0]);
-                              }
-                              else if (_isPaymentSingle) {
-                                inAppBilling.requestGStorePurchase(_productLists[1]);
-                              }
-                              else if (_isPaymentSub) {
-                                inAppBilling.requestGStorePurchase(_productLists[0]);
-                              }
-                            }
-                          }
-                        },
                         child: const Center(
                           child: Text(
                             '프리미엄 계정 시작하기',
@@ -281,6 +334,9 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                             ),
                           ),
                         ),
+                        onTap: () {
+                          _requestPurchase();
+                        },
                       ),
                     ),
                   ],
@@ -293,8 +349,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                     children: const [
                       Opacity(
                         opacity: 0.3,
-                        child: ModalBarrier(
-                            dismissible: false, color: Colors.grey),
+                        child: ModalBarrier(dismissible: false, color: Colors.grey),
                       ),
                       Center(
                         child: CircularProgressIndicator(),
@@ -320,189 +375,106 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     return Future.value(true);
   }
 
-  //단건 결제 버튼
-  Widget _setButtonSingle() {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        if (!_isPaymentSingle) {
-          setState(() {
-            _isPaymentSub = false;
-            _isPaymentSingle = true;
-          });
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-              color: _isPaymentSingle ? RColor.mainColor : RColor.lineGrey,
-              width: 0.8),
-          borderRadius: const BorderRadius.all(Radius.circular(14)),
-        ),
-        margin: const EdgeInsets.symmetric(
-          vertical: 6,
-          horizontal: 10,
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-        child: Row(
-          children: [
-            Row(
-              children: [
-                Visibility(
-                  visible: _isPaymentSingle,
-                  child: Image.asset(
-                    'images/test_pay_icon_check_on.png',
-                    height: 16,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                Visibility(
-                  visible: !_isPaymentSingle,
-                  child: Image.asset(
-                    'images/test_pay_icon_check_off.png',
-                    height: 16,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              width: 14,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '1개월 단건결제',
-                  style: TextStyle(
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(
-                  height: 6,
-                ),
-                Text(
-                  _priceSingle,
-                  style: TStyle.title17,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  //프리미엄 구매 요청 시작하기
+  void _requestPurchase() {
+    DLog.d(PayPremiumAosPage.TAG, '결제 요청시 사용중인 pdCode : $_curProd');
+
+    if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
+      commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+    } else {
+      DLog.d(PayPremiumAosPage.TAG, '프리미엄 결제 요청');
+      setState(() {
+        _bProgress = true;
+      });
+
+      if (_isUpgradeOn) {
+        //3종목 -> 1개월정기(ac_pr.a01)
+        inAppBilling.requestGStoreUpgrade(_productLists[0]);
+      }
+      else if (_isPaymentSingle) {
+        //ac_pr.m01
+        inAppBilling.requestGStorePurchase(_productLists[2]);
+      }
+      else if (_isPaymentSub) {
+        //ac_pr.a01
+        inAppBilling.requestGStorePurchase(_productLists[0]);
+      }
+      else if (_isLongTermSub) {
+        //ac_pr.am6d0
+        inAppBilling.requestGStorePurchase(_productLists[1]);
+      }
+    }
+
+    /* 새로운 업그레이드 과정은 보류
+    if(_isFirstBtn && _isLongTermSub) {
+      if(_curProd.isEmpty) {
+        inAppBilling.requestGStorePurchase(_productLists[1]);
+      }
+      //새로운 업그레이드
+      else if(_curProd == 'ac_s3.a01' || _curProd == 'ac_pr.a01'
+          || _curProd == 'ac_pr.m01' || _curProd == 'ac_pr.mw1e1') {
+        inAppBilling.requestGStoreUpgradeNew(_curProd, 'ac_pr.am6d0');
+      }
+    }*/
   }
 
-  //정기 결제 버튼
-  Widget _setButtonSub() {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        if (!_isPaymentSub) {
-          setState(() {
-            _isPaymentSub = true;
-            _isPaymentSingle = false;
-          });
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-              color: _isPaymentSub ? RColor.mainColor : RColor.lineGrey,
-              width: 0.8),
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-        ),
-        margin: const EdgeInsets.symmetric(
-          vertical: 6,
-          horizontal: 10,
-        ),
-        padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
-        //EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
+  //결제 선택 버튼
+  Widget _setButtonSelect() {
+    return Column(
+      children: [
+        //단건결제
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+            decoration: _isPaymentSingle
+                ? UIStyle.boxSelectedLineMainColor()
+                : UIStyle.boxUnSelectedLineMainGrey(),
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Visibility(
-                      visible: _isPaymentSub,
-                      child: Image.asset(
-                        'images/test_pay_icon_check_on.png',
-                        height: 16,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    Visibility(
-                      visible: !_isPaymentSub,
-                      child: Image.asset(
-                        'images/test_pay_icon_check_off.png',
-                        height: 16,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text(
-                          '매월정기결제',
-                          style: TextStyle(
-                            fontSize: 15,
+                        Visibility(
+                          visible: _isPaymentSingle,
+                          child: Image.asset(
+                            'images/icon_circle_check_y.png',
+                            height: 25,
+                            fit: BoxFit.contain,
                           ),
                         ),
-                        const SizedBox(
-                          width: 14,
+                        Visibility(
+                          visible: !_isPaymentSingle,
+                          child: Image.asset(
+                            'images/icon_circle_check_n.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 2,
-                            horizontal: 8,
-                          ),
-                          decoration: const BoxDecoration(
-                            color: RColor.mainColor,
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          child: const Text(
-                            '추천상품',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                            ),
-                          ),
-                        )
                       ],
                     ),
-                    const SizedBox(
-                      height: 6,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    const SizedBox(width: 15),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '￦${TStyle.getMoneyPoint(_originalPriceA01)}',
-                          style: const TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Color(0xff96918e),
-                          ),
+                        const Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '1개월 단건결제',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(
-                          width: 4,
-                        ),
+                        const SizedBox(height: 7),
                         Text(
-                          _priceSub,
+                          _priceSingle,
                           style: TStyle.title18T,
                         ),
                       ],
@@ -511,23 +483,244 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                 ),
               ],
             ),
-            const Flexible(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 10,
+          ),
+          onTap: () {
+            setState(() {
+              _isPaymentSingle = true;
+              _isPaymentSub = false;
+              _isLongTermSub = false;
+            });
+          },
+        ),
+
+        // 1개월 정기결제
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+            decoration: _isPaymentSub
+                ? UIStyle.boxSelectedLineMainColor()
+                : UIStyle.boxUnSelectedLineMainGrey(),
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        Visibility(
+                          visible: _isPaymentSub,
+                          child: Image.asset(
+                            'images/icon_circle_check_y.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        Visibility(
+                          visible: !_isPaymentSub,
+                          child: Image.asset(
+                            'images/icon_circle_check_n.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 15),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '매월 정기결제',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 2,
+                                horizontal: 8,
+                              ),
+                              decoration: const BoxDecoration(
+                                color: RColor.mainColor,
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                              ),
+                              child: const Text(
+                                '추천상품',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _setOrgPriceText(_originalPriceA01),
+                            const SizedBox(width: 7),
+                            Text(
+                              _priceSub,
+                              style: TStyle.title18T,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                child: Text(
-                  '20% 이상 할인!',
-                  style: TextStyle(
-                    color: RColor.sigBuy,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
+
+                _setPromotionText('20% 이상!'),
+              ],
+            ),
+          ),
+          onTap: () {
+            setState(() {
+              _isPaymentSub = true;
+              _isLongTermSub = false;
+              _isPaymentSingle = false;
+            });
+          },
+        ),
+
+        // 6개월 정기결제
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+            decoration: _isLongTermSub
+                ? UIStyle.boxSelectedLineMainColor()
+                : UIStyle.boxUnSelectedLineMainGrey(),
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        Visibility(
+                          visible: _isLongTermSub,
+                          child: Image.asset(
+                            'images/icon_circle_check_y.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        Visibility(
+                          visible: !_isLongTermSub,
+                          child: Image.asset(
+                            'images/icon_circle_check_n.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 15),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '6개월씩 정기결제',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _setOrgPriceText('462000'),
+                            const SizedBox(width: 7),
+                            Text(
+                              _priceLongSub,
+                              style: TStyle.title18T,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          onTap: () {
+            setState(() {
+              _isPaymentSingle = false;
+              _isPaymentSub = false;
+              _isLongTermSub = true;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  //기존가 표시
+  Widget _setOrgPriceText(String prc) {
+    return Text(
+      '￦${TStyle.getMoneyPoint(prc)}',
+      style: const TextStyle(
+        decoration: TextDecoration.lineThrough,
+        fontWeight: FontWeight.w600,
+        fontSize: 15,
+        color: Color(0xff96918e),
+      ),
+    );
+  }
+
+  //할인률 강조 문구
+  Widget _setPromotionText(String desc) {
+    return Flexible(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 2,
+                horizontal: 8,
+              ),
+              decoration: const BoxDecoration(
+                color: RColor.sigBuy,
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+              child: const Text(
+                '할인율',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
                 ),
               ),
             ),
-            //SizedBox(width: 1,),
+            Text(
+              desc,
+              style: const TextStyle(
+                color: RColor.sigBuy,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            )
           ],
         ),
       ),
@@ -676,7 +869,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebPage(),
+                    builder: (context) => const WebPage(),
                     settings: RouteSettings(
                       arguments: PgData(pgData: Net.AGREE_TERMS),
                     ),
@@ -695,7 +888,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebPage(),
+                    builder: (context) => const WebPage(),
                     settings: RouteSettings(
                       arguments: PgData(pgData: Net.AGREE_POLICY_INFO),
                     ),
@@ -716,140 +909,6 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         style: TStyle.commonTitle,
       ),
     );
-  }
-
-  //결제 완료시에만 사용 (결제 완료/실패 알림 -> 자동 페이지 종료)
-  void _showDialogMsg(String message, String btnText) {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext dialogContext) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(dialogContext);
-                    _goPreviousPage();
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  Text(
-                    message,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        // margin: const EdgeInsets.only(top: 20.0),
-                        decoration: const BoxDecoration(
-                          color: RColor.mainColor,
-                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        ),
-                        child: Center(
-                          child: Text(
-                            btnText,
-                            style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(dialogContext);
-                      _goPreviousPage();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  //상품정보 가져오기
-  Future _getProduct() async {
-    DLog.d(PayPremiumAosPage.TAG, '# 상품정보 요청');
-
-    if (Platform.isAndroid) {
-      DLog.d(PayPremiumAosPage.TAG, '##### Platform Android');
-
-      try {
-        final String result = await channel
-            .invokeMethod('getProductList', {'pd_code': _productLists[0]});
-        if (result.isNotEmpty) {
-          _priceSub = result;
-          DLog.d(PayPremiumAosPage.TAG, '##### 요청 결과 $result');
-        }
-
-        final String result2 = await channel
-            .invokeMethod('getProductList', {'pd_code': _productLists[1]});
-        if (result2.isNotEmpty) {
-          _priceSingle = result2;
-          DLog.d(PayPremiumAosPage.TAG, '##### 요청 결과 $result2');
-        }
-
-        setState(() {});
-      } on PlatformException catch (e) {}
-      // DLog.d(PayPremiumPage.TAG, '##### Platform Android');
-    }
-    // ios
-    else if (Platform.isIOS) {
-      /*     List<IAPItem> items =
-      await FlutterInappPurchase.instance.getProducts(_productLists);
-
-      for (var item in items) {
-        //print('${item.toString()}');
-        _items.add(item);
-        if (item.productId == 'ios.ac_pr.m01') {
-          _pdItemOnce = item;
-          _priceSingle = item.localizedPrice;
-        }
-        if (item.productId == 'ios.ac_pr.a01') {
-          _pdItemSub = item;
-          _priceSub = item.localizedPrice;
-        }
-      }
-
-      setState(() {
-        _items = items;
-      });*/
-    }
-  }
-
-  //완료, 실패 알림 후 페이지 자동 종료
-  void _goPreviousPage() {
-    // DEFINE 23.08.04 프리미엄 케어 서비스 추가
-    Navigator.pop(context);
-    //basePageState.callPageRoute(const PremiumCarePage());
-    /*Future.delayed(const Duration(milliseconds: 500), () {
-      Navigator.of(context).pop('complete'); //null 자리에 데이터를 넘겨 이전 페이지 갱신???
-    });*/
   }
 
   // convert 패키지의 jsonDecode 사용
@@ -883,24 +942,23 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
           _payMethod = accountData.payMethod;
           if (accountData.prodName == '프리미엄') {
             //이미 프리미엄 계정으로 결제 화면 종료
-          } else if (accountData.prodCode == 'AC_S3') {
+          }
+          else if (accountData.prodCode == 'AC_S3') {
             if (_payMethod == 'PM50') {
               //인앱으로 결제한 경우
               _isUpgradeOn = true;
               _isPaymentSub = true;
-              _isVisibleOnce = false;
-              _pageTitle = '프리미엄 계정 업그레이드';
             }
           } else {
             //베이직 계정
           }
         } else {
           //회원정보 가져오지 못함
-          AccountData().setFreeUserStatus();
+          const AccountData().setFreeUserStatus();
         }
         setState(() {});
       } else {
-        AccountData().setFreeUserStatus();
+        const AccountData().setFreeUserStatus();
       }
 
       _fetchPosts(
@@ -908,7 +966,9 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
-    } else if (trStr == TR.APP03) {
+    }
+    //
+    else if (trStr == TR.APP03) {
       final TrApp03 resData = TrApp03.fromJson(jsonDecode(response.body));
       _originalPriceA01 = resData.retData!.stdPrice;
       _listApp03.clear();
@@ -925,7 +985,6 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
             }));
       }
     }
-
     //홍보
     else if (trStr == TR.PROM02) {
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));

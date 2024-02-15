@@ -213,6 +213,9 @@ class LD {
   static const String payment_pl_ft30 = "LPH9"; //결제 프로모션 30%
   static const String payment_pl_day7 = "LPHA"; //결제 프로모션 7일 무료
   static const String payment_pl_day14 = "LPHB"; //결제 프로모션 14일 무료
+  static const String payment_pl_6m_d50 = "LPHE"; //결제 프로모션 첫결제 6개월 50%
+  static const String payment_pl_100won = "LPHF"; //1주일 100원 이벤트
+  static const String payment_premium_with_6m = "LPHD"; //프리미엄_계정결제(6개월포함)
 
   // J 매매비서 캐치
   static const String catch_viewer = "LPJ1"; //캐치 상세보기

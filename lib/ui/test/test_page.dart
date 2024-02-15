@@ -31,10 +31,10 @@ import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/pay/inapp_purchase_page.dart';
 import 'package:rassi_assist/ui/pay/inapp_purchase_test.dart';
 import 'package:rassi_assist/ui/pay/pay_manage_page.dart';
-import 'package:rassi_assist/ui/pay/pay_premium_aos_new_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_promotion_aos.dart';
+import 'package:rassi_assist/ui/pay/pay_premium_promotion_aos_n.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_promotion_page.dart';
 import 'package:rassi_assist/ui/pay/pay_three_stock.dart';
 import 'package:rassi_assist/ui/pay/premium_care_page.dart';
@@ -591,7 +591,7 @@ class TestState extends State<TestWidget> {
                 basePageState.callPageRouteUP(const PayPremiumPage());
               }
               if (Platform.isAndroid) {
-                basePageState.callPageRouteUP(const PayPremiumAosNewPage());
+                basePageState.callPageRouteUP(const PayPremiumAosPage());
               }
             },
           ),
@@ -721,7 +721,7 @@ class TestState extends State<TestWidget> {
             onTap: () => basePageState.callPageRouteUpData(
               Platform.isIOS
                   ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+                  : const PayPremiumPromotionAosNewPage(),
               PgData(data: 'new_6m'),
             ),
           ),
@@ -739,7 +739,7 @@ class TestState extends State<TestWidget> {
             onTap: () => basePageState.callPageRouteUpData(
               Platform.isIOS
                   ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+                  : const PayPremiumPromotionAosNewPage(),
               PgData(data: 'new_6m_50'),
             ),
           ),
@@ -757,7 +757,7 @@ class TestState extends State<TestWidget> {
             onTap: () => basePageState.callPageRouteUpData(
               Platform.isIOS
                   ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+                  : const PayPremiumPromotionAosNewPage(),
               PgData(data: 'new_7d'),
             ),
           ),
