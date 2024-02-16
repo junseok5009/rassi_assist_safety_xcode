@@ -157,10 +157,6 @@ class PaymentAosService {
       String inappMsg = json['inappMsg'];
 
       requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
-
-      // Future.delayed(const Duration(seconds: 5), () {
-      //   requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
-      // });
     }
   }
 

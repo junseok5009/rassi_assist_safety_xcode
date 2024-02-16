@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -471,33 +472,42 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
         padding: const EdgeInsets.all(10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Row(
-              children: [
-                const Text(
-                  '라씨',
-                  style: TextStyle(
-                    color: RColor.purpleBasic_6565ff,
-                    fontSize: 12,
+            Expanded(
+              child: Row(
+                children: [
+                  const Text(
+                    '라씨',
+                    style: TextStyle(
+                      color: RColor.purpleBasic_6565ff,
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  width: 2,
-                ),
-                Image.asset(
-                  'images/icon_talk_purple.png',
-                  height: 14,
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                const Text(
-                  '추적이 완료되었습니다.',
-                  style: TextStyle(
-                    fontSize: 13,
+                  const SizedBox(
+                    width: 2,
                   ),
-                ),
-              ],
+                  Image.asset(
+                    'images/icon_talk_purple.png',
+                    height: 14,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  const Expanded(
+                    child: AutoSizeText(
+                      '추적이 완료되었습니다.',
+                      style: TextStyle(
+                        fontSize: 13,
+                      ),
+                      maxLines: 2,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                ],
+              ),
             ),
             Row(
               children: [
@@ -585,12 +595,13 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
             const SizedBox(
               width: 10,
             ),
-            Expanded(
-              child: Text(
+            Flexible(
+              child: AutoSizeText(
                 item.listTalk[0].achieveText,
                 style: const TextStyle(
-                  fontSize: 13,
+                  //fontSize: 13,
                 ),
+                overflow: TextOverflow.ellipsis,
                 maxLines: 2,
               ),
             ),

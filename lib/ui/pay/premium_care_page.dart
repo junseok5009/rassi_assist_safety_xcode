@@ -33,7 +33,6 @@ class PremiumCarePage extends StatefulWidget {
 
 class _PremiumCarePageState extends State<PremiumCarePage> {
   late SharedPreferences _prefs;
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
 
   // 유저정보
   String _userId = '';
@@ -80,12 +79,19 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
     );
   }
 
+
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
+
   @override
   void dispose() {
     _swiperController.dispose();
     _certNumTEController.dispose();
     _certConfirmTEController.dispose();
-    _bYetDispose = false;
     super.dispose();
   }
 
@@ -487,13 +493,13 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
               children: [
                 Row(
                   children: [
-                    Flexible(
+                    const Flexible(
                       flex: 1,
                       fit: FlexFit.tight,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             '매수',
                             style: TextStyle(
@@ -620,13 +626,13 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
               children: [
                 Row(
                   children: [
-                    Flexible(
+                    const Flexible(
                       flex: 1,
                       fit: FlexFit.tight,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             '매도',
                             style: TextStyle(
@@ -835,20 +841,20 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Text(
+                  const Text(
                     '나만의 매도신호 설정하기',
                     style: TStyle.defaultTitle,
                   ),
                   const SizedBox(
                     height: 20,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10),
+                  const Padding(
+                    padding: EdgeInsets.all(10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          '나의 포켓에 보유 종목으로 추가하세요.',
+                          '나의 포켓에서 "나만의 매도신호"를 만들어 보세요',
                           style: TextStyle(
                             fontSize: 14,
                           ),
@@ -965,8 +971,8 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                 ),
                 Column(
                   children: [
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Text(
                           '다이렉트 상담 링크 전송받기',
                           style: TextStyle(
@@ -1194,8 +1200,8 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                 width: 5,
               ),
               InkWell(
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Text(
                       '(→',
                       style: TextStyle(
@@ -1418,8 +1424,8 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                 width: 5,
               ),
               InkWell(
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Text(
                       '(→',
                       style: TextStyle(
@@ -1697,7 +1703,7 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
           )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {

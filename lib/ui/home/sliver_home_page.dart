@@ -33,8 +33,6 @@ import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_ddinfo.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_hot_theme.dart';
-import 'package:rassi_assist/ui/home/home_tile/home_tile_mystock_status.dart';
-import 'package:rassi_assist/ui/home/home_tile/home_tile_mystock_status_2.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_today_signal.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_trading_stock.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
@@ -43,11 +41,13 @@ import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_promotion_aos.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_promotion_page.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
+import 'package:rassi_assist/ui/promotion/promotion_page.dart';
 import 'package:rassi_assist/ui/sub/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/tr_compare/tr_compare01.dart';
 import 'home_tile/home_tile_issue.dart';
+import 'home_tile/home_tile_mystock_status_2.dart';
 import 'home_tile/home_tile_social.dart';
 import 'home_tile/home_tile_stock_catch.dart';
 import 'home_tile/home_tile_stock_compare_list.dart';
@@ -697,6 +697,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     }
   }
 
+  // prom02 바텀시트
   Widget _setImgWidget(Prom02 item) {
     BoxFit boxFit = BoxFit.fill;
     int bgColorInteger = 0xffF3F4F8; // bgWeak
@@ -747,44 +748,67 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       if (prItem.linkPage == 'LPH1') {
         navigateRefreshPay();
       } else if (prItem.linkPage == 'LPH7') {
-        _navigateRefreshPayPromotion(
-          context,
+        navigateRefreshPayPromotion(
           Platform.isIOS
               ? const PayPremiumPromotionPage()
               : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad5'),
         );
       } else if (prItem.linkPage == 'LPH8') {
-        _navigateRefreshPayPromotion(
-          context,
+        navigateRefreshPayPromotion(
           Platform.isIOS
               ? const PayPremiumPromotionPage()
               : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad4'),
         );
       } else if (prItem.linkPage == 'LPH9') {
-        _navigateRefreshPayPromotion(
-          context,
+        navigateRefreshPayPromotion(
           Platform.isIOS
               ? const PayPremiumPromotionPage()
               : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad3'),
         );
       } else if (prItem.linkPage == 'LPHA') {
-        _navigateRefreshPayPromotion(
-          context,
+        navigateRefreshPayPromotion(
           Platform.isIOS
               ? const PayPremiumPromotionPage()
               : const PayPremiumPromotionAosPage(),
           PgData(data: 'at1'),
         );
       } else if (prItem.linkPage == 'LPHB') {
-        _navigateRefreshPayPromotion(
-          context,
+        navigateRefreshPayPromotion(
           Platform.isIOS
               ? const PayPremiumPromotionPage()
               : const PayPremiumPromotionAosPage(),
           PgData(data: 'at2'),
+        );
+      } else if (prItem.linkPage == 'LPHE') {
+        navigateRefreshPayPromotion(
+          Platform.isIOS
+              ? const PayPremiumPromotionPage()
+              : const PayPremiumPromotionAosPage(),
+          PgData(data: 'new_6m_50'),
+        );
+      } else if (prItem.linkPage == 'LPHG') {
+        navigateRefreshPayPromotion(
+          Platform.isIOS
+              ? const PayPremiumPromotionPage()
+              : const PayPremiumPromotionAosPage(),
+          PgData(data: 'new_6m_70'),
+        );
+      } else if (prItem.linkPage == 'LPHF') {
+        navigateRefreshPayPromotion(
+          Platform.isIOS
+              ? const PayPremiumPromotionPage()
+              : const PayPremiumPromotionAosPage(),
+          PgData(data: 'new_7d'),
+        );
+      } else if (prItem.linkPage.contains('LPQ')) {
+        navigateRefreshPayPromotion(
+          PromotionPage(
+            promotionCode: prItem.linkPage,
+          ),
+          PgData(data: ''),
         );
       } else {
         basePageState.goLandingPage(prItem.linkPage, '', '', '', '');
@@ -1131,16 +1155,11 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       DLog.d(SliverHomeWidget.TAG, '*** navigete cancel ***');
     } else {
       DLog.d(SliverHomeWidget.TAG, '*** navigateRefresh');
-      _fetchPosts(
-          TR.USER04,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-          }));
+      requestTrUser04();
     }
   }
 
-  _navigateRefreshPayPromotion(
-      BuildContext context, Widget instance, PgData pgData) async {
+  navigateRefreshPayPromotion(Widget instance, PgData pgData) async {
     final result = await Navigator.push(
       context,
       _createRouteData(
@@ -1395,6 +1414,18 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
+
+        // 테스트를 위한 데이터 입니다.
+        /*resData.retData.add(Prom02(
+          title: 'dd',
+          viewPosition: 'TOP',
+          promoDiv: 'BANNER',
+          contentType: 'IMG',
+          linkType: 'APP',
+          linkPage: 'LPQ1',
+          content: 'http://files.thinkpool.com/rassiPrm/tips_FFFAED.jpg',
+        ));*/
+
         if (resData.retData.isNotEmpty) {
           for (int i = 0; i < resData.retData.length; i++) {
             Prom02 item = resData.retData[i];

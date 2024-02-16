@@ -25,6 +25,7 @@ import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:rassi_assist/ui/pocket/sliver_pocket_tab.dart';
+import 'package:rassi_assist/ui/promotion/promotion_page.dart';
 import 'package:rassi_assist/ui/signal/signal_today_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -135,8 +136,7 @@ class BasePageState extends State<BasePage> {
 
   //시작시 포그라운드 푸시 받기 설정
   void _setFcmForeground() async {
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
@@ -458,8 +458,29 @@ class BasePageState extends State<BasePage> {
             if (SliverHomeWidget.globalKey.currentState != null) {
               SliverHomeWidget.globalKey.currentState?.navigateRefreshPay();
             } else {
-              // 추후에 하긴 해야함.. 어떤 화면에서 푸시를 받을지 몰라서 갱신을 못해줌
+              //
             }
+          }
+          break;
+        }
+      // [프로모션 이벤트 페이지]
+      case 'LPQ1':
+      case 'LPQ2':
+      case 'LPQ3':
+      case 'LPQ4':
+      case 'LPQ5':
+      case 'LPQ6':
+      case 'LPQ7':
+      case 'LPQ8':
+      case 'LPQ9':
+        {
+          if (SliverHomeWidget.globalKey.currentState != null) {
+            SliverHomeWidget.globalKey.currentState?.navigateRefreshPayPromotion(
+              PromotionPage(
+                promotionCode: landingCode,
+              ),
+              PgData(data: ''),
+            );
           }
           break;
         }

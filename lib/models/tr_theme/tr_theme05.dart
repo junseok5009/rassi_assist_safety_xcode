@@ -66,9 +66,11 @@ class TileTheme05 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: Container(
         width: double.infinity,
-        height: 143,
+        height: 150,
         margin: const EdgeInsets.symmetric(
           horizontal: 15,
           vertical: 10,
@@ -108,40 +110,44 @@ class TileTheme05 extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              InkWell(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      item.stockName,
-                      style: TStyle.defaultTitle,
+                    InkWell(
+                      child: Text(
+                        item.stockName,
+                        style: TStyle.defaultTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () {
+                        basePageState.goStockHomePage(
+                          item.stockCode,
+                          item.stockName,
+                          Const.STK_INDEX_SIGNAL,
+                        );
+                      },
                     ),
+                    const SizedBox(height: 2,),
                     Text(
                       item.stockCode,
                       style: TStyle.contentGrey14,
                     ),
                   ],
                 ),
-                onTap: () {
-                  basePageState.goStockHomePage(
-                    item.stockCode,
-                    item.stockName,
-                    Const.STK_INDEX_SIGNAL,
-                  );
-                },
               ),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  _setTextBox('${TStyle.getFixedNum(item.increaseRate)}%'),
+                  //_setTextBox('${TStyle.getFixedNum('999.99')}%'),
+                  const SizedBox(height: 2,),
                   Text(
                     selDiv == 'SHORT' ? '최근 5일간' : '이번 추세기간', //'최근 $days일간',
-                    style: TStyle.textGreyDefault,
+                    style: TStyle.contentGrey14,
                   ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  _setTextBox('${TStyle.getFixedNum(item.increaseRate)}%'),
                 ],
               ),
             ],
@@ -196,7 +202,7 @@ class TileTheme05 extends StatelessWidget {
       bColor = RColor.sigBuy;
     }
     return Container(
-      width: 105,
+      width: 94,
       height: 30,
       padding: const EdgeInsets.only(top: 2),
       decoration: BoxDecoration(

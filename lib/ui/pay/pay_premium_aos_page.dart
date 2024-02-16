@@ -222,17 +222,24 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
         if (userInfoProvider.isPremiumUser() && context.mounted) {
-          Navigator.pushReplacement(
+          Navigator.popUntil(
             context,
-            MaterialPageRoute(builder: (context) => const PremiumCarePage()),
+            ModalRoute.withName('/base'),
           );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         } else {
-          Navigator.pop(context);
+          Navigator.popUntil(
+            context,
+            ModalRoute.withName('/base'),
+          );
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         }
       } else {
-        Navigator.pop(context);
+        Navigator.popUntil(
+          context,
+          ModalRoute.withName('/base'),
+        );
       }
     };
     inAppBilling.addToProStatusChangedListeners(statCallback);

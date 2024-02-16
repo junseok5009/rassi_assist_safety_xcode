@@ -338,23 +338,30 @@ class TStyle {
     color: Color(0xffEFEFEF),
   );
 
+  static const btnTextWht19 = TextStyle(
+    //버튼 화이트 텍스트 20
+    fontWeight: FontWeight.w500,
+    fontSize: 19,
+    color: Colors.white,
+  );
+
   static const btnTextWht18 = TextStyle(
     //버튼 화이트 텍스트 20
     fontWeight: FontWeight.w500,
     fontSize: 18,
-    color: Color(0xffEFEFEF),
+    color: Colors.white,
   );
 
   static const btnTextWht17 = TextStyle(
     //버튼 화이트 텍스트 17
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w500,
     fontSize: 17,
     color: Color(0xffEFEFEF),
   );
 
   static const btnTextWht16 = TextStyle(
     //버튼 화이트 텍스트 16
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w500,
     fontSize: 16,
     color: Colors.white,
   );

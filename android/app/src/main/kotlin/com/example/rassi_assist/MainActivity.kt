@@ -260,7 +260,7 @@ class MainActivity: FlutterFragmentActivity() {
                     requestQueryPurchasesAsync()
                 }
                 // 결제 히스토리 조회
-                else if(call.method == "getPurchaseHistory") {
+/*                else if(call.method == "getPurchaseHistory") {
                     Log.w("MainActivity", "##### getPurchaseHistory")
                     if (!isStoreReady) {
                         Log.w("MainActivity", "isStoreReady false!")
@@ -275,7 +275,7 @@ class MainActivity: FlutterFragmentActivity() {
                             }
                         }
                     }
-                }
+                }*/
                 else {
                     result.notImplemented()
                 }
@@ -354,8 +354,11 @@ class MainActivity: FlutterFragmentActivity() {
             // 구글 플레이에서 구매 성공, 구매 성공 시 구매 토큰도 생성됩니다.
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 if (purchases != null) {
-                    Log.w("MainActivity",  "[결제완료&승인대기] " + billingResult.responseCode + ", size:" + purchases.size)
+                    Log.w("MainActivity",  "[결제완료&승인대기] retCode: " + billingResult.responseCode + ", size:" + purchases.size)
+                    Log.w("MainActivity",  "[결제완료내역]  " + billingResult.toString())
+                    Log.w("MainActivity",  "[결제완료내역]  " + purchases.toString())
                     if (purchases.size > 0) {
+                        Log.w("MainActivity",  "[결제건_항목]  " + purchases[0].originalJson)
                         handlePurchase(purchases[0])
                     }
                 }
@@ -823,8 +826,10 @@ class MainActivity: FlutterFragmentActivity() {
 
                 val productDetails = productDetailsList[0]
                 if(pdCode == "ac_pr.am6d0"){
+                    Log.w("MainActivity", "업그레이드 모드 ReplacementMode[ CHARGE_FULL_PRICE ]")
                     doBillingUpgradeFlow(productDetails, oldPurchaseToken, ReplacementMode.CHARGE_FULL_PRICE)
                 } else {
+                    Log.w("MainActivity", "업그레이드 모드 ReplacementMode[ WITH_TIME_PRORATION ]")
                     doBillingUpgradeFlow(productDetails, oldPurchaseToken, ReplacementMode.WITH_TIME_PRORATION)
                 }
             }

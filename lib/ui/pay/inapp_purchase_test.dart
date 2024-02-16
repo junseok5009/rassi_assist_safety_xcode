@@ -39,6 +39,7 @@ List<String> _kProductIds = Platform.isAndroid
         'ac_pr.m01',
         'ac_pr.am6d0',
         'ac_pr.am6d5', //231000, 330000  (첫결제 미실행시 2가지로 표시됨)
+        'ac_pr.am6d7', //118800, 330000  (첫결제 미실행시 2가지로 표시됨)
         'ac_pr.mw1e1',
         'ac_pr.ad3',
         'ac_pr.ad4',

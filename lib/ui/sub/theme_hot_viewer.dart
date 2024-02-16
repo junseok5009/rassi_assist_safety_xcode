@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
+import 'package:rassi_assist/common/common_function_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
@@ -38,9 +41,9 @@ class ThemeHotViewer extends StatefulWidget {
 }
 
 class ThemeHotViewerState extends State<ThemeHotViewer> {
+  final GlobalKey _containerKey = GlobalKey();
   late SharedPreferences _prefs;
   String _userId = "";
-  late PgData args;
 
   bool _initFirst = true;
   String _themeCode = '';
@@ -58,9 +61,11 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
   String _dataStr = '[]';
   bool _bSelect1M = false, _bSelect6M = false, _bSelect12M = true;
 
-  List<StockChart> _stockList = [];
-  List<TopCard> _tcList = [];
-  List<ThemeStHistory> _thList = [];
+  final List<StockChart> _stockList = [];
+  final List<TopCard> _tcList = [];
+  final List<ThemeStHistory> _thList = [];
+
+  double _themeInfoTextWidgetHeight = 0;
 
   @override
   void initState() {
@@ -69,16 +74,38 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
       ThemeHotViewer.TAG_NAME,
     );
     _loadPrefData().then((value) {
-      if (_userId != '') {
-        _fetchPosts(
-            TR.THEME04,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-              'themeCode': _themeCode,
-              'periodMonth': '12',
-            }));
-      }
+      Future.delayed(Duration.zero, () {
+        PgData args = ModalRoute.of(context)!.settings.arguments as PgData;
+        _themeCode = args.pgSn;
+        if (_themeCode == null || _themeCode.isEmpty) {
+          Navigator.pop(context);
+        }
+        if (_userId != '') {
+          _fetchPosts(
+              TR.THEME04,
+              jsonEncode(<String, String>{
+                'userId': _userId,
+                'themeCode': _themeCode,
+                'periodMonth': '12',
+              }));
+        }
+      });
     });
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        double getWidgetHeight =
+            CommonFunctionClass.instance.getSize(_containerKey).height;
+        if (getWidgetHeight != _themeInfoTextWidgetHeight) {
+          _themeInfoTextWidgetHeight = getWidgetHeight;
+          super.setState(() {});
+        }
+      });
+    }
   }
 
   Future<void> _loadPrefData() async {
@@ -88,47 +115,36 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    _themeCode = args.pgSn;
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: _setLayout(),
-    );
-  }
-
-  Widget _setLayout() {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: RColor.bgBasic_fdfdfd,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               // 테마명, 전일대비, 테마설명
               _setHeaderInfo(),
-              const SizedBox(
-                height: 20.0,
+              SizedBox(
+                height: _themeInfoTextWidgetHeight / 2 + 30,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: InkWell(
-                      child: const ImageIcon(
-                        AssetImage(
-                          'images/rassi_icon_qu_bl.png',
-                        ),
-                        size: 22,
-                        color: Colors.grey,
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    child: const ImageIcon(
+                      AssetImage(
+                        'images/rassi_icon_qu_bl.png',
                       ),
-                      onTap: () {
-                        _showDialogDesc(RString.desc_hot_theme_index_pop);
-                      },
+                      size: 22,
+                      color: Colors.grey,
                     ),
+                    onTap: () {
+                      _showDialogDesc(RString.desc_hot_theme_index_pop);
+                    },
                   ),
-                ],
+                ),
               ),
 
               //AI테마분석 (THEME04 강세 / 약세)
@@ -190,7 +206,10 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
               _setSubTitle(
                 '테마주도주 히스토리',
               ),
-              _setCardHistory(),
+              _tcList.isEmpty
+                  ? const SizedBox()
+                  : _setCardHistory(),
+
               const SizedBox(
                 height: 15,
               ),
@@ -228,169 +247,127 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     if (_increseRate.contains('-')) {
       rText = _increseRate;
       rColor = RColor.sigSell;
-    } else {
+    }
+    else {
       rText = '+$_increseRate';
       rColor = RColor.sigBuy;
     }
 
     return Stack(
+      clipBehavior: Clip.none,
       children: [
-        //전체높이
-        Container(
-          width: 50,
-          height: 230, /*color: Colors.deepOrange[200],*/
-        ),
-
-        //테마 기본 이미지
-        Container(
-          width: double.infinity,
-          height: 172,
-          child: _setNetImage(RString.themeDefaultUrl),
-        ),
-
-        //테마명, 전일대비
-        Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: _setNetworkImage(_themeCode),
-              fit: BoxFit.fill,
-            ),
+        _setThemeBackgroundImageWidget(_themeCode),
+        Align(
+          alignment: Alignment.topRight,
+          child: IconButton(
+            icon: const Icon(Icons.close),
+            color: Colors.white,
+            iconSize: 24,
+            onPressed: () => Navigator.of(context).pop(null),
           ),
+        ),
+        Align(
+          alignment: Alignment.topCenter,
           child: Container(
-            decoration: UIStyle.boxWithblur(),
+            margin: const EdgeInsets.only(
+              top: 55,
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // X버튼
+                Text(
+                  '$_themeName 테마',
+                  style: TStyle.btnTextWht20,
+                ),
+                const SizedBox(
+                  height: 15.0,
+                ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      color: Colors.white,
-                      iconSize: 30,
-                      onPressed: () => Navigator.of(context).pop(null),
+                    const Text(
+                      '전일대비 ',
+                      style: TStyle.btnContentWht16,
                     ),
                     const SizedBox(
-                      width: 10.0,
+                      width: 5,
+                    ),
+                    Text(
+                      '$rText%',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        color: rColor,
+                      ),
                     ),
                   ],
                 ),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        '  $_themeName 테마  ',
-                        style: TStyle.btnTextWht20,
-                      ),
-                      const SizedBox(
-                        height: 15.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '전일대비 ',
-                            style: TStyle.btnContentWht16,
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            '$rText%',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 20,
-                              color: rColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 50.0,
-                      ),
-                    ],
-                  ),
+                const SizedBox(
+                  height: 50.0,
                 ),
               ],
             ),
           ),
         ),
-
-        //테마 설명 공간
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(
-            top: 140,
-            left: 15,
-            right: 15,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-          decoration: const BoxDecoration(
-            color: RColor.mainColor,
-            borderRadius: BorderRadius.all(
-              Radius.circular(15),
+        Positioned(
+          left: 20,
+          right: 20,
+          bottom: (_themeInfoTextWidgetHeight) * -1 / 2,
+          child: Container(
+            key: _containerKey,
+            //margin: const EdgeInsets.symmetric(horizontal: 10,),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+            decoration: const BoxDecoration(
+              //color: RColor.mainColor,
+              //color: Color(0xffe9e9ec),
+              color: RColor.mainColor,
+              borderRadius: BorderRadius.all(
+                Radius.circular(15),
+              ),
             ),
-          ),
-          child: Text(
-            _themeDesc,
-            style: TStyle.btnTextWht13,
+            child: Text(
+              _themeDesc,
+              /*style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),*/
+              style: TStyle.btnTextWht13,
+            ),
           ),
         ),
       ],
     );
   }
 
-  //네트워크 이미지
-  ImageProvider _setNetworkImage(String tCode) {
-    var tmp = 'http://files.thinkpool.com/rassi_signal/theme_images/$tCode.jpg';
-    try {
-      ImageProvider img = NetworkImage(tmp);
-      return img;
-    } on Exception catch (_) {
-      DLog.d(ThemeHotViewer.TAG, 'ERR : Exception');
-      return const NetworkImage(
-          'http://files.thinkpool.com/rassi_signal/theme_images/0000.jpg');
+  Widget _setThemeBackgroundImageWidget(String tCode) {
+    if (tCode.isEmpty) {
+      return const SizedBox(
+        width: double.infinity,
+        height: 200,
+      );
     }
-  }
-
-  //네트워크 이미지
-  Widget _setNetImage(String sUrl) {
-    if (sUrl != null || sUrl.length != 0) {
-      var img = Image.network(
-        sUrl,
-        fit: BoxFit.fill,
-        errorBuilder: (BuildContext? context, Object? exception, StackTrace? stackTrace) {
-          return const Text(
-            'No Image',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-              color: Color(0x70444444),
+    return SizedBox(
+      width: double.infinity,
+      height: 200,
+      child: ColorFiltered(
+        colorFilter: ColorFilter.mode(
+          Colors.black.withOpacity(0.6), // 어두운 색 및 투명도 값 (0.0 ~ 1.0)
+          BlendMode.srcATop, // 혼합 모드
+        ),
+        child: CachedNetworkImage(
+          fit: BoxFit.fill,
+          imageUrl:
+              'http://files.thinkpool.com/rassi_signal/theme_images/$tCode.jpg',
+          errorWidget: (context, url, error) => CachedNetworkImage(
+            fit: BoxFit.fill,
+            imageUrl: RString.themeDefaultUrl,
+            errorWidget: (context, url, error) => Container(
+              color: Colors.white,
             ),
-          );
-        },
-      );
-      return img;
-    } else {
-      //이 부분은 사용안됨
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Text(
-            'No Image',
-            textAlign: TextAlign.center,
-            style: TStyle.contentMGrey,
-          )
-        ],
-      );
-    }
+          ),
+        ),
+      ),
+    );
   }
 
   //테마 상태 (강세 / 약세)
@@ -401,29 +378,31 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     if (_themeStatus == 'BULL') {
       isBull = true;
       status = '강세';
-      statusSub = '강세 추세';
+      statusSub = '추세';
     } else if (_themeStatus == 'Bullish') {
       isBull = true;
       status = '강세';
-      statusSub = '강세 추세';
+      statusSub = '추세';
     } else if (_themeStatus == 'BEAR') {
       isBull = false;
       status = '약세';
-      statusSub = '약세 추세';
+      statusSub = '추세';
     } else if (_themeStatus == 'Bearish') {
       isBull = false;
       status = '약세';
-      statusSub = '약세 전환';
+      statusSub = '전환';
     }
 
     return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 20),
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
                   children: [
@@ -439,19 +418,9 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                     const Text(
                       '라씨 매매비서가 분석한\n현재 테마 상태는?',
                       style: TStyle.title18,
+                      textAlign: TextAlign.center,
                     ),
                   ],
-                ),
-                Container(
-                  width: 90,
-                  height: 38,
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  decoration: isBull
-                      ? UIStyle.boxBtnSelectedBuy()
-                      : UIStyle.boxBtnSelectedSell(),
-                  child: Center(
-                    child: Text(status, style: TStyle.btnTextWht15),
-                  ),
                 ),
               ],
             ),
@@ -463,27 +432,55 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
               height: 38,
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               decoration: BoxDecoration(
-                color: RColor.bgWeakGrey,
-                border: Border.all(
-                  color: RColor.bgWeakGrey,
-                  width: 0.8,
-                ),
+                color: isBull ? RColor.bgBuy : RColor.bgSell,
                 borderRadius: const BorderRadius.all(Radius.circular(20.0)),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    '$statusSub  ',
-                    style: TStyle.defaultContent,
-                  ),
-                  Text(
-                    _themeDays,
-                    style: isBull ? TStyle.textBBuy : TStyle.textBSell,
-                  ),
-                  const Text(
-                    '일째',
-                    style: TStyle.defaultContent,
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          status,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          ' $statusSub',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        Text(
+                          _themeDays,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 19,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Text(
+                          '일째',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -508,6 +505,8 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
             children: [
               Expanded(
                 child: InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
                   child: Container(
                     height: 38,
                     margin: const EdgeInsets.only(left: 10),
@@ -538,6 +537,8 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
               ),
               Expanded(
                 child: InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
                   child: Container(
                     height: 38,
                     margin: const EdgeInsets.only(left: 10),
@@ -709,6 +710,8 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
             children: [
               Expanded(
                 child: InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
                   child: Container(
                     height: 38,
                     margin: const EdgeInsets.symmetric(horizontal: 15),
@@ -716,7 +719,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                     decoration: _bSelect1M
                         ? UIStyle.boxBtnSelectedTab()
                         : const BoxDecoration(),
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         '1개월',
                         style: TStyle.textGrey18,
@@ -963,8 +966,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                     height: 5.0,
                   ),
                   const Padding(
-                    padding:
-                        EdgeInsets.only(top: 20, left: 10, right: 10),
+                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,
@@ -1068,12 +1070,12 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     //현재 테마 주도주
     else if (trStr == TR.THEME05) {
       final TrTheme05 resData = TrTheme05.fromJson(jsonDecode(response.body));
+      _stockList.clear();
       if (resData.retCode == RT.SUCCESS) {
-        _stockList = resData.retData.listStock;
-        // _days = resData.retData.elapsedDays;
+        _stockList.addAll(resData.retData.listStock);
         _selDiv = resData.retData.selectDiv;
-        setState(() {});
       }
+      setState(() {});
 
       if (_initFirst) {
         _initFirst = false;
@@ -1091,12 +1093,13 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     //테마주도주 히스토리
     else if (trStr == TR.THEME06) {
       final TrTheme06 resData = TrTheme06.fromJson(jsonDecode(response.body));
-
+      _tcList.clear();
+      _thList.clear();
       if (resData.retCode == RT.SUCCESS) {
-        _tcList = resData.retData.listCard;
-        _thList = resData.retData.listTimeline;
-        setState(() {});
+        _tcList.addAll(resData.retData.listCard);
+        _thList.addAll(resData.retData.listTimeline);
       }
+      setState(() {});
     }
   }
 

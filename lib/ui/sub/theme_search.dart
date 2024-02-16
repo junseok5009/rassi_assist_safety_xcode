@@ -353,6 +353,7 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
+
     } on TimeoutException catch (_) {
       DLog.d(ThemeSearch.TAG, 'ERR : TimeoutException (12 seconds)');
       _showDialogNetErr();
