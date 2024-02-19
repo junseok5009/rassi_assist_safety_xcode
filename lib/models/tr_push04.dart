@@ -47,20 +47,20 @@ class Push04 {
 
   factory Push04.fromJson(Map<String, dynamic> json) {
     return Push04(
-      rcvAssentYn: json['rcvAssentYn'],
-      rcvAssentDttm: json['rcvAssentDttm'],
-      tradeSignalYn: json['tradeSignalYn'],
-      rassiroNewsYn: json['rassiroNewsYn'],
-      snsConcernYn: json['snsConcernYn'],
-      stockNewsYn: json['stockNewsYn'],
-      buySignalYn: json['buySignalYn'],
-      catchBriefYn: json['catchBriefYn'],
-      issueYn: json['issueYn'],
-      catchSubsYn: json['catchSubsYn'],
-      catchBighandYn: json['catchBighandYn'],
-      catchThemeYn: json['catchThemeYn'],
-      catchTopYn: json['catchTopYn'],
-      noticeYn: json['noticeYn'],
+      rcvAssentYn: json['rcvAssentYn'] ?? '',
+      rcvAssentDttm: json['rcvAssentDttm'] ?? '',
+      tradeSignalYn: json['tradeSignalYn'] ?? '',
+      rassiroNewsYn: json['rassiroNewsYn'] ?? '',
+      snsConcernYn: json['snsConcernYn'] ?? '',
+      stockNewsYn: json['stockNewsYn'] ?? '',
+      buySignalYn: json['buySignalYn'] ?? '',
+      catchBriefYn: json['catchBriefYn'] ?? '',
+      issueYn: json['issueYn'] ?? '',
+      catchSubsYn: json['catchSubsYn'] ?? '',
+      catchBighandYn: json['catchBighandYn'] ?? '',
+      catchThemeYn: json['catchThemeYn'] ?? '',
+      catchTopYn: json['catchTopYn'] ?? '',
+      noticeYn: json['noticeYn'] ?? '',
     );
   }
 }
