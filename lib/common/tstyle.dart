@@ -680,10 +680,10 @@ class TStyle {
   //날짜 형식 표시 (2021.05.05)
   static String getDateSFormat(String date) {
     String rtStr = '';
-    if (date != null && date.length > 7) {
+    if (date.length > 7) {
       rtStr = '${date.substring(0, 4)}.${date.substring(4, 6)}.${date.substring(6, 8)}';
       return rtStr;
-    } else if (date != null && date.length > 5) {
+    } else if (date.length > 5) {
       rtStr = '${date.substring(0, 4)}.${date.substring(4)}';
       return rtStr;
     }
@@ -743,10 +743,10 @@ class TStyle {
   //날짜 형식 표시 (05월 05일)
   static String getDateMdKorFormat(String date) {
     String rtStr = '';
-    if (date != null && date.length > 7) {
+    if (date.length > 7) {
       rtStr = '${date.substring(4, 6)}월 ${date.substring(6, 8)}일';
       return rtStr;
-    } else if (date != null && date.length == 4) {
+    } else if (date.length == 4) {
       rtStr = '${date.substring(0, 2)}월 ${date.substring(2, 4)}일';
       return rtStr;
     }
@@ -754,7 +754,7 @@ class TStyle {
   }
 
   static String getWeekdayKor(String date) {
-    if (date != null && date.length > 7) {
+    if (date.length > 7) {
       int iDay = DateTime
           .parse(date)
           .weekday;
@@ -770,7 +770,7 @@ class TStyle {
   }
 
   static String getWeekdayEng(String date) {
-    if (date != null && date.length > 7) {
+    if (date.length > 7) {
       int iDay = DateTime
           .parse(date)
           .weekday;
@@ -867,7 +867,7 @@ class TStyle {
 
   //가격 형식 표시
   static String getMoneyPoint(String sText) {
-    if (sText != null && sText.isNotEmpty) {
+    if (sText.isNotEmpty) {
       if (double.tryParse(sText) == null) {
         return sText;
       } else {
@@ -889,7 +889,7 @@ class TStyle {
 
   //가격 형식 표시 + 소수점 반영
   static String getMoneyPoint2(String sText) {
-    if (sText != null && sText.length > 0) {
+    if (sText.length > 0) {
       //var prc = int.parse(sText);
       if (sText.contains('.')) {
         return NumberFormat('###,###,###,###.##')
@@ -906,7 +906,7 @@ class TStyle {
 
   //소수점 2자리까지 표시
   static String getFixedNum(String sText) {
-    if (sText != null && sText.length > 0) {
+    if (sText.length > 0) {
       var dNum = double.parse(sText);
       if (dNum < 0) {
         //음수일 경우에 floor()에서 반올림 일어나 따로 처리
@@ -925,17 +925,13 @@ class TStyle {
 
   //종목명 글자수 제한 표시
   static String getLimitString(String sName, int cnt) {
-    if (sName != null) {
-      if (sName.length > cnt) return sName.substring(0, cnt);
-      return sName;
-    } else {
-      return sName;
+    if (sName.length > cnt) return sName.substring(0, cnt);
+    return sName;
     }
-  }
 
   //rate(지수값)에 -가 아니면 +붙여주고 %
   static String getPercentString(String sName) {
-    if (sName != null && sName.isNotEmpty) {
+    if (sName.isNotEmpty) {
       if (sName.contains('-')) {
         return '$sName%';
       } else if (sName == '0' || sName == '0.0' || sName == '0.00') {
@@ -950,7 +946,7 @@ class TStyle {
 
   //값에 -면 ▼, +면 ▲ 붙여주고 값에는 콤마 찍어주기
   static String getTriangleStringWithMoneyPoint(String value) {
-    if (value != null && value.isNotEmpty) {
+    if (value.isNotEmpty) {
       if (value.contains('-')) {
         return '▼${TStyle.getMoneyPoint(value.substring(1))}';
       } else if (value == '0' || value == '0.0' || value == '0.00') {
@@ -1013,7 +1009,7 @@ class TStyle {
 
   // 0 = black
   static Color getMinusPlusColor(String sCount) {
-    if (sCount != null && sCount.isNotEmpty) {
+    if (sCount.isNotEmpty) {
       double dCount = double.tryParse(sCount) ?? 0;
       if (dCount == 0) {
         return Colors.black;
@@ -1029,7 +1025,7 @@ class TStyle {
 
   // 박스에 사용하는 +-0 컬러, 0 = grey
   static Color getMinusPlusColorBox(String sCount) {
-    if (sCount != null && sCount.isNotEmpty) {
+    if (sCount.isNotEmpty) {
       double dCount = double.tryParse(sCount) ?? 0;
       if (dCount == 0) {
         return RColor.greyBox_dcdfe2;
@@ -1045,7 +1041,7 @@ class TStyle {
 
   // getMinusPlusColorBox 와 함께 사용하는 텍스트 컬러, +- = 흰, 0 = 블랙
   static Color getIsZeroBlackNotWhite(String sCount) {
-    if (sCount != null && sCount.isNotEmpty) {
+    if (sCount.isNotEmpty) {
       double dCount = double.tryParse(sCount) ?? 0;
       if (dCount == 0) {
         return Colors.black;

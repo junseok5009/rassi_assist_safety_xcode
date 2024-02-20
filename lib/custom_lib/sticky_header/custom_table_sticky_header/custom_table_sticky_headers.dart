@@ -171,7 +171,7 @@ class _CustomStickyHeadersTableState extends State<CustomStickyHeadersTable> {
                     notification,
                     widget.scrollControllers._horizontalTitleController,
                   );
-                  if (widget.onEndScrolling != null && didEndScrolling) {
+                  if (didEndScrolling) {
                     _scrollOffsetX = widget
                         .scrollControllers._horizontalTitleController.offset;
                     widget.onEndScrolling(_scrollOffsetX, _scrollOffsetY);
@@ -207,7 +207,7 @@ class _CustomStickyHeadersTableState extends State<CustomStickyHeadersTable> {
                     notification,
                     widget.scrollControllers._verticalTitleController,
                   );
-                  if (widget.onEndScrolling != null && didEndScrolling) {
+                  if (didEndScrolling) {
                     _scrollOffsetY = widget
                         .scrollControllers._verticalTitleController.offset;
                     widget.onEndScrolling(_scrollOffsetX, _scrollOffsetY);
@@ -249,7 +249,7 @@ class _CustomStickyHeadersTableState extends State<CustomStickyHeadersTable> {
                           notification,
                           widget.scrollControllers._verticalBodyController,
                         );
-                        if (widget.onEndScrolling != null && didEndScrolling) {
+                        if (didEndScrolling) {
                           _scrollOffsetY = widget
                               .scrollControllers._verticalBodyController.offset;
                           widget.onEndScrolling(
@@ -265,7 +265,7 @@ class _CustomStickyHeadersTableState extends State<CustomStickyHeadersTable> {
                       notification,
                       widget.scrollControllers._horizontalBodyController,
                     );
-                    if (widget.onEndScrolling != null && didEndScrolling) {
+                    if (didEndScrolling) {
                       _scrollOffsetX = widget
                           .scrollControllers._horizontalBodyController.offset;
                       widget.onEndScrolling(_scrollOffsetX, _scrollOffsetY);
@@ -293,12 +293,12 @@ class _CustomStickyHeadersTableState extends State<CustomStickyHeadersTable> {
       } else {
         color = RColor.bgWeakGrey;
       }
-      height = widget.cellDimensions?.stickyHeight(i);
+      height = widget.cellDimensions.stickyHeight(i);
     }
     return Container(
       width: widget.rowTitleWidth,
       height: height,
-      alignment: widget.cellAlignments?.columnAlignment(i),
+      alignment: widget.cellAlignments.columnAlignment(i),
       decoration: BoxDecoration(
         color: color,
         border: const Border(
@@ -331,7 +331,7 @@ class _CustomStickyHeadersTableState extends State<CustomStickyHeadersTable> {
       width: widget.dataCellcontentWidth,
       height: height,
       alignment: widget.cellAlignments
-          ?.contentAlignment(rowIdx, columnIdx),
+          .contentAlignment(rowIdx, columnIdx),
       decoration: BoxDecoration(
         color: color,
         border: const Border(

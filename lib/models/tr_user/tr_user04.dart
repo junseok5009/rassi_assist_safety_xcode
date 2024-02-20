@@ -129,7 +129,7 @@ class AccountData {
     if (userId.isEmpty) {
       return false;
     }
-    await prefs.setString(Const.PREFS_CUR_PROD, productId ?? '');
+    await prefs.setString(Const.PREFS_CUR_PROD, productId);
     if (prodCode == 'AC_PR') {
       //프리미엄 사용자
       appGlobal.isFreeUser = false;
@@ -151,7 +151,7 @@ class AccountData {
 
     final AppGlobal appGlobal = AppGlobal();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(Const.PREFS_CUR_PROD, productId ?? '');
+    await prefs.setString(Const.PREFS_CUR_PROD, productId);
 
     if (prodCode == 'AC_PR') {
       //프리미엄 사용자
@@ -178,7 +178,7 @@ class AccountData {
     } else if (subsStatus == 'N') {
       CustomFirebaseClass.setUserProperty(CustomFirebaseProperty.SUBS_STATUS, 'none');
     }
-    await prefs.setString(Const.PREFS_CUR_PROD, productId ?? ''); //사용중 상품코드 등록
+    await prefs.setString(Const.PREFS_CUR_PROD, productId); //사용중 상품코드 등록
 
     if (productId.isNotEmpty) {
       CustomFirebaseClass.setUserProperty(CustomFirebaseProperty.PAYING_PD, productId);
@@ -189,7 +189,7 @@ class AccountData {
 
   void setFreeUserStatus() async {
     final AppGlobal appGlobal = AppGlobal();
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //final SharedPreferences prefs = await SharedPreferences.getInstance();
     appGlobal.isFreeUser = true;
     appGlobal.isPremium = false;
     //await prefs.setString(Const.PREFS_CUR_PROD, '');

@@ -10,7 +10,7 @@ import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 
 // 12.08 유저 정보 프로바이더 ( 결제 시 업데이트 )
 class UserInfoProvider extends ChangeNotifier {
-  final String TAG = '[* UserInfoProvider *]';
+  final String tag = '[* UserInfoProvider *]';
 
   User04 _user04 = defUser04;
 
@@ -37,19 +37,9 @@ class UserInfoProvider extends ChangeNotifier {
         jsonEncode(<String, String>{
           'userId': AppGlobal().userId,
         }));
-    if (getUser04 == null) {
-      AccountData().setFreeUserStatus();
-      return false;
-    } else {
-      _user04 = getUser04;
-      //notifyListeners();
-      if (_user04.accountData != null) {
-        return await _user04.accountData.initUserStatus();
-      } else {
-        AccountData().setFreeUserStatus();
-        return false;
-      }
-    }
+    _user04 = getUser04;
+    //notifyListeners();
+    return await _user04.accountData.initUserStatus();
   }
 
   Future<bool> updatePayment() async {
@@ -58,20 +48,10 @@ class UserInfoProvider extends ChangeNotifier {
         jsonEncode(<String, String>{
           'userId': AppGlobal().userId,
         }));
-    if (getUser04 == null) {
-      AccountData().setFreeUserStatus();
-      return false;
-    } else {
-      _user04 = getUser04;
-      if (_user04.accountData != null) {
-        await _user04.accountData.initUserStatusAfterPayment();
-        notifyListeners();
-        return true;
-      } else {
-        AccountData().setFreeUserStatus();
-        return false;
-      }
-    }
+    _user04 = getUser04;
+    await _user04.accountData.initUserStatusAfterPayment();
+    notifyListeners();
+    return true;
   }
 
   dynamic _fetchPosts(String trStr, String json) async {
@@ -102,7 +82,7 @@ class UserInfoProvider extends ChangeNotifier {
       if (resData.retCode == RT.SUCCESS) {
         return resData.retData;
       } else {
-        AccountData().setFreeUserStatus();
+        const AccountData().setFreeUserStatus();
         return null;
       }
     }

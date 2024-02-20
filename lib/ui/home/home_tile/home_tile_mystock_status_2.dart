@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock11.dart';
@@ -92,7 +91,7 @@ class _HomeTileMystockStatus2State extends State<HomeTileMystockStatus2>
                         style: TStyle.content14,
                       ),
                       Text(
-                        widget.pock11.upCnt ?? '0',
+                        widget.pock11.upCnt,
                         style: TStyle.commonTitle,
                       ),
                     ],
@@ -224,9 +223,6 @@ class _HomeTileMystockStatus2State extends State<HomeTileMystockStatus2>
   //무료 사용자 배너
   Widget _setBannerRobot() {
     return Consumer<UserInfoProvider>(builder: (context, provider, child) {
-      DLog.e('Consumer rebuilder !!! '
-          'provider.isPremiumUser() : ${provider.isPremiumUser()}\n'
-          'provider.isPremiumUser() : ${provider.is3StockUser()}\n');
       if (provider.isPremiumUser() || provider.is3StockUser()) {
         return const SizedBox();
       } else {
@@ -247,11 +243,11 @@ class _HomeTileMystockStatus2State extends State<HomeTileMystockStatus2>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Flexible(
+                const Flexible(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         '내 종목 소식과 AI매매신호',
                         style: TextStyle(

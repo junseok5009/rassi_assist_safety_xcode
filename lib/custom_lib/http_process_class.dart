@@ -45,10 +45,10 @@ class HttpProcessResultClass {
   final String appDialogMsg;
 
   HttpProcessResultClass({
-    this.serverRetCode='',
-    this.serverRetMsg='',
-    this.appResultCode=0,
-    this.appDialogMsg='',
+    this.serverRetCode = '',
+    this.serverRetMsg = '',
+    this.appResultCode = 0,
+    this.appDialogMsg = '',
   });
 
   @override
@@ -58,7 +58,7 @@ class HttpProcessResultClass {
 }
 
 class HttpProcessClass {
-  final String TAG = 'HttpProcessClass';
+  final String tag = 'HttpProcessClass';
 
   int _callNum = 0000;
   late HttpProcessResultClass result;
@@ -66,13 +66,13 @@ class HttpProcessClass {
   // 0001 = joinHttpProcess;
 
   late SharedPreferences _prefs;
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   String _token = '';
   String _userId = '';
   late IosDeviceInfo _iosInfo;
   late AndroidDeviceInfo _androidInfo;
-  final String _appEnv = Platform.isIOS ? "EN20" : "EN10";  // android: EN10, ios: EN20
+  final String _appEnv =
+      Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
 
   HttpProcessClass._privateConstructor();
 
@@ -84,17 +84,17 @@ class HttpProcessClass {
   }
 
   // 로그인 프로세스 User02 > psuh01, user03
-  Future<HttpProcessResultClass> callHttpProcess0001(String _vUserId) async {
-    DLog.d(TAG, 'ㅡㅡㅡㅡㅡ callHttpProcess0001 ㅡㅡㅡㅡㅡ');
+  Future<HttpProcessResultClass> callHttpProcess0001(String vUserId) async {
+    DLog.d(tag, 'ㅡㅡㅡㅡㅡ callHttpProcess0001 ㅡㅡㅡㅡㅡ');
     _callNum = 0001;
     _prefs = await SharedPreferences.getInstance();
     //_userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    _userId = _vUserId;
+    _userId = vUserId;
     _token = (await FirebaseMessaging.instance.getToken()) ?? '';
 
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    if(Platform.isIOS) _iosInfo = await deviceInfo.iosInfo;
-    if(Platform.isAndroid) _androidInfo = await deviceInfo.androidInfo;
+    if (Platform.isIOS) _iosInfo = await deviceInfo.iosInfo;
+    if (Platform.isAndroid) _androidInfo = await deviceInfo.androidInfo;
 
     await _fetchPosts(
         TR.USER02,
@@ -102,31 +102,32 @@ class HttpProcessClass {
           'userId': _userId,
         }));
 
-    DLog.d(TAG, 'ㅡㅡㅡㅡㅡ finish callHttpProcess0001 ㅡㅡㅡㅡㅡ \n result : ${result.toString()}');
+    DLog.d(tag,
+        'ㅡㅡㅡㅡㅡ finish callHttpProcess0001 ㅡㅡㅡㅡㅡ \n result : ${result.toString()}');
     return result;
   }
 
   // 회원가입 프로세스 User01 > psuh01 > push03
-  Future<HttpProcessResultClass> callHttpProcess0002(String _vUserId) async {
-    DLog.d(TAG, 'ㅡㅡㅡㅡㅡ callHttpProcess0002 ㅡㅡㅡㅡㅡ');
+  Future<HttpProcessResultClass> callHttpProcess0002(String vUserId) async {
+    DLog.d(tag, 'ㅡㅡㅡㅡㅡ callHttpProcess0002 ㅡㅡㅡㅡㅡ');
     _callNum = 0002;
     _prefs = await SharedPreferences.getInstance();
 
-    if(_vUserId == null || _vUserId.isEmpty){
+    if (vUserId.isEmpty) {
       _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    }else{
-      _userId = _vUserId;
+    } else {
+      _userId = vUserId;
     }
     _token = (await FirebaseMessaging.instance.getToken()) ?? '';
 
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    if(Platform.isIOS) _iosInfo = await deviceInfo.iosInfo;
-    if(Platform.isAndroid) _androidInfo = await deviceInfo.androidInfo;
+    if (Platform.isIOS) _iosInfo = await deviceInfo.iosInfo;
+    if (Platform.isAndroid) _androidInfo = await deviceInfo.androidInfo;
 
     await _fetchPosts(
         TR.USER01,
         jsonEncode(<String, String>{
-          'userId': _vUserId,
+          'userId': vUserId,
           'userStatus': 'N',
           'encHp': '', //씽크풀 가입시 전화번호 입력됨
           'appEnv': _appEnv,
@@ -134,13 +135,13 @@ class HttpProcessClass {
           'groupSubDiv': '',
         }));
 
-    DLog.d(TAG,
+    DLog.d(tag,
         'ㅡㅡㅡㅡㅡ finish callHttpProcess0002 ㅡㅡㅡㅡㅡ \n result : ${result.toString()}');
     return result;
   }
 
   Future<void> _parse0001(String trStr, final http.Response response) async {
-    DLog.d(TAG, response.body);
+    DLog.d(tag, response.body);
 
     String? deviceModel =
         Platform.isIOS ? _iosInfo.utsname.machine : _androidInfo.model;
@@ -152,12 +153,12 @@ class HttpProcessClass {
       final TrUser02 resData = TrUser02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         final User02 data = resData.retData;
-        if (data.userId != null && data.userId.isNotEmpty) {
+        if (data.userId.isNotEmpty) {
           _userId = data.userId;
         }
         await _prefs.setString(Const.PREFS_USER_ID, _userId);
         AppGlobal().userId = _userId;
-        if (_token != null && _token != '') {
+        if (_token != '') {
           await _fetchPosts(
               TR.PUSH01,
               jsonEncode(<String, String>{
@@ -178,7 +179,8 @@ class HttpProcessClass {
                 'adId': await utilsGetIDFA(),
               }));
         }
-      } else if (resData.retCode == RT.NOT_RASSI_USER || resData.retCode == RT.NOT_RASSI_USER_NEW) {
+      } else if (resData.retCode == RT.NOT_RASSI_USER ||
+          resData.retCode == RT.NOT_RASSI_USER_NEW) {
         await _fetchPosts(
             TR.USER01,
             jsonEncode(<String, String>{
@@ -201,7 +203,7 @@ class HttpProcessClass {
       if (resData.retCode == RT.SUCCESS) {
         await _prefs.setString(Const.PREFS_USER_ID, _userId);
         AppGlobal().userId = _userId;
-        if (_token != null && _token != '') {
+        if (_token != '') {
           await _fetchPosts(
               TR.PUSH01,
               jsonEncode(<String, String>{
@@ -229,15 +231,14 @@ class HttpProcessClass {
             serverRetMsg: resData.retMsg,
             appResultCode: 402,
             appDialogMsg:
-                'CODE : ${resData.retCode}\n' + '필수입력필드누락\n고객센터에 문의해 주세요.');
+                'CODE : ${resData.retCode}\n' '필수입력필드누락\n고객센터에 문의해 주세요.');
       } else {
         //매매비서 계정 생성 실패
         result = HttpProcessResultClass(
             serverRetCode: resData.retCode,
             serverRetMsg: resData.retMsg,
             appResultCode: 401,
-            appDialogMsg: 'CODE : ${resData.retCode}\n' +
-                '${resData.retMsg}\n고객센터에 문의해 주세요.');
+            appDialogMsg: 'CODE : ${resData.retCode}\n' '${resData.retMsg}\n고객센터에 문의해 주세요.');
       }
     }
 
@@ -292,7 +293,7 @@ class HttpProcessClass {
     //푸시 알림 기본값 설정
     else if (trStr == TR.PUSH03) {
       //_goNextRoute(_strId);
-      DLog.d(TAG, '_parse0001 PUSH03 !');
+      DLog.d(tag, '_parse0001 PUSH03 !');
       result = HttpProcessResultClass(
           serverRetCode: RT.SUCCESS,
           serverRetMsg: '성공',
@@ -303,7 +304,7 @@ class HttpProcessClass {
 
   //convert 패키지의 jsonDecode 사용
   Future<void> _fetchPosts(String trStr, String json) async {
-    DLog.d(TAG, trStr + ' ' + json);
+    DLog.d(tag, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {

@@ -36,6 +36,7 @@ import 'package:rassi_assist/ui/news/news_tag_all_page.dart';
 import 'package:rassi_assist/ui/sub/home_market_kos_chart.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_time_line_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../main/base_page.dart';
 
@@ -706,6 +707,22 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
               duration: const Duration(milliseconds: 800),
             ),
           ),
+          Container(
+            width: double.infinity,
+            height: 300,
+            child: SfCartesianChart(
+              primaryXAxis: NumericAxis(),
+              series: <ChartSeries>[
+                BubbleSeries<ChartData, int>(
+                  dataSource: chartData,
+                  xValueMapper: (ChartData data, _) => data.xValue,
+                  yValueMapper: (ChartData data, _) => data.yValue,
+                  sizeValueMapper: (ChartData data, _) => data.bubbleSize,
+                  dataLabelSettings: DataLabelSettings(isVisible: true),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(
             height: 15.0,
           ),
@@ -1107,7 +1124,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
   //숨어 있는 정보를 찾으시나요?
   Widget _setHidingTag() {
     return Visibility(
-      visible: _hidingTagList != null && _hidingTagList.isNotEmpty,
+      visible: _hidingTagList.isNotEmpty,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1155,7 +1172,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
   //빠른 정보를 찾으시나요?
   Widget _setRapidTag() {
     return Visibility(
-      visible: _rapidTagList != null && _rapidTagList.length > 0,
+      visible: _rapidTagList.isNotEmpty,
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(top: 25, left: 15, right: 15, bottom: 5),
@@ -1242,7 +1259,6 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
         Text(
           title,
           style: TStyle.defaultTitle,
-          textScaleFactor: Const.TEXT_SCALE_FACTOR,
         ),
         const SizedBox(
           width: 5.0,
@@ -1250,7 +1266,6 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
         Text(
           subTitle,
           style: const TextStyle(fontSize: 14, color: Colors.grey),
-          textScaleFactor: Const.TEXT_SCALE_FACTOR,
         ),
       ],
     );
@@ -1331,10 +1346,10 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
           }
         }
         setState(() {
-          if (_listPrTop.length > 0) prTOP = true;
-          if (_listPrHgh.length > 0) prHGH = true;
-          if (_listPrMid.length > 0) prMID = true;
-          if (_listPrLow.length > 0) prLOW = true;
+          if (_listPrTop.isNotEmpty) prTOP = true;
+          if (_listPrHgh.isNotEmpty) prHGH = true;
+          if (_listPrMid.isNotEmpty) prMID = true;
+          if (_listPrLow.isNotEmpty) prLOW = true;
         });
       }
 
@@ -1472,7 +1487,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
       _hidingTagList.clear();
       final TrRassi15 resData = TrRassi15.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        if (resData.listData != null && resData.listData.length > 0) {
+        if (resData.listData.isNotEmpty) {
           for (int i = 0; i < resData.listData.length; i++) {
             if (resData.listData[i].tagDiv == 'H') {
               //숨은 정보
@@ -1516,3 +1531,19 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
     }
   }
 }
+
+class ChartData {
+  final int xValue;
+  final int yValue;
+  final double bubbleSize;
+
+  ChartData(this.xValue, this.yValue, this.bubbleSize);
+}
+
+final List<ChartData> chartData = [
+  ChartData(0, 35, 0.32),
+  ChartData(10, 38, 0.21),
+  ChartData(0, 34, 0.38),
+  ChartData(0, 52, 0.29),
+  ChartData(0, 40, 0.34)
+];

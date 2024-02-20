@@ -10,10 +10,8 @@ class TrSearch05 {
   TrSearch05({this.retCode='', this.retMsg='', this.listData = const []});
 
   factory TrSearch05.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Stock> rtList;
-    list == null ? rtList = [] : rtList = list.map((i) => Stock.fromJson(i)).toList();
-
+    var list = (json['retData'] ?? []) as List;
+    List<Stock> rtList = list.map((i) => Stock.fromJson(i)).toList();
     return TrSearch05(
       retCode: json['retCode'],
       retMsg: json['retMsg'],

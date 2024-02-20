@@ -75,9 +75,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                             context, '소셜지수란?', _socialPopupMsg);
                       },
                       splashColor: Colors.transparent,
-                      child: Row(
+                      child: const Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
+                        children: [
                           Text(
                             '소셜분석',
                             style: TStyle.title18T,
@@ -95,8 +95,8 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                     ),
                     InkWell(
                       splashColor: Colors.transparent,
-                      child: Row(
-                        children: const [
+                      child: const Row(
+                        children: [
                           Text(
                             '표로 보기 ',
                             style: TextStyle(
@@ -258,9 +258,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                           alignment: Alignment.center,
                           padding: const EdgeInsets.all(10),
                           decoration: UIStyle.boxRoundLine6(),
-                          child: Row(
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
+                            children: [
                               Text(
                                 'N ',
                                 style: TextStyle(
@@ -296,9 +296,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                           alignment: Alignment.center,
                           padding: const EdgeInsets.all(10),
                           decoration: UIStyle.boxRoundLine6(),
-                          child: Row(
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
+                            children: [
                               Text(
                                 'TP ',
                                 style: TextStyle(
@@ -604,7 +604,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                   textAngle: 0,
                   verticalTextAlignment: TextAnchor.start,
                   verticalTextPadding:'0%',
-                  textStyle: TextStyle(fontSize: 12,color: RColor.chartRed1,),
+                  textStyle: const TextStyle(fontSize: 12,color: RColor.chartRed1,),
                   start: isStartBombIndex,
                   end: index,
                   opacity: 0.55,
@@ -622,7 +622,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                   textAngle: 0,
                   verticalTextAlignment: TextAnchor.start,
                   verticalTextPadding:'0%',
-                  textStyle: TextStyle(fontSize: 12,color: RColor.chartRed1,),
+                  textStyle: const TextStyle(fontSize: 12,color: RColor.chartRed1,),
                   start: isStartBombIndex,
                   end: index - 1,
                   opacity: 0.55,
