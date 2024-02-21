@@ -345,8 +345,8 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
               //Progress
               Visibility(
                 visible: _bProgress,
-                child: Stack(
-                  children: const [
+                child: const Stack(
+                  children: [
                     Opacity(
                       opacity: 0.3,
                       child:
@@ -367,9 +367,9 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
 
   //상품 소개
   Widget _setTopDesc() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         SizedBox(
           height: 20.0,
         ),

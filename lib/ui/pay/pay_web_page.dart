@@ -28,7 +28,7 @@ class PayWebPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(toolbarHeight: 0,
           backgroundColor: RColor.deepStat, elevation: 0,),
-        body: PayWebWidget(),
+        body: const PayWebWidget(),
       ),
     );
   }
@@ -107,36 +107,19 @@ class PayWebState extends State<PayWebWidget> {
     if(type == 'default') {
       _sUrl = _baseUrl + Net.TR_PAY_SINGLE;
       _postData =
-          'CST_PLATFORM=' + _cst_platform
-              + '&USER_ID=' + _userId
-              + '&PROD_CODE=' + _pdCode
-              + '&PROD_SUBDIV=' + _pdSubDiv
-              + '&PAY_AMOUNT=' + _payAmount
-              + '&ORDER_CHAN=' + 'CH20';
+          'CST_PLATFORM=$_cst_platform&USER_ID=$_userId&PROD_CODE=$_pdCode&PROD_SUBDIV=$_pdSubDiv&PAY_AMOUNT=$_payAmount&ORDER_CHAN=CH20';
     }
     //정기 결제
     else if(type == 'auto') {
       _sUrl = _baseUrl + Net.TR_PAY_SUB;
       _postData =
-          'CST_PLATFORM=' + _cst_platform
-              + '&USER_ID=' + _userId
-              + '&PROD_CODE=' + _pdCode
-              + '&PROD_SUBDIV=' + _pdSubDiv
-              + '&PAY_AMOUNT=' + _payAmount
-              + '&ORDER_CHAN=' + 'CH20';
+          'CST_PLATFORM=$_cst_platform&USER_ID=$_userId&PROD_CODE=$_pdCode&PROD_SUBDIV=$_pdSubDiv&PAY_AMOUNT=$_payAmount&ORDER_CHAN=CH20';
     }
     //취소 / 환불
     else if(type == 'close') {
       _sUrl = _baseUrl + Net.TR_PAY_CANCEL;
       _postData =
-          'CST_PLATFORM=' + _cst_platform
-              + '&USER_ID=' + _userId
-              + '&ORDER_SN=' + _orderSn     //주문 번호
-              + '&LGD_CANCELAMOUNT=' + _lgCancelAmt   //취소/환불 금액(선택입력)
-              + '&LGD_TID=' + _lgTid
-              + '&SVC_KEEP_YN=' + 'Y'       //이용기간 보장 (Y:잔여기간 보장, N:종료)
-              + '&NEXT_PAY_YN=' + 'N'       //구독 유지 여부(Y:유지, N:해지)
-              + '&APP_ENV=' + 'EN20';       //iOS 환경
+          'CST_PLATFORM=$_cst_platform&USER_ID=$_userId&ORDER_SN=$_orderSn&LGD_CANCELAMOUNT=$_lgCancelAmt&LGD_TID=$_lgTid&SVC_KEEP_YN=Y&NEXT_PAY_YN=N&APP_ENV=EN20';       //iOS 환경
     }
     DLog.d(PayWebPage.TAG, 'URL : ' + _sUrl);
     DLog.d(PayWebPage.TAG, 'PARAM : ' + _postData);
@@ -163,7 +146,7 @@ class PayWebState extends State<PayWebWidget> {
         backgroundColor: Colors.white,
         shadowColor: Colors.white,
         actions: [
-          IconButton(icon: Icon(Icons.close),
+          IconButton(icon: const Icon(Icons.close),
             color: Colors.black,
             onPressed: () => Navigator.of(context).pop('cancel'),),
           const SizedBox(width: 10.0,),

@@ -32,6 +32,7 @@ class PaymentAosService {
 
   late SharedPreferences _prefs;
   String _pdId = '';
+  String _tmpPurchaseToken = '';
 
   /// logged in user's premium status
   bool _isProUser = false;
@@ -146,18 +147,16 @@ class PaymentAosService {
   void _handleBillingResponse(String data) {
     DLog.d(PaymentAosService.TAG, '# 빌링_handleBillingResponse => $data');
 
-    if(data != null) {
-      Map<String, dynamic> json = jsonDecode(data);
-      String productId = json['productId'];
-      String orderId = json['orderId'];
-      String purchaseToken = json['purchaseToken'];
-      String isAutoPay = json['isAutoPay'];
-      String paymentAmt = json['paymentAmt'];
-      String currency = json['currency'];
-      String inappMsg = json['inappMsg'];
+    Map<String, dynamic> json = jsonDecode(data);
+    String productId = json['productId'];
+    String orderId = json['orderId'];
+    String purchaseToken = json['purchaseToken'];
+    String isAutoPay = json['isAutoPay'];
+    String paymentAmt = json['paymentAmt'];
+    String currency = json['currency'];
+    String inappMsg = json['inappMsg'];
 
-      requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
-    }
+    requestAosInApp01(productId, orderId, purchaseToken, isAutoPay, paymentAmt, currency, inappMsg);
   }
 
   // error 코드에 따르는 에러 처리
@@ -220,7 +219,7 @@ class PaymentAosService {
 
   //구글플레이 상품 업그레이드 요청
   void requestGStoreUpgradeNew(String preCode, String newCode) async {
-    DLog.d(PaymentAosService.TAG, '# 상품업그레이드요청 [${preCode}] -> [${newCode}]');
+    DLog.d(PaymentAosService.TAG, '# 상품업그레이드요청 [$preCode] -> [$newCode]');
 
     _userId = AppGlobal().userId;
     _prefs.setBool(Const.PREFS_PAY_FINISHED, false);

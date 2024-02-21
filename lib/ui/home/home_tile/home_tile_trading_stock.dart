@@ -65,6 +65,7 @@ class _HomeTileTradingStockState extends State<HomeTileTradingStock> {
               ],
             ),
           ),
+          const SizedBox(height: 15),
           widget.listToday01Model.isEmpty
               ? const SizedBox(
                   height: 160,

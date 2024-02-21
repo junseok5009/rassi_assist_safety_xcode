@@ -731,7 +731,7 @@ class TestState extends State<TestWidget> {
               padding: const EdgeInsets.all(5),
               color: Colors.green[200],
               child: const Text(
-                '6개월 정기구독(50%)',
+                '6개월 정기구독(처음50%)',
                 style: TStyle.subTitle,
               ),
             ),
@@ -740,6 +740,24 @@ class TestState extends State<TestWidget> {
                   ? const PayPremiumPromotionPage()
                   : const PayPremiumPromotionAosPage(),
               PgData(data: 'new_6m_50'),
+            ),
+          ),
+        ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.green[200],
+              child: const Text(
+                '6개월 정기구독(처음75%)',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () => basePageState.callPageRouteUpData(
+              Platform.isIOS
+                  ? const PayPremiumPromotionPage()
+                  : const PayPremiumPromotionAosPage(),
+              PgData(data: 'new_6m_70'),
             ),
           ),
         ),

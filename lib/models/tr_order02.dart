@@ -12,14 +12,14 @@ class TrOrder02 {
   TrOrder02({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrOrder02.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Order02> rtList;
-    list == null ? rtList = [] : rtList = list.map((i) => Order02.fromJson(i)).toList();
+    var list = (json['retData'] ?? []) as List;
+    // List<Order02> rtList;
+    // list == null ? rtList = [] : rtList = list.map((i) => Order02.fromJson(i)).toList();
 
     return TrOrder02(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      listData: rtList,
+      listData: list.map((i) => Order02.fromJson(i)).toList(),
     );
   }
 }

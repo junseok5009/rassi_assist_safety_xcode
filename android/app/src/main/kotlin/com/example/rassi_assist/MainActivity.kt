@@ -58,6 +58,7 @@ class MainActivity: FlutterFragmentActivity() {
     lateinit var channel: MethodChannel
     lateinit var channel_push: MethodChannel
 
+    private var isBillingClientInitialized = false
     private var isInProgress = true     //결제진행중:true
     private var isCallback = false      //콜백 호출 여부
     private var isStoreReady = false    //store 연결 여부
@@ -157,6 +158,7 @@ class MainActivity: FlutterFragmentActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
+        //매번 결제모듈 연결 필요성 추후...
         initBillingClient()
 
         //push methodChannel
@@ -316,34 +318,37 @@ class MainActivity: FlutterFragmentActivity() {
     //TODO [ 결제처리 ]
     // ===============================================================================
     private fun initBillingClient() {
-        // NOTE  1.BillingClient 생성 - 리스너 연결하여 구매 관련된 모든 업데이트 내용 수신
-        billingClient = BillingClient.newBuilder(this)
-            .setListener(purchasesUpdatedListener)
-            .enablePendingPurchases()
-            .build()
+        if(!isBillingClientInitialized){
+            // NOTE  1.BillingClient 생성 - 리스너 연결하여 구매 관련된 모든 업데이트 내용 수신
+            billingClient = BillingClient.newBuilder(this)
+                .setListener(purchasesUpdatedListener)
+                .enablePendingPurchases()
+                .build()
 
-        // NOTE  2.구글플레이 연결 설정
-        billingClient.startConnection(object: BillingClientStateListener{
-            override fun onBillingSetupFinished(billingResult: BillingResult) {
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    isStoreReady = true
+            // NOTE  2.구글플레이 연결 설정
+            billingClient.startConnection(object: BillingClientStateListener{
+                override fun onBillingSetupFinished(billingResult: BillingResult) {
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                        isStoreReady = true
+                    }
                 }
-            }
 
-            override fun onBillingServiceDisconnected() {
-                Log.w("MainActivity", "구글플레이 연결 실패시 재시도 로직 필요 ")
-                isStoreReady = false
-                // 연결 실패시 재시도 로직
-                // 참고: 자체 연결 재시도 로직을 구현하고 onBillingServiceDisconnected() 메서드를 재정의하는 것이 좋습니다.
-                // 모든 메서드를 실행할 때는 BillingClient 연결을 유지해야 합니다.
+                override fun onBillingServiceDisconnected() {
+                    Log.w("MainActivity", "구글플레이 연결 실패시 재시도 로직 필요 ")
+                    isStoreReady = false
+                    // 연결 실패시 재시도 로직
+                    // 참고: 자체 연결 재시도 로직을 구현하고 onBillingServiceDisconnected() 메서드를 재정의하는 것이 좋습니다.
+                    // 모든 메서드를 실행할 때는 BillingClient 연결을 유지해야 합니다.
 //                if (!this@BillingActivity.isFinishing()) {
 //                    showToast(
 //                        "현재 구글플레이 결제를 이용하기 위해 기기가 준비되지 않았습니다. " +
 //                                "앱종료 후 구글플레이 업데이트 상태를 확인하신 후 다시 시도해 주세요."
 //                    )
 //                }
-            }
-        })
+                }
+            })
+            isBillingClientInitialized = true
+        }
     }
 
     // NOTE  리스너 - 구매 관련된 모든 업데이트 내용 수신
@@ -825,7 +830,7 @@ class MainActivity: FlutterFragmentActivity() {
                 }
 
                 val productDetails = productDetailsList[0]
-                if(pdCode == "ac_pr.am6d0"){
+                if(pdCode.startsWith("ac_pr.am6")){
                     Log.w("MainActivity", "업그레이드 모드 ReplacementMode[ CHARGE_FULL_PRICE ]")
                     doBillingUpgradeFlow(productDetails, oldPurchaseToken, ReplacementMode.CHARGE_FULL_PRICE)
                 } else {

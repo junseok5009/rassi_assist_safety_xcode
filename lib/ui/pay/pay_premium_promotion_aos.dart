@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
+// import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
@@ -68,7 +68,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
 
   String _priceOnce = '';
   String _priceOriginal = '₩59,400';
-  late IAPItem _pdItem;
+  // late IAPItem _pdItem;
   String _vProductId = ''; //상품코드
 
   bool statusCon = false; //결제모듈 연결상태
@@ -99,7 +99,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
       _userId = _prefs.getString(Const.PREFS_USER_ID) ?? appGlobal.userId ?? '';
       Future.delayed(Duration.zero, () {
         PgData args = ModalRoute.of(context)!.settings.arguments as PgData;
-        if (args == null || args.data == null || args.data.isEmpty) {
+        if (args.data.isEmpty) {
           commonShowToast('잘못된 오류 입니다.');
           Navigator.pop(context);
         } else {
@@ -169,7 +169,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         }
       case 'new_6m_70':
         {
-          TAG_NAME = '계정 결제 6개월 70% 할인';
+          TAG_NAME = '계정 결제 6개월 75% 할인';
           VIEW_PAGE_CODE = 'LPHG';
           break;
         }
@@ -321,20 +321,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 10, horizontal: 20),
                       child: InkWell(
-                        onTap: () {
-                          _isTryPayment = true;
-                          if (_curProd.contains('ac_pr')) {
-                            commonShowToast(
-                                '이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
-                          } else {
-                            setState(() {
-                              _bProgress = true;
-                            });
-                            if (_vProductId.isNotEmpty) {
-                              inAppBilling.requestGStorePurchase(_vProductId);
-                            }
-                          }
-                        },
                         child: Center(
                           child: Text(
                             _buttonTitle,
@@ -345,6 +331,9 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
                             ),
                           ),
                         ),
+                        onTap: () {
+                          _requestPurchase();
+                        },
                       ),
                     )
                   ],
@@ -353,8 +342,8 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
                 //Progress
                 Visibility(
                   visible: _bProgress,
-                  child: Stack(
-                    children: const [
+                  child: const Stack(
+                    children: [
                       Opacity(
                         opacity: 0.3,
                         child: ModalBarrier(
@@ -372,6 +361,38 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         ),
       ),
     );
+  }
+
+  //프리미엄 구매 요청 시작하기
+  void _requestPurchase() {
+    DLog.d(PayPremiumPromotionAosPage.TAG, '결제 요청시 사용중인 pdCode : $_curProd');
+
+    _isTryPayment = true;
+    //프리미엄 사용자의 업그레이드 요청 (1개월 -> 6개월)
+    if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
+      if(_curProd == 'ac_pr.am6d0' && _curProd == 'ac_pr.am6d5' &&
+          _curProd == 'ac_pr.am6d7' && _curProd == 'ac_pr.mw1e1') {
+        commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+      } else {
+        DLog.d(PayPremiumPromotionAosPage.TAG, '새로운 업그레이드 결제 요청');
+        inAppBilling.requestGStoreUpgradeNew(_curProd, _vProductId);
+      }
+    }
+    //3종목알림 업그레이드 요청
+    else if(_curProd.contains('AC_S3')) {
+      DLog.d(PayPremiumPromotionAosPage.TAG, '3종목알림 업그레이드 결제 요청');
+      //TODO 6개월 상품의 노출???
+      inAppBilling.requestGStoreUpgrade(_vProductId);
+    }
+    //프로모션 결제 요청
+    else {
+      setState(() {
+        _bProgress = true;
+      });
+      if (_vProductId.isNotEmpty) {
+        inAppBilling.requestGStorePurchase(_vProductId);
+      }
+    }
   }
 
   Future<bool> _onWillPop() {
@@ -447,9 +468,9 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         }
       case 'new_6m_70':
         {
-          _pageTitle = '프리미엄 계정 (6개월 70% 특별 할인)';
-          _buttonTitle = '70%이상 할인된 금액으로 프리미엄 시작하기';
-          _buyInfo = '★ 첫 6개월간 70% 할인혜택(￦118,800)과 이후 6개월씩부터는 28% 할인혜택(￦330,000)을 모두 드립니다.';
+          _pageTitle = '프리미엄 계정 (6개월 75% 특별 할인)';
+          _buttonTitle = '75%이상 할인된 금액으로 프리미엄 시작하기';
+          _buyInfo = '★ 첫 6개월간 75% 할인혜택(￦120,000)과 이후 6개월씩부터는 28% 할인혜택(￦330,000)을 모두 드립니다.';
           break;
         }
       case 'new_7d':
@@ -464,12 +485,10 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
 
   //상품 소개
   Widget _setTopDesc() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        SizedBox(
-          height: 20.0,
-        ),
+      children: [
+        SizedBox(height: 20.0),
         Padding(
             padding: EdgeInsets.symmetric(
               vertical: 0,
@@ -1041,6 +1060,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData!.listPaymentGuide.isNotEmpty) {
           _listApp03.addAll(resData.retData!.listPaymentGuide);
+          setState(() {});
         }
         _fetchPosts(
             TR.PROM02,
