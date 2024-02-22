@@ -33,7 +33,7 @@ class Search11 {
     var list1 = json['list_PerPbr'] as List;
     List<Search11PerPbr> listData1 =
     list1 == null ? [] : list1.map((e) => Search11PerPbr.fromJson(e)).toList();
-    var list2 = json['list_Dividend'] as List;
+    var list2 = (json['list_Dividend'] ?? []) as List;
     List<Search11Dividend> listData2 = list2 == null
         ? []
         : list2.map((e) => Search11Dividend.fromJson(e)).toList();

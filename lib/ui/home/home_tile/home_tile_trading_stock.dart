@@ -79,7 +79,7 @@ class _HomeTileTradingStockState extends State<HomeTileTradingStock> {
                         ? null
                         : CommonSwiperPagenation.getNormalSpWithMargin(
                             8.0,
-                            170,
+                            145,
                             Colors.black,
                           ),
                     loop: false,

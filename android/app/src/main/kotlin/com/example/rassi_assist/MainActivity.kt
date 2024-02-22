@@ -360,8 +360,8 @@ class MainActivity: FlutterFragmentActivity() {
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 if (purchases != null) {
                     Log.w("MainActivity",  "[결제완료&승인대기] retCode: " + billingResult.responseCode + ", size:" + purchases.size)
-                    Log.w("MainActivity",  "[결제완료내역]  " + billingResult.toString())
-                    Log.w("MainActivity",  "[결제완료내역]  " + purchases.toString())
+//                    Log.w("MainActivity",  "[결제완료내역]  " + billingResult.toString())
+//                    Log.w("MainActivity",  "[결제완료내역]  " + purchases.toString())
                     if (purchases.size > 0) {
                         Log.w("MainActivity",  "[결제건_항목]  " + purchases[0].originalJson)
                         handlePurchase(purchases[0])

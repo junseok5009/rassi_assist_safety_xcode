@@ -59,8 +59,7 @@ class MyPage extends StatefulWidget {
 class MyPageState extends State<MyPage> {
   // final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
-  final String _appEnv =
-      Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
+  final String _appEnv = Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
   var appGlobal = AppGlobal();
   var inAppBilling;
 
@@ -78,8 +77,7 @@ class MyPageState extends State<MyPage> {
 
   List<Notice01> _listNotice = [];
 
-  bool _bPayFinished =
-      true; //결제 시도를 하지 않은 상태(결제 완료, 결과가 에러, 결제 시도를 안한 상태 : true)
+  bool _bPayFinished = true; //결제 시도를 하지 않은 상태(결제 완료, 결과가 에러, 결제 시도를 안한 상태 : true)
 
   bool prTOP = false, prHGH = false, prMID = false, prLOW = false;
   final List<Prom02> _listPrTop = [];
@@ -120,7 +118,7 @@ class MyPageState extends State<MyPage> {
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -136,9 +134,7 @@ class MyPageState extends State<MyPage> {
     _bPayFinished = _prefs.getBool(Const.PREFS_PAY_FINISHED) ?? true;
     appGlobal.userId = _userId;
 
-    Platform.isIOS
-        ? inAppBilling = PaymentService()
-        : inAppBilling = PaymentAosService();
+    Platform.isIOS ? inAppBilling = PaymentService() : inAppBilling = PaymentAosService();
   }
 
   //firebase 원격설정을 이용한 관리자 페이지 코드
@@ -208,11 +204,6 @@ class MyPageState extends State<MyPage> {
               height: 3.0,
             ),
 
-            /* _setBoxBtnUrl('자주 묻는 질문', Net.URL_FREQ_QA),
-            _setBoxBtn('1대1 문의', UserCenterPage.routeName),
-            _setBoxBtnUrl('네이버 톡톡 상담', Net.URL_NAVER_QA),
-            _setBoxBtn('회원약관과 개인정보 처리방침', TermsPage.routeName),
-            _setBoxBtn('라씨 매매비서 AI엔진 히스토리', AiVersionPage.routeName),*/
 
             _setServiceCenterMenu(),
 
@@ -322,7 +313,10 @@ class MyPageState extends State<MyPage> {
         InkWell(
           onTap: () {
             // [포켓 > TODAY]
-            basePageState.goPocketPage(Const.PKT_INDEX_TODAY, todayIndex: 0,);
+            basePageState.goPocketPage(
+              Const.PKT_INDEX_TODAY,
+              todayIndex: 0,
+            );
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -362,29 +356,22 @@ class MyPageState extends State<MyPage> {
         InkWell(
           onTap: () async {
             UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-            if(userInfoProvider.isPremiumUser()){
+            if (userInfoProvider.isPremiumUser()) {
               String result = await _showDialogPremiumAlready();
-              if(mounted && result == CustomNvRouteResult.landing){
-                basePageState.goLandingPage(
-                    LD.linkTypeUrl, 'https://thinkpoolost.wixsite.com/moneybot/service', '', '', '');
+              if (mounted && result == CustomNvRouteResult.landing) {
+                basePageState.goLandingPage(LD.linkTypeUrl, 'https://thinkpoolost.wixsite.com/moneybot/service', '', '', '');
               }
-            } else{
+            } else {
               String result = '';
-              if(userInfoProvider.is3StockUser() ){
+              if (userInfoProvider.is3StockUser()) {
                 result = await _showDialogPremiumUpgrade();
-              }else{
+              } else {
                 result = await _showDialogPremium();
               }
-              if(mounted && result == CustomNvRouteResult.landPremiumPage){
+              if (mounted && result == CustomNvRouteResult.landPremiumPage) {
                 Platform.isIOS
-                    ? _navigateRefreshPay(
-                  context,
-                  const PayPremiumPage(),
-                )
-                    : _navigateRefreshPay(
-                  context,
-                  const PayPremiumAosPage(),
-                );
+                    ? _navigateRefreshPay(context, const PayPremiumPage())
+                    : _navigateRefreshPay(context, const PayPremiumAosPage());
               }
             }
           },
@@ -563,8 +550,7 @@ class MyPageState extends State<MyPage> {
               String routeName = '';
               if (item.linkPage == LD.main_my_service_center_11_inquiry) {
                 routeName = UserCenterPage.routeName;
-              } else if (item.linkPage ==
-                  LD.main_my_service_center_user_private) {
+              } else if (item.linkPage == LD.main_my_service_center_user_private) {
                 routeName = TermsPage.routeName;
               }
               return _setBoxBtn(item.menuName, routeName);
@@ -724,8 +710,10 @@ class MyPageState extends State<MyPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('SMS 수신동의',
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                        const Text(
+                          'SMS 수신동의',
+                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                        ),
                         Row(
                           children: [
                             Checkbox(
@@ -735,8 +723,10 @@ class MyPageState extends State<MyPage> {
                                     bSms = value!;
                                   });
                                 }),
-                            const Text('동의',
-                                textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                            const Text(
+                              '동의',
+                              textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            ),
                           ],
                         ),
                       ],
@@ -745,8 +735,10 @@ class MyPageState extends State<MyPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('앱푸시 수신동의',
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                        const Text(
+                          '앱푸시 수신동의',
+                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                        ),
                         Row(
                           children: [
                             Checkbox(
@@ -756,8 +748,10 @@ class MyPageState extends State<MyPage> {
                                     bPush = value!;
                                   });
                                 }),
-                            const Text('동의',
-                                textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                            const Text(
+                              '동의',
+                              textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            ),
                           ],
                         ),
                       ],
@@ -854,9 +848,11 @@ class MyPageState extends State<MyPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('SMS 수신동의',
-                              style: TStyle.defaultContent,
-                              textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                          const Text(
+                            'SMS 수신동의',
+                            style: TStyle.defaultContent,
+                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          ),
                           Row(
                             children: [
                               Checkbox(
@@ -866,8 +862,10 @@ class MyPageState extends State<MyPage> {
                                       bSms = value!;
                                     });
                                   }),
-                              const Text('동의',
-                                  textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                              const Text(
+                                '동의',
+                                textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                              ),
                             ],
                           ),
                         ],
@@ -876,9 +874,11 @@ class MyPageState extends State<MyPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('앱푸시 수신동의',
-                              style: TStyle.defaultContent,
-                              textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                          const Text(
+                            '앱푸시 수신동의',
+                            style: TStyle.defaultContent,
+                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          ),
                           Row(
                             children: [
                               Checkbox(
@@ -888,8 +888,7 @@ class MyPageState extends State<MyPage> {
                                       bPush = value!;
                                     });
                                   }),
-                              const Text('동의',
-                                  textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                              const Text('동의', textScaleFactor: Const.TEXT_SCALE_FACTOR),
                             ],
                           ),
                         ],
@@ -1050,8 +1049,7 @@ class MyPageState extends State<MyPage> {
                         ),
                       ),
                       onTap: () {
-                        Navigator.pop(
-                            context, CustomNvRouteResult.landPremiumPage);
+                        Navigator.pop(context, CustomNvRouteResult.landPremiumPage);
                       },
                     ),
                     const SizedBox(
@@ -1064,7 +1062,7 @@ class MyPageState extends State<MyPage> {
           );
         },
       ).then(
-            (value) {
+        (value) {
           if (value != null) {
             return value;
           } else {
@@ -1178,8 +1176,7 @@ class MyPageState extends State<MyPage> {
                         ),
                       ),
                       onTap: () {
-                        Navigator.pop(
-                            context, CustomNvRouteResult.landPremiumPage);
+                        Navigator.pop(context, CustomNvRouteResult.landPremiumPage);
                       },
                     ),
                     const SizedBox(
@@ -1192,7 +1189,7 @@ class MyPageState extends State<MyPage> {
           );
         },
       ).then(
-            (value) {
+        (value) {
           if (value != null) {
             return value;
           } else {
@@ -1306,8 +1303,7 @@ class MyPageState extends State<MyPage> {
                         ),
                       ),
                       onTap: () {
-                        Navigator.pop(
-                            context, CustomNvRouteResult.landing);
+                        Navigator.pop(context, CustomNvRouteResult.landing);
                       },
                     ),
                     const SizedBox(
@@ -1320,7 +1316,7 @@ class MyPageState extends State<MyPage> {
           );
         },
       ).then(
-            (value) {
+        (value) {
           if (value != null) {
             return value;
           } else {
@@ -1351,15 +1347,7 @@ class MyPageState extends State<MyPage> {
           ),
         ),
         onTap: () {
-          Platform.isIOS
-              ? _navigateRefreshPay(
-                  context,
-                  const PayPremiumPage(),
-                )
-              : _navigateRefreshPay(
-                  context,
-                  const PayPremiumAosPage(),
-                );
+          Platform.isIOS ? _navigateRefreshPay(context, const PayPremiumPage()) : _navigateRefreshPay(context, const PayPremiumAosPage());
         },
       ),
     );
@@ -1370,7 +1358,10 @@ class MyPageState extends State<MyPage> {
     return Visibility(
       visible: prTOP,
       child: SizedBox(
-          width: double.infinity, height: 110, child: CardProm02(_listPrTop)),
+        width: double.infinity,
+        height: 110,
+        child: CardProm02(_listPrTop),
+      ),
     );
   }
 
@@ -1379,7 +1370,10 @@ class MyPageState extends State<MyPage> {
     return Visibility(
       visible: prHGH,
       child: SizedBox(
-          width: double.infinity, height: 110, child: CardProm02(_listPrHgh)),
+        width: double.infinity,
+        height: 110,
+        child: CardProm02(_listPrHgh),
+      ),
     );
   }
 
@@ -1388,7 +1382,10 @@ class MyPageState extends State<MyPage> {
     return Visibility(
       visible: prMID,
       child: SizedBox(
-          width: double.infinity, height: 110, child: CardProm02(_listPrMid)),
+        width: double.infinity,
+        height: 110,
+        child: CardProm02(_listPrMid),
+      ),
     );
   }
 
@@ -1397,7 +1394,10 @@ class MyPageState extends State<MyPage> {
     return Visibility(
       visible: prLOW,
       child: SizedBox(
-          width: double.infinity, height: 180, child: CardProm02(_listPrLow)),
+        width: double.infinity,
+        height: 180,
+        child: CardProm02(_listPrLow),
+      ),
     );
   }
 
@@ -1466,8 +1466,7 @@ class MyPageState extends State<MyPage> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return MediaQuery(
-          data: MediaQuery.of(context)
-              .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+          data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
           child: AlertDialog(
             shape: UIStyle.borderRoundedDialog(),
             title: Row(
@@ -1495,8 +1494,7 @@ class MyPageState extends State<MyPage> {
                       children: [
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 10.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                           decoration: UIStyle.boxRoundLine6(),
                           child: TextField(
                             controller: codeController,
@@ -1737,8 +1735,7 @@ class MyPageState extends State<MyPage> {
     }
 
     var url = Uri.parse(nUrl);
-    final http.Response response =
-        await http.post(url, headers: Net.think_headers, body: param);
+    final http.Response response = await http.post(url, headers: Net.think_headers, body: param);
 
     // response ------------------------------------------------
     DLog.d(MyPage.TAG, '${response.statusCode}');

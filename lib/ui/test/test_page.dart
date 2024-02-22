@@ -553,27 +553,6 @@ class TestState extends State<TestWidget> {
       childAspectRatio: 1.5,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        // 프리미엄 결제 (기존)
-        Builder(
-          builder: (context) => InkWell(
-            child: Container(
-              padding: const EdgeInsets.all(5),
-              color: Colors.green[200],
-              child: const Text(
-                '프리미엄\n결제',
-                style: TStyle.subTitle,
-              ),
-            ),
-            onTap: () {
-              if (Platform.isIOS) {
-                basePageState.callPageRouteUP(const PayPremiumPage());
-              }
-              if (Platform.isAndroid) {
-                basePageState.callPageRouteUP(const PayPremiumAosPage());
-              }
-            },
-          ),
-        ),
         // 프리미엄 결제 new (android)
         Builder(
           builder: (context) => InkWell(

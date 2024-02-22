@@ -187,7 +187,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
 
               _setPrTop(),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
 
               // 오늘의 AI매매신호는?
@@ -224,9 +224,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
 
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 20),
-                color: const Color(
-                  0xffF5F5F5,
-                ),
+                color: const Color(0xffF5F5F5),
                 height: 13,
               ),
 

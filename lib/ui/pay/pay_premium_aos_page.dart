@@ -29,7 +29,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/ui_style.dart';
 
 /// 2024.02
-/// 프리미엄 계정 결제 new
+/// 프리미엄 계정 결제
 class PayPremiumAosPage extends StatefulWidget {
   static const routeName = '/page_pay_premium';
   static const String TAG = "[PayPremiumAosPage]";
@@ -207,9 +207,6 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
 
   //결제 동작은 비동기적으로 구동되어서 초기화 작업이 필요
   Future<void> _initBillingState() async {
-    //상품정보 요청
-    // _getProduct();
-
     //결제 상태 리스너
     statCallback = (status) async {
       DLog.d(PayPremiumAosPage.TAG, '# statusCallback == $status');
@@ -352,8 +349,8 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                 //Progress
                 Visibility(
                   visible: _bProgress,
-                  child: Stack(
-                    children: const [
+                  child: const Stack(
+                    children: [
                       Opacity(
                         opacity: 0.3,
                         child: ModalBarrier(dismissible: false, color: Colors.grey),
@@ -387,7 +384,13 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     DLog.d(PayPremiumAosPage.TAG, '결제 요청시 사용중인 pdCode : $_curProd');
 
     if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
-      commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+      if(_curProd == 'ac_pr.am6d0' && _curProd == 'ac_pr.am6d5' &&
+          _curProd == 'ac_pr.am6d7' && _curProd == 'ac_pr.mw1e1' && _curProd == 'ac_pr.m01') {
+        commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+      } else {
+        DLog.d(PayPremiumAosPage.TAG, '새로운 업그레이드 결제 요청');
+        inAppBilling.requestGStoreUpgradeNew(_curProd, _productLists[1]);
+      }
     } else {
       DLog.d(PayPremiumAosPage.TAG, '프리미엄 결제 요청');
       setState(() {
@@ -444,74 +447,77 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     return Column(
       children: [
         //단건결제
-        InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          child: Container(
-            decoration: _isPaymentSingle
-                ? UIStyle.boxSelectedLineMainColor()
-                : UIStyle.boxUnSelectedLineMainGrey(),
-            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Row(
-                      children: [
-                        Visibility(
-                          visible: _isPaymentSingle,
-                          child: Image.asset(
-                            'images/icon_circle_check_y.png',
-                            height: 25,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        Visibility(
-                          visible: !_isPaymentSingle,
-                          child: Image.asset(
-                            'images/icon_circle_check_n.png',
-                            height: 25,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 15),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              '1개월 단건결제',
-                              style: TextStyle(
-                                fontSize: 15,
-                              ),
+        Visibility(
+          visible: !_isUpgradeOn,
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            child: Container(
+              decoration: _isPaymentSingle
+                  ? UIStyle.boxSelectedLineMainColor()
+                  : UIStyle.boxUnSelectedLineMainGrey(),
+              margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+              padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Row(
+                        children: [
+                          Visibility(
+                            visible: _isPaymentSingle,
+                            child: Image.asset(
+                              'images/icon_circle_check_y.png',
+                              height: 25,
+                              fit: BoxFit.contain,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 7),
-                        Text(
-                          _priceSingle,
-                          style: TStyle.title18T,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                          ),
+                          Visibility(
+                            visible: !_isPaymentSingle,
+                            child: Image.asset(
+                              'images/icon_circle_check_n.png',
+                              height: 25,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 15),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '1개월 단건결제',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 7),
+                          Text(
+                            _priceSingle,
+                            style: TStyle.title18T,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
+            onTap: () {
+              setState(() {
+                _isPaymentSingle = true;
+                _isPaymentSub = false;
+                _isLongTermSub = false;
+              });
+            },
           ),
-          onTap: () {
-            setState(() {
-              _isPaymentSingle = true;
-              _isPaymentSub = false;
-              _isLongTermSub = false;
-            });
-          },
         ),
 
         // 1개월 정기결제
@@ -616,87 +622,90 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         ),
 
         // 6개월 정기결제
-        InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          child: Container(
-            decoration: _isLongTermSub
-                ? UIStyle.boxSelectedLineMainColor()
-                : UIStyle.boxUnSelectedLineMainGrey(),
-            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+        Visibility(
+          visible: !_isUpgradeOn,
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            child: Container(
+              decoration: _isLongTermSub
+                  ? UIStyle.boxSelectedLineMainColor()
+                  : UIStyle.boxUnSelectedLineMainGrey(),
+              margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+              padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
 
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Row(
-                      children: [
-                        Visibility(
-                          visible: _isLongTermSub,
-                          child: Image.asset(
-                            'images/icon_circle_check_y.png',
-                            height: 25,
-                            fit: BoxFit.contain,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Row(
+                        children: [
+                          Visibility(
+                            visible: _isLongTermSub,
+                            child: Image.asset(
+                              'images/icon_circle_check_y.png',
+                              height: 25,
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                        ),
-                        Visibility(
-                          visible: !_isLongTermSub,
-                          child: Image.asset(
-                            'images/icon_circle_check_n.png',
-                            height: 25,
-                            fit: BoxFit.contain,
+                          Visibility(
+                            visible: !_isLongTermSub,
+                            child: Image.asset(
+                              'images/icon_circle_check_n.png',
+                              height: 25,
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 15),
+                        ],
+                      ),
+                      const SizedBox(width: 15),
 
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              '6개월씩 정기결제',
-                              style: TextStyle(
-                                fontSize: 15,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '6개월씩 정기결제',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            _setOrgPriceText('462000'),
-                            const SizedBox(width: 7),
-                            Text(
-                              _priceLongSub,
-                              style: TStyle.title18T,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Visibility(
-                  visible: _isLongTermSub,
-                  child: _setPromotionText('28% 이상!'),
-                ),
-              ],
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              _setOrgPriceText('462000'),
+                              const SizedBox(width: 7),
+                              Text(
+                                _priceLongSub,
+                                style: TStyle.title18T,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Visibility(
+                    visible: _isLongTermSub,
+                    child: _setPromotionText('28% 이상!'),
+                  ),
+                ],
+              ),
             ),
+            onTap: () {
+              setState(() {
+                _isPaymentSingle = false;
+                _isPaymentSub = false;
+                _isLongTermSub = true;
+              });
+            },
           ),
-          onTap: () {
-            setState(() {
-              _isPaymentSingle = false;
-              _isPaymentSub = false;
-              _isLongTermSub = true;
-            });
-          },
         ),
       ],
     );
@@ -756,9 +765,9 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
 
   //상품 소개
   Widget _setTopDesc() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         SizedBox(
           height: 20.0,
         ),

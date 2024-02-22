@@ -32,7 +32,6 @@ class PaymentAosService {
 
   late SharedPreferences _prefs;
   String _pdId = '';
-  String _tmpPurchaseToken = '';
 
   /// logged in user's premium status
   bool _isProUser = false;
@@ -182,6 +181,10 @@ class PaymentAosService {
     }
   }
 
+  //구글플레이 결제 or 업그레이드
+  void requestPurchaseFlow() {
+
+  }
 
   //구글플레이 상품 구매 요청
   void requestGStorePurchase(String pdCode) async {
