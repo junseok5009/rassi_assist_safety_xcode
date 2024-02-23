@@ -54,7 +54,7 @@ class Theme06 {
         ? rList = null
         : rList = list.map((i) => TopCard.fromJson(i)).toList();
 
-    var tlist = json['list_Timeline'] as List;
+    var tlist = (json['list_Timeline'] ?? []) as List;
     List<ThemeStHistory>? rtList;
     tlist == null
         ? rtList = null

@@ -379,9 +379,9 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
       }
     }
     //3종목알림 업그레이드 요청
-    else if(_curProd.contains('AC_S3')) {
+    else if(_curProd.contains('ac_s3') || _curProd.contains('AC_S3')) {
       DLog.d(PayPremiumPromotionAosPage.TAG, '3종목알림 업그레이드 결제 요청');
-      //TODO 6개월 상품의 노출???
+      //TODO 1개월 상품만 노출되도록
       inAppBilling.requestGStoreUpgrade(_vProductId);
     }
     //프로모션 결제 요청
