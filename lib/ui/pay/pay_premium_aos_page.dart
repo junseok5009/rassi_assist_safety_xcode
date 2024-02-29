@@ -384,14 +384,24 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     DLog.d(PayPremiumAosPage.TAG, '결제 요청시 사용중인 pdCode : $_curProd');
 
     if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
-      if(_curProd == 'ac_pr.am6d0' && _curProd == 'ac_pr.am6d5' &&
-          _curProd == 'ac_pr.am6d7' && _curProd == 'ac_pr.mw1e1' && _curProd == 'ac_pr.m01') {
-        commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+      //기존 결제가 AOS 일때만 업그레이드 결제 가능
+      if (_payMethod == 'PM50') {
+        if(_curProd == 'ac_pr.am6d0' && _curProd == 'ac_pr.am6d5' &&
+            _curProd == 'ac_pr.am6d7' && _curProd == 'ac_pr.mw1e1' && _curProd == 'ac_pr.m01') {
+          commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+        } else {
+          DLog.d(PayPremiumAosPage.TAG, '새로운 업그레이드 결제 요청');
+          setState(() {
+            _bProgress = true;
+          });
+          inAppBilling.requestGStoreUpgradeNew(_curProd, _productLists[1]);
+        }
       } else {
-        DLog.d(PayPremiumAosPage.TAG, '새로운 업그레이드 결제 요청');
-        inAppBilling.requestGStoreUpgradeNew(_curProd, _productLists[1]);
+        commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
       }
-    } else {
+    }
+    //
+    else {
       DLog.d(PayPremiumAosPage.TAG, '프리미엄 결제 요청');
       setState(() {
         _bProgress = true;
@@ -414,32 +424,6 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         inAppBilling.requestGStorePurchase(_productLists[1]);
       }
     }
-
-/*    // 새로운 업그레이드 과정은 보류
-    if(_curProd.isEmpty) {
-      if (_isUpgradeOn) {
-        //3종목 -> 1개월정기(ac_pr.a01)
-        inAppBilling.requestGStoreUpgrade(_productLists[0]);
-      }
-      else if (_isPaymentSingle) {
-        //ac_pr.m01
-        inAppBilling.requestGStorePurchase(_productLists[2]);
-      }
-      else if (_isPaymentSub) {
-        //ac_pr.a01
-        inAppBilling.requestGStorePurchase(_productLists[0]);
-      }
-      else if (_isLongTermSub) {
-        //ac_pr.am6d0
-        inAppBilling.requestGStorePurchase(_productLists[1]);
-      }
-    }
-    //새로운 업그레이드
-    else if(_curProd == 'ac_s3.a01' || _curProd == 'ac_pr.a01'
-        || _curProd == 'ac_pr.m01' || _curProd == 'ac_pr.mw1e1') {
-      inAppBilling.requestGStoreUpgradeNew(_curProd, 'ac_pr.am6d0');
-    }*/
-
   }
 
   //결제 선택 버튼
@@ -1011,6 +995,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData!.listPaymentGuide.isNotEmpty) {
           _listApp03.addAll(resData.retData!.listPaymentGuide);
+          setState(() {});
         }
         _fetchPosts(
             TR.PROM02,

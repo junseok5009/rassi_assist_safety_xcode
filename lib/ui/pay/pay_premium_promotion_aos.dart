@@ -75,7 +75,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
   bool _bProgress = false; //결제 완료 전까지 프로그래스
   bool _isTryPayment = false; //결제버튼을 눌렀다면 화면이 닫히고 화면갱신 (true 일때 화면 갱신)
 
-  // 1. 이미 결제된 상품 확인 (프리미엄일 경우 결제 불가)
+  // 1. 이미 결제된 상품 확인 (업그레이드 결제가 가능한 상품과 불가능한 상품)
   // 2. 결제 가능 상태 확인 (매매비서 서버에 확인, 앱스토어 모듈에 확인)
 
   var statCallback;
@@ -86,9 +86,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
 
   // 23.10.11 추가 구매 안내 문구 전문으로 가져오기
   final List<App03PaymentGuide> _listApp03 = [];
-
-  // TODO 1. 이미 결제된 상품 확인 (프리미엄일 경우 결제 불가)
-  // TODO 2. 결제 가능 상태 확인 (매매비서 서버에 확인, 앱스토어 모듈에 확인)
 
   @override
   void initState() {
@@ -380,9 +377,13 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
     }
     //3종목알림 업그레이드 요청
     else if(_curProd.contains('ac_s3') || _curProd.contains('AC_S3')) {
-      DLog.d(PayPremiumPromotionAosPage.TAG, '3종목알림 업그레이드 결제 요청');
-      //TODO 1개월 상품만 노출되도록
-      inAppBilling.requestGStoreUpgrade(_vProductId);
+      if(_vProductId == 'ac_pr.a01') {
+        // 1개월정기결제 기본 상품으로만 업그레이드 가능 (6개월상품 불가) , ac_pr.a01 상품만 가능 (할인상품은 할인 적용 불가)
+        DLog.d(PayPremiumPromotionAosPage.TAG, '3종목알림 업그레이드 결제 요청');
+        inAppBilling.requestGStoreUpgrade(_vProductId);
+      } else {
+        commonShowToast('업그레이드 결제를 이용할 수 없는 상품입니다. 고객센터에 문의해주세요.');
+      }
     }
     //프로모션 결제 요청
     else {

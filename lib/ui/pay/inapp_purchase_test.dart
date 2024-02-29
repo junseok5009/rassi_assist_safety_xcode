@@ -18,7 +18,6 @@ import '../../common/net.dart';
 import '../../models/none_tr/app_global.dart';
 import '../../models/tr_user/tr_user04.dart';
 
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const InAppPurchaseTest());
@@ -34,35 +33,34 @@ const String _kSilverSubscriptionId = 'subscription_silver';
 const String _kGoldSubscriptionId = 'subscription_gold';
 List<String> _kProductIds = Platform.isAndroid
     ? [
-        'ac_s3.a01',
-        'ac_pr.a01',
-        'ac_pr.m01',
-        'ac_pr.am6d0',
-        'ac_pr.am6d5', //231000, 330000  (첫결제 미실행시 2가지로 표시됨)
-        'ac_pr.am6d7', //118800, 330000  (첫결제 미실행시 2가지로 표시됨)
-        'ac_pr.mw1e1',
-        'ac_pr.ad3',
-        'ac_pr.ad4',
-        'ac_pr.ad5',
-        'ac_pr.at1',
-        'ac_pr.at2',
-      ]
+  'ac_s3.a01',
+  'ac_pr.a01',
+  'ac_pr.m01',
+  'ac_pr.am6d0',
+  'ac_pr.am6d5', //231000, 330000  (첫결제 미실행시 2가지로 표시됨)
+  'ac_pr.am6d7', //118800, 330000  (첫결제 미실행시 2가지로 표시됨)
+  'ac_pr.mw1e1',
+  'ac_pr.ad3',
+  'ac_pr.ad4',
+  'ac_pr.ad5',
+  'ac_pr.at1',
+  'ac_pr.at2',
+]
     : [
-        'ios.ac_pr.a01',
-        'ios.ac_pr.m01',
-        'ios.ac_pr.ad5',
-        'ios.ac_pr.ad4',
-        'ios.ac_pr.ad3',
-        'ios.ac_pr.at1',
-        'ios.ac_pr.at2',
-      ];
+  'ios.ac_pr.a01',
+  'ios.ac_pr.m01',
+  'ios.ac_pr.ad5',
+  'ios.ac_pr.ad4',
+  'ios.ac_pr.ad3',
+  'ios.ac_pr.at1',
+  'ios.ac_pr.at2',
+];
 const List<String> _kProductIds_ = <String>[
   _kConsumableId,
   _kUpgradeId,
   _kSilverSubscriptionId,
   _kGoldSubscriptionId,
 ];
-
 
 /// 2024.02.01
 /// 결제 TEST 페이지 (in_app_purchase 이용한 테스트 : android 상품정보 잘 가져옴)
@@ -149,7 +147,7 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
     }
 
     final ProductDetailsResponse productDetailResponse =
-      await _inAppPurchase.queryProductDetails(_kProductIds.toSet());
+    await _inAppPurchase.queryProductDetails(_kProductIds.toSet());
     if (productDetailResponse.error != null) {
       setState(() {
         _queryProductError = productDetailResponse.error!.message;
@@ -230,13 +228,13 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
         ),
       );
     } else {
-      DLog.d('Inapp', '=> => @2');
+      DLog.d('Inapp', '=> => @2 Error');
       stack.add(Center(
         child: Text(_queryProductError!),
       ));
     }
     if (_purchasePending) {
-      DLog.d('Inapp', '=> => @3');
+      DLog.d('Inapp', '=> => @3 Pending');
       stack.add(
         const Stack(
           children: [
@@ -267,7 +265,11 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
   // 연결 체크 타일
   Card _buildConnectionCheckTile() {
     if (_loading) {
-      return const Card(child: ListTile(title: Text('Trying to connect...')));
+      return const Card(
+        child: ListTile(
+          title: Text('Trying to connect...'),
+        ),
+      );
     }
     final Widget storeHeader = ListTile(
       leading: Icon(
@@ -295,7 +297,7 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
     return Card(child: Column(children: children));
   }
 
-  // 상품리스트 ??
+  // 상품리스트
   Card _buildProductList() {
     if (_loading) {
       return const Card(
@@ -311,20 +313,23 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
     const ListTile productHeader = ListTile(title: Text('Products for Sale'));
     final List<ListTile> productList = <ListTile>[];
     if (_notFoundIds.isNotEmpty) {
-      productList.add(ListTile(
+      productList.add(
+        ListTile(
           title: Text(
             '[${_notFoundIds.join(", ")}] not found',
             style: TextStyle(color: ThemeData.light().colorScheme.error),
           ),
           subtitle: const Text('This app needs special configuration to run. '
-              'Please see example/README.md for instructions.')));
+              'Please see example/README.md for instructions.'),
+        ),
+      );
     }
 
     // 이전 구매 코드를 로드하는 것은 단지 데모일 뿐입니다. 이대로 사용하지 마시기 바랍니다.
     // 앱에서 구매 데이터를 신뢰하기 전에 항상 [PurchaseDetails] 개체 내부의 `verificationData`를 사용하여 구매 데이터를 확인해야 합니다.
     // 구매 데이터 검증을 위해 자체 서버를 이용하는 것을 권장합니다.
     final Map<String, PurchaseDetails> purchases =
-      Map<String, PurchaseDetails>.fromEntries(_purchases.map((PurchaseDetails purchase) {
+          Map<String, PurchaseDetails>.fromEntries(_purchases.map((PurchaseDetails purchase) {
       if (purchase.pendingCompletePurchase) {
         _inAppPurchase.completePurchase(purchase);
       }
@@ -341,22 +346,24 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
             productDetails.description,
           ),
           trailing: previousPurchase != null && Platform.isIOS
-              ? IconButton(onPressed: () => confirmPriceChange(context), icon: const Icon(Icons.upgrade))
+              ? IconButton(
+                  onPressed: () => confirmPriceChange(context),
+                  icon: const Icon(Icons.upgrade),
+                )
               : TextButton(
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.green[800],
                     foregroundColor: Colors.white,
                   ),
+                  child: Text(productDetails.price),
                   onPressed: () {
                     late PurchaseParam purchaseParam;
 
                     if (Platform.isAndroid) {
-                    // NOTE: 구독을 구매/업그레이드/다운그레이드하는 경우 다음을 수행하는 것이 좋습니다.
-                    // 서버측 영수증 확인을 사용하여 구독의 최신 상태를 확인합니다.
-                    // 그에 따라 UI를 업데이트합니다. 표시된 구독 구매 상태
-                    // 앱 내부 내용은 정확하지 않을 수 있습니다.
+                      // NOTE: 구독을 구매/업그레이드/다운그레이드하는 경우 다음을 수행하는 것이 좋습니다.
+                      // 서버측 영수증 확인을 사용하여 구독의 최신 상태를 확인합니다.
+                      // 그에 따라 UI를 업데이트합니다. 표시된 구독 구매 상태, 앱 내부 내용은 정확하지 않을 수 있습니다.
                       final GooglePlayPurchaseDetails? oldSubscription = _getOldSubscription(productDetails, purchases);
-
                       purchaseParam = GooglePlayPurchaseParam(
                           productDetails: productDetails,
                           changeSubscriptionParam: (oldSubscription != null)
@@ -377,15 +384,17 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
                       _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
                     }
                   },
-                  child: Text(productDetails.price),
                 ),
         );
       },
     ));
 
-    return Card(child: Column(children: <Widget>[productHeader, const Divider()] + productList));
+    return Card(
+      child: Column(children: <Widget>[productHeader, const Divider()] + productList),
+    );
   }
 
+  // 소비 시켜야할 리스트
   Card _buildConsumableBox() {
     if (_loading) {
       return const Card(
@@ -545,7 +554,7 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
     // Android의 가격 변동에 대한 정보입니다.
     if (Platform.isIOS) {
       final InAppPurchaseStoreKitPlatformAddition iapStoreKitPlatformAddition =
-          _inAppPurchase.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+      _inAppPurchase.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
       await iapStoreKitPlatformAddition.showPriceConsentIfNeeded();
     }
   }
@@ -567,10 +576,11 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
     return oldSubscription;
   }
 
-  //구매확인(구매승인 절차) - 영수증 검증 요청
+  //구매확인(구매승인 절차) - 영수증 검증 요청 NOTE 현재 다른 곳에서 연결되어 서버 승인 요청됨
   void _requestAosInApp01(PurchaseDetails purchaseDetails) {
     DLog.d('INAPP_TEST', '# requestInApp01 -> ${purchaseDetails.toString()}');
-    DLog.d('INAPP_TEST',
+    DLog.d(
+        'INAPP_TEST',
         '# requestInApp01 ->'
             ' ${purchaseDetails.productID} |'
             ' ${purchaseDetails.purchaseID} |'
@@ -582,8 +592,8 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
             ' ${purchaseDetails.verificationData.localVerificationData} |'
             ' ${purchaseDetails.verificationData.serverVerificationData} |'
             ' ${purchaseDetails.verificationData.source} |'
-            // ' _getPaymentAmount : ${_getPaymentAmount(purchaseDetails.productId!)} |'
-            // ' ${_getPaymentCurrency(purchaseDetails.productId!)}'
+      // ' _getPaymentAmount : ${_getPaymentAmount(purchaseDetails.productId!)} |'
+      // ' ${_getPaymentCurrency(purchaseDetails.productId!)}'
     );
   }
 
@@ -616,8 +626,7 @@ class _InAppPurchaseState extends State<InAppPurchaseTest> {
           // _payMethod = accountData.payMethod;
           if (accountData.prodName == '프리미엄') {
             //이미 프리미엄 계정으로 결제 화면 종료
-          }
-          else if (accountData.prodCode == 'AC_S3') {
+          } else if (accountData.prodCode == 'AC_S3') {
             // if (_payMethod == 'PM50') {
             //   //인앱으로 결제한 경우
             //   // _isUpgradeOn = true;
