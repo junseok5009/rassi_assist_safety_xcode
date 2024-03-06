@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gif/gif.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
@@ -32,8 +33,6 @@ import 'package:uuid/uuid.dart';
 /// --- 수정 기록 ---
 /// 2022.08.03 : 로그인 하지 않은 사용자가 호출하는 전문에는 userId에 'RASSI_APP' 넣어서 호출
 /// 인트로
-///
-
 class IntroPage extends StatelessWidget {
   static const String TAG = "[IntroPage]";
   static const String TAG_NAME = '앱_인트로';
@@ -50,13 +49,8 @@ class IntroPage extends StatelessWidget {
         fontFamily: 'NotoSansKR',
         brightness: Brightness.light,
         primaryColor: RColor.mainColor,
-        // textTheme: TextTheme(
-        //   headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold)
-        // )
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle(
-            //<-- SEE HERE
-            // Status bar color
             statusBarColor: Colors.white,
             statusBarIconBrightness: Brightness.dark,
             statusBarBrightness: Brightness.light,
@@ -172,10 +166,22 @@ class IntroState extends State<IntroWidget>
 
   Future<void> initDynamicLinks() async {
     dynamicLinks.onLink.listen((dynamicLinkData) {
-      /*DLog.d('initDynamicLinks()',toastLength: Toast.LENGTH_LONG);
-      Fluttertoast.showToast(msg: 'dynamicLinkData.link : ${dynamicLinkData.link}',toastLength: Toast.LENGTH_LONG);
-      Fluttertoast.showToast(msg: 'dynamicLinkData.link.path : ${dynamicLinkData.link.path}',toastLength: Toast.LENGTH_LONG);*/
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link : ${dynamicLinkData.link}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.host : ${dynamicLinkData.link.host}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.port : ${dynamicLinkData.link.port}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.path : ${dynamicLinkData.link.path}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.query : ${dynamicLinkData.link.query}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.fragment : ${dynamicLinkData.link.fragment}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.utmParameters : ${dynamicLinkData.utmParameters.toString()}');
+      /*DLog.d('initDynamicLinks()',toastLength: Toast.LENGTH_LONG);*/
+      Fluttertoast.showToast(msg: 'dynamicLinkData.link : ${dynamicLinkData.link.toString()}',toastLength: Toast.LENGTH_LONG);
+      Fluttertoast.showToast(msg: 'dynamicLinkData.link.path : ${dynamicLinkData.link.path}',toastLength: Toast.LENGTH_LONG);
       //Navigator.pushNamed(context, dynamicLinkData.link.path);
+      String dlink = dynamicLinkData.link.toString();
+      _prefs.setString(Const.PREFS_DEEPLINK_URI, dlink);
+      // DLog.d(IntroPage.TAG, '${tmp.indexOf("?ld=")}');
+      // DLog.d(IntroPage.TAG, tmp.substring(tmp.indexOf("?ld=") + 4));
+
     }).onError((error) {
       print('onLink error');
       print(error.message);
@@ -396,9 +402,11 @@ class IntroState extends State<IntroWidget>
                         height: 40,
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
-                          child: Text('확인',
-                              style: TStyle.btnTextWht16,
-                              textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                          child: Text(
+                            '확인',
+                            style: TStyle.btnTextWht16,
+                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          ),
                         ),
                       ),
                     ),

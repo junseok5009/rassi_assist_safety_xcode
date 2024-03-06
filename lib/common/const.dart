@@ -40,6 +40,7 @@ class Const {
       'pay_finished'; //결제시도 후 결제가 완료되지 않았을때(InApp01): false / 그외에 true [bool]
 
   //딥링크 / 마케팅 / 가입경로
+  static const PREFS_DEEPLINK_URI = 'deeplink_uri'; //딥링크 전체 데이터 저장
   //static const PREFS_DEFERRED_DEEPLINK = 'deferred_deeplink';   //디퍼드 딥링크
   static const PREFS_DEEPLINK_ROUTE = 'deeplink_route'; //딥링크 route
   static const PREFS_AD_DEEPLINK = 'ad_deeplink'; //딥링크
