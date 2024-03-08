@@ -16,6 +16,8 @@ class HomeMarketKosChartPage extends StatelessWidget {
   //const HomeMarketKosChartWidget({Key? key}) : super(key: key);
   static const String TAG_NAME = '코스피_코스닥_차트';
 
+  const HomeMarketKosChartPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     DLog.w('HomeMarketKosChartPage $TAG_NAME');
@@ -25,7 +27,7 @@ class HomeMarketKosChartPage extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => KosdaqProvider()),
         ChangeNotifierProvider(create: (_) => Counts()),
       ],
-      child: SafeArea(
+      child: const SafeArea(
         child: Scaffold(
           body: HomeMarketKosChartWidget(),
         ),
@@ -35,6 +37,8 @@ class HomeMarketKosChartPage extends StatelessWidget {
 }
 
 class HomeMarketKosChartWidget extends StatefulWidget {
+  const HomeMarketKosChartWidget({super.key});
+
   //const HomeMarketKosChartWidget({Key? key}) : super(key: key);
   @override
   State<HomeMarketKosChartWidget> createState() =>

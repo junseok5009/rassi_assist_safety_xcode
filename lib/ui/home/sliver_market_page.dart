@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:bubble_chart/bubble_chart.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -29,6 +28,8 @@ import 'package:rassi_assist/models/tr_rassi/tr_rassi14.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi15.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
+import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleNode.dart';
+import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleRoot.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
@@ -36,7 +37,6 @@ import 'package:rassi_assist/ui/news/news_tag_all_page.dart';
 import 'package:rassi_assist/ui/sub/home_market_kos_chart.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_time_line_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../main/base_page.dart';
 
@@ -56,7 +56,8 @@ class SliverMarketWidget extends StatefulWidget {
   State<StatefulWidget> createState() => SliverMarketWidgetState();
 }
 
-class SliverMarketWidgetState extends State<SliverMarketWidget> {
+class SliverMarketWidgetState extends State<SliverMarketWidget>
+    with TickerProviderStateMixin {
   var appGlobal = AppGlobal();
 
   late SharedPreferences _prefs;
@@ -67,8 +68,13 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
   Color _kosdaqColor = Colors.grey;
   Index01 _index01 = defIndex01;
 
+  // 오늘의 이슈
   String _issueDate = "";
   List<Issue03> _issueList = []; //오늘의 이슈
+  bool _isStartAnimation = false;
+  final List<AnimationController> _bubbleChartAniControllerList = [];
+  final List<Widget> _bubbleWidgetList = [];
+
   List<Rassi11> _pickTagList = []; //이 시간 PICK
   List<Rassi12> _reportList = []; //분석리포트
   final List<TagNew> _hidingTagList = []; //숨어있는 정보 태그
@@ -115,7 +121,23 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_isStartAnimation && _bubbleWidgetList.isNotEmpty) {
+          setState(() {
+            _isStartAnimation = true;
+            _bubbleChartAniStart();
+          });
+        }
+      });
     }
+  }
+
+  @override
+  void dispose() {
+    for (var element in _bubbleChartAniControllerList) {
+      element.dispose();
+    }
+    super.dispose();
   }
 
   Future<void> _loadPrefData() async {
@@ -323,7 +345,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
                 topRight: const Radius.circular(20.0),
               ),*/
             ),
-            child: HomeMarketKosChartPage(),
+            child: const HomeMarketKosChartPage(),
           ),
         );
       },
@@ -337,12 +359,12 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
                   (_index01.marketTimeDiv == 'B' &&
                       _index01.kosdaq.isEmpty() &&
                       _index01.kospi.isEmpty())
-              ? Column(
+              ? const Column(
                   children: [
                     SizedBox(
                       height: 50,
                       child: Row(
-                        children: const [
+                        children: [
                           Expanded(
                             child: Align(
                               alignment: Alignment.bottomCenter,
@@ -370,7 +392,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
                         ],
                       ),
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Center(
                         child: Text(
                           '장 시작 전 입니다.',
@@ -505,177 +527,6 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
 
   //오늘의 이슈(버블차트)
   Widget _setTodayIssueBubble() {
-    List<BubbleNode> listNodes = [];
-    TextStyle tStyle;
-    Color? bgColor;
-    Color txtColor = Colors.white;
-    String name = '';
-    double minValue = 0;
-    FontWeight fontWeight = FontWeight.bold;
-    double? padding = 0;
-
-    _issueList.sort(
-      (a, b) => double.parse(b.avgFluctRate)
-          .abs()
-          .compareTo(double.parse(a.avgFluctRate).abs()),
-    );
-
-    for (int i = 0; i < _issueList.length; i++) {
-      txtColor = Colors.white;
-
-      Issue03 item = _issueList[i];
-
-      num value = double.parse(item.avgFluctRate);
-      //최대값 찾기 > 최대값의 1/15이 최소값임
-      if (i == 0) {
-        minValue = (double.parse((value.abs() / 15).toStringAsFixed(2)));
-        //DLog.d(SliverMarketWidget.TAG, 'minValue : $minValue');
-      }
-
-      /*DLog.d(SliverMarketWidget.TAG,
-          'keyword : ${item.keyword} / value : ${item.avgFluctRate} / status : ${item.issueStatus}');*/
-
-      fontWeight = FontWeight.bold;
-      padding = 10;
-
-      /* else if(_value > 0.2){
-        _padding = 14 * _value;
-      } else{
-        _padding = 10;
-      }*/
-
-      if (value > 3) {
-        bgColor = RColor.bubbleChartStrongRed;
-        padding = (3 * value) as double?;
-      } else if (value > 1) {
-        bgColor = RColor.bubbleChartRed;
-        padding = (7 * value) as double?;
-      } else if (value <= -1 && value > -5) {
-        bgColor = RColor.bubbleChartBlue;
-        value = value.abs();
-        padding = (7 * value) as double?;
-      } else if (value <= -5) {
-        bgColor = RColor.bubbleChartStrongBlue;
-        value = value.abs();
-        padding = 4.5 * value;
-      } else {
-        fontWeight = FontWeight.w600;
-        padding = 10;
-        switch (item.issueStatus) {
-          case 'bohab':
-            {
-              if (value > 0.1) {
-                bgColor = RColor.bubbleChartWeakRed;
-                txtColor = RColor.bubbleChartTxtColorRed;
-              } else if (value > -0.1) {
-                DLog.e('보합 : item.keyword : ${item.keyword}');
-                value = value.abs();
-                bgColor = RColor.bubbleChartGrey;
-                txtColor = RColor.bubbleChartTxtColorGrey;
-              } else {
-                value = value.abs();
-                bgColor = RColor.bubbleChartWeakBlue;
-                txtColor = Colors.blueAccent;
-              }
-              break;
-            }
-          case 'up':
-            {
-              if (value > -0.7) {
-                value = value.abs();
-                bgColor = RColor.bubbleChartWeakRed;
-                txtColor = RColor.bubbleChartTxtColorRed;
-              } else {
-                value = value.abs();
-                bgColor = RColor.bubbleChartWeakBlue;
-                txtColor = Colors.blueAccent;
-              }
-              break;
-            }
-          case 'dn':
-            {
-              if (value > 0.7) {
-                bgColor = RColor.bubbleChartWeakRed;
-                txtColor = RColor.bubbleChartTxtColorRed;
-              } else if (value > -0.7) {
-                value = value.abs();
-                bgColor = RColor.bubbleChartGrey;
-                txtColor = RColor.bubbleChartTxtColorGrey;
-              } else {
-                value = value.abs();
-                bgColor = RColor.bubbleChartWeakBlue;
-                txtColor = Colors.blueAccent;
-              }
-              break;
-            }
-        }
-      }
-
-      if (value.abs() < minValue) {
-        value = minValue;
-      }
-
-      tStyle = TextStyle(
-        fontWeight: fontWeight,
-        fontSize: 20,
-        color: txtColor,
-      );
-
-      name = item.keyword.replaceAll(' ', '');
-      if (name.length == 4 || name.length == 5) {
-        name = '${name.substring(0, 2)}\n${name.substring(2, 4)}';
-      }
-
-      BubbleNode childNode = BubbleNode.leaf(
-        value: value,
-        options: BubbleOptions(
-          color: bgColor,
-          onTap: () {
-            CustomFirebaseClass.logEvtTodayIssue(
-              item.keyword,
-            );
-            Navigator.push(
-              context,
-              CustomNvRouteClass.createRouteData(
-                const IssueViewer(),
-                RouteSettings(
-                  arguments: PgData(
-                    userId: '',
-                    pgSn: item.newsSn,
-                    pgData: item.issueSn,
-                  ),
-                ),
-              ),
-            );
-          },
-          child: FittedBox(
-            fit: BoxFit.cover,
-            child: Padding(
-              padding: EdgeInsets.all(padding!),
-              child: Text(
-                name,
-                style: tStyle,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      );
-
-      listNodes.add(childNode);
-    }
-
-    /*for (int k = 0; k < listNodes.length; k++) {
-      DLog.d(SliverMarketWidget.TAG, '$k : ${listNodes[k].value}');
-    }*/
-
-    if (listNodes.isEmpty) {
-      listNodes.add(BubbleNode.leaf(
-        value: 10,
-        options: BubbleOptions(color: Colors.transparent),
-      ));
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 25.0),
       //color: RColor.bgWeakGrey,
@@ -691,41 +542,17 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
               ),
             ],
           ),
-          const SizedBox(
-            height: 10.0,
-          ),
-          SizedBox(
-            height: 300,
-            child: BubbleChartLayout(
-              children: [
-                BubbleNode.node(
-                  options: BubbleOptions(color: Colors.transparent),
-                  padding: 1,
-                  children: listNodes,
-                ),
-              ],
-              duration: const Duration(milliseconds: 800),
+          if (_bubbleWidgetList.isNotEmpty)
+            SizedBox(
+              width: double.infinity,
+              height: 300,
+              child: Stack(
+                children: _bubbleWidgetList,
+              ),
             ),
-          ),
-          Container(
-            width: double.infinity,
-            height: 300,
-            child: SfCartesianChart(
-              primaryXAxis: NumericAxis(),
-              series: <ChartSeries>[
-                BubbleSeries<ChartData, int>(
-                  dataSource: chartData,
-                  xValueMapper: (ChartData data, _) => data.xValue,
-                  yValueMapper: (ChartData data, _) => data.yValue,
-                  sizeValueMapper: (ChartData data, _) => data.bubbleSize,
-                  dataLabelSettings: DataLabelSettings(isVisible: true),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
+         /* const SizedBox(
             height: 15.0,
-          ),
+          ),*/
           CommonView.setBasicMoreRoundBtnView(
             [
               Text(
@@ -749,6 +576,19 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
         ],
       ),
     );
+  }
+
+  void _bubbleChartAniStart() async {
+    for (final controller in _bubbleChartAniControllerList) {
+      await Future.delayed(
+          const Duration(
+            milliseconds: 200,
+          ), () async {
+        if (mounted) {
+          controller.forward();
+        }
+      });
+    }
   }
 
   // 라씨데스크 배너
@@ -904,7 +744,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
 
   //AI 가 찾은 추천정보
   Widget _setRecomInfo() {
-    double _margin = (MediaQuery.of(context).size.width / 6) + (10 / 3);
+    double margin = (MediaQuery.of(context).size.width / 6) + (10 / 3);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 25.0),
@@ -917,8 +757,8 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     SizedBox(
                       width: 14,
                     ),
@@ -1035,7 +875,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
                   width: double.infinity,
                   //color: Colors.redAccent,
                   margin:
-                      EdgeInsets.only(left: _margin - 20, right: _margin - 35),
+                      EdgeInsets.only(left: margin - 20, right: margin - 35),
                   padding: EdgeInsets.zero,
                   child: AnimatedAlign(
                     alignment: _alignment,
@@ -1314,10 +1154,9 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(SliverMarketWidget.TAG, 'ERR : TimeoutException (12 seconds)');
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      DLog.d(SliverMarketWidget.TAG, 'ERR : SocketException');
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) {
+        CommonPopup.instance.showDialogNetErr(context);
+      }
     }
   }
 
@@ -1367,40 +1206,25 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
         Kosdaq kosdaq = resData.retData.kosdaq;
 
         if (kospi.fluctuationRate.contains('-')) {
-          _kospiSub = '▼' +
-              kospi.indexFluctuation.replaceAll('-', '') +
-              '  ' +
-              kospi.fluctuationRate +
-              '%';
+          _kospiSub =
+              '▼${kospi.indexFluctuation.replaceAll('-', '')}  ${kospi.fluctuationRate}%';
           _kospiColor = RColor.sigSell;
         } else if (kospi.fluctuationRate == '0.00') {
-          _kospiSub =
-              kospi.indexFluctuation + '  ' + kospi.fluctuationRate + '%';
+          _kospiSub = '${kospi.indexFluctuation}  ${kospi.fluctuationRate}%';
         } else {
-          _kospiSub = '▲' +
-              kospi.indexFluctuation +
-              '  +' +
-              kospi.fluctuationRate +
-              '%';
+          _kospiSub = '▲${kospi.indexFluctuation}  +${kospi.fluctuationRate}%';
           _kospiColor = RColor.sigBuy;
         }
 
         if (kosdaq.fluctuationRate.contains('-')) {
-          _kosdaqSub = '▼' +
-              kosdaq.indexFluctuation.replaceAll('-', '') +
-              '   ' +
-              kosdaq.fluctuationRate +
-              '%';
+          _kosdaqSub =
+              '▼${kosdaq.indexFluctuation.replaceAll('-', '')}   ${kosdaq.fluctuationRate}%';
           _kosdaqColor = RColor.sigSell;
         } else if (kosdaq.fluctuationRate == '0.00') {
-          _kosdaqSub =
-              kosdaq.indexFluctuation + '  ' + kosdaq.fluctuationRate + '%';
+          _kosdaqSub = '${kosdaq.indexFluctuation}  ${kosdaq.fluctuationRate}%';
         } else {
-          _kosdaqSub = '▲' +
-              kosdaq.indexFluctuation +
-              '   +' +
-              kosdaq.fluctuationRate +
-              '%';
+          _kosdaqSub =
+              '▲${kosdaq.indexFluctuation}   +${kosdaq.fluctuationRate}%';
           _kosdaqColor = RColor.sigBuy;
         }
       } else {
@@ -1420,13 +1244,222 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
       final TrIssue03 resData = TrIssue03.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _issueList = resData.listData;
-        String _month = resData.listData[0].issueDttm.substring(4, 6);
-        String _day = resData.listData[0].issueDttm.substring(6, 8);
+        _bubbleChartAniControllerList.clear();
 
-        if (_month[0] == '0') _month = _month[1];
-        if (_day[0] == '0') _day = _day[1];
+        String month = resData.listData[0].issueDttm.substring(4, 6);
+        String day = resData.listData[0].issueDttm.substring(6, 8);
 
-        _issueDate = _month + '/' + _day;
+        if (month[0] == '0') month = month[1];
+        if (day[0] == '0') day = day[1];
+
+        _issueDate = '$month/$day';
+        _issueList.sort(
+          (a, b) => double.parse(b.avgFluctRate)
+              .abs()
+              .compareTo(double.parse(a.avgFluctRate).abs()),
+        );
+
+        List<CustomBubbleNode> listNodes = [];
+        TextStyle tStyle;
+        Color? bgColor;
+        Color txtColor = Colors.white;
+        String name = '';
+        double minValue = 0;
+        FontWeight fontWeight = FontWeight.bold;
+        double padding = 0;
+
+        for (int i = 0; i < _issueList.length; i++) {
+          txtColor = Colors.white;
+          Issue03 item = _issueList[i];
+          num value = double.parse(item.avgFluctRate);
+          /*if(value > 1){
+            value = value.round().toDouble();
+          }*/
+          //최대값 찾기 > 최대값의 1/15이 최소값임
+          if (i == 0) {
+            minValue = (double.parse((value.abs() / 15).toStringAsFixed(2)));
+            //DLog.d(SliverMarketWidget.TAG, 'minValue : $minValue');
+          }
+          fontWeight = FontWeight.w700;
+          padding = 10;
+          if (value >= 2.9) {
+            bgColor = RColor.bubbleChartStrongRed;
+            padding = (3 * value) as double;
+          } else if (value >= 1) {
+            bgColor = RColor.bubbleChartRed;
+            padding = (7 * value) as double;
+            fontWeight = FontWeight.w600;
+          } else if (value <= -1 && value > -5) {
+            bgColor = RColor.bubbleChartBlue;
+            value = value.abs();
+            padding = (7 * value) as double;
+            fontWeight = FontWeight.w600;
+          } else if (value <= -5) {
+            bgColor = RColor.bubbleChartStrongBlue;
+            value = value.abs();
+            padding = 4.5 * value;
+            fontWeight = FontWeight.w500;
+          } else {
+            fontWeight = FontWeight.w500;
+            padding = 10;
+            switch (item.issueStatus) {
+              case 'bohab':
+                {
+                  if (value > 0.1) {
+                    bgColor = RColor.bubbleChartWeakRed;
+                    txtColor = RColor.bubbleChartTxtColorRed;
+                  } else if (value > -0.1) {
+                    DLog.e('보합 : item.keyword : ${item.keyword}');
+                    value = value.abs();
+                    bgColor = RColor.bubbleChartGrey;
+                    txtColor = RColor.bubbleChartTxtColorGrey;
+                  } else {
+                    value = value.abs();
+                    bgColor = RColor.bubbleChartWeakBlue;
+                    txtColor = Colors.blueAccent;
+                  }
+                  break;
+                }
+              case 'up':
+                {
+                  if (value > -0.7) {
+                    value = value.abs();
+                    bgColor = RColor.bubbleChartWeakRed;
+                    txtColor = RColor.bubbleChartTxtColorRed;
+                  } else {
+                    value = value.abs();
+                    bgColor = RColor.bubbleChartWeakBlue;
+                    txtColor = Colors.blueAccent;
+                  }
+                  break;
+                }
+              case 'dn':
+                {
+                  if (value > 0.7) {
+                    bgColor = RColor.bubbleChartWeakRed;
+                    txtColor = RColor.bubbleChartTxtColorRed;
+                  } else if (value > -0.7) {
+                    value = value.abs();
+                    bgColor = RColor.bubbleChartGrey;
+                    txtColor = RColor.bubbleChartTxtColorGrey;
+                  } else {
+                    value = value.abs();
+                    bgColor = RColor.bubbleChartWeakBlue;
+                    txtColor = Colors.blueAccent;
+                  }
+                  break;
+                }
+            }
+          }
+          if (value.abs() < minValue) {
+            value = minValue;
+          }
+          tStyle = TextStyle(
+            fontWeight: fontWeight,
+            fontSize: 20,
+            color: txtColor,
+          );
+          name = item.keyword.replaceAll(' ', '\n');
+          /*if (name.length == 4 || name.length == 5) {
+            name = '${name.substring(0, 2)}\n${name.substring(2, 4)}';
+          }*/
+
+          CustomBubbleNode customBubbleNode = CustomBubbleNode.leaf(
+            value: value,
+            index: i,
+            options: CustomBubbleOptions(
+              color: bgColor,
+              onTap: () {
+                CustomFirebaseClass.logEvtTodayIssue(
+                  item.keyword,
+                );
+                Navigator.push(
+                  context,
+                  CustomNvRouteClass.createRouteData(
+                    const IssueViewer(),
+                    RouteSettings(
+                      arguments: PgData(
+                        userId: '',
+                        pgSn: item.newsSn,
+                        pgData: item.issueSn,
+                      ),
+                    ),
+                  ),
+                );
+              },
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: Padding(
+                  padding: EdgeInsets.all(padding),
+                  child: AutoSizeText(
+                    name,
+                    style: tStyle,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                  ),
+                ),
+              ),
+            ),
+          );
+          listNodes.add(customBubbleNode);
+          _bubbleChartAniControllerList.add(
+            AnimationController(
+              duration: Duration(milliseconds: 2000 + 300 * i),
+              vsync: this,
+            ),
+          );
+        }
+
+        List<Widget> bubbleWidgetList = CustomBubbleRoot(
+          root: CustomBubbleNode.node(
+            children: listNodes,
+            padding: 2,
+          ),
+          radius: null,
+          //size: Size((AppGlobal().deviceWidth), AppGlobal().isTablet ? 300 : AppGlobal().deviceWidth - (AppGlobal().deviceWidth * 0.15),),
+          size: Size((AppGlobal().deviceWidth), 300,),
+          stretchFactor: 2,
+        ).nodes.fold([], (result, node) {
+          return result
+            ..add(
+              Positioned(
+                key: node.key,
+                top: node.y! - node.radius!,
+                left: node.x! - node.radius!,
+                width: node.radius! * 2,
+                height: node.radius! * 2,
+                child: ScaleTransition(
+                  scale: Tween(begin: 0.0, end: 1.0).animate(
+                    CurvedAnimation(
+                        parent: _bubbleChartAniControllerList[node.index],
+                        curve: Curves.elasticOut),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(node.radius! * 2),
+                    child: InkResponse(
+                      borderRadius: BorderRadius.circular(node.radius! * 2),
+                      onTap: node.options?.onTap,
+                      child: Container(
+                        width: node.radius! * 2,
+                        height: node.radius! * 2,
+                        decoration: BoxDecoration(
+                          border: node.options?.border ?? const Border(),
+                          color: node.options?.color ??
+                              RColor.purpleBgBasic_dbdbff,
+                          shape: BoxShape.circle,
+                        ),
+                        child:
+                            Center(child: node.options?.child ?? Container()),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+        });
+
+        _bubbleWidgetList.addAll(bubbleWidgetList);
+
         setState(() {});
       }
 
@@ -1531,19 +1564,3 @@ class SliverMarketWidgetState extends State<SliverMarketWidget> {
     }
   }
 }
-
-class ChartData {
-  final int xValue;
-  final int yValue;
-  final double bubbleSize;
-
-  ChartData(this.xValue, this.yValue, this.bubbleSize);
-}
-
-final List<ChartData> chartData = [
-  ChartData(0, 35, 0.32),
-  ChartData(10, 38, 0.21),
-  ChartData(0, 34, 0.38),
-  ChartData(0, 52, 0.29),
-  ChartData(0, 40, 0.34)
-];
