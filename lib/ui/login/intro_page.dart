@@ -207,12 +207,18 @@ class IntroState extends State<IntroWidget>
   }
 
   Future<void> initDynamicLinks() async {
+    final PendingDynamicLinkData? initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
+
+    if (initialLink != null) {
+      final Uri deepLink = initialLink.link;
+      commonShowToast('dynamicLinks.onLink.listen / ${deepLink.toString()}');
+    }
+
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
       /// ios에서 앱 설치안된 상태에서, 링크로 앱스토어에서 최초 설치 이후 링크 값은 여기서 받아짐.
       /// aos에서 앱 이미 설치 된 상태에서 Back/fore ground 상태에서 링크 받아짐. (꺼져있는 상태에서 오픈되면 안받아짐)
       appGlobal.pendingDynamicLinkDataIOS = dynamicLinkData;
-      commonShowToast(
-          'dynamicLinks.onLink.listen / ${dynamicLinkData.toString()}');
+      commonShowToast('dynamicLinks.onLink.listen / ${dynamicLinkData.toString()}');
 
       DLog.d(
           IntroPage.TAG, '@@@ dynamicLinkData.link : ${dynamicLinkData.link}');

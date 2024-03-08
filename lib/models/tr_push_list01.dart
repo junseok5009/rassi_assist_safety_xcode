@@ -12,7 +12,7 @@ class TrPushList01 {
   TrPushList01({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrPushList01.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
+    var list = (json['retData'] ?? []) as List;
 
     List<PushList01>? rtList;
     list == null ? rtList = null : rtList = list.map((i) => PushList01.fromJson(i)).toList();
