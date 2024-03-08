@@ -93,7 +93,7 @@ class IntroWidget extends StatefulWidget {
 class IntroState extends State<IntroWidget>
     with SingleTickerProviderStateMixin {
   var appGlobal = AppGlobal();
-  static const platform = MethodChannel(Const.METHOD_CHANNEL_NAME);
+  static const _androidChannel = MethodChannel(Const.METHOD_CHANNEL_NAME);  //추후 삭제예정
   final MethodChannel _iosMethodChannel =
       const MethodChannel(Const.METHOD_CHANNEL_LINK_IOS);
 
@@ -104,15 +104,11 @@ class IntroState extends State<IntroWidget>
   late SharedPreferences _prefs;
   String _userId = "";
 
-  // Uri _latestUri;
-  // StreamSubscription _sub;
-
-  //FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
 
   @override
   void initState() {
     super.initState();
-    //initDynamicLinks();
+
     if (Platform.isIOS) {
       initIosDynamicLinks();
     } else if (Platform.isAndroid) {
@@ -144,7 +140,6 @@ class IntroState extends State<IntroWidget>
 
   @override
   void dispose() {
-    // _sub.cancel();
     DLog.d(IntroPage.TAG, 'dispose()');
     super.dispose();
   }
@@ -156,7 +151,7 @@ class IntroState extends State<IntroWidget>
       DLog.d(IntroPage.TAG, '##### Platform Android');
       //Android Native 사용자를 위한 코드
       try {
-        final String result = await platform.invokeMethod('getPrefUserId');
+        final String result = await _androidChannel.invokeMethod('getPrefUserId');
         if (result.isNotEmpty) {
           _prefs.setString(Const.PREFS_USER_ID, result);
           _userId = result;
@@ -213,6 +208,7 @@ class IntroState extends State<IntroWidget>
     /// aos에서 앱 설치된 상태, 링크로 앱 실행시 여기서 링크 값 받아짐.
     if (initialLink != null) {
       final Uri deepLink = initialLink.link;
+      appGlobal.pendingDynamicLinkData = initialLink;
       commonShowToast('dynamicLinks.onLink.listen / ${deepLink.toString()}');
     }
   }
@@ -283,8 +279,9 @@ class IntroState extends State<IntroWidget>
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context)
-            .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+        data: MediaQuery.of(context).copyWith(
+          textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+        ),
         child: child!,
       ),
       home: Scaffold(
@@ -441,9 +438,11 @@ class IntroState extends State<IntroWidget>
                   const SizedBox(
                     height: 5.0,
                   ),
-                  const Text('업데이트 알림',
-                      style: TStyle.defaultTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                  const Text(
+                    '업데이트 알림',
+                    style: TStyle.defaultTitle,
+                    textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+                  ),
                   const SizedBox(
                     height: 25.0,
                   ),
@@ -464,7 +463,7 @@ class IntroState extends State<IntroWidget>
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
                           ),
                         ),
                       ),

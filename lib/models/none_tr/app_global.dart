@@ -61,8 +61,8 @@ class AppGlobal {
   // 태블릿(큰 디스플레이)인지 구분
   bool isTablet = false;
 
-  // 링크 타고 들어왔을 경우 여기에 넣어두어야 함 Only IOS
-  PendingDynamicLinkData? pendingDynamicLinkDataIOS;
+  // 링크 타고 들어왔을 경우 여기에 넣어두어야 함
+  PendingDynamicLinkData? pendingDynamicLinkData;
 
   setLogoutStatus() {
     userId = '';
