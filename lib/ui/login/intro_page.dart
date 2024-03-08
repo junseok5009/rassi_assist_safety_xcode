@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gif/gif.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
@@ -45,7 +44,8 @@ class IntroPage extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.light,
       theme: ThemeData(
-        useMaterial3: false,    //Flutter 3.16 릴리즈 부터 Material3 기본적용
+        useMaterial3: false,
+        //Flutter 3.16 릴리즈 부터 Material3 기본적용
         fontFamily: 'NotoSansKR',
         brightness: Brightness.light,
         primaryColor: RColor.mainColor,
@@ -69,7 +69,8 @@ class IntroPage extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+        data: MediaQuery.of(context)
+            .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
         child: child!,
       ),
       home: const Scaffold(
@@ -93,6 +94,8 @@ class IntroState extends State<IntroWidget>
     with SingleTickerProviderStateMixin {
   var appGlobal = AppGlobal();
   static const platform = MethodChannel(Const.METHOD_CHANNEL_NAME);
+  final MethodChannel _iosMethodChannel =
+      const MethodChannel(Const.METHOD_CHANNEL_LINK_IOS);
 
   final String _appEnv =
       Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
@@ -104,11 +107,16 @@ class IntroState extends State<IntroWidget>
   // Uri _latestUri;
   // StreamSubscription _sub;
 
-  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+  //FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
 
   @override
   void initState() {
     super.initState();
+    //initDynamicLinks();
+    if (Platform.isIOS) {
+      initIosDynamicLinks();
+    }
+    initDynamicLinks();
     _loadPrefData().then((_) {
       Future.delayed(Duration.zero, () async {
         appGlobal.deviceWidth = MediaQuery.of(context).size.width;
@@ -120,7 +128,8 @@ class IntroState extends State<IntroWidget>
           appGlobal.isTablet = shortestSide > 600;
         } else if (Platform.isIOS) {
           IosDeviceInfo info = await deviceInfo.iosInfo;
-          if (info.model != null && info.model!.toLowerCase().contains("ipad")) {
+          if (info.model != null &&
+              info.model!.toLowerCase().contains("ipad")) {
             appGlobal.isTablet = true;
           } else {
             appGlobal.isTablet = false;
@@ -129,8 +138,6 @@ class IntroState extends State<IntroWidget>
         _requestVersionCheck();
       });
     });
-
-    initDynamicLinks();
   }
 
   @override
@@ -164,27 +171,67 @@ class IntroState extends State<IntroWidget>
     _prefs.setString(Const.PREFS_DEVICE_ID, const Uuid().v4());
   }
 
+  initIosDynamicLinks() async {
+    _iosMethodChannel.setMethodCallHandler((call) async {
+      /// ios에서 앱 이미 설치 된 상태에서 Back/fore ground 상태, 혹은 꺼져있는 상태에서 오픈되면 여기서 링크 받아짐.
+      String content = call.method;
+      FirebaseDynamicLinks.instance
+          .getDynamicLink(Uri.parse(content))
+          .then((value) {
+        // 여기에 들어오는 링크가 항상 앱 실행 딥링크라는 보장은 없음.
+        appGlobal.pendingDynamicLinkDataIOS = value;
+        commonShowToast(
+            'dynamicLinks.onLink.listen / ${value.toString()}');
+        Uri? linkUri = value?.link;
+        if (linkUri != null) {
+          linkUri.pathSegments.asMap().forEach((key, value) {
+            DLog.e('pathSegments [$key] : $value');
+          });
+          linkUri.queryParameters.forEach((key, value) {
+            DLog.e('queryParameters [$key] : $value');
+          });
+        }
+        DLog.e(
+            'value.link : ${value != null ? value.link.toString() : 'null'} / value : ${value.toString()}');
+
+        /*Navigator.push(
+          context,
+          CustomNvRouteClass.createRoute(
+            const TestLinkPage(),
+          ),
+        );*/
+      });
+
+      //commonShowToast('native link != null && dd : ${dd.toString()}');
+    });
+  }
+
   Future<void> initDynamicLinks() async {
-    dynamicLinks.onLink.listen((dynamicLinkData) {
-      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link : ${dynamicLinkData.link}');
-      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.host : ${dynamicLinkData.link.host}');
-      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.port : ${dynamicLinkData.link.port}');
-      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.path : ${dynamicLinkData.link.path}');
-      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.query : ${dynamicLinkData.link.query}');
-      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.fragment : ${dynamicLinkData.link.fragment}');
-      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.utmParameters : ${dynamicLinkData.utmParameters.toString()}');
+    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
+      /// ios에서 앱 설치안된 상태에서, 링크로 앱스토어에서 최초 설치 이후 링크 값은 여기서 받아짐.
+      /// aos에서 앱 이미 설치 된 상태에서 Back/fore ground 상태에서 링크 받아짐. (꺼져있는 상태에서 오픈되면 안받아짐)
+      appGlobal.pendingDynamicLinkDataIOS = dynamicLinkData;
+      commonShowToast(
+          'dynamicLinks.onLink.listen / ${dynamicLinkData.toString()}');
+
+      DLog.d(
+          IntroPage.TAG, '@@@ dynamicLinkData.link : ${dynamicLinkData.link}');
+      DLog.d(IntroPage.TAG,
+          '@@@ dynamicLinkData.link.host : ${dynamicLinkData.link.host}');
+      DLog.d(IntroPage.TAG,
+          '@@@ dynamicLinkData.link.port : ${dynamicLinkData.link.port}');
+      DLog.d(IntroPage.TAG,
+          '@@@ dynamicLinkData.link.path : ${dynamicLinkData.link.path}');
+      DLog.d(IntroPage.TAG,
+          '@@@ dynamicLinkData.link.query : ${dynamicLinkData.link.query}');
+      DLog.d(IntroPage.TAG,
+          '@@@ dynamicLinkData.link.fragment : ${dynamicLinkData.link.fragment}');
+      DLog.d(IntroPage.TAG,
+          '@@@ dynamicLinkData.utmParameters : ${dynamicLinkData.utmParameters.toString()}');
       /*DLog.d('initDynamicLinks()',toastLength: Toast.LENGTH_LONG);*/
-      Fluttertoast.showToast(msg: 'dynamicLinkData.link : ${dynamicLinkData.link.toString()}',toastLength: Toast.LENGTH_LONG);
-      Fluttertoast.showToast(msg: 'dynamicLinkData.link.path : ${dynamicLinkData.link.path}',toastLength: Toast.LENGTH_LONG);
       //Navigator.pushNamed(context, dynamicLinkData.link.path);
       String dlink = dynamicLinkData.link.toString();
-      _prefs.setString(Const.PREFS_DEEPLINK_URI, dlink);
-      // DLog.d(IntroPage.TAG, '${tmp.indexOf("?ld=")}');
-      // DLog.d(IntroPage.TAG, tmp.substring(tmp.indexOf("?ld=") + 4));
-
-    }).onError((error) {
-      print('onLink error');
-      print(error.message);
+      await _prefs.setString(Const.PREFS_DEEPLINK_URI, dlink);
     });
   }
 
@@ -306,22 +353,23 @@ class IntroState extends State<IntroWidget>
     if (Platform.isIOS) {
       await FlutterInappPurchase.instance.initialize();
       List<PurchasedItem>? purchasedHistoryItemList =
-      await FlutterInappPurchase.instance.getPurchaseHistory();
+          await FlutterInappPurchase.instance.getPurchaseHistory();
 
       List<IAPItem> getProductItemList =
-      await FlutterInappPurchase.instance.getProducts([]);
+          await FlutterInappPurchase.instance.getProducts([]);
       List<IAPItem> promotionProductList = [];
 
       for (var item in getProductItemList) {
-        if (item.introductoryPrice != null && item.introductoryPrice!.isNotEmpty) {
+        if (item.introductoryPrice != null &&
+            item.introductoryPrice!.isNotEmpty) {
           promotionProductList.add(item);
         }
       }
 
-      AppGlobal().isAlreadyPromotionProductPayUser =
-          purchasedHistoryItemList!.any((purchasedHistoryItem) =>
-              promotionProductList.any((promotionProduct) =>
-              promotionProduct.productId ==
+      AppGlobal().isAlreadyPromotionProductPayUser = purchasedHistoryItemList!
+          .any((purchasedHistoryItem) => promotionProductList.any(
+              (promotionProduct) =>
+                  promotionProduct.productId ==
                   purchasedHistoryItem.productId));
     } else if (Platform.isAndroid) {
       // 추후 추가 예정

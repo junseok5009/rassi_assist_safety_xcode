@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -14,11 +13,12 @@ import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/custom_lib/http_process_class.dart';
+import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
-import 'package:rassi_assist/ui/login/join_route_page.dart';
+import 'package:rassi_assist/ui/login/terms_of_use_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/sub/web_page.dart';
 
@@ -685,15 +685,20 @@ class RassiJoinState extends State<RassiJoinPage> {
     } else if (!_checkBoolList[2]) {
       CommonPopup.instance.showDialogBasic(context, '알림', '만 14세 이상을 확인해 주세요.');
     } else {
-      //씽크풀 회원가입 페이지로 이동
-      Navigator.pushNamed(
+      // 약관 동의로 이동
+      Navigator.push(
         context,
-        JoinRoutePage.routeName,
-        arguments: PgData(
-            userId: id.toLowerCase(),
-            pgData: pass,
-            pgSn: _strPhone.trim(),
-            flag: 'RASSI'),
+        MaterialPageRoute(
+          builder: (context) => TermsOfUsePage(
+            UserJoinInfo(
+              userId: id.toLowerCase(),
+              email: '',
+              name: '',
+              phone: _strPhone.trim(),
+              pgType: 'RASSI',
+            ),
+          ),
+        ),
       );
     }
   }
@@ -933,8 +938,8 @@ class RassiJoinState extends State<RassiJoinPage> {
     commonShowToast('로그인 되었습니다.');
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'complete');
-    CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.rassi));
-    CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.rassi));
+    CustomFirebaseClass.logEvtLogin(LoginPlatform.rassi.name);
+    CustomFirebaseClass.logEvtSignUp(LoginPlatform.rassi.name);
     if (userId != '') {
       basePageState = BasePageState();
       // Navigator.pushReplacement(

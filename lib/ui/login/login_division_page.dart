@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
@@ -392,14 +391,16 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       try {
         AccessTokenInfo tokenInfo = await UserApi.instance.accessTokenInfo();
         DLog.d(LoginDivisionPage.TAG, '회원정보 / tokenInfo.id : ${tokenInfo.id}');
-        DLog.d(LoginDivisionPage.TAG, '토큰만료시간 / tokenInfo.expiresIn : ${tokenInfo.expiresIn}');
+        DLog.d(LoginDivisionPage.TAG,
+            '토큰만료시간 / tokenInfo.expiresIn : ${tokenInfo.expiresIn}');
 
         String numId = tokenInfo.id.toString();
         String email = '';
         String name = '';
-        if (numId != null && numId.isNotEmpty) {
+        if (numId.isNotEmpty) {
           _reqPos = 'KAKAO';
-          _reqParam = 'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
+          _reqParam =
+              'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
           _requestThink(numId, email, name);
         }
       } catch (error) {
@@ -421,7 +422,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       String numId = user.id.toString();
       String email = '';
       String name = '';
-      if (numId != null && numId.isNotEmpty) {
+      if (numId.isNotEmpty) {
         _reqPos = 'KAKAO';
         _reqParam =
             'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=KAKAO';
@@ -449,7 +450,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     String numId = result.account.id;
     String email = result.account.email;
     String name = result.account.name;
-    if (numId != null && numId.isNotEmpty) {
+    if (numId.isNotEmpty) {
       _reqPos = 'NAVER';
       DLog.d(LoginDivisionPage.TAG, 'Naver Num ID : $numId');
       _reqParam = 'snsId=${Net.getEncrypt(numId)}&snsEmail=$email&snsPos=NAVER';
@@ -468,13 +469,14 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       String? aId = credential.userIdentifier;
       // CredentialState state = SignInWithApple.getCredentialState(id ?? '') as CredentialState;
       // DLog.w('#### AppleCredential: ${state.name}');     // 'authorized' / 'revoked' / 'notFound':
-      if(aId != null && aId.isNotEmpty) {
+      if (aId != null && aId.isNotEmpty) {
         String email = credential.email ?? '';
         String familyName = credential.familyName ?? '';
         String givenName = credential.givenName ?? '';
-        if (aId != null && aId.length > 5) {
+        if (aId.length > 5) {
           _reqPos = 'APPLE';
-          _reqParam = 'snsId=${Net.getEncrypt(aId)}&snsEmail=$email&snsPos=APPLE';
+          _reqParam =
+              'snsId=${Net.getEncrypt(aId)}&snsEmail=$email&snsPos=APPLE';
           _requestThink(aId, email, familyName + givenName);
         }
       } else {
@@ -556,7 +558,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
 
       String numId = googleUser.id;
       String email = googleUser.email;
-      if (numId != null && numId.isNotEmpty) {
+      if (numId.isNotEmpty) {
         _reqPos = 'GOOGLE';
         DLog.d(LoginDivisionPage.TAG, 'Google Num ID : $numId');
         _reqParam =
@@ -574,39 +576,36 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     switch (_reqPos) {
       case 'KAKAO':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.kakao));
+          CustomFirebaseClass.logEvtLogin(LoginPlatform.kakao.name);
           break;
         }
       case 'NAVER':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.naver));
+          CustomFirebaseClass.logEvtLogin(LoginPlatform.naver.name);
           break;
         }
       case 'APPLE':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.apple));
+          CustomFirebaseClass.logEvtLogin(LoginPlatform.apple.name);
           break;
         }
       case 'GOOGLE':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.google));
+          CustomFirebaseClass.logEvtLogin(LoginPlatform.google.name);
           break;
         }
     }
     if (userId != '') {
-      if (basePageState != null) {
-        //TODO @@@@@
-        // basePageState = null;
-        basePageState = BasePageState();
-      }
+      // basePageState = null;
+      basePageState = BasePageState();
 
       // Navigator.pushReplacement(
       //     context, MaterialPageRoute(builder: (context) => BasePage()));
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-              builder: (context) => const BasePage(),
-              settings: const RouteSettings(name: '/base'),
+            builder: (context) => const BasePage(),
+            settings: const RouteSettings(name: '/base'),
           ),
           (route) => false);
     } else {}

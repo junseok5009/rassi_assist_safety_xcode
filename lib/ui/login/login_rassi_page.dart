@@ -331,7 +331,7 @@ class RassiLoginPageState extends State<RassiLoginPage> {
     commonShowToast('로그인 되었습니다.');
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'complete');
-    CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.rassi));
+    CustomFirebaseClass.logEvtLogin(LoginPlatform.rassi.name);
     if (userId != '') {
       if (basePageState != null) {
         // basePageState = null;

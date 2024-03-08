@@ -34,19 +34,14 @@ import NaverThirdPartyLogin
     
 
   override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-
     var applicationResult = false
     if (!applicationResult) {
        applicationResult = NaverThirdPartyLoginConnection.getSharedInstance().application(app, open: url, options: options)
     }
-
-    // if you use other application url process, please add code here.
-
     if (!applicationResult) {
        applicationResult = super.application(app, open: url, options: options)
     }
     return applicationResult
-
   }
 
 
@@ -59,7 +54,10 @@ import NaverThirdPartyLogin
                  else {
                      return false
                  }
-             
+
+             let iosLinkMethodChannel = FlutterMethodChannel(name: "thinkpool.flutter.dev/channel_method_link_ios",
+             binaryMessenger: (window?.rootViewController as! FlutterViewController).binaryMessenger)
+             iosLinkMethodChannel.invokeMethod("\(incomingURL)", arguments: nil)
              print("DEEPLINK :: UniversialLink was clicked !! incomingURL - \(incomingURL)")
              NSLog("UNIVERSAL LINK OPEN!!!!!!!!!!!!!!!!!")
 

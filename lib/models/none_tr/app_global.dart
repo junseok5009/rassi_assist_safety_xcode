@@ -1,3 +1,4 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:rassi_assist/common/d_log.dart';
 
 /// Singleton 패턴을 이용한 공통 데이터 설정 [ 포켓리스트 / 유료사용자 여부 / 결제정보 / (사용중)상품코드 ..]
@@ -59,6 +60,9 @@ class AppGlobal {
 
   // 태블릿(큰 디스플레이)인지 구분
   bool isTablet = false;
+
+  // 링크 타고 들어왔을 경우 여기에 넣어두어야 함 Only IOS
+  PendingDynamicLinkData? pendingDynamicLinkDataIOS;
 
   setLogoutStatus() {
     userId = '';

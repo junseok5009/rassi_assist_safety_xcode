@@ -9,13 +9,14 @@ import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
-import 'package:rassi_assist/ui/login/join_route_page.dart';
+import 'package:rassi_assist/ui/login/terms_of_use_page.dart';
 
 /// 2021.05.06
 /// 인증 번호 입력
@@ -154,7 +155,8 @@ class JoinCertPageState extends State<JoinCertPage> {
           'inputNum=${Net.getEncrypt(_strPhone)}&pos=$_strOnTime&smsAuthNum=$data';
       _requestThink();
     } else {
-      CommonPopup.instance.showDialogBasicConfirm(context, '알림', '인증번호를 입력해 주세요');
+      CommonPopup.instance
+          .showDialogBasicConfirm(context, '알림', '인증번호를 입력해 주세요');
     }
   }
 
@@ -164,7 +166,7 @@ class JoinCertPageState extends State<JoinCertPage> {
     DLog.d(JoinCertPage.TAG, '### JoinPhone : $_strPhone');
 
     String devicePh;
-    if (_strPhone != null && _strPhone.length > 7) {
+    if (_strPhone.length > 7) {
       devicePh = _strPhone.substring(1);
     } else {
       commonShowToast('전화번호 처리에 오류가 있습니다.');
@@ -215,12 +217,20 @@ class JoinCertPageState extends State<JoinCertPage> {
           DLog.d(JoinCertPage.TAG, '씽크풀 가입안됨');
 
           if (mounted) {
-            //씽크풀 회원가입 -> 경로 선택 화면으로 이동
-            Navigator.pushNamed(
+            // 약관 동의로 이동
+            Navigator.push(
               context,
-              JoinRoutePage.routeName,
-              arguments: PgData(
-                  userId: _strPhone, pgData: '', pgSn: '', flag: 'SSGOLLA'),
+              MaterialPageRoute(
+                builder: (context) => TermsOfUsePage(
+                  UserJoinInfo(
+                    userId: '',
+                    email: '',
+                    name: '',
+                    phone: _strPhone,
+                    pgType: 'SSGOLLA',
+                  ),
+                ),
+              ),
             );
           }
         } else {
@@ -241,8 +251,9 @@ class JoinCertPageState extends State<JoinCertPage> {
       if (result == 'success') {
         // _showDialogMsg(('인증번호가 발송되었습니다. 인증번호가 오지 않으면 입력하신 번호를 확인해 주세요.'));
       } else {
-        if(mounted){
-          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '인증번호 요청이 실패하였습니다. 정확한 번호 입력 후 다시 시도하여 주세요.');
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(
+              context, '알림', '인증번호 요청이 실패하였습니다. 정확한 번호 입력 후 다시 시도하여 주세요.');
         }
       }
     } else if (_reqType == 'phone_confirm') {

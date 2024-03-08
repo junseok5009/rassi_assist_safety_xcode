@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
@@ -27,7 +26,7 @@ import 'intro_start_page.dart';
 /// 2021.04.28
 /// 회원가입 경로 선택
 class JoinRoutePage extends StatefulWidget {
-  static const routeName = '/page_join_route';
+  //static const routeName = '/page_join_route';
   static const String TAG = "[JoinRoutePage]";
   static const String TAG_NAME = '회원가입_가입경로';
   final UserJoinInfo userJoinInfo;
@@ -637,32 +636,32 @@ class JoinRouteState extends State<JoinRoutePage> {
     switch (widget.userJoinInfo.pgType) {
       case 'SSGOLLA':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.ssg));
-          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.ssg));
+          await CustomFirebaseClass.logEvtLogin(LoginPlatform.ssg.name);
+          await CustomFirebaseClass.logEvtSignUp(LoginPlatform.ssg.name);
           break;
         }
       case 'KAKAO':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.kakao));
-          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.kakao));
+          await CustomFirebaseClass.logEvtLogin(LoginPlatform.kakao.name);
+          await CustomFirebaseClass.logEvtSignUp(LoginPlatform.kakao.name);
           break;
         }
       case 'NAVER':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.naver));
-          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.naver));
+          await CustomFirebaseClass.logEvtLogin(LoginPlatform.naver.name);
+          await CustomFirebaseClass.logEvtSignUp(LoginPlatform.naver.name);
           break;
         }
       case 'APPLE':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.apple));
-          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.apple));
+          await CustomFirebaseClass.logEvtLogin(LoginPlatform.apple.name);
+          await CustomFirebaseClass.logEvtSignUp(LoginPlatform.apple.name);
           break;
         }
       case 'RASSI':
         {
-          CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.rassi));
-          CustomFirebaseClass.logEvtSignUp(describeEnum(LoginPlatform.rassi));
+          await CustomFirebaseClass.logEvtLogin(LoginPlatform.rassi.name);
+          await CustomFirebaseClass.logEvtSignUp(LoginPlatform.rassi.name);
           break;
         }
     }
@@ -692,11 +691,7 @@ class JoinRouteState extends State<JoinRoutePage> {
       AppGlobal().userId = prefsUserId;
     }
 
-    if (basePageState != null) {
-      //TODO @@@@@
-      // basePageState = null;
-      basePageState = BasePageState();
-    }
+    basePageState = BasePageState();
 
     if (mounted) {
       Navigator.pushAndRemoveUntil(
@@ -733,14 +728,12 @@ class JoinRouteState extends State<JoinRoutePage> {
                   const Text(
                     '알림',
                     style: TStyle.title20,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
                   ),
                   const SizedBox(
                     height: 30.0,
                   ),
                   Text(
                     msg,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
                   ),
                   const SizedBox(
                     height: 20.0,
@@ -758,7 +751,6 @@ class JoinRouteState extends State<JoinRoutePage> {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
                           ),
                         ),
                       ),

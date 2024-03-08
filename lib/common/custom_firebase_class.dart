@@ -1,5 +1,6 @@
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:rassi_assist/common/d_log.dart';
 
 class CustomFirebaseClass{
   CustomFirebaseClass._privateConstructor();
@@ -10,6 +11,7 @@ class CustomFirebaseClass{
 
   // DEFINE screen_view 이벤트
   static void logEvtScreenView(String screenName) async {
+    DLog.e('logEvtScreenView screenName : $screenName');
     await fInstance.logScreenView(
       screenName: screenName,
       screenClass: screenName,
@@ -28,6 +30,7 @@ class CustomFirebaseClass{
 
   // DEFINE 회원가입 이벤트
   static Future<void> logEvtSignUp(String loginPlatform) async {
+    DLog.e('logEvtSignUp ! loginPlatform : $loginPlatform');
     await FirebaseAnalytics.instance.logEvent(
       name: 'sign_up',
       parameters: <String, dynamic>{

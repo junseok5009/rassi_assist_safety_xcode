@@ -158,13 +158,11 @@ class JoinPreUserPageState extends State<JoinPreUserPage> {
     commonShowToast('로그인 되었습니다.');
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'complete');
-    CustomFirebaseClass.logEvtLogin(describeEnum(LoginPlatform.ssg));
+    CustomFirebaseClass.logEvtLogin(LoginPlatform.ssg.name);
     if (userId != '') {
-      if (basePageState != null) {
-        // basePageState = null;
-        basePageState = BasePageState();
-      }
-      // Navigator.pushReplacement(context, MaterialPageRoute(
+      // basePageState = null;
+      basePageState = BasePageState();
+          // Navigator.pushReplacement(context, MaterialPageRoute(
       //     builder: (context) => BasePage()));
       Navigator.pushAndRemoveUntil(
           context,

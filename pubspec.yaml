@@ -5,7 +5,7 @@ description: A new Flutter project.
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.1.9+109
+version: 1.2.4+114
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
@@ -18,11 +18,12 @@ dependencies:
   http: ^1.1.2
   firebase_core: ^2.25.4
   firebase_analytics: ^10.8.6
-  firebase_messaging: ^14.7.6
+  firebase_messaging: ^14.7.16
   firebase_in_app_messaging: ^0.7.4+14
   firebase_remote_config: ^4.3.14
   firebase_dynamic_links: ^5.4.14
   firebase_auth: ^4.3.0
+  firebase_crashlytics: ^3.4.15
   google_fonts: ^4.0.1
   shared_preferences: ^2.2.2
   provider: ^6.0.4
@@ -73,9 +74,8 @@ dependencies:
 
   #차트
   fl_chart: ^0.60.0
-  bubble_chart: ^0.4.0
   flutter_echarts: ^2.3.0
-  syncfusion_flutter_charts: ^20.4.52
+  syncfusion_flutter_charts: ^24.2.8
 
   #간편로그인
   kakao_flutter_sdk: ^1.2.2
