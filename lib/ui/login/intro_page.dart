@@ -209,15 +209,12 @@ class IntroState extends State<IntroWidget>
   }
 
   initAosDynamicLinks() async {
-    _iosMethodChannel.setMethodCallHandler((call) async {
-      final PendingDynamicLinkData? initialLink =
-          await FirebaseDynamicLinks.instance.getInitialLink();
-      if (initialLink != null) {
-        /// aos에서 앱 이미 설치 된 상태에서 링크로 앱 실행시 링크 받아짐.
-        final Uri deepLink = initialLink.link;
-        commonShowToast('initialLink / ${deepLink.toString()}');
-      }
-    });
+    final PendingDynamicLinkData? initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
+    /// aos에서 앱 설치된 상태, 링크로 앱 실행시 여기서 링크 값 받아짐.
+    if (initialLink != null) {
+      final Uri deepLink = initialLink.link;
+      commonShowToast('dynamicLinks.onLink.listen / ${deepLink.toString()}');
+    }
   }
 
   Future<void> initDynamicLinks() async {
