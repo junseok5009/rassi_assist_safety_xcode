@@ -115,6 +115,8 @@ class IntroState extends State<IntroWidget>
     //initDynamicLinks();
     if (Platform.isIOS) {
       initIosDynamicLinks();
+    } else if (Platform.isAndroid) {
+      initAosDynamicLinks();
     }
     initDynamicLinks();
     _loadPrefData().then((_) {
@@ -177,11 +179,10 @@ class IntroState extends State<IntroWidget>
       String content = call.method;
       FirebaseDynamicLinks.instance
           .getDynamicLink(Uri.parse(content))
-          .then((value) {
+          .then((value) async {
         // 여기에 들어오는 링크가 항상 앱 실행 딥링크라는 보장은 없음.
-        appGlobal.pendingDynamicLinkDataIOS = value;
-        commonShowToast(
-            'dynamicLinks.onLink.listen / ${value.toString()}');
+        appGlobal.pendingDynamicLinkData = value;
+        commonShowToast('_iosMethodChannel / ${value.toString()}');
         Uri? linkUri = value?.link;
         if (linkUri != null) {
           linkUri.pathSegments.asMap().forEach((key, value) {
@@ -190,6 +191,7 @@ class IntroState extends State<IntroWidget>
           linkUri.queryParameters.forEach((key, value) {
             DLog.e('queryParameters [$key] : $value');
           });
+          await _prefs.setString(Const.PREFS_DEEPLINK_URI, linkUri.toString());
         }
         DLog.e(
             'value.link : ${value != null ? value.link.toString() : 'null'} / value : ${value.toString()}');
@@ -206,19 +208,25 @@ class IntroState extends State<IntroWidget>
     });
   }
 
+  initAosDynamicLinks() async {
+    _iosMethodChannel.setMethodCallHandler((call) async {
+      final PendingDynamicLinkData? initialLink =
+          await FirebaseDynamicLinks.instance.getInitialLink();
+      if (initialLink != null) {
+        /// aos에서 앱 이미 설치 된 상태에서 링크로 앱 실행시 링크 받아짐.
+        final Uri deepLink = initialLink.link;
+        commonShowToast('initialLink / ${deepLink.toString()}');
+      }
+    });
+  }
+
   Future<void> initDynamicLinks() async {
-    final PendingDynamicLinkData? initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
-
-    if (initialLink != null) {
-      final Uri deepLink = initialLink.link;
-      commonShowToast('dynamicLinks.onLink.listen / ${deepLink.toString()}');
-    }
-
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
       /// ios에서 앱 설치안된 상태에서, 링크로 앱스토어에서 최초 설치 이후 링크 값은 여기서 받아짐.
       /// aos에서 앱 이미 설치 된 상태에서 Back/fore ground 상태에서 링크 받아짐. (꺼져있는 상태에서 오픈되면 안받아짐)
-      appGlobal.pendingDynamicLinkDataIOS = dynamicLinkData;
-      commonShowToast('dynamicLinks.onLink.listen / ${dynamicLinkData.toString()}');
+      appGlobal.pendingDynamicLinkData = dynamicLinkData;
+      commonShowToast(
+          'dynamicLinks.onLink.listen / ${dynamicLinkData.toString()}');
 
       DLog.d(
           IntroPage.TAG, '@@@ dynamicLinkData.link : ${dynamicLinkData.link}');
