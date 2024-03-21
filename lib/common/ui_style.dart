@@ -175,6 +175,17 @@ class UIStyle {
     );
   }
 
+  static BoxDecoration boxRoundLine15bgColor(Color bgColor) {
+    return BoxDecoration(
+      color: bgColor,
+      border: Border.all(
+        color: RColor.greyBoxLine_c9c9c9,
+        width: 1,
+      ),
+      borderRadius: const BorderRadius.all(Radius.circular(15)),
+    );
+  }
+
   static BoxDecoration boxRoundLine6LineColor(Color lineColor) {
     return BoxDecoration(
       color: Colors.white,

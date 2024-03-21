@@ -15,23 +15,22 @@ import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
 import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/login/intro_start_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 /// 2020.12.
 /// 회원정보 관리
-
 class UserInfoPage extends StatefulWidget {
   static const routeName = '/page_user_info';
   static const String TAG = "[UserInfoPage] ";
   static const String TAG_NAME = 'MY_회원정보';
+
   const UserInfoPage({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => UserInfoState();
 }
@@ -44,7 +43,6 @@ class UserInfoState extends State<UserInfoPage> {
   late SharedPreferences _prefs;
   String _userId = '';
   String? _token = '';
-  late PgNews args;
 
   String title = '';
   String nDate = '';
@@ -96,11 +94,7 @@ class UserInfoState extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: _setLayout(),
-    );
+    return _setLayout();
   }
 
   Widget _setLayout() {
@@ -114,25 +108,28 @@ class UserInfoState extends State<UserInfoPage> {
       body: SafeArea(
         child: ListView(
           children: [
-            _setSubTitle(
-              "회원 정보 관리",
-            ),
-            const SizedBox(
-              height: 25.0,
-            ),
+            _setSubTitle("회원 정보 관리"),
+            const SizedBox(height: 25),
 
-            _setSubTitle(
-              "아이디",
-            ),
+            _setSubTitle("아이디"),
             Padding(
-              padding: const EdgeInsets.only(
-                  left: 15, right: 10, top: 10, bottom: 15),
+              padding: const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    _userId,
-                    style: TStyle.content16,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _userId,
+                        style: TStyle.textMainColor,
+                      ),
+                      const SizedBox(height: 5),
+                      const Text(
+                        '현재 카카오톡으로 로그인하여 이용중입니다.',
+                        style: TStyle.contentGrey12,
+                      ),
+                    ],
                   ),
                   MaterialButton(
                     shape: RoundedRectangleBorder(
@@ -153,18 +150,15 @@ class UserInfoState extends State<UserInfoPage> {
                 ],
               ),
             ),
-            const SizedBox(
-              height: 10.0,
-            ),
+            _setUnderline(),
+            const SizedBox(height: 25),
 
             Visibility(
-              visible: _userId != null && !_userId.contains('@'),
+              visible: !_userId.contains('@'),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _setSubTitle(
-                    "비밀번호",
-                  ),
+                  _setSubTitle("비밀번호"),
                   Stack(
                     children: [
                       Padding(
@@ -175,6 +169,7 @@ class UserInfoState extends State<UserInfoPage> {
                           decoration: InputDecoration(
                             hintText: _sPassHint,
                             hintStyle: TStyle.textGrey15,
+                            border: InputBorder.none,
                           ),
                         ),
                       ),
@@ -196,10 +191,8 @@ class UserInfoState extends State<UserInfoPage> {
                             //변경중
                             if (_isChPass) {
                               String chPass = _passController.text.trim();
-                              if (_isPwCheck(chPass) ||
-                                  _passController.text.trim().length < 6) {
-                                _showDialogMsg(RString
-                                    .join_err_pw_rule); //6~12자리 영문, 숫자만 가능
+                              if (_isPwCheck(chPass) || _passController.text.trim().length < 6) {
+                                _showDialogMsg(RString.join_err_pw_rule); //6~12자리 영문, 숫자만 가능
                               } else {
                                 DLog.d('Pass Ch -> ', chPass);
                                 _requestChPass(chPass);
@@ -216,16 +209,13 @@ class UserInfoState extends State<UserInfoPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
+                  _setUnderline(),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
 
-            _setSubTitle(
-              "휴대폰 번호",
-            ),
+            _setSubTitle("휴대폰 번호"),
             Stack(
               children: [
                 Padding(
@@ -236,6 +226,7 @@ class UserInfoState extends State<UserInfoPage> {
                     decoration: InputDecoration(
                       hintText: _sPhoneHint,
                       hintStyle: TStyle.textGrey15,
+                      border: InputBorder.none,
                     ),
                   ),
                 ),
@@ -275,6 +266,7 @@ class UserInfoState extends State<UserInfoPage> {
                 ),
               ],
             ),
+            _setUnderline(),
 
             //인증번호 입력
             Visibility(
@@ -288,6 +280,7 @@ class UserInfoState extends State<UserInfoPage> {
                       decoration: const InputDecoration(
                         hintText: '인증번호 입력',
                         hintStyle: TStyle.textGrey15,
+                        border: InputBorder.none,
                       ),
                     ),
                   ),
@@ -308,8 +301,7 @@ class UserInfoState extends State<UserInfoPage> {
                       onPressed: () {
                         String strNum = _certController.text.trim();
                         if (strNum.length > 4) {
-                          _requestCertConfirm(
-                              _phoneController.text.trim(), strNum);
+                          _requestCertConfirm(_phoneController.text.trim(), strNum);
                         } else {
                           _showDialogMsg('인증번호를 입력해주세요');
                         }
@@ -319,33 +311,95 @@ class UserInfoState extends State<UserInfoPage> {
                 ],
               ),
             ),
-            const SizedBox(
-              height: 30.0,
-            ),
+            const SizedBox(height: 25),
 
-            //회원 탈퇴
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: InkWell(
-                child: const Text(
-                  '- 회원 탈퇴',
-                  style: TStyle.textGrey15,
-                ),
-                onTap: () {
-                  // 결제 정보 호출 후 탈퇴 진행
-                  _showDialogClose();
-                },
+            //마케팅 동의
+            // _setSubTitle("마케팅 동의"),
+            // _setUnderline(),
+            // const SizedBox(height: 25),
+
+            //나의 추천인
+            _setSubTitle("나의 추천인"),
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '추천을 받아 라씨 매매비서에 가입한 경우\n추천인이 표시됩니다.',
+                    style: TStyle.textMGrey,
+                  ),
+                  MaterialButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: const BorderSide(color: Colors.grey),
+                    ),
+                    color: Colors.white,
+                    textColor: Colors.black54,
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Text(
+                      '등록하기',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    onPressed: () {
+                      // TODO 추천인 등록 과정
+                    },
+                  ),
+                ],
               ),
             ),
+            _setUnderline(),
+            const SizedBox(height: 25),
+
+            //회원 탈퇴
+            _setSubTitle("회원탈퇴"),
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '라씨 매매비서를 더이상 이용하지 않을 경우\n회원 탈퇴를 진행해 주세요.',
+                    style: TStyle.textMGrey,
+                  ),
+                  MaterialButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: const BorderSide(color: Colors.grey),
+                    ),
+                    color: Colors.white,
+                    textColor: Colors.black54,
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Text(
+                      '회원탈퇴',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    onPressed: () {
+                      // 결제 정보 호출 후 탈퇴 진행
+                      _showDialogClose();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            _setUnderline(),
           ],
         ),
       ),
     );
   }
 
+  Widget _setUnderline() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 5, 10, 0),
+      color: Colors.black26,
+      height: 1.2,
+    );
+  }
+
   //비밀번호 유효성 체크(동일한 문자, 숫자 3자리 불가)
   bool _isPwCheck(String strPw) {
-    if (strPw == null || strPw.length == 0) return false;
+    if (strPw.length == 0) return false;
 
     int count = 0; //중복된 글자수
     String tmp = strPw[0];
@@ -364,6 +418,27 @@ class UserInfoState extends State<UserInfoPage> {
     return count > 2;
   }
 
+  //마케팅동의 설정 저장
+  void saveMarketingAgree(bool bPush, bool bSms) {
+    DLog.d(UserInfoPage.TAG, 'Agree $bPush | $bSms');
+
+    String pushYn = 'N';
+    if (bPush) pushYn = 'Y';
+    String smsYn = 'N';
+    if (bSms) smsYn = 'Y';
+
+    _fetchPosts(
+        TR.PUSH06,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'rcvAssentYn': pushYn,
+        }));
+
+    String type = 'set_sms';
+    String param = 'userid=$_userId&etcData=tm_sms_f:$smsYn|daily:N|';
+    _requestThink(type, param);
+  }
+
   //소항목 타이틀
   Widget _setSubTitle(String subTitle) {
     return Padding(
@@ -371,7 +446,6 @@ class UserInfoState extends State<UserInfoPage> {
       child: Text(
         subTitle,
         style: TStyle.title17,
-        textScaleFactor: Const.TEXT_SCALE_FACTOR,
       ),
     );
   }
@@ -384,7 +458,8 @@ class UserInfoState extends State<UserInfoPage> {
         builder: (BuildContext context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -407,14 +482,9 @@ class UserInfoState extends State<UserInfoPage> {
                     height: 60,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  const Text('로그아웃 하시겠어요?',
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
+                  const SizedBox(height: 25),
+                  const Text('로그아웃 하시겠어요?'),
+                  const SizedBox(height: 30),
                   MaterialButton(
                     child: Center(
                       child: Container(
@@ -428,7 +498,6 @@ class UserInfoState extends State<UserInfoPage> {
                           child: Text(
                             '로그아웃',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
                           ),
                         ),
                       ),
@@ -444,10 +513,9 @@ class UserInfoState extends State<UserInfoPage> {
         });
   }
 
-  // 로그아웃 처리
+  //로그아웃 처리
   Future<void> _setLogoutStatus() async {
     _prefs ??= await SharedPreferences.getInstance();
-
     AppGlobal().setLogoutStatus();
 
     if (_userId.length > 3) {
@@ -498,15 +566,13 @@ class UserInfoState extends State<UserInfoPage> {
     await FlutterNaverLogin.logOutAndDeleteToken();
   }
 
-  //TODO 다시 로그인 되는 페이지에서 basePageState 다시 생성
-  // if(basePageState != null) {
-  // basePageState = null;
-  // basePageState = new BasePageState();
-  // }
-
   //로그아웃 페이지 이동
   void makeRoutePage({required BuildContext context, required Widget desPage}) {
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => desPage), (route) => false);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => desPage),
+      (route) => false,
+    );
   }
 
   //회원탈퇴 확인
@@ -541,22 +607,15 @@ class UserInfoState extends State<UserInfoPage> {
                     height: 60,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
+                  const SizedBox(height: 5),
                   _setSubTitle('회원탈퇴'),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
+                  const SizedBox(height: 25),
                   const Text(
                     '사용중인 유료 결제 서비스가 있으신 경우 사용중인 서비스를 해지하신 후 탈퇴를 하시기 바랍니다.\n'
                     '회원탈퇴를 하시면 씽크풀 웹, 모바일, 앱의 모든 활동정보가 삭제됩니다.',
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
                   ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
+                  const SizedBox(height: 30),
                   MaterialButton(
                     child: Center(
                       child: Container(
@@ -570,7 +629,6 @@ class UserInfoState extends State<UserInfoPage> {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
                           ),
                         ),
                       ),
@@ -591,9 +649,7 @@ class UserInfoState extends State<UserInfoPage> {
         });
   }
 
-  void _showDialogMsg(
-    String content,
-  ) {
+  void _showDialogMsg(String content) {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -624,21 +680,15 @@ class UserInfoState extends State<UserInfoPage> {
                     height: 60,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
+                  const SizedBox(height: 5),
+
                   _setSubTitle('알림'),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
+                  const SizedBox(height: 25),
                   Text(
                     content,
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
                   ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
+                  const SizedBox(height: 30),
                   MaterialButton(
                     child: Center(
                       child: Container(
@@ -649,7 +699,6 @@ class UserInfoState extends State<UserInfoPage> {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
                           ),
                         ),
                       ),
@@ -741,13 +790,13 @@ class UserInfoState extends State<UserInfoPage> {
       }
       //프리미엄 사용자 -> 탈퇴 불가
       else if (aData.prodName == '프리미엄') {
-        _showDialogMsg(
-            '현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+        _showDialogMsg('현재 사용중인 유료 결제 서비스가 있습니다.\n'
+            '사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
       }
       //유료상품 사용자 -> 탈퇴 불가
       else if (aData.prodCode == 'AC_S3') {
-        _showDialogMsg(
-            '현재 사용중인 유료 결제 서비스가 있습니다.\n사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+        _showDialogMsg('현재 사용중인 유료 결제 서비스가 있습니다.\n'
+            '사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
       }
       //사용 상품 없음
       else {
@@ -759,22 +808,15 @@ class UserInfoState extends State<UserInfoPage> {
   //인증번호 요청
   _requestCertNum(String sPhone) {
     _certTime = TStyle.getTodayAllTimeString();
-    String strParam = "inputNum=" +
-        Net.getEncrypt(sPhone) +
-        "&pos=" +
-        _certTime +
-        '&posName=ollaJoin';
+    String strParam = "inputNum=${Net.getEncrypt(sPhone)}"
+        "&pos=$_certTime&posName=ollaJoin";
     _requestThink('cert_num', strParam);
   }
 
   //인증번호 확인
   _requestCertConfirm(String sPhone, String cNum) {
-    String strParam = "inputNum=" +
-        Net.getEncrypt(sPhone) +
-        "&pos=" +
-        _certTime +
-        '&smsAuthNum=' +
-        cNum;
+    String strParam = "inputNum=${Net.getEncrypt(sPhone)}"
+        "&pos=$_certTime&smsAuthNum=$cNum";
     _requestThink('cert_confirm', strParam);
   }
 
@@ -786,17 +828,15 @@ class UserInfoState extends State<UserInfoPage> {
       _isCertInput = false;
     });
 
-    DLog.d(UserInfoPage.TAG, 'CH_Phone : ' + sPhone);
-    String strParam = "userid=" + _userId + "&encHpNo=" + sPhone;
+    DLog.d(UserInfoPage.TAG, 'CH_Phone : $sPhone');
+    String strParam = "userid=$_userId&encHpNo=$sPhone";
     _requestThink('phone_change', strParam);
   }
 
   //비밀번호 변경
   _requestChPass(String newPass) {
-    String strParam = "userid=" +
-        Net.getEncrypt(_userId) +
-        "&newPassWd=" +
-        Net.getEncrypt(newPass);
+    String strParam = "userid=${Net.getEncrypt(_userId)}"
+        "&newPassWd=${Net.getEncrypt(newPass)}";
     _requestThink('ch_pass', strParam);
   }
 
@@ -804,8 +844,7 @@ class UserInfoState extends State<UserInfoPage> {
   _requestAppClose() {
     DLog.d(UserInfoPage.TAG, '회원탈퇴 처리');
 
-    String strParam =
-        "userid=" + Net.getEncrypt(_userId) + "&memo=RassiAssistDismiss";
+    String strParam = "userid=${Net.getEncrypt(_userId)}&memo=RassiAssistDismiss";
     _requestThink('close', strParam);
 
     _fetchPosts(
@@ -838,8 +877,7 @@ class UserInfoState extends State<UserInfoPage> {
     }
 
     var urls = Uri.parse(url);
-    final http.Response response =
-        await http.post(urls, headers: Net.think_headers, body: param);
+    final http.Response response = await http.post(urls, headers: Net.think_headers, body: param);
 
     DLog.d(UserInfoPage.TAG, '${response.statusCode}');
     DLog.d(UserInfoPage.TAG, response.body);

@@ -35,8 +35,6 @@ class RString {
       "매매비서가 업데이트 되었습니다.\n매매비서 사용을 위해서는 앱을 업데이트 하시기 바랍니다.";
 
 
-
-
   // 각 페이지 타이틀
   static const String tl_today_stocks = "라씨 매매비서의 종목 현황";
   static const String tl_today_issues = "오늘의 이슈";
@@ -46,24 +44,33 @@ class RString {
   static const String tl_todayhues = "투자수익은?";
   static const String tl_signal_achievement = "AI매매신호 성과";
   static const String tl_todasesues = "성과 TOP 종목";
-  static const String tl_todasfesues = "라씨 매매비서가 __에 대한 확인해야 할\n또 다른 정보도 제안드립니다.";
+  static const String tl_suggest_add_stock =
+      "나의 관심 또는 보유 종목을 추가해 보세요.\n라씨 매매비서가 관리해 드립니다.";
 
-  static const String tl_tosdayhues = "나의 종목 포켓";
-  static const String tl_todgayhues = "나의 정보 관리";
-  static const String tl_tfodayhues = "고객센터";
-  static const String tl_todhayhues = "자주 묻는 질문";
-  static const String tl_tdodayghues = "1대1 문의";
+  // MY / 회원정보 / 이용 안내
+  static const String user_usage_desc_basic =
+      '무료 회원 가입시 부여되는 기본 계정으로 포켓 1개와 AI매매신호 매일 5종목 이용이 가능하며, '
+      '마켓뷰, 종목인사이트 등 모든 무료 정보는 제한없이 이용하실 수 있습니다.';
+  static const String user_usage_desc_three_stock =
+      '베이직 계정이 모든 권한 + 3종목에 대한 실시간 AI매매시호 알림을 이용하실수 있습니다.';
+  static const String user_usage_desc_premium =
+      '포켓 10개 + AI매매신호 무제한 보기 + AI매매신호 실시간 알림 + 나만의 매도신호, '
+      '종목캐치 등 프리미엄 만을 위한 콘텐프를 제한없이 모두 이용하실 수 있습니다.';
+  static const String user_usage_desc_basic1 = '';
+  static const String user_usage_desc_basic2 = '';
+  static const String user_usage_desc_basic3 = '';
 
-  static const String tl_suggest_add_stock = "나의 관심 또는 보유 종목을 추가해 보세요.\n라씨 매매비서가 관리해 드립니다.";
+
+  // 결제 / pay
 
 
   static const String desc_add_pocket_premium =
       "포켓 늘리기는 매매비서 프리미엄에서\n이용할 수 있습니다.\n\n"
       "프리미엄으로 업그레이드 하시고\n더 완변하게 이용해 보세요.";
 
-  static const String desc_marketing_agree = '''
-수신에 동의 하시면 매매비서에서 제공하는 이벤트 및 서비스등의 혜택을 받으실 수 있습니다.(유료서비스관련 및 회사의 주요정책 관련 메시지는 수신동의 여부와 관계없이 발송됩니다.)
-  ''';
+  static const String desc_marketing_agree =
+      '수신에 동의 하시면 매매비서에서 제공하는 이벤트 및 서비스등의 혜택을 받으실 수 있습니다.'
+      '(유료서비스관련 및 회사의 주요정책 관련 메시지는 수신동의 여부와 관계없이 발송됩니다.)';
 
   static const String desc_in_app_cancel = '''
 ※ 정기결제 해지는 Apple ID 내 구독을 통해 가능합니다.
@@ -86,7 +93,10 @@ class RString {
   static const String pay_refund_guide3 = '''
 ※ 환불을 받더라도 서비스가 개시되어 사용료가 지급된 월에 대해서는 사용기간을 보장 받으며, 서비스 이용이 가능합니다.''';
 
-  static const String social_index_desc = '''라씨 매매비서의 소셜지수는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집하여, 이전 기간과 비교했을 때 참여도의 증가와 감소를 알려드립니다. 커뮤니티 참여도가 높아지면, 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.''';
+  static const String social_index_desc =
+      '라씨 매매비서의 소셜지수는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집하여, '
+      '이전 기간과 비교했을 때 참여도의 증가와 감소를 알려드립니다. '
+      '커뮤니티 참여도가 높아지면, 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
 
   static const String copy_right =
       "※게재되는 정보는 오류 및 지연이 있을 수 있으며\n그 이용에 따르는 책임은 이용자 본인에게 있습니다."
