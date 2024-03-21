@@ -230,7 +230,7 @@ class ConditionPageState extends State<ConditionPage> {
                 const Text(
                   '안내',
                   style: TStyle.title20,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -239,7 +239,7 @@ class ConditionPageState extends State<ConditionPage> {
                   '매매비서 프리미엄에서\n이용할 수 있는 정보입니다.',
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -247,7 +247,7 @@ class ConditionPageState extends State<ConditionPage> {
                 const Text(
                   '프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -265,7 +265,7 @@ class ConditionPageState extends State<ConditionPage> {
                         child: Text(
                           '프리미엄 가입하기',
                           style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          
                         ),
                       ),
                     ),

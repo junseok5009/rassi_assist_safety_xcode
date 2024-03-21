@@ -68,58 +68,54 @@ class IssueListPageState extends State<IssueListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: CommonAppbar.basic(
-          buildContext: context,
-          title: '날짜별 이슈 현황',
-          elevation: 1,
-        ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.topRight,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 10,
-                ),
-                child: CommonView.setDatePickerBtnView(
-                  getDateYmFormat(
-                    _dateFormat.format(_dateTime),
-                  ),
-                  () async {
-                    await CommonDatePicker.showYearMonthPicker(
-                            context, _dateTime)
-                        .then((value) {
-                      if (value != null) {
-                        _dateTime = value;
-                        _requestData();
-                      }
-                    });
-                  },
-                ),
+    return Scaffold(
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '날짜별 이슈 현황',
+        elevation: 1,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              alignment: Alignment.topRight,
+              margin: const EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 10,
               ),
-              _dataList.isEmpty
-                  ? Container(
-                      margin: const EdgeInsets.all(
-                        15.0,
-                      ),
-                      child: CommonView.setNoDataView(170, '이슈가 없습니다.'),
-                    )
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: _dataList.length,
-                        itemBuilder: (context, index) {
-                          return _buildListItem(_dataList[index].issueDate,
-                              _dataList[index].listIssue);
-                        },
-                      ),
+              child: CommonView.setDatePickerBtnView(
+                getDateYmFormat(
+                  _dateFormat.format(_dateTime),
+                ),
+                () async {
+                  await CommonDatePicker.showYearMonthPicker(
+                          context, _dateTime)
+                      .then((value) {
+                    if (value != null) {
+                      _dateTime = value;
+                      _requestData();
+                    }
+                  });
+                },
+              ),
+            ),
+            _dataList.isEmpty
+                ? Container(
+                    margin: const EdgeInsets.all(
+                      15.0,
                     ),
-            ],
-          ),
+                    child: CommonView.setNoDataView(170, '이슈가 없습니다.'),
+                  )
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: _dataList.length,
+                      itemBuilder: (context, index) {
+                        return _buildListItem(_dataList[index].issueDate,
+                            _dataList[index].listIssue);
+                      },
+                    ),
+                  ),
+          ],
         ),
       ),
     );

@@ -648,7 +648,7 @@ class SignalTopPageState extends State<SignalTopPage> {
                   title,
                   style: TStyle.title20,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -657,7 +657,7 @@ class SignalTopPageState extends State<SignalTopPage> {
                   content,
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,

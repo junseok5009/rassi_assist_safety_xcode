@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -10,6 +9,7 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest21.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest22.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/custom/CustomBoxShadow.dart';
 import 'package:rassi_assist/ui/stock_home/page/loan_transaction_list_page.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -96,16 +96,14 @@ class StockHomeHomeTileLoanTransactionState
         return Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withOpacity(0.8),
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 2,
+              CustomBoxShadow(
+                color: Colors.black.withOpacity(0.15),
                 blurRadius: 6,
-                offset: const Offset(0, 0),
-                blurStyle: BlurStyle.outer,
-              )
+                offset: const Offset(2, 2),
+              ),
             ],
           ),
           child: FittedBox(
@@ -181,8 +179,8 @@ class StockHomeHomeTileLoanTransactionState
                   ),
                   InkWell(
                     splashColor: Colors.transparent,
-                    child: Row(
-                      children: const [
+                    child: const Row(
+                      children: [
                         Text(
                           '표로 보기 ',
                           style: TextStyle(
@@ -295,6 +293,7 @@ class StockHomeHomeTileLoanTransactionState
                 : _divIndex == 2
                     ? _setLoanView()
                     : const SizedBox(),
+        _setChartView(),
         const SizedBox(
           height: 16,
         ),
@@ -486,8 +485,6 @@ class StockHomeHomeTileLoanTransactionState
             ),
           ),
         ),
-        _setChartView(),
-        //_setComboChartView(),
       ],
     );
   }
@@ -502,14 +499,14 @@ class StockHomeHomeTileLoanTransactionState
               onTap: () {
                 _showBottomSheetSellingInfo();
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
+              child: const Padding(
+                padding: EdgeInsets.symmetric(
                   horizontal: 5,
                   vertical: 2,
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
+                  children: [
                     Icon(
                       Icons.info_outline,
                       color: RColor.new_basic_text_color_grey,
@@ -538,8 +535,6 @@ class StockHomeHomeTileLoanTransactionState
             ),
           ],
         ),
-        _setChartView(),
-        //_setComboChartView(),
       ],
     );
   }
@@ -557,7 +552,6 @@ class StockHomeHomeTileLoanTransactionState
             ),
           ),
         ),
-        _setChartView(),
       ],
     );
   }
@@ -589,7 +583,7 @@ class StockHomeHomeTileLoanTransactionState
             ),
           ),
         ),
-        primaryYAxis: NumericAxis(
+        primaryYAxis: const NumericAxis(
           isVisible: false,
           rangePadding: ChartRangePadding.round,
         ),
@@ -650,6 +644,7 @@ class StockHomeHomeTileLoanTransactionState
           borderWidth: 1.4,
           borderColor: RColor.chartGreen,
           enableTooltip: true,
+          //onRendererCreated: (controller) => _chartController = controller,
         ),
         LineSeries<Invest21ChartData, String>(
           dataSource: _lendingListData,
@@ -671,6 +666,7 @@ class StockHomeHomeTileLoanTransactionState
           borderWidth: 1.4,
           borderColor: RColor.chartGreen,
           enableTooltip: true,
+          //onRendererCreated: (controller) => _chartController = controller,
         ),
         LineSeries<Invest22ChartData, String>(
           dataSource: _sellingListData,
@@ -682,6 +678,7 @@ class StockHomeHomeTileLoanTransactionState
           //selectionBehavior: _selectionBehavior,
           //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
           xAxisName: 'xAxis',
+          //onRendererCreated: (controller) => _chartController = controller,
         ),
       ];
     } else if (_divIndex == 2) {
@@ -862,9 +859,9 @@ class StockHomeHomeTileLoanTransactionState
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) {
+        CommonPopup.instance.showDialogNetErr(context);
+      }
     }
   }
 
@@ -883,7 +880,9 @@ class StockHomeHomeTileLoanTransactionState
           );
           _isRightYAxisUpUnit = _findAbsMaxValue >= 100000;
         }
-        setState(() {});
+        setState(() {
+          //_isChartVisible = true;
+        });
       }
     }
 
@@ -901,7 +900,9 @@ class StockHomeHomeTileLoanTransactionState
           _isRightYAxisUpUnit = _findAbsMaxValue >= 1000;
         }
       }
-      setState(() {});
+      setState(() {
+        //_isChartVisible = true;
+      });
     }
 
     // NOTE 신용 융자
@@ -918,7 +919,9 @@ class StockHomeHomeTileLoanTransactionState
           _isRightYAxisUpUnit = _findAbsMaxValue >= 1000;
         }
       }
-      setState(() {});
+      setState(() {
+        //_isChartVisible = true;
+      });
     }
   }
 

@@ -15,28 +15,25 @@ import 'package:rassi_assist/models/tr_search/tr_search01.dart';
 ///
 
 class StockInfoProvider with ChangeNotifier {
-  Search01 _search01 = defSearch01;
+  Search01 _search01 = const Search01();
   Color _color = Colors.white;
   String _curSubInfo = '';
   String _timeTxt = '';
   bool _isLoading = true;
 
-  String get getStockName => _search01 == null ? '' : _search01.stockName;
+  String get getStockName => _search01.stockName;
 
-  String get getStockCode => _search01 == null ? '' : _search01.stockCode;
+  String get getStockCode =>_search01.stockCode;
 
-  bool get getIsMyStock => _search01 == null
-      ? false
-      : _search01.isMyStock == 'Y'
+  bool get getIsMyStock => _search01.isMyStock == 'Y'
           ? true
           : false;
 
-  String get getMyTradeFlag => _search01 == null ? '' : _search01.myTradeFlag;
+  String get getMyTradeFlag =>_search01.myTradeFlag;
 
-  String get getCurrentPrice => _search01 == null ? '' : _search01.currentPrice;
+  String get getCurrentPrice => _search01.currentPrice;
 
-  String get getFluctaionRate =>
-      _search01 == null ? '' : _search01.fluctuationRate;
+  String get getFluctaionRate => _search01.fluctuationRate;
 
   String get getCurrentSubInfo => _curSubInfo;
 
@@ -44,15 +41,13 @@ class StockInfoProvider with ChangeNotifier {
 
   String get getTimeTxt => _timeTxt;
 
-  String get getPockSn => _search01 == null ? '' : _search01.pocketSn;
+  String get getPockSn => _search01.pocketSn;
 
-  String get getTradingHaltYn =>
-      _search01 == null ? '' : _search01.tradingHaltYn;
+  String get getTradingHaltYn => _search01.tradingHaltYn;
 
   bool get getIsLoading => _isLoading;
 
-  List<Search01BuyPrice> get getListBuyPrice =>
-      _search01 == null ? [] : _search01.listBuyPrice;
+  List<Search01BuyPrice> get getListBuyPrice => _search01.listBuyPrice;
 
   void postRequest(String vStockCode) {
     if (!_isLoading) {

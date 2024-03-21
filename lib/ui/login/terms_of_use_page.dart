@@ -10,7 +10,6 @@ import 'package:rassi_assist/ui/login/join_route_page.dart';
 import 'package:rassi_assist/ui/sub/web_page.dart';
 
 // 24.01.04 [회원가입-약관동의]
-
 class TermsOfUsePage extends StatefulWidget {
   final UserJoinInfo userJoinInfo;
 
@@ -61,7 +60,7 @@ class _TermsOfUsePageState extends State<TermsOfUsePage> {
                     ),
                     TextSpan(
                       text:
-                          '\n라씨 매매비서는 서비스 제공을 위해\n최소한의 정보만을 수집하여\n수집된 정보 보안을 위해 최선을 다합니다.',
+                          '\n라씨 매매비서는 서비스 제공을 위해\n최소한의 정보만을 수집하며\n수집된 정보 보안을 위해 최선을 다합니다.',
                       style: TextStyle(
                         //본문 내용 - 기준
                         fontWeight: FontWeight.w400,
@@ -99,7 +98,9 @@ class _TermsOfUsePageState extends State<TermsOfUsePage> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => JoinRoutePage(widget.userJoinInfo),
+                  builder: (context) => JoinRoutePage(
+                    userJoinInfo: widget.userJoinInfo,
+                  ),
                 ),
               );
             }

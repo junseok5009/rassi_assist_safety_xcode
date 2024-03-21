@@ -2020,13 +2020,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         User04 data = resData.retData;
-        if (data != null && data.accountData != null) {
-          final AccountData accountData = data.accountData;
-          accountData.initUserStatus();
-        } else {
-          //회원정보 가져오지 못함
-          AccountData().setFreeUserStatus();
-        }
+        final AccountData accountData = data.accountData;
+        accountData.initUserStatus();
       }
       _requestTrAll();
     }

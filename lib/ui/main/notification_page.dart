@@ -639,7 +639,7 @@ class NotificationPageState extends State<NotificationPage> {
                       const Text(
                         '알림 항목',
                         style: TStyle.defaultTitle,
-                        textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                        
                       ),
                       InkWell(
                         child: const Icon(
@@ -664,7 +664,7 @@ class NotificationPageState extends State<NotificationPage> {
                   const Text(
                     '나의 종목 알림',
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -688,7 +688,7 @@ class NotificationPageState extends State<NotificationPage> {
                   const Text(
                     '종목 캐치 알림',
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -708,7 +708,7 @@ class NotificationPageState extends State<NotificationPage> {
                   const Text(
                     '라씨 소식 알림',
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -736,7 +736,7 @@ class NotificationPageState extends State<NotificationPage> {
       child: Text(
         '    $menu',
         style: TStyle.defaultContent,
-        textScaleFactor: Const.TEXT_SCALE_FACTOR,
+        
       ),
       onTap: () {
         Navigator.pop(sheetContext);

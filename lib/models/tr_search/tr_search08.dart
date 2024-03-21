@@ -5,26 +5,25 @@ class TrSearch08 {
   final String retMsg;
   final Search08 retData;
 
-  TrSearch08({this.retCode='', this.retMsg='', this.retData = defSearch08});
+  TrSearch08({this.retCode='', this.retMsg='', this.retData = const Search08()});
 
   factory TrSearch08.fromJson(Map<String, dynamic> json) {
     return TrSearch08(
         retCode: json['retCode'],
         retMsg: json['retMsg'],
-        retData: json['retData'] == null ? defSearch08 : Search08.fromJson(json['retData'])
+        retData: json['retData'] == null ? const Search08() : Search08.fromJson(json['retData'])
     );
   }
 }
 
-const defSearch08 = Search08();
 class Search08 {
   final Search01 search01;
   final List<ChartData> listPriceChart;
 
-  const Search08({this.search01 = defSearch01, this.listPriceChart = const [],});
+  const Search08({this.search01 = const Search01(), this.listPriceChart = const [],});
 
   factory Search08.fromJson(Map<String, dynamic> json) {
-    var list = json['list_PriceChart'] as List;
+    var list = json['list_PriceChart'] as List?;
     List<ChartData> listData = list == null ? [] : list.map((e) => ChartData.fromJson(e)).toList();
     return Search08(
         search01: Search01.fromJson(json['struct_Price']),

@@ -9,6 +9,7 @@ import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
@@ -17,6 +18,9 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
 import 'package:rassi_assist/ui/login/terms_of_use_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'login_division_page.dart';
 
 /// 2021.05.06
 /// 인증 번호 입력
@@ -45,10 +49,9 @@ class JoinCertPageState extends State<JoinCertPage> {
   void initState() {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(JoinCertPage.TAG_NAME);
-
     Future.delayed(Duration.zero, () {
       args = ModalRoute.of(context)!.settings.arguments as PgData;
-      _strPhone = args.pgData ?? '';
+      _strPhone = args.pgData;
       if (_strPhone.length > 5) {
         //인증번호 발송
         _reqType = 'phone_check';
@@ -215,23 +218,45 @@ class JoinCertPageState extends State<JoinCertPage> {
             ThinkLoginSns.fromJson(jsonDecode(result));
         if (resData.resultCode.toString().trim() == '-1') {
           DLog.d(JoinCertPage.TAG, '씽크풀 가입안됨');
-
           if (mounted) {
-            // 약관 동의로 이동
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TermsOfUsePage(
-                  UserJoinInfo(
-                    userId: '',
-                    email: '',
-                    name: '',
-                    phone: _strPhone,
-                    pgType: 'SSGOLLA',
-                  ),
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            String agentLink =
+                AppGlobal().pendingDynamicLinkData?.link.toString() ??
+                    prefs.getString(Const.PREFS_DEEPLINK_URI) ??
+                    '';
+            if (agentLink.isNotEmpty && mounted) {
+              // Agent회원 - 회원가입으로 이동
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/agent_sign_up',
+                ModalRoute.withName(LoginDivisionPage.routeName),
+                arguments: UserJoinInfo(
+                  userId: Net.getEncrypt(_strPhone),
+                  email: '',
+                  name: '',
+                  phone: _strPhone,
+                  pgType: 'SSGOLLA',
                 ),
-              ),
-            );
+              );
+            } else {
+              // 약관 동의로 이동
+              if (mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TermsOfUsePage(
+                      UserJoinInfo(
+                        userId: '',
+                        email: '',
+                        name: '',
+                        phone: _strPhone,
+                        pgType: 'SSGOLLA',
+                      ),
+                    ),
+                  ),
+                );
+              }
+            }
           }
         } else {
           DLog.d(JoinCertPage.TAG, '씽크풀 가입 되어 있음');
@@ -260,11 +285,11 @@ class JoinCertPageState extends State<JoinCertPage> {
       //인증번호 확인
       DLog.d(JoinCertPage.TAG, '인증결과 : $result');
       if (result == 'success') {
-        commonShowToast('인증되었습니다.');
+        commonShowToastCenter('인증되었습니다.');
         _checkEditData();
       } else {
         //실패시 : result = smsAuthChkFail
-        commonShowToast('인증번호 인증 실패');
+        commonShowToastCenter('인증번호 인증 실패');
       }
     }
   }

@@ -453,7 +453,7 @@ class TradeAssistPageState extends State<TradeAssistPage> {
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                      
                     ),
                   ),
                   const SizedBox(
@@ -462,7 +462,7 @@ class TradeAssistPageState extends State<TradeAssistPage> {
                   const Text(
                     RString.err_network,
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -477,7 +477,7 @@ class TradeAssistPageState extends State<TradeAssistPage> {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

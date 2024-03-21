@@ -467,7 +467,7 @@ class IssueDetailState extends State<IssueDetailWidget> {
                     style: TStyle.defaultTitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 25.0,

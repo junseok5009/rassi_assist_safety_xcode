@@ -414,7 +414,7 @@ class SocialListPageState extends State<SocialListPage> {
                   const Text(
                     '소셜지수란?',
                     style: TStyle.commonTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 15.0,
@@ -422,7 +422,7 @@ class SocialListPageState extends State<SocialListPage> {
                   const Text(
                     RString.desc_social_index,
                     style: TStyle.content15,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                 ],
               ),

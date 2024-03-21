@@ -9,7 +9,7 @@ class CustomNvRouteClass {
    */
 
   //아래에서 위로 올라오는 페이지
-  static Route createRoute(Widget instance) {
+  static Route createRoute(Widget instance,) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => instance,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -17,6 +17,25 @@ class CustomNvRouteClass {
         var end = Offset.zero;
         var tween =
             Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
+  //아래에서 위로 올라오는 페이지 네임이용
+  static Route createRouteName({required Widget instance, required String routeName,}) {
+    return PageRouteBuilder(
+      settings: RouteSettings(name: routeName,),
+      pageBuilder: (context, animation, secondaryAnimation) => instance,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = const Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var tween =
+        Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(
           position: offsetAnimation,

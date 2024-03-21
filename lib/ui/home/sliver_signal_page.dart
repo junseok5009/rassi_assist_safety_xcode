@@ -6,7 +6,6 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
-import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
@@ -16,10 +15,9 @@ import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/pg_notifier.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_info.dart';
+import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_catch01.dart';
 import 'package:rassi_assist/models/tr_find/tr_find01.dart';
 import 'package:rassi_assist/models/tr_find/tr_find02.dart';
@@ -659,8 +657,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                         loop: true,
                         autoplay: true,
                         autoplayDelay: 4000,
-                        itemCount:
-                            _preStartStr != null ? _preStartStr.length : 0,
+                        itemCount: _preStartStr.length,
                         itemBuilder: (BuildContext context, int index) {
                           return Text(_preStartStr[index]);
                         }),
@@ -1126,7 +1123,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   const Text(
                     'AI의 처리 프로세스',
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
                   ),
                   const SizedBox(
                     height: 15.0,
@@ -1148,7 +1144,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                     'AI매매신호를 발생시켜 알려드립니다.',
                     style: TStyle.textSGrey,
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                 ],
               ),
@@ -1195,7 +1191,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 const Text(
                   '안내',
                   style: TStyle.title20,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -1203,7 +1199,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 const Text(
                   '매매비서 프리미엄에서 이용할 수 있는 정보입니다.',
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -1211,7 +1207,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 const Text(
                   '프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -1229,7 +1225,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                         child: Text(
                           '프리미엄 가입하기',
                           style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          
                         ),
                       ),
                     ),
@@ -1288,7 +1284,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   '성과 TOP 종목은?',
                   style: TStyle.title20,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -1297,7 +1293,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   RString.desc_result_top,
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -1641,7 +1637,8 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     if (item != null) {
       _isReqComplete = true; //기본값 노출방지
       _isVisibleTimer = false;
-      _bIsTrading = (item.noticeCode != 'TIME_BEFORE' && item.noticeCode.isNotEmpty);
+      _bIsTrading =
+          (item.noticeCode != 'TIME_BEFORE' && item.noticeCode.isNotEmpty);
 
       //장시작 대기, 전일 미거래 종목 필터링중(08시 ~ 개장전)
       if (item.noticeCode == 'TIME_BEFORE') {

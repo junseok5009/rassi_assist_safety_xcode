@@ -46,7 +46,7 @@ class AddSignalLayer extends StatelessWidget {
                 constraints: const BoxConstraints(),
                 iconSize: 24,
                 onPressed: () {
-                  if (context != null && context.mounted) {
+                  if (context.mounted) {
                     Navigator.pop(context, CustomNvRouteResult.cancel);
                   }
                 },
@@ -97,7 +97,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
   void initState() {
     super.initState();
     _stockInfoProvider = Provider.of<StockInfoProvider>(context, listen: false);
-    _signalLayerSliderProvider = Provider.of<SignalLayerSliderProvider>(context, listen: false);
+    _signalLayerSliderProvider =
+        Provider.of<SignalLayerSliderProvider>(context, listen: false);
     _stockInfoProvider.addListener(_stockInfoProviderListener);
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _stockInfoProvider.postRequest(widget.stock!.stockCode);
@@ -114,9 +115,11 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
         //DLog.d('','_directPriceKeyboardHeight : $_directPriceKeyboardHeight');
       } else {
         if (Platform.isAndroid) {
-          _directPriceEmptyBoxheight = _selectPriceViewHeight - 181 - keyBoardHeight;
+          _directPriceEmptyBoxheight =
+              _selectPriceViewHeight - 181 - keyBoardHeight;
         } else {
-          _directPriceEmptyBoxheight = _selectPriceViewHeight - 181 - keyBoardHeight;
+          _directPriceEmptyBoxheight =
+              _selectPriceViewHeight - 181 - keyBoardHeight;
         }
       }
 
@@ -124,7 +127,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
         _directPriceKeyboardHeight = keyBoardHeight;
       } else if (keyBoardHeight < _directPriceKeyboardHeight) {
         if (Platform.isIOS) {
-          _directPriceEmptyBoxheight = _directPriceKeyboardHeight - keyBoardHeight + 40;
+          _directPriceEmptyBoxheight =
+              _directPriceKeyboardHeight - keyBoardHeight + 40;
         }
       }
     }
@@ -132,7 +136,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
       builder: (p0, isKeyboardVisible) => SingleChildScrollView(
         child: Container(
           key: _containerKey,
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -145,8 +150,10 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                         if (!_isSelectPrice) {
                           if (isKeyboardVisible) {
                             FocusScope.of(context).unfocus();
-                            Future.delayed(const Duration(milliseconds: 160), () {
-                              SchedulerBinding.instance.addPostFrameCallback((_) {
+                            Future.delayed(const Duration(milliseconds: 160),
+                                () {
+                              SchedulerBinding.instance
+                                  .addPostFrameCallback((_) {
                                 setState(() {
                                   _isSelectPrice = true;
                                 });
@@ -164,14 +171,20 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                         width: double.infinity,
                         height: 40,
                         decoration: UIStyle.boxRoundLine25c(
-                          _isSelectPrice ? Colors.black : RColor.greyBasic_8c8c8c,
+                          _isSelectPrice
+                              ? Colors.black
+                              : RColor.greyBasic_8c8c8c,
                         ),
                         alignment: Alignment.center,
                         child: Text(
                           '매수가 선택',
                           style: TextStyle(
-                            fontWeight: _isSelectPrice ? FontWeight.bold : FontWeight.normal,
-                            color: _isSelectPrice ? Colors.black : RColor.greyBasic_8c8c8c,
+                            fontWeight: _isSelectPrice
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _isSelectPrice
+                                ? Colors.black
+                                : RColor.greyBasic_8c8c8c,
                           ),
                         ),
                       ),
@@ -194,14 +207,20 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                         width: double.infinity,
                         height: 40,
                         decoration: UIStyle.boxRoundLine25c(
-                          !_isSelectPrice ? Colors.black : RColor.greyBasic_8c8c8c,
+                          !_isSelectPrice
+                              ? Colors.black
+                              : RColor.greyBasic_8c8c8c,
                         ),
                         alignment: Alignment.center,
                         child: Text(
                           '매수가 직접설정',
                           style: TextStyle(
-                            fontWeight: !_isSelectPrice ? FontWeight.bold : FontWeight.normal,
-                            color: !_isSelectPrice ? Colors.black : RColor.greyBasic_8c8c8c,
+                            fontWeight: !_isSelectPrice
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: !_isSelectPrice
+                                ? Colors.black
+                                : RColor.greyBasic_8c8c8c,
                           ),
                         ),
                       ),
@@ -215,7 +234,9 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
               ListView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                children: _isSelectPrice ? _setSelectPriceViews : _setDirectPriceViews,
+                children: _isSelectPrice
+                    ? _setSelectPriceViews
+                    : _setDirectPriceViews,
               ),
             ],
           ),
@@ -233,38 +254,45 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
   _stockInfoProviderListener() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _signalLayerSliderProvider.setValues(
-          _stockInfoProvider.getStockCode,
-          (double.tryParse(_stockInfoProvider.getCurrentPrice) ?? 0),
-          (double.tryParse(_stockInfoProvider.getListBuyPrice
-                  .firstWhere(
-                    (element) => element.resultDiv == 'minPrice',
-                    orElse: () => Search01BuyPrice(
-                      setPrice: '0',
-                      resultDiv: 'minPrice',
-                    ),
-                  )
-                  .setPrice) ??
-              0),
-          (double.tryParse(_stockInfoProvider.getListBuyPrice
-                  .firstWhere(
-                    (element) => element.resultDiv == 'maxPrice',
-                    orElse: () => Search01BuyPrice(
-                      setPrice: (double.tryParse(_stockInfoProvider.getCurrentPrice) ?? '0').toString(),
-                      resultDiv: 'maxPrice',
-                    ),
-                  )
-                  .setPrice) ??
-              0),
-          (double.tryParse(_stockInfoProvider.getListBuyPrice
-                  .firstWhere(
-                    (element) => element.resultDiv == 'hogaPrice',
-                    orElse: () => Search01BuyPrice(
-                      setPrice: (double.tryParse(_stockInfoProvider.getCurrentPrice) ?? '0').toString(),
-                      resultDiv: 'hogaPrice',
-                    ),
-                  )
-                  .setPrice) ??
-              0));
+        _stockInfoProvider.getStockCode,
+        double.tryParse(_stockInfoProvider.getCurrentPrice) ?? 0,
+        double.tryParse(_stockInfoProvider.getListBuyPrice
+                .firstWhere(
+                  (element) => element.resultDiv == 'minPrice',
+                  orElse: () => Search01BuyPrice(
+                    setPrice: '0',
+                    resultDiv: 'minPrice',
+                  ),
+                )
+                .setPrice) ??
+            0,
+        double.tryParse(_stockInfoProvider.getListBuyPrice
+                .firstWhere(
+                  (element) => element.resultDiv == 'maxPrice',
+                  orElse: () => Search01BuyPrice(
+                    setPrice:
+                        (double.tryParse(_stockInfoProvider.getCurrentPrice) ??
+                                '0')
+                            .toString(),
+                    resultDiv: 'maxPrice',
+                  ),
+                )
+                .setPrice) ??
+            0,
+        double.tryParse(_stockInfoProvider.getListBuyPrice
+                .firstWhere(
+                  (element) => element.resultDiv == 'hogaPrice',
+                  orElse: () => Search01BuyPrice(
+                    setPrice:
+                        (double.tryParse(_stockInfoProvider.getCurrentPrice) ??
+                                '0')
+                            .toString(),
+                    resultDiv: 'hogaPrice',
+                  ),
+                )
+                .setPrice) ??
+            0,
+      );
     });
   }
 
@@ -315,11 +343,10 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                               child: SliderTheme(
                                 data: SliderThemeData(
                                   trackHeight: 9,
-                                  /*trackShape: const RectangularSliderTrackShape(),
-                                  overlayShape: SliderComponentShape.noThumb,*/
-                                  //trackHeight: 3.0,
+                                  trackShape:
+                                      const RectangularSliderTrackShape(),
                                   overlayShape: SliderComponentShape.noThumb,
-                                  trackShape: const RoundSliderTrackShape(),
+                                  //trackHeight: 3.0,
                                 ),
                                 child: Slider(
                                   value: provider.getCurrentPrice,
@@ -344,7 +371,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                             Align(
                               alignment: Alignment.bottomCenter,
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Row(
@@ -354,7 +382,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                                           horizontal: 6,
                                           vertical: 2,
                                         ),
-                                        decoration: UIStyle.boxRoundFullColor25c(
+                                        decoration:
+                                            UIStyle.boxRoundFullColor25c(
                                           RColor.greyBox_dcdfe2,
                                         ),
                                         child: const Text(
@@ -370,7 +399,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                                       ),
                                       Text(
                                         TStyle.getMoneyPoint(
-                                          provider.getMinPrice.toStringAsFixed(0),
+                                          provider.getMinPrice
+                                              .toStringAsFixed(0),
                                         ),
                                       ),
                                     ],
@@ -379,7 +409,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                                     children: [
                                       Text(
                                         TStyle.getMoneyPoint(
-                                          provider.getMaxPrice.toStringAsFixed(0),
+                                          provider.getMaxPrice
+                                              .toStringAsFixed(0),
                                         ),
                                       ),
                                       const SizedBox(
@@ -390,7 +421,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                                           horizontal: 6,
                                           vertical: 2,
                                         ),
-                                        decoration: UIStyle.boxRoundFullColor25c(
+                                        decoration:
+                                            UIStyle.boxRoundFullColor25c(
                                           RColor.greyBox_dcdfe2,
                                         ),
                                         child: const Text(
@@ -461,7 +493,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                 ),
               ),
               TextSpan(
-                text: '③ 매도 신호의 경우 손절 구간이 있기 때문에 매수가 대비 -12% 이하에서는 알고리즘이 적극적으로 손절 신호를 발생시킵니다. '
+                text:
+                    '③ 매도 신호의 경우 손절 구간이 있기 때문에 매수가 대비 -12% 이하에서는 알고리즘이 적극적으로 손절 신호를 발생시킵니다. '
                     '따라서 매수가 입력 시점에서 수익률이 마이너스인 경우 손절 신호가 빨리 발생될 수 있습니다. 손절을 원치 않으시는 경우, '
                     '이 부분을 고려하여 참고해 주시기 바랍니다.\n',
                 style: TextStyle(
@@ -481,7 +514,9 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
           margin: const EdgeInsets.only(
             top: 10,
           ),
-          decoration: _isWrong ? UIStyle.boxRoundLine6LineColor(Colors.red) : UIStyle.boxRoundLine6(),
+          decoration: _isWrong
+              ? UIStyle.boxRoundLine6LineColor(Colors.red)
+              : UIStyle.boxRoundLine6(),
           child: TextField(
             controller: _textEditingController,
             autofocus: true,
@@ -517,7 +552,9 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                 ),
               ),
               counterText: '',
-              hintText: _isWrong ? '올바른 매수가를 입력해 주십시오.' : TStyle.getMoneyPoint(_stockInfoProvider.getCurrentPrice),
+              hintText: _isWrong
+                  ? '올바른 매수가를 입력해 주십시오.'
+                  : TStyle.getMoneyPoint(_stockInfoProvider.getCurrentPrice),
               hintStyle: TextStyle(
                 fontSize: _isWrong ? 14 : 18,
                 height: 1.4,
@@ -534,7 +571,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                 });
               }
               _directEditPrice = int.tryParse(value.replaceAll(',', '')) ?? 0;
-              String commaValue = TStyle.getMoneyPoint(value.replaceAll(',', ''));
+              String commaValue =
+                  TStyle.getMoneyPoint(value.replaceAll(',', ''));
               _textEditingController.value = TextEditingValue(
                 text: commaValue,
                 selection: TextSelection.collapsed(offset: commaValue.length),
@@ -552,7 +590,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
           ),
         ),
         SizedBox(
-          height: _directPriceEmptyBoxheight > 0 ? _directPriceEmptyBoxheight : 0,
+          height:
+              _directPriceEmptyBoxheight > 0 ? _directPriceEmptyBoxheight : 0,
         ),
         _setMakeSignalBtn,
       ];
@@ -560,15 +599,21 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
   Widget get _setMakeSignalBtn => InkWell(
         onTap: () async {
           if (_isSelectPrice && _isSelectPriceTouchOnce) {
-            String result = await Provider.of<SignalProvider>(context, listen: false).addSignal(
+            String result =
+                await Provider.of<SignalProvider>(context, listen: false)
+                    .addSignal(
               _stockInfoProvider.getStockCode as Stock,
-              Provider.of<SignalLayerSliderProvider>(context, listen: false).getCurrentPrice.toStringAsFixed(0),
+              Provider.of<SignalLayerSliderProvider>(context, listen: false)
+                  .getCurrentPrice
+                  .toStringAsFixed(0),
             );
-            if (mounted && result != null) {
+            if (mounted) {
               Navigator.pop(context, result);
             }
           } else if (!_isSelectPrice) {
-            if (_directEditPrice < 1 || _directEditPrice.toString().contains('.') || _isWrong) {
+            if (_directEditPrice < 1 ||
+                _directEditPrice.toString().contains('.') ||
+                _isWrong) {
               setState(() {
                 _isWrong = true;
                 _directEditPrice = 0;
@@ -577,11 +622,13 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
                 );
               });
             } else {
-              String result = await Provider.of<SignalProvider>(context, listen: false).addSignal(
+              String result =
+                  await Provider.of<SignalProvider>(context, listen: false)
+                      .addSignal(
                 _stockInfoProvider.getStockCode as Stock,
                 _directEditPrice.toStringAsFixed(0),
               );
-              if (mounted && result != null) {
+              if (mounted) {
                 Navigator.pop(context, result);
               }
             }
@@ -594,7 +641,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
             top: 20,
           ),
           decoration: UIStyle.boxRoundFullColor25c(
-            (_isSelectPrice && _isSelectPriceTouchOnce) || (!_isSelectPrice && _directEditPrice != 0 && !_isWrong)
+            (_isSelectPrice && _isSelectPriceTouchOnce) ||
+                    (!_isSelectPrice && _directEditPrice != 0 && !_isWrong)
                 ? RColor.mainColor
                 : RColor.greyBox_dcdfe2,
           ),
@@ -612,7 +660,8 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
 
   Size _getSize() {
     if (_containerKey.currentContext != null) {
-      final RenderBox renderBox = _containerKey.currentContext!.findRenderObject() as RenderBox;
+      final RenderBox renderBox =
+          _containerKey.currentContext!.findRenderObject() as RenderBox;
       Size size = renderBox.size;
       return size;
     } else {
@@ -641,7 +690,8 @@ class RoundSliderTrackShape extends SliderTrackShape {
     bool isEnabled = false,
     bool isDiscrete = false,
   }) {
-    final double overlayWidth = sliderTheme.overlayShape!.getPreferredSize(isEnabled, isDiscrete).width;
+    final double overlayWidth =
+        sliderTheme.overlayShape!.getPreferredSize(isEnabled, isDiscrete).width;
     final double trackHeight = sliderTheme.trackHeight!;
     assert(overlayWidth >= 0);
     assert(trackHeight >= 0);
@@ -649,7 +699,8 @@ class RoundSliderTrackShape extends SliderTrackShape {
     assert(parentBox.size.height >= trackHeight);
 
     final double trackLeft = offset.dx + overlayWidth / 2;
-    final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 4;
+    final double trackTop =
+        offset.dy + (parentBox.size.height - trackHeight) / 4;
     // TODO(clocksmith): Although this works for a material, perhaps the default
     // rectangular track should be padded not just by the overlay, but by the
     // max of the thumb and the overlay, in case there is no overlay.
@@ -678,10 +729,16 @@ class RoundSliderTrackShape extends SliderTrackShape {
 
     // Assign the track segment paints, which are left: active, right: inactive,
     // but reversed for right to left text.
-    final ColorTween activeTrackColorTween = ColorTween(begin: sliderTheme.disabledActiveTrackColor, end: sliderTheme.activeTrackColor);
-    final ColorTween inactiveTrackColorTween = ColorTween(begin: sliderTheme.disabledInactiveTrackColor, end: sliderTheme.inactiveTrackColor);
-    final Paint activePaint = Paint()..color = activeTrackColorTween.evaluate(enableAnimation)!;
-    final Paint inactivePaint = Paint()..color = inactiveTrackColorTween.evaluate(enableAnimation)!;
+    final ColorTween activeTrackColorTween = ColorTween(
+        begin: sliderTheme.disabledActiveTrackColor,
+        end: sliderTheme.activeTrackColor);
+    final ColorTween inactiveTrackColorTween = ColorTween(
+        begin: sliderTheme.disabledInactiveTrackColor,
+        end: sliderTheme.inactiveTrackColor);
+    final Paint activePaint = Paint()
+      ..color = activeTrackColorTween.evaluate(enableAnimation)!;
+    final Paint inactivePaint = Paint()
+      ..color = inactiveTrackColorTween.evaluate(enableAnimation)!;
     late Paint leftTrackPaint;
     late Paint rightTrackPaint;
     switch (textDirection) {
@@ -702,7 +759,9 @@ class RoundSliderTrackShape extends SliderTrackShape {
     // TODO(clocksmith): The new Material spec has a gray circle in place of this gap.
     double horizontalAdjustment = 0.0;
     if (!isEnabled) {
-      final double disabledThumbRadius = sliderTheme.thumbShape!.getPreferredSize(false, isDiscrete).width / 2.0;
+      final double disabledThumbRadius =
+          sliderTheme.thumbShape!.getPreferredSize(false, isDiscrete).width /
+              2.0;
       final double gap = disabledThumbGapWidth * (1.0 - enableAnimation.value);
       horizontalAdjustment = disabledThumbRadius + gap;
     }
@@ -714,27 +773,42 @@ class RoundSliderTrackShape extends SliderTrackShape {
       isEnabled: isEnabled,
       isDiscrete: isDiscrete,
     );
-    final Rect leftTrackSegment = Rect.fromLTRB(trackRect.left, trackRect.top, thumbCenter.dx - horizontalAdjustment, trackRect.bottom);
+    final Rect leftTrackSegment = Rect.fromLTRB(trackRect.left, trackRect.top,
+        thumbCenter.dx - horizontalAdjustment, trackRect.bottom);
 
     // Left Arc
     context.canvas.drawArc(
-        Rect.fromCircle(center: Offset(trackRect.left, trackRect.top + sliderTheme.trackHeight! * 1 / 2), radius: sliderTheme.trackHeight! * 1 / 2),
+        Rect.fromCircle(
+            center: Offset(trackRect.left,
+                trackRect.top + sliderTheme.trackHeight! * 1 / 2),
+            radius: sliderTheme.trackHeight! * 1 / 2),
         -180 * 3 / 2, // -270 degrees
         180, // 180 degrees
         false,
-        trackRect.left - thumbCenter.dx == 0.0 ? rightTrackPaint : leftTrackPaint);
+        trackRect.left - thumbCenter.dx == 0.0
+            ? rightTrackPaint
+            : leftTrackPaint);
 
 // Right Arc
 
     context.canvas.drawArc(
-        Rect.fromCircle(center: Offset(trackRect.right, trackRect.top + sliderTheme.trackHeight! * 1 / 2), radius: sliderTheme.trackHeight! * 1 / 2),
+        Rect.fromCircle(
+            center: Offset(trackRect.right,
+                trackRect.top + sliderTheme.trackHeight! * 1 / 2),
+            radius: sliderTheme.trackHeight! * 1 / 2),
         -180 / 2, // -90 degrees
         180, // 180 degrees
         false,
-        trackRect.right - thumbCenter.dx == 0.0 ? leftTrackPaint : rightTrackPaint);
+        trackRect.right - thumbCenter.dx == 0.0
+            ? leftTrackPaint
+            : rightTrackPaint);
 
     context.canvas.drawRect(leftTrackSegment, leftTrackPaint);
-    final Rect rightTrackSegment = Rect.fromLTRB(thumbCenter.dx + horizontalAdjustment, trackRect.top, trackRect.right, trackRect.bottom);
+    final Rect rightTrackSegment = Rect.fromLTRB(
+        thumbCenter.dx + horizontalAdjustment,
+        trackRect.top,
+        trackRect.right,
+        trackRect.bottom);
     context.canvas.drawRect(rightTrackSegment, rightTrackPaint);
   }
 }

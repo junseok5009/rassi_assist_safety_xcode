@@ -14,7 +14,8 @@ class CommonPopup {
 
   static final CommonPopup instance = CommonPopup._privateConstructor();
 
-  static const String dbEtcErroruserCenterMsg = "정상 처리되지 않았습니다. 해당 상태가 계속된다면 고객센터로 문의바랍니다.";
+  static const String dbEtcErroruserCenterMsg =
+      "정상 처리되지 않았습니다. 해당 상태가 계속된다면 고객센터로 문의바랍니다.";
 
   factory CommonPopup() {
     return instance;
@@ -40,7 +41,7 @@ class CommonPopup {
                       color: Colors.black,
                     ),
                     onTap: () {
-                      if (context != null && context.mounted) {
+                      if (context.mounted) {
                         Navigator.pop(context);
                       }
                     },
@@ -84,12 +85,11 @@ class CommonPopup {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht15,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
                           ),
                         ),
                       ),
                       onTap: () {
-                        if (context != null && context.mounted) {
+                        if (context.mounted) {
                           Navigator.pop(context);
                         }
                       },
@@ -104,7 +104,7 @@ class CommonPopup {
 
   // 공통 알림
   void showDialogMsg(BuildContext context, String message) {
-    if (context != null) {
+    if (context.mounted) {
       showDialog(
           context: context,
           barrierDismissible: true,
@@ -158,7 +158,7 @@ class CommonPopup {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht15,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),
@@ -176,7 +176,7 @@ class CommonPopup {
 
   // 공통 알림 + 굵은 타이틀
   void showDialogTitleMsg(BuildContext context, String title, String message) {
-    if (context != null) {
+    if (context.mounted) {
       showDialog(
         context: context,
         barrierDismissible: true,
@@ -242,7 +242,7 @@ class CommonPopup {
 
   void showDialogTitleMsgAlignCenter(
       BuildContext context, String title, String message) {
-    if (context != null) {
+    if (context.mounted) {
       showDialog(
         context: context,
         barrierDismissible: true,
@@ -308,7 +308,7 @@ class CommonPopup {
   // 매수신호 미발생 종목 팝업
   void showDialogForbidden(
       BuildContext context, String stockName, String desc) {
-    if (context != null) {
+    if (context.mounted) {
       showDialog(
           context: context,
           barrierDismissible: true,
@@ -385,7 +385,7 @@ class CommonPopup {
 
   // 23.12.05 프리미엄 가입 팝업 basic
   Future<String> showDialogPremium(BuildContext context) async {
-    if (context != null && context.mounted) {
+    if (context.mounted) {
       return showDialog<String>(
         context: context,
         barrierDismissible: true,
@@ -512,9 +512,8 @@ class CommonPopup {
   }
 
   // 23.12.05 공통 알림 팝업 개편 >> 확인 버튼 없음, 타이틀 빈 값이면 안보이게
-  showDialogBasic(
-      BuildContext context, String title, String message) async {
-    if (context != null) {
+  showDialogBasic(BuildContext context, String title, String message) async {
+    if (context.mounted) {
       return showDialog<String>(
         context: context,
         barrierDismissible: true,
@@ -564,14 +563,14 @@ class CommonPopup {
             ),
           );
         },
-      ).then((value){
+      ).then((value) {
         if (value != null) {
           return value;
         } else {
           return CustomNvRouteResult.cancel;
         }
       });
-    }else{
+    } else {
       return CustomNvRouteResult.cancel;
     }
   }
@@ -579,7 +578,7 @@ class CommonPopup {
   // 23.12.18 공통 알림 팝업 개편 >> 확인 버튼 있음, 타이틀 빈 값이면 안보이게
   Future<String> showDialogBasicConfirm(
       BuildContext context, String title, String message) async {
-    if (context != null) {
+    if (context.mounted) {
       return showDialog<String>(
         context: context,
         barrierDismissible: true,
@@ -645,7 +644,8 @@ class CommonPopup {
                       ),
                       onTap: () {
                         Navigator.pop(
-                            context, CustomNvRouteResult.landing,
+                          context,
+                          CustomNvRouteResult.landing,
                         );
                       },
                     ),
@@ -658,22 +658,22 @@ class CommonPopup {
             ),
           );
         },
-      ).then((value){
+      ).then((value) {
         if (value != null) {
           return value;
         } else {
           return CustomNvRouteResult.cancel;
         }
       });
-    }else{
+    } else {
       return CustomNvRouteResult.cancel;
     }
   }
 
   // 23.12.18 타이틀, 내용, 버튼명
-  Future<String> showDialogCustomConfirm(
-      BuildContext context, String title, String message, String btnTitle) async {
-    if (context != null) {
+  Future<String> showDialogCustomConfirm(BuildContext context, String title,
+      String message, String btnTitle) async {
+    if (context.mounted) {
       return showDialog<String>(
         context: context,
         barrierDismissible: true,
@@ -735,7 +735,8 @@ class CommonPopup {
                       ),
                       onTap: () {
                         Navigator.pop(
-                          context, CustomNvRouteResult.landing,
+                          context,
+                          CustomNvRouteResult.landing,
                         );
                       },
                     ),
@@ -748,16 +749,15 @@ class CommonPopup {
             ),
           );
         },
-      ).then((value){
+      ).then((value) {
         if (value != null) {
           return value;
         } else {
           return CustomNvRouteResult.cancel;
         }
       });
-    }else{
+    } else {
       return CustomNvRouteResult.cancel;
     }
   }
-
 }

@@ -17,6 +17,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/custom_lib/http_process_class.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
@@ -25,12 +26,13 @@ import 'package:rassi_assist/ui/login/join_phone_page.dart';
 import 'package:rassi_assist/ui/login/login_rassi_page.dart';
 import 'package:rassi_assist/ui/login/terms_of_use_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// 2021.03.11
 /// 로그인 구분
 class LoginDivisionPage extends StatefulWidget {
-  static const routeName = '/page_login_division';
+  static const routeName = '/login_division';
   static const String TAG = "[LoginDivisionPage]";
   static const String TAG_NAME = '로그인_선택';
   static final GlobalKey<LoginDivisionPageState> globalKey = GlobalKey();
@@ -47,6 +49,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
   String _tempId = '';
   String deviceModel = '';
   String deviceOsVer = '';
+  late SharedPreferences _prefs;
 
   @override
   void initState() {
@@ -54,8 +57,18 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     CustomFirebaseClass.logEvtScreenView(LoginDivisionPage.TAG_NAME);
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'in_login_select');
-    WidgetsFlutterBinding.ensureInitialized()
-        .addPostFrameCallback((_) => _requestAppTracking());
+    _loadPrefData().then(
+      (_) => {
+        WidgetsFlutterBinding.ensureInitialized()
+            .addPostFrameCallback((_) => _requestAppTracking()),
+        DLog.e(
+            'ModalRoute.of(context).settings.name : ${ModalRoute.of(context)?.settings.name}'),
+      },
+    );
+  }
+
+  Future<void> _loadPrefData() async {
+    _prefs = await SharedPreferences.getInstance();
   }
 
   @override
@@ -204,7 +217,6 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
 
           Platform.isAndroid
               ?
-
               //구글
               InkWell(
                   splashColor: Colors.transparent,
@@ -484,7 +496,6 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
       }
     }).onError((error, stackTrace) {
       if (error is PlatformException) return;
-      print(error);
     });
   }
 
@@ -638,21 +649,40 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
     DLog.d(LoginDivisionPage.TAG, response.body);
 
     final String result = response.body;
-    if (result.isNotEmpty) {
+    if (result.isNotEmpty && mounted) {
       final ThinkLoginSns resData = ThinkLoginSns.fromJson(jsonDecode(result));
       if (resData.resultCode.toString().trim() == '-1') {
         DLog.d(LoginDivisionPage.TAG, '씽크풀 가입안됨');
-        if (mounted) {
-          // 약관 동의로 이동
+
+        // 24.03.15 Agent 추가, 링크 있을 경우 + 씽크풀 가입 X, 앱 가입 라서 신규 회원 가입
+        String agentLink =
+            AppGlobal().pendingDynamicLinkData?.link.toString() ??
+                _prefs.getString(Const.PREFS_DEEPLINK_URI) ??
+                '';
+        if (agentLink.isNotEmpty) {
+          // Agent회원 - 회원가입으로 이동
+          Navigator.pushNamed(
+            context,
+            '/agent_sign_up',
+            arguments: UserJoinInfo(
+              userId: userId,
+              email: email,
+              name: name,
+              phone: '',
+              pgType: _reqPos,
+            ),
+          );
+        } else {
+          // 일반회원 - 약관 동의로 이동
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => TermsOfUsePage(
                 UserJoinInfo(
-                  userId: _reqPos == 'SSGOLLA' ? '' : userId,
+                  userId: userId,
                   email: email,
                   name: name,
-                  phone: _reqPos == 'SSGOLLA' ? userId : '',
+                  phone: '',
                   pgType: _reqPos,
                 ),
               ),
@@ -660,12 +690,12 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
           );
         }
       } else {
-        DLog.d(LoginDivisionPage.TAG, '씽크풀 가입 되어 있음');
+        DLog.d(LoginDivisionPage.TAG,
+            '씽크풀 가입 되어 있음 resData.encHpNo : ${resData.encHpNo}');
+        //DLog.d(LoginDivisionPage.TAG, 'Net.getDecrypt(resData.encHpNo) : ${Net.getDecrypt(resData.encHpNo)}');
         _tempId = resData.userId;
         HttpProcessClass().callHttpProcess0001(_tempId).then((value) {
           DLog.d(LoginDivisionPage.TAG, 'then() value : ${value.toString()}');
-          DLog.d(
-              LoginDivisionPage.TAG, 'then() if value null : ${value == null}');
           switch (value.appResultCode) {
             case 200:
               {

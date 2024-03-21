@@ -798,7 +798,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                   const Text(
                     'AI의 처리 프로세스',
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 15.0,
@@ -820,7 +820,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                     'AI매매신호를 발생시켜 알려드립니다.',
                     style: TStyle.textSGrey,
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                 ],
               ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/ui/home/sliver_home_tab.dart';
+import 'package:rassi_assist/ui/login/agent/agent_sign_up_page.dart';
+import 'package:rassi_assist/ui/login/agent/agent_welcome_page.dart';
 import 'package:rassi_assist/ui/login/intro_page.dart';
 import 'package:rassi_assist/ui/login/intro_search_page.dart';
 import 'package:rassi_assist/ui/login/intro_start_page.dart';
@@ -64,10 +66,16 @@ import '../ui/sub/trade_intro_page.dart';
 
 final routes = {
 
-  '/intro': (BuildContext context) => const IntroPage(),
-  '/intro_start': (BuildContext context) => const IntroStartPage(),
+  IntroPage.routeName: (BuildContext context) => const IntroPage(),
+  IntroStartPage.routeName: (BuildContext context) => const IntroStartPage(),
+  LoginDivisionPage.routeName : (BuildContext context) => LoginDivisionPage(),
 
-  '/base': (BuildContext context) => const BasePage(),
+  // 에이전트 회원가입
+  AgentSignUpPage.routeName: (BuildContext context) => const AgentSignUpPage(),
+  // 에이전트 웰컴
+  AgentWelcomePage.routeName: (BuildContext context) => const AgentWelcomePage(),
+
+  BasePage.routeName: (BuildContext context) => const BasePage(),
 
   // 메인_홈
   '/main_home': (BuildContext context) => const SliverHomeTabWidget(),
@@ -108,7 +116,7 @@ final routes = {
 
 
   IntroSearchPage.routeName: (BuildContext context) => IntroSearchPage(),
-  LoginDivisionPage.routeName: (BuildContext context) => LoginDivisionPage(),
+  //LoginDivisionPage.routeName: (BuildContext context) => LoginDivisionPage(),
   RassiLoginPage.routeName: (BuildContext context) => const RassiLoginPage(),
   RassiJoinPage.routeName: (BuildContext context) => RassiJoinPage(),
   //SsgJoinPage.routeName: (BuildContext context) => SsgJoinPage(),

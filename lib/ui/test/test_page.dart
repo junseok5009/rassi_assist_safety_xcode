@@ -18,6 +18,7 @@ import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
@@ -96,9 +97,10 @@ class TestState extends State<TestWidget> {
     super.initState();
 
     //Notification 알림 설정
-    var androidSetting = const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var androidSetting =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosSetting =
-    DarwinInitializationSettings(
+        DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
@@ -359,9 +361,7 @@ class TestState extends State<TestWidget> {
                 style: TStyle.subTitle,
               ),
             ),
-            onTap: () {
-
-            },
+            onTap: () {},
           ),
         ),
         Builder(
@@ -426,9 +426,11 @@ class TestState extends State<TestWidget> {
         _setAButton('가입SSG', JoinPhonePage.routeName, Colors.blueAccent[100]!),
         _setJoinButton('joinKakao', 'KAKAO', Colors.blueAccent[100]!),
         _setJoinButton('joinApple', 'APPLE', Colors.blueAccent[100]!),
-        _setAButton('Intro\nsearch', IntroSearchPage.routeName, Colors.blueAccent[100]!),
+        _setAButton('Intro\nsearch', IntroSearchPage.routeName,
+            Colors.blueAccent[100]!),
         _setJoinButton('가입경로', 'ROUTE', Colors.blueAccent[100]!),
-        _setAButton('라씨\n로그인', RassiLoginPage.routeName, Colors.blueAccent[100]!),
+        _setAButton(
+            '라씨\n로그인', RassiLoginPage.routeName, Colors.blueAccent[100]!),
         Builder(
           builder: (context) => InkWell(
             child: Container(
@@ -489,7 +491,8 @@ class TestState extends State<TestWidget> {
                 context,
                 WebChartPage.routeName,
                 arguments: PgData(
-                  pgData: 'https://kiwoom.thinkpool.com/my-stock?svcJoin=SS&customNo=999999905',
+                  pgData:
+                      'https://kiwoom.thinkpool.com/my-stock?svcJoin=SS&customNo=999999905',
                 ),
               );
             },
@@ -510,7 +513,8 @@ class TestState extends State<TestWidget> {
                 context,
                 WebChartPage.routeName,
                 arguments: PgData(
-                  pgData: 'https://kiwoom.thinkpool.com/market-view?svcJoin=SS&customNo=999999905',
+                  pgData:
+                      'https://kiwoom.thinkpool.com/market-view?svcJoin=SS&customNo=999999905',
                 ),
               );
             },
@@ -759,7 +763,6 @@ class TestState extends State<TestWidget> {
           ),
         ),
 
-
         Builder(
           builder: (context) => InkWell(
               child: Container(
@@ -961,8 +964,9 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () {
-              DLog.i('userid : $_userId / encodedUserId : ${Net.getEncrypt(_userId)}');
-              DLog.i(Net.getEncrypt('01050091424'));
+              DLog.i(
+                  'userid : $_userId / encodedUserId : ${Net.getEncrypt(_userId)}');
+              //DLog.i(Net.getDecrypt('aef87372a85fc94f0a5056c1862dc05'));
             },
           ),
         ),
@@ -1132,11 +1136,19 @@ class TestState extends State<TestWidget> {
         ),
         onTap: () {
           if (_reqPos == 'ROUTE') {
-            Navigator.pushNamed(
+            Navigator.push(
               context,
-              JoinRoutePage.routeName,
-              arguments: PgData(
-                  userId: 'userId', pgData: 'email', pgSn: name, flag: 'NAVER'),
+              MaterialPageRoute(
+                builder: (context) => JoinRoutePage(
+                  userJoinInfo: UserJoinInfo(
+                    userId: '',
+                    email: '',
+                    name: '',
+                    phone: '01012341234',
+                    pgType: 'SSGOLLA',
+                  ),
+                ),
+              ),
             );
           } else if (_reqPos == 'PRE') {
             Navigator.pushNamed(
@@ -1189,7 +1201,7 @@ class TestState extends State<TestWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Text('', style: TStyle.commonTitle, textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                        // Text('', style: TStyle.commonTitle, ),
                         // const SizedBox(height: 7.0,),
                         Container(
                           width: double.infinity,
@@ -1263,7 +1275,7 @@ class TestState extends State<TestWidget> {
       child: Text(
         subTitle,
         style: TStyle.commonTitle,
-        textScaleFactor: Const.TEXT_SCALE_FACTOR,
+        
       ),
     );
   }

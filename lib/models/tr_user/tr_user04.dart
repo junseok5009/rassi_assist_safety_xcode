@@ -13,19 +13,17 @@ class TrUser04 {
   TrUser04({
     this.retCode = '',
     this.retMsg = '',
-    this.retData = defUser04,
+    this.retData = const User04(),
   });
 
   factory TrUser04.fromJson(Map<String, dynamic> json) {
     return TrUser04(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData: json['retData'] == null ? defUser04 : User04.fromJson(json['retData']),
+      retData: json['retData'] == null ? const User04() : User04.fromJson(json['retData']),
     );
   }
 }
-
-const defUser04 = User04();
 
 class User04 {
   final String cashRemain;
@@ -36,22 +34,14 @@ class User04 {
   const User04({
     this.cashRemain = '',
     this.prodCateg = '',
-    this.accountData = defAccountData,
+    this.accountData = const AccountData(),
     this.cashData,
   });
-
-/*  User04.empty(){
-    cashRemain = '';
-    prodCateg = '';
-    accountData = AccountData();
-    cashData = CashData();
-  }*/
 
   factory User04.fromJson(Map<String, dynamic> json) {
     AccountData acntData = AccountData.fromJson(json['struct_Account']);
     CashData? cItem;
     json['struct_Cash'] == null ? cItem = null : cItem = CashData.fromJson(json['struct_Cash']);
-
     return User04(
       cashRemain: '',
       prodCateg: '',
@@ -60,8 +50,6 @@ class User04 {
     );
   }
 }
-
-const defAccountData = AccountData();
 
 class AccountData {
   final String userId;
@@ -75,6 +63,10 @@ class AccountData {
   final String productId;
   final String isFreeUser;
   final String subsStatus;
+  // test agent 추가
+  final String joinLink1;
+  final String joinLink2;
+  final String isWelcomeCheck;
 
   const AccountData({
     this.userId = '',
@@ -88,21 +80,10 @@ class AccountData {
     this.productId = '',
     this.isFreeUser = '',
     this.subsStatus = '',
+    this.joinLink1 = '',
+    this.joinLink2 = '',
+    this.isWelcomeCheck = 'N',
   });
-
-/*  AccountData.empty(){
-    userId = '';
-    userStatus = '';
-    payErrStatus = '';
-    joinRoute = '';
-    prodCateg = '';
-    prodCode = '';
-    prodName = '';
-    payMethod = '';
-    productId = '';
-    isFreeUser = '';
-    subsStatus = '';
-  }*/
 
   factory AccountData.fromJson(Map<String, dynamic> json) {
     return AccountData(
@@ -117,6 +98,9 @@ class AccountData {
       productId: json['productId'] ?? '',
       isFreeUser: json['isFreeUser'] ?? '',
       subsStatus: json['subsStatus'] ?? '',
+      joinLink1: json['joinLink1'] ?? '',
+      joinLink2: json['joinLink2'] ?? '',
+      isWelcomeCheck: json['isWelcomeCheck'] ?? 'N',
     );
   }
 

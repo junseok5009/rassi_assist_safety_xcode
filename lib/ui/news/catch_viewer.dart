@@ -81,8 +81,9 @@ class CatchDetailState extends State<CatchDetailWidget> {
     _catchSn = args.pgSn;
 
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: _setLayout(),
     );
   }

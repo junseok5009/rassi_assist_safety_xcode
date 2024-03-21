@@ -1305,7 +1305,9 @@ class MyPageState extends State<MyPage> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+          data: MediaQuery.of(context).copyWith(
+            textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+          ),
           child: AlertDialog(
             shape: UIStyle.borderRoundedDialog(),
             title: Row(

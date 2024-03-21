@@ -312,7 +312,7 @@ class TestHttpClass {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht15,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),
@@ -390,7 +390,7 @@ class TestHttpClass {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht15,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

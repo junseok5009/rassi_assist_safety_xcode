@@ -426,7 +426,7 @@ class SignalAllState extends State<SignalAllWidget> {
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                      
                     ),
                   ),
                   const SizedBox(
@@ -435,7 +435,7 @@ class SignalAllState extends State<SignalAllWidget> {
                   const Text(
                     RString.err_network,
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -450,7 +450,7 @@ class SignalAllState extends State<SignalAllWidget> {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

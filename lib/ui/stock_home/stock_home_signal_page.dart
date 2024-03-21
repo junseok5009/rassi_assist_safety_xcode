@@ -33,6 +33,7 @@ import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 import 'package:rassi_assist/ui/tiles/card_require_pay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import '../../provider/stock_home/stock_home_tab_name_provider.dart';
 import 'stock_home_tab.dart';
 
@@ -104,11 +105,19 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
   bool _isForbiddenShow = false;
   String _forbiddenDesc = '';
 
+  // DEFINE 최근 1년간 AI 매매신호 차트
+  late ZoomPanBehavior _zoomPanBehavior;
+  final List<ChartData> _signalChartDataList = [];
+
+
+
+  final List<ChartData> chartData = [];
+
   // 라씨매매비서는 현재?
   List<SignalAnal> _acvList = []; //AI 매매신호 성과 : 적중률, 누적수익률, 매매횟수 등등
   bool _hasSellResults = true; //매매신호(매도) 성과 표시여부
 
-  final List<ChartData> chartData = [];
+
 
   @override
   bool get wantKeepAlive => varWantKeepAlive;
@@ -120,6 +129,12 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
 
   @override
   void initState() {
+    _zoomPanBehavior = ZoomPanBehavior(
+      enablePinching: true,
+      zoomMode: ZoomMode.x,
+      enablePanning: true,
+
+    );
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
       StockHomeSignalPage.TAG_NAME,
@@ -243,9 +258,9 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                                 const SizedBox(
                                   height: 4,
                                 ),
-                                Column(
+                                const Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
+                                  children: [
                                     Text(
                                       '보유중이시라면 회원님을 위한',
                                       style: TextStyle(
@@ -347,9 +362,9 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                                 const SizedBox(
                                   height: 4,
                                 ),
-                                Column(
+                                const Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
+                                  children: [
                                     Text(
                                       'AI매매신호, AI속보, 종목 이슈 알짜 정보를',
                                       style: TextStyle(
@@ -506,6 +521,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                               height: 270,
                               child: _setEChartView(),
                             ),
+                            _setSignalLineChart1,
                           ],
                         ),
                         const SizedBox(
@@ -1444,9 +1460,9 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                         const SizedBox(
                           height: 4,
                         ),
-                        Column(
+                        const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               '보유중이시라면 회원님을 위한',
                               style: TextStyle(
@@ -1532,9 +1548,9 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                         const SizedBox(
                           height: 4,
                         ),
-                        Column(
+                        const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'AI매매신호, AI속보, 종목 이슈 알짜 정보를',
                               style: TextStyle(
@@ -1784,6 +1800,52 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
     );
   }
 
+  Widget get _setSignalLineChart1{
+    return SizedBox(
+      width: double.infinity,
+      height: 300,
+      child: SfCartesianChart(
+        plotAreaBorderWidth: 0,
+        margin: const EdgeInsets.all(1),
+        zoomPanBehavior: _zoomPanBehavior,
+        onZooming: (zoomingArgs) {
+
+        },
+        primaryXAxis: const CategoryAxis(
+          //isVisible: false,
+          rangePadding: ChartRangePadding.none,
+          labelPlacement: LabelPlacement.onTicks,
+          //zoomFactor: 0.1,
+          //zoomPosition: 1,
+          //interval: 10,
+        ),
+        primaryYAxis: const NumericAxis(
+          //isVisible: false,
+          opposedPosition: true,
+          rangePadding: ChartRangePadding.none,
+          edgeLabelPlacement: EdgeLabelPlacement.hide,
+          plotOffset: 1,
+        ),
+        series: [
+          LineSeries<ChartData, String>(
+            dataSource: _signalChartDataList,
+            xValueMapper: (item, index) => item.tradeDate,
+            yValueMapper: (item, index) => int.parse(item.tradePrc),
+            pointColorMapper:(ChartData data, _) {
+              return RColor.chartTradePriceColor;
+            },
+            width: 1.4,
+            enableTooltip: false,
+            //isVisible: true,
+            animationDelay: 0,
+            //animationDuration: _animationDuration,
+            //onRendererCreated: (controller) => _chartController = controller,
+          ),
+        ],
+      ),
+    );
+  }
+
   //convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
     //DLog.d(StockHomeSignalPage.TAG, trStr + ' ' + json);
@@ -1799,9 +1861,9 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if(mounted){
+        CommonPopup.instance.showDialogNetErr(context);
+      }
     }
   }
 
@@ -1813,13 +1875,8 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
       if (resData.retCode == RT.SUCCESS) {
         User04 data = resData.retData;
 
-        if (data != null && data.accountData != null) {
-          final AccountData accountData = data.accountData;
-          accountData.initUserStatus();
-        } else {
-          //회원정보 가져오지 못함
-          AccountData().setFreeUserStatus();
-        }
+        final AccountData accountData = data.accountData;
+        accountData.initUserStatus();
       }
 
       if (_scrollController.position.pixels == 0) {
@@ -1919,6 +1976,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
     else if (trStr == TR.SIGNAL08) {
       final TrSignal08 resData = TrSignal08.fromJson(jsonDecode(response.body));
       chartData.clear();
+      _signalChartDataList.clear();
       if (resData.retCode == RT.SUCCESS) {
         final Signal08 mData = resData.retData;
         beginYear = mData.beginYear;
@@ -1926,6 +1984,9 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
         balAmt = mData.balanceAmt;
 
         chartData.addAll(mData.listChart);
+
+        _signalChartDataList.addAll(mData.listChart);
+
         String tmpDate = '[';
         String tmpData = '[';
         for (int i = 0; i < chartData.length; i++) {
@@ -1933,7 +1994,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
               '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
 
           //0:없음, 1:매수, 2:매도
-          if (chartData[i].flag == null || chartData[i].flag == '') {
+          if (chartData[i].flag == '') {
             tmpData =
                 '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
           } else if (chartData[i].flag == 'B') {
@@ -1958,10 +2019,10 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
 
   //성과 데이터 중 매도 데이터가 있는지 확인한다.
   bool _hasSellDataCheck(List<SignalAnal> dataList) {
-    if (dataList != null && dataList.isNotEmpty) {
+    if (dataList.isNotEmpty) {
       int count = 0;
       for (int i = 0; i < dataList.length; i++) {
-        if (dataList[i].analTarget == 'S' && dataList[i].analType != null) {
+        if (dataList[i].analTarget == 'S') {
           count++;
         }
       }

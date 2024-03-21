@@ -497,7 +497,7 @@ class SearchPageState extends State<SearchPage> {
           fontSize: 16,
           color: RColor.mainColor,
         ),
-        textScaleFactor: Const.TEXT_SCALE_FACTOR,
+        
       ),
     );
   }

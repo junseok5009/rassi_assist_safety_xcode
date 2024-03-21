@@ -652,7 +652,7 @@ class StkCatchBigPageState extends State<StkCatchBigPage> {
                           child: Text(
                             '알림 설정 바로가기',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

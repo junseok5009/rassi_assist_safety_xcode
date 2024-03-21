@@ -536,7 +536,7 @@ class PayThreeState extends State<PayThreeStock> {
                   ),
                   Text(
                     message,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -555,7 +555,7 @@ class PayThreeState extends State<PayThreeStock> {
                           child: Text(
                             btnText,
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

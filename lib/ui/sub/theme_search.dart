@@ -258,7 +258,7 @@ class ThemeSearchState extends State<ThemeSearchWidget> {
           fontSize: 16,
           color: RColor.mainColor,
         ),
-        textScaleFactor: Const.TEXT_SCALE_FACTOR,
+        
       ),
     );
   }

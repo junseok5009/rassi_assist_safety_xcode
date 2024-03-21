@@ -245,13 +245,13 @@ class ReportAnalyzeChart2PageState extends State<ReportAnalyzeChart2Page>
                     width: 0,
                   ),
                   rangePadding: ChartRangePadding.none,
-                  desiredIntervals: getMaxValue % 2 == 0
+                  /*desiredIntervals: getMaxValue % 2 == 0
                       ? getMaxValue < 4
                           ? getMaxValue
                           : 4
                       : getMaxValue < 3
                           ? getMaxValue
-                          : 3,
+                          : 3,*/
                   axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
                     axisLabelRenderArgs.text,
                     const TextStyle(

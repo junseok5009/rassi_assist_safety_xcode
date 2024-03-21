@@ -15,8 +15,6 @@ class TrSearch01 {
   }
 }
 
-const defSearch01 = Search01();
-
 class Search01 {
   final String stockCode;
   final String stockName;

@@ -973,14 +973,14 @@ class TradeIntroPageState extends State<TradeIntroPage> {
                 children: [
                   Text(
                     '$msg\n라씨 매매비서 시작하기 후 제공됩니다.',
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 30.0,
                   ),
                   const Text(
                     '1초만에 하는\n간편하게 시작하기를 하세요.',
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                     style: TextStyle(
                       //공통 중간 타이틀
                       fontWeight: FontWeight.w600,
@@ -1001,7 +1001,7 @@ class TradeIntroPageState extends State<TradeIntroPage> {
                         child: Text(
                           '라씨 매매비서 시작하기',
                           style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          
                         ),
                       ),
                     ),

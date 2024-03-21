@@ -320,7 +320,7 @@ class ThemeListState extends State<ThemeListWidget> {
                   ),
                   const SizedBox(height: 25.0,),
                   const Text(RString.err_network, textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                    ),
                   const SizedBox(height: 30.0,),
                   MaterialButton(
                     child: Center(
@@ -330,7 +330,7 @@ class ThemeListState extends State<ThemeListWidget> {
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
                           child: Text('확인', style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,),),
+                            ),),
                       ),
                     ),
                     onPressed: (){

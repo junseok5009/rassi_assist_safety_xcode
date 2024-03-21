@@ -31,9 +31,9 @@ class JoinRoutePage extends StatefulWidget {
   static const String TAG_NAME = '회원가입_가입경로';
   final UserJoinInfo userJoinInfo;
 
-  const JoinRoutePage(
-    this.userJoinInfo, {
+  const JoinRoutePage({
     Key? key,
+    required this.userJoinInfo,
   }) : super(key: key);
 
   @override
@@ -161,7 +161,9 @@ class JoinRouteState extends State<JoinRoutePage> {
                   shrinkWrap: true,
                   controller: _scrollController,
                   itemCount: itemList.length + 1,
-                  padding: const EdgeInsets.symmetric(vertical: 20,),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                  ),
                   itemBuilder: (context, i) {
                     if (i == 5) {
                       return _setFooterTile();
@@ -192,6 +194,8 @@ class JoinRouteState extends State<JoinRoutePage> {
               bottom: 10,
             ),
             child: InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
               child: const Center(
                 child: Text(
                   '시작하기',
@@ -233,7 +237,7 @@ class JoinRouteState extends State<JoinRoutePage> {
         width: double.infinity,
         height: 56,
         decoration:
-        statList[10] ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
+            statList[10] ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -242,8 +246,7 @@ class JoinRouteState extends State<JoinRoutePage> {
               style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
-                  color:
-                      statList[10] ? Colors.white : Colors.black),
+                  color: statList[10] ? Colors.white : Colors.black),
             ),
           ],
         ),
@@ -264,7 +267,7 @@ class JoinRouteState extends State<JoinRoutePage> {
       ),
       width: double.infinity,
       decoration:
-      expStat ? UIStyle.boxSelectedLine12() : UIStyle.boxRoundLine6(),
+          expStat ? UIStyle.boxSelectedLine12() : UIStyle.boxRoundLine6(),
       child: _setExpansionTile(idx),
     );
   }
@@ -274,7 +277,9 @@ class JoinRouteState extends State<JoinRoutePage> {
     int idx,
   ) {
     return Theme(
-      data: ThemeData().copyWith(dividerColor: Colors.transparent,),
+      data: ThemeData().copyWith(
+        dividerColor: Colors.transparent,
+      ),
       child: ExpansionTile(
         //타이틀 Center 정렬을 위한 아이콘
         leading: const Icon(
@@ -325,6 +330,8 @@ class JoinRouteState extends State<JoinRoutePage> {
     return Align(
       alignment: Alignment.centerLeft,
       child: InkWell(
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
         onTap: () {
           _setSelectExpand(itemList[idx].expandStatus);
           _setSelectStatus(itemList[idx].firstStatus);
@@ -332,9 +339,11 @@ class JoinRouteState extends State<JoinRoutePage> {
         child: Container(
           width: double.infinity,
           height: 50,
-          margin: const EdgeInsets.symmetric(horizontal: 20,),
+          margin: const EdgeInsets.symmetric(
+            horizontal: 20,
+          ),
           decoration:
-          firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
+              firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
           child: Center(
             child: Text(
               itemList[idx].firstContent,
@@ -351,6 +360,8 @@ class JoinRouteState extends State<JoinRoutePage> {
       Align(
         alignment: Alignment.centerLeft,
         child: InkWell(
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
           onTap: () {
             _setSelectExpand(itemList[idx].expandStatus);
             _setSelectStatus(itemList[idx].firstStatus);
@@ -358,9 +369,12 @@ class JoinRouteState extends State<JoinRoutePage> {
           child: Container(
             width: double.infinity,
             height: 50,
-            margin: const EdgeInsets.symmetric(horizontal: 20,),
-            decoration:
-            firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 20,
+            ),
+            decoration: firstStat
+                ? UIStyle.boxSelectedPurple()
+                : UIStyle.boxWeakGrey25(),
             child: Center(
               child: Text(
                 itemList[idx].firstContent,
@@ -376,6 +390,8 @@ class JoinRouteState extends State<JoinRoutePage> {
       Align(
         alignment: Alignment.centerLeft,
         child: InkWell(
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
           onTap: () {
             _setSelectExpand(itemList[idx].expandStatus);
             _setSelectStatus(itemList[idx].secondStatus);
@@ -383,7 +399,9 @@ class JoinRouteState extends State<JoinRoutePage> {
           child: Container(
             width: double.infinity,
             height: 50,
-            margin: const EdgeInsets.symmetric(horizontal: 20,),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 20,
+            ),
             decoration: secondStat
                 ? UIStyle.boxSelectedPurple()
                 : UIStyle.boxWeakGrey25(),
@@ -428,6 +446,8 @@ class JoinRouteState extends State<JoinRoutePage> {
         height: 10,
       ),
       InkWell(
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 10),
           width: double.infinity,
@@ -451,6 +471,8 @@ class JoinRouteState extends State<JoinRoutePage> {
         height: 10,
       ),
       InkWell(
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 10),
           width: double.infinity,
@@ -473,6 +495,8 @@ class JoinRouteState extends State<JoinRoutePage> {
         height: 10,
       ),
       InkWell(
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 10),
           width: double.infinity,
@@ -586,13 +610,13 @@ class JoinRouteState extends State<JoinRoutePage> {
       DLog.d(JoinRoutePage.TAG, '마케팅 수신동의 : $_isAgreeMarketing');
       DLog.d(JoinRoutePage.TAG, '### JoinRoute : $_sJoinRoute');
       DLog.d(JoinRoutePage.TAG,
-          '### userId : ${widget.userJoinInfo.userId} / ### pass : ${widget.userJoinInfo.email} / ### phone : ${widget.userJoinInfo.name}');
+          'widget.userJoinInfo.toString() : ${widget.userJoinInfo.toString()}');
       //라씨 회원가입
       if (widget.userJoinInfo.pgType == 'RASSI') {
         widget.userJoinInfo.userId = widget.userJoinInfo.userId.toLowerCase();
         _reqType = 'join_confirm';
         _reqParam =
-            'userid=${Net.getEncrypt(widget.userJoinInfo.userId.toLowerCase())}&passWd=${Net.getEncrypt(widget.userJoinInfo.email.trim())}&hp=${Net.getEncrypt(widget.userJoinInfo.name.trim())}&username=&sex_gubun=&joinRoute=$_sJoinRoute&daily=$_emailCheck&tm_sms_f=$_smsCheck';
+            'userid=${Net.getEncrypt(widget.userJoinInfo.userId.toLowerCase())}&passWd=${Net.getEncrypt(widget.userJoinInfo.email.trim())}&hp=${Net.getEncrypt(widget.userJoinInfo.phone.trim())}&username=&sex_gubun=&joinRoute=$_sJoinRoute&daily=$_emailCheck&tm_sms_f=$_smsCheck';
         _requestThink();
       }
       //쓱가입
@@ -611,8 +635,7 @@ class JoinRouteState extends State<JoinRoutePage> {
       else {
         if (widget.userJoinInfo.userId.isNotEmpty) {
           _reqType = 'join_sns';
-          _reqParam =
-              "snsId=${Net.getEncrypt(widget.userJoinInfo.userId)}&snsPos=${widget.userJoinInfo.pgType}&nick=&userName=${widget.userJoinInfo.name}&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=${widget.userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=";
+          _reqParam = "snsId=${Net.getEncrypt(widget.userJoinInfo.userId)}&snsPos=${widget.userJoinInfo.pgType}&nick=&userName=${widget.userJoinInfo.name}&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=${widget.userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N";
           _requestThink();
         }
       }
@@ -658,6 +681,12 @@ class JoinRouteState extends State<JoinRoutePage> {
           await CustomFirebaseClass.logEvtSignUp(LoginPlatform.apple.name);
           break;
         }
+      case 'GOOGLE':
+        {
+          await CustomFirebaseClass.logEvtLogin(LoginPlatform.google.name);
+          await CustomFirebaseClass.logEvtSignUp(LoginPlatform.google.name);
+          break;
+        }
       case 'RASSI':
         {
           await CustomFirebaseClass.logEvtLogin(LoginPlatform.rassi.name);
@@ -676,10 +705,7 @@ class JoinRouteState extends State<JoinRoutePage> {
           await CommonPopup.instance.showDialogBasicConfirm(
               context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
           if (mounted) {
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const IntroStartPage()),
-                (route) => false);
+            Navigator.pushNamedAndRemoveUntil(context, IntroStartPage.routeName, (route) => false);
           }
         }
       } else {
@@ -796,7 +822,6 @@ class JoinRouteState extends State<JoinRoutePage> {
       if (result.isNotEmpty) {
         final ThinkLoginSns resData =
             ThinkLoginSns.fromJson(jsonDecode(result));
-
         if (resData.resultCode.toString().trim() == '0') {
           commonShowToast("회원가입에 실패했습니다");
         } else {

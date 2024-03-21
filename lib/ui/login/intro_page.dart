@@ -12,6 +12,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gif/gif.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
+import 'package:rassi_assist/common/common_function_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
@@ -33,6 +34,7 @@ import 'package:uuid/uuid.dart';
 /// 2022.08.03 : 로그인 하지 않은 사용자가 호출하는 전문에는 userId에 'RASSI_APP' 넣어서 호출
 /// 인트로
 class IntroPage extends StatelessWidget {
+  static const String routeName = "/intro";
   static const String TAG = "[IntroPage]";
   static const String TAG_NAME = '앱_인트로';
 
@@ -69,8 +71,9 @@ class IntroPage extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context)
-            .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+        data: MediaQuery.of(context).copyWith(
+          textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+        ),
         child: child!,
       ),
       home: const Scaffold(
@@ -92,8 +95,9 @@ class IntroWidget extends StatefulWidget {
 
 class IntroState extends State<IntroWidget>
     with SingleTickerProviderStateMixin {
-  var appGlobal = AppGlobal();
-  static const _androidChannel = MethodChannel(Const.METHOD_CHANNEL_NAME);  //추후 삭제예정
+  final _appGlobal = AppGlobal();
+  static const _androidChannel =
+      MethodChannel(Const.METHOD_CHANNEL_NAME); //추후 삭제예정
   final MethodChannel _iosMethodChannel =
       const MethodChannel(Const.METHOD_CHANNEL_LINK_IOS);
 
@@ -104,33 +108,31 @@ class IntroState extends State<IntroWidget>
   late SharedPreferences _prefs;
   String _userId = "";
 
-
   @override
   void initState() {
     super.initState();
-
-    if (Platform.isIOS) {
-      initIosDynamicLinks();
-    } else if (Platform.isAndroid) {
-      initAosDynamicLinks();
-    }
-    initDynamicLinks();
     _loadPrefData().then((_) {
       Future.delayed(Duration.zero, () async {
-        appGlobal.deviceWidth = MediaQuery.of(context).size.width;
-        appGlobal.deviceHeight = MediaQuery.of(context).size.height;
-        appGlobal.deviceStatusBarHeight = MediaQuery.of(context).padding.top;
+        if (Platform.isIOS) {
+          initIosDynamicLinks();
+        } else if (Platform.isAndroid) {
+          initAosDynamicLinks();
+        }
+        initDynamicLinks();
+        _appGlobal.deviceWidth = MediaQuery.of(context).size.width;
+        _appGlobal.deviceHeight = MediaQuery.of(context).size.height;
+        _appGlobal.deviceStatusBarHeight = MediaQuery.of(context).padding.top;
         DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
         if (Platform.isAndroid) {
           var shortestSide = MediaQuery.of(context).size.shortestSide;
-          appGlobal.isTablet = shortestSide > 600;
+          _appGlobal.isTablet = shortestSide > 600;
         } else if (Platform.isIOS) {
           IosDeviceInfo info = await deviceInfo.iosInfo;
           if (info.model != null &&
               info.model!.toLowerCase().contains("ipad")) {
-            appGlobal.isTablet = true;
+            _appGlobal.isTablet = true;
           } else {
-            appGlobal.isTablet = false;
+            _appGlobal.isTablet = false;
           }
         }
         _requestVersionCheck();
@@ -151,7 +153,8 @@ class IntroState extends State<IntroWidget>
       DLog.d(IntroPage.TAG, '##### Platform Android');
       //Android Native 사용자를 위한 코드
       try {
-        final String result = await _androidChannel.invokeMethod('getPrefUserId');
+        final String result =
+            await _androidChannel.invokeMethod('getPrefUserId');
         if (result.isNotEmpty) {
           _prefs.setString(Const.PREFS_USER_ID, result);
           _userId = result;
@@ -164,7 +167,7 @@ class IntroState extends State<IntroWidget>
       _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
     }
 
-    appGlobal.userId = _userId;
+    _appGlobal.userId = _userId;
     _prefs.setString(Const.PREFS_DEVICE_ID, const Uuid().v4());
   }
 
@@ -176,40 +179,33 @@ class IntroState extends State<IntroWidget>
           .getDynamicLink(Uri.parse(content))
           .then((value) async {
         // 여기에 들어오는 링크가 항상 앱 실행 딥링크라는 보장은 없음.
-        appGlobal.pendingDynamicLinkData = value;
         commonShowToast('_iosMethodChannel / ${value.toString()}');
         Uri? linkUri = value?.link;
         if (linkUri != null) {
-          linkUri.pathSegments.asMap().forEach((key, value) {
-            DLog.e('pathSegments [$key] : $value');
-          });
-          linkUri.queryParameters.forEach((key, value) {
-            DLog.e('queryParameters [$key] : $value');
-          });
-          await _prefs.setString(Const.PREFS_DEEPLINK_URI, linkUri.toString());
+          _appGlobal.pendingDynamicLinkData = value;
+          if (CommonFunctionClass.instance.isAgentLink(linkUri.toString())) {
+            await _prefs.setString(
+                Const.PREFS_DEEPLINK_URI, linkUri.toString());
+          }
         }
         DLog.e(
             'value.link : ${value != null ? value.link.toString() : 'null'} / value : ${value.toString()}');
-
-        /*Navigator.push(
-          context,
-          CustomNvRouteClass.createRoute(
-            const TestLinkPage(),
-          ),
-        );*/
       });
-
-      //commonShowToast('native link != null && dd : ${dd.toString()}');
     });
   }
 
   initAosDynamicLinks() async {
-    final PendingDynamicLinkData? initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
+    final PendingDynamicLinkData? initialLink =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+
     /// aos에서 앱 설치된 상태, 링크로 앱 실행시 여기서 링크 값 받아짐.
     if (initialLink != null) {
-      final Uri deepLink = initialLink.link;
-      appGlobal.pendingDynamicLinkData = initialLink;
-      commonShowToast('dynamicLinks.onLink.listen / ${deepLink.toString()}');
+      _appGlobal.pendingDynamicLinkData = initialLink;
+      if (CommonFunctionClass.instance
+          .isAgentLink(initialLink.link.toString())) {
+        await _prefs.setString(
+            Const.PREFS_DEEPLINK_URI, initialLink.link.toString());
+      }
     }
   }
 
@@ -217,7 +213,6 @@ class IntroState extends State<IntroWidget>
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
       /// ios에서 앱 설치안된 상태에서, 링크로 앱스토어에서 최초 설치 이후 링크 값은 여기서 받아짐.
       /// aos에서 앱 이미 설치 된 상태에서 Back/fore ground 상태에서 링크 받아짐. (꺼져있는 상태에서 오픈되면 안받아짐)
-      appGlobal.pendingDynamicLinkData = dynamicLinkData;
       commonShowToast(
           'dynamicLinks.onLink.listen / ${dynamicLinkData.toString()}');
 
@@ -235,10 +230,12 @@ class IntroState extends State<IntroWidget>
           '@@@ dynamicLinkData.link.fragment : ${dynamicLinkData.link.fragment}');
       DLog.d(IntroPage.TAG,
           '@@@ dynamicLinkData.utmParameters : ${dynamicLinkData.utmParameters.toString()}');
-      /*DLog.d('initDynamicLinks()',toastLength: Toast.LENGTH_LONG);*/
-      //Navigator.pushNamed(context, dynamicLinkData.link.path);
-      String dlink = dynamicLinkData.link.toString();
-      await _prefs.setString(Const.PREFS_DEEPLINK_URI, dlink);
+      _appGlobal.pendingDynamicLinkData = dynamicLinkData;
+      if (CommonFunctionClass.instance
+          .isAgentLink(dynamicLinkData.link.toString())) {
+        await _prefs.setString(
+            Const.PREFS_DEEPLINK_URI, dynamicLinkData.link.toString());
+      }
     });
   }
 
@@ -357,28 +354,32 @@ class IntroState extends State<IntroWidget>
 
   // 다음 페이지로 이동
   _goNextRoute(String userId) async {
-    // 23.02.07 only ios 프로모션 결제 구입한 이력있는지 체크
+    // 24.02.07 only ios 프로모션 결제 구입한 이력있는지 체크
     if (Platform.isIOS) {
       await FlutterInappPurchase.instance.initialize();
-      List<PurchasedItem>? purchasedHistoryItemList =
-          await FlutterInappPurchase.instance.getPurchaseHistory();
 
-      List<IAPItem> getProductItemList =
-          await FlutterInappPurchase.instance.getProducts([]);
-      List<IAPItem> promotionProductList = [];
+      try {
+        List<PurchasedItem>? purchasedHistoryItemList =
+            await FlutterInappPurchase.instance.getPurchaseHistory();
 
-      for (var item in getProductItemList) {
-        if (item.introductoryPrice != null &&
-            item.introductoryPrice!.isNotEmpty) {
-          promotionProductList.add(item);
+        List<IAPItem> getProductItemList =
+            await FlutterInappPurchase.instance.getProducts([]);
+        List<IAPItem> promotionProductList = [];
+
+        for (var item in getProductItemList) {
+          if (item.introductoryPrice != null &&
+              item.introductoryPrice!.isNotEmpty) {
+            promotionProductList.add(item);
+          }
         }
+        AppGlobal().isAlreadyPromotionProductPayUser = purchasedHistoryItemList!
+            .any((purchasedHistoryItem) => promotionProductList.any(
+                (promotionProduct) =>
+                    promotionProduct.productId ==
+                    purchasedHistoryItem.productId));
+      } catch (err) {
+        DLog.e('err1 : ${err.toString()}');
       }
-
-      AppGlobal().isAlreadyPromotionProductPayUser = purchasedHistoryItemList!
-          .any((purchasedHistoryItem) => promotionProductList.any(
-              (promotionProduct) =>
-                  promotionProduct.productId ==
-                  purchasedHistoryItem.productId));
     } else if (Platform.isAndroid) {
       // 추후 추가 예정
       /*var channel = const MethodChannel(Const.METHOD_CHANNEL_NAME);
@@ -406,14 +407,9 @@ class IntroState extends State<IntroWidget>
         Navigator.pushReplacementNamed(context, '/base',
             result: MaterialPageRoute(builder: (context) => const BasePage()));
       } else {
-        Navigator.pushReplacement(
+        Navigator.pushReplacementNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) => const IntroStartPage(),
-            settings: const RouteSettings(
-              name: '/intro_start',
-            ),
-          ),
+          IntroStartPage.routeName,
         );
       }
     }
@@ -463,7 +459,8 @@ class IntroState extends State<IntroWidget>
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+                            textScaler:
+                                TextScaler.linear(Const.TEXT_SCALE_FACTOR),
                           ),
                         ),
                       ),

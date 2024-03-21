@@ -12,7 +12,11 @@ import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 class UserInfoProvider extends ChangeNotifier {
   final String tag = '[* UserInfoProvider *]';
 
-  User04 _user04 = defUser04;
+  User04 _user04 = const User04();
+
+  void clearUser04(){
+    _user04 = const User04();
+  }
 
   bool isPremiumUser() {
     if (_user04.accountData.prodCode == 'AC_PR') {
@@ -31,15 +35,16 @@ class UserInfoProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> init() async {
+  Future<User04> init() async {
     User04 getUser04 = await _fetchPosts(
         TR.USER04,
         jsonEncode(<String, String>{
           'userId': AppGlobal().userId,
         }));
     _user04 = getUser04;
+    await _user04.accountData.initUserStatus();
     //notifyListeners();
-    return await _user04.accountData.initUserStatus();
+    return _user04;
   }
 
   Future<bool> updatePayment() async {

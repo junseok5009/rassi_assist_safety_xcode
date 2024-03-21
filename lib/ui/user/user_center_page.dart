@@ -534,7 +534,7 @@ class UserCenterState extends State<UserCenterWidget> {
                         child: Text(
                           '확인',
                           style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          
                         ),
                       ),
                     ),

@@ -664,7 +664,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
                   ),
                   Text(
                     message,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -683,7 +683,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
                           child: Text(
                             btnText,
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

@@ -888,7 +888,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                   '안내',
                   style: TStyle.title20,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -897,7 +897,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                   desc,
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,

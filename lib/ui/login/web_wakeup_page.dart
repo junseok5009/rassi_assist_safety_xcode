@@ -11,23 +11,29 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 /// 2022.01.06
 /// 휴면회원 해제 페이지 연결
 class WebWakeupPage extends StatelessWidget {
   static const routeName = '/page_web_wakeup';
   static const String TAG = "[WebWakeupPage] ";
+
   // static const String TAG_NAME = "";
 
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: Scaffold(
-        appBar: AppBar(toolbarHeight: 0,
-          backgroundColor: RColor.deepStat, elevation: 0,),
+        appBar: AppBar(
+          toolbarHeight: 0,
+          backgroundColor: RColor.deepStat,
+          elevation: 0,
+        ),
         body: WebWakeupWidget(),
-      ),);
+      ),
+    );
   }
 }
 
@@ -61,7 +67,6 @@ class WebWakeupState extends State<WebWakeupWidget> {
         allowsInlineMediaPlayback: true,
       ));
 
-
   @override
   void initState() {
     super.initState();
@@ -83,8 +88,8 @@ class WebWakeupState extends State<WebWakeupWidget> {
     _stockCode = args.stockCode;
 
     //리턴되는 페이지 형식
-    if(_stockCode.length > 1)
-      _rtUrl =  Net.THINK_COMMUNITY_STK + _stockCode;
+    if (_stockCode.length > 1)
+      _rtUrl = Net.THINK_COMMUNITY_STK + _stockCode;
     else
       _rtUrl = Net.THINK_COMMUNITY;
     DLog.d(WebWakeupPage.TAG, Uri.encodeComponent(_rtUrl));
@@ -114,14 +119,12 @@ class WebWakeupState extends State<WebWakeupWidget> {
                 url: Uri.parse(Net.THINK_COMMUNITY_AJAX),
                 method: 'POST',
                 body: Uint8List.fromList(utf8.encode(_postData)),
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded'
-                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
               ),
               onWebViewCreated: (controller) {
                 _webViewController = controller;
               },
-              onProgressChanged: (controller, progress){
+              onProgressChanged: (controller, progress) {
                 setState(() {
                   _progress = progress / 100;
                 });
@@ -146,17 +149,20 @@ class WebWakeupState extends State<WebWakeupWidget> {
         height: Const.HEIGHT_APP_BAR,
         decoration: const BoxDecoration(
           color: Colors.white,
-          border: Border(
-              bottom: BorderSide(color: RColor.lineGrey, width: 1)),
+          border: Border(bottom: BorderSide(color: RColor.lineGrey, width: 1)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
-                const SizedBox(width: 7,),
+                const SizedBox(
+                  width: 7,
+                ),
                 IconButton(
-                  icon: Icon(Icons.arrow_back_ios, ),
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                  ),
                   onPressed: () => _webViewController?.goBack(),
                 ),
                 // IconButton(
@@ -166,10 +172,15 @@ class WebWakeupState extends State<WebWakeupWidget> {
                 // ),
               ],
             ),
-            Text('라씨 매매비서', style: TStyle.title20,),
+            Text(
+              '라씨 매매비서',
+              style: TStyle.title20,
+            ),
             // const SizedBox(width: 7,),
             IconButton(
-              icon: Icon(Icons.close, ),
+              icon: Icon(
+                Icons.close,
+              ),
               onPressed: () => Navigator.of(context).pop(null),
             ),
           ],

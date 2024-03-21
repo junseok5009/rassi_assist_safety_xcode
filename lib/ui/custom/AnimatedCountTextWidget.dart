@@ -4,7 +4,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 class AnimatedCountTextWidget extends ImplicitlyAnimatedWidget {
   const AnimatedCountTextWidget({
     Key? key,
-    this.count=0,
+    this.count = 0,
     this.textStyle,
     Duration duration = const Duration(milliseconds: 400),
     Curve curve = Curves.fastOutSlowIn,
@@ -21,7 +21,7 @@ class AnimatedCountTextWidget extends ImplicitlyAnimatedWidget {
 
 class _AnimatedCountState
     extends AnimatedWidgetBaseState<AnimatedCountTextWidget> {
-  Tween<double> _doubleCount = Tween<double>();
+  Tween<double> _doubleCount = Tween<double>(begin: 0.0, end: 0.0);
 
   @override
   Widget build(BuildContext context) {

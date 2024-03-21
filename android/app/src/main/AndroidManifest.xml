@@ -41,12 +41,6 @@
         <package android:name="kr.co.shiftworks.vguardweb"/><!-- v guard -->
         <package android:name="com.nhn.android.search"/><!-- 네이버 -->
         <package android:name="com.kakao.talk"/><!-- 카카오 -->
-
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="https" />
-        </intent>
     </queries>
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
@@ -100,14 +94,16 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="FLUTTER_NOTIFICATION_CLICK" />
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:host="rassiassist.page.link"
-                      android:scheme="https" />
+                <data android:scheme="http"/>
+                <data android:scheme="https"/>
+                <data android:host="rassiassist.page.link" android:scheme="https" />
             </intent-filter>
+
         </activity>
 
         <activity
@@ -120,6 +116,7 @@
 
                 <!-- Redirect URI, "kakao${YOUR_NATIVE_APP_KEY}://oauth" 형식 -->
                 <data android:scheme="kakao9581feb9ceb27a4206e30b1d02ed446f" android:host="oauth"/>
+                <data android:host="rassiassist.page.link" android:scheme="https" />
             </intent-filter>
         </activity>
 

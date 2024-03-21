@@ -6,6 +6,7 @@ import 'package:rassi_assist/common/d_log.dart';
 /// https://dart.academy/creational-design-patterns-for-dart-and-flutter-singleton/
 class AppGlobal {
   static AppGlobal? _instance;
+
   factory AppGlobal() => _instance ?? AppGlobal._internal();
 
   //명명된 생성자 (private 으로 명명된 생성자)
@@ -24,6 +25,9 @@ class AppGlobal {
   // 24.02.06 (Only IOS) 프로모션 결제를 한 적이 있는 유저 유무
   //List<String> purchaseHistoryList = [];
   bool isAlreadyPromotionProductPayUser = false;
+
+  // 링크 타고 들어왔을 경우 여기에 넣어두어야 함
+  PendingDynamicLinkData? pendingDynamicLinkData;
 
   //종목홈 일시적 전달 데이터
   String stkCode = '';
@@ -60,9 +64,6 @@ class AppGlobal {
 
   // 태블릿(큰 디스플레이)인지 구분
   bool isTablet = false;
-
-  // 링크 타고 들어왔을 경우 여기에 넣어두어야 함
-  PendingDynamicLinkData? pendingDynamicLinkData;
 
   setLogoutStatus() {
     userId = '';

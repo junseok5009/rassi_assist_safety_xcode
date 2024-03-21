@@ -7,18 +7,16 @@ class TrSignal08 {
   final String retMsg;
   final Signal08 retData;
 
-  TrSignal08({this.retCode = '', this.retMsg = '', this.retData = defSignal08});
+  TrSignal08({this.retCode = '', this.retMsg = '', this.retData = const Signal08()});
 
   factory TrSignal08.fromJson(Map<String, dynamic> json) {
     return TrSignal08(
         retCode: json['retCode'],
         retMsg: json['retMsg'],
-        retData: json['retData'] == null ? defSignal08 : Signal08.fromJson(json['retData'])
+        retData: json['retData'] == null ? const Signal08() : Signal08.fromJson(json['retData'])
     );
   }
 }
-
-const defSignal08 = Signal08();
 
 class Signal08 {
   final String beginYear;

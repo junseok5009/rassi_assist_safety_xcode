@@ -168,7 +168,7 @@ class KeywordDetailState extends State<KeywordDetailWidget> {
   Widget _setSubTitle(String subTitle) {
     return Padding(
       padding: const EdgeInsets.only(top: 20, left: 10, right: 5),
-      child: Text(subTitle, style: TStyle.commonTitle, textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+      child: Text(subTitle, style: TStyle.commonTitle, ),
     );
   }
 
@@ -195,10 +195,10 @@ class KeywordDetailState extends State<KeywordDetailWidget> {
                     height: 60, fit: BoxFit.contain,),
                   const SizedBox(height: 25.0,),
                   const Text('종목 키워드', style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                    ),
                   const SizedBox(height: 20.0,),
                   const Text(RString.desc_stock_keyword, style: TStyle.defaultContent,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                    ),
                 ],
               ),
             ),
@@ -239,11 +239,11 @@ class KeywordDetailState extends State<KeywordDetailWidget> {
                   const Padding(
                     padding: EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text('안내', style: TStyle.commonTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                      ),
                   ),
                   const SizedBox(height: 25.0,),
                   const Text(RString.err_network, textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                    ),
                   const SizedBox(height: 30.0,),
                   InkWell(
                     child: Container(
@@ -254,7 +254,7 @@ class KeywordDetailState extends State<KeywordDetailWidget> {
                         child: Text(
                           '확인',
                           style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          
                         ),
                       ),
                     ),

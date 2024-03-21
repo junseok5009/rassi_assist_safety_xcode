@@ -2631,7 +2631,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                   const Text(
                     RString.err_network,
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -2646,7 +2646,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

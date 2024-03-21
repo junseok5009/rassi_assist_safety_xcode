@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 /// 24.02.20 HJS
 /// Syncfusion Custom Renderer Box
-class CustomBoxShadowWidget extends BoxShadow {
+class CustomBoxShadow extends BoxShadow {
 
   //final BlurStyle blurStyle = BlurStyle.outer;
 
-  const CustomBoxShadowWidget({
+  const CustomBoxShadow({
     super.color,
     super.offset,
     super.blurRadius,

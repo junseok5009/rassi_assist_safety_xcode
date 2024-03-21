@@ -275,7 +275,7 @@ class NotiListState extends State<NotiListWidget> {
                   const Text(
                     '나의 종목 알림',
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -299,7 +299,7 @@ class NotiListState extends State<NotiListWidget> {
                   const Text(
                     '종목 캐치 알림',
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -319,7 +319,7 @@ class NotiListState extends State<NotiListWidget> {
                   const Text(
                     '라씨 소식 알림',
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -347,7 +347,7 @@ class NotiListState extends State<NotiListWidget> {
       child: Text(
         '    $menu',
         style: TStyle.content15,
-        textScaleFactor: Const.TEXT_SCALE_FACTOR,
+        
       ),
       onTap: () {
         setState(() {

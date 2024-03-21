@@ -670,7 +670,6 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
 
   void _parseTrData(String trStr, final http.Response response) {
     DLog.w(trStr + response.body);
-    DLog.d('d', response.body);
 
     if (trStr == TR.POCK10) {
       final TrPock10 resData = TrPock10.fromJson(jsonDecode(response.body));

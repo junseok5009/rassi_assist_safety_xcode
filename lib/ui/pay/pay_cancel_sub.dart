@@ -325,9 +325,9 @@ class PaySubCancelState extends State<PaySubCancelWidget> {
                   const SizedBox(height: 15.0,),
                   const Text('해지 안내',
                     style: TStyle.title20,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                    ),
                   const SizedBox(height: 30.0,),
-                  Text('$message', textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                  Text('$message', ),
                   const SizedBox(height: 30.0,),
                   MaterialButton(
                     child: Center(
@@ -341,7 +341,7 @@ class PaySubCancelState extends State<PaySubCancelWidget> {
                         ),
                         child: Center(
                           child: Text(btnText, style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,),),
+                            ),),
                       ),
                     ),
                     onPressed: (){

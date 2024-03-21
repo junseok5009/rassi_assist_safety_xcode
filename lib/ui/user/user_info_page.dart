@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:http/http.dart' as http;
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
@@ -18,6 +19,7 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
 import 'package:rassi_assist/models/tr_user/tr_user04.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/login/intro_start_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -113,7 +115,8 @@ class UserInfoState extends State<UserInfoPage> {
 
             _setSubTitle("아이디"),
             Padding(
-              padding: const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
+              padding: const EdgeInsets.only(
+                  left: 15, right: 10, top: 10, bottom: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -191,8 +194,10 @@ class UserInfoState extends State<UserInfoPage> {
                             //변경중
                             if (_isChPass) {
                               String chPass = _passController.text.trim();
-                              if (_isPwCheck(chPass) || _passController.text.trim().length < 6) {
-                                _showDialogMsg(RString.join_err_pw_rule); //6~12자리 영문, 숫자만 가능
+                              if (_isPwCheck(chPass) ||
+                                  _passController.text.trim().length < 6) {
+                                _showDialogMsg(RString
+                                    .join_err_pw_rule); //6~12자리 영문, 숫자만 가능
                               } else {
                                 DLog.d('Pass Ch -> ', chPass);
                                 _requestChPass(chPass);
@@ -301,7 +306,8 @@ class UserInfoState extends State<UserInfoPage> {
                       onPressed: () {
                         String strNum = _certController.text.trim();
                         if (strNum.length > 4) {
-                          _requestCertConfirm(_phoneController.text.trim(), strNum);
+                          _requestCertConfirm(
+                              _phoneController.text.trim(), strNum);
                         } else {
                           _showDialogMsg('인증번호를 입력해주세요');
                         }
@@ -321,7 +327,8 @@ class UserInfoState extends State<UserInfoPage> {
             //나의 추천인
             _setSubTitle("나의 추천인"),
             Padding(
-              padding: const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
+              padding: const EdgeInsets.only(
+                  left: 15, right: 10, top: 10, bottom: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -354,7 +361,8 @@ class UserInfoState extends State<UserInfoPage> {
             //회원 탈퇴
             _setSubTitle("회원탈퇴"),
             Padding(
-              padding: const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
+              padding: const EdgeInsets.only(
+                  left: 15, right: 10, top: 10, bottom: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -517,7 +525,7 @@ class UserInfoState extends State<UserInfoPage> {
   Future<void> _setLogoutStatus() async {
     _prefs ??= await SharedPreferences.getInstance();
     AppGlobal().setLogoutStatus();
-
+    Provider.of<UserInfoProvider>(context, listen: false).clearUser04();
     if (_userId.length > 3) {
       String checkLoginDiv = _userId.substring(_userId.length - 3);
       switch (checkLoginDiv) {
@@ -539,8 +547,9 @@ class UserInfoState extends State<UserInfoPage> {
     }
 
     await _prefs.setString(Const.PREFS_USER_ID, '');
-    if (context.mounted) {
-      makeRoutePage(context: context, desPage: const IntroStartPage());
+    if (mounted) {
+      Navigator.pushNamedAndRemoveUntil(
+          context, IntroStartPage.routeName, (route) => false);
     }
 
     if (Platform.isAndroid) {
@@ -564,15 +573,6 @@ class UserInfoState extends State<UserInfoPage> {
   Future<void> naverLogout() async {
     DLog.d(UserInfoPage.TAG, 'naverLogout()');
     await FlutterNaverLogin.logOutAndDeleteToken();
-  }
-
-  //로그아웃 페이지 이동
-  void makeRoutePage({required BuildContext context, required Widget desPage}) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => desPage),
-      (route) => false,
-    );
   }
 
   //회원탈퇴 확인
@@ -681,7 +681,6 @@ class UserInfoState extends State<UserInfoPage> {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 5),
-
                   _setSubTitle('알림'),
                   const SizedBox(height: 25),
                   Text(
@@ -844,7 +843,8 @@ class UserInfoState extends State<UserInfoPage> {
   _requestAppClose() {
     DLog.d(UserInfoPage.TAG, '회원탈퇴 처리');
 
-    String strParam = "userid=${Net.getEncrypt(_userId)}&memo=RassiAssistDismiss";
+    String strParam =
+        "userid=${Net.getEncrypt(_userId)}&memo=RassiAssistDismiss";
     _requestThink('close', strParam);
 
     _fetchPosts(
@@ -877,7 +877,8 @@ class UserInfoState extends State<UserInfoPage> {
     }
 
     var urls = Uri.parse(url);
-    final http.Response response = await http.post(urls, headers: Net.think_headers, body: param);
+    final http.Response response =
+        await http.post(urls, headers: Net.think_headers, body: param);
 
     DLog.d(UserInfoPage.TAG, '${response.statusCode}');
     DLog.d(UserInfoPage.TAG, response.body);

@@ -704,10 +704,10 @@ class SignalBoardState extends State<SignalBoardWidget> {
                   height: 60, fit: BoxFit.contain,),
                 const SizedBox(height: 25.0,),
                 const Text('안내', style: TStyle.title20, textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                  ),
                 const SizedBox(height: 30.0,),
                 Text(desc, style: TStyle.defaultContent,
-                  textAlign: TextAlign.center, textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                  textAlign: TextAlign.center, ),
                 const SizedBox(height: 30.0,),
               ],
             ),
@@ -743,14 +743,14 @@ class SignalBoardState extends State<SignalBoardWidget> {
                 Image.asset('images/rassibs_img_infomation.png',
                   height: 60, fit: BoxFit.contain,),
                 const SizedBox(height: 25.0,),
-                const Text('안내', style: TStyle.title20, textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                const Text('안내', style: TStyle.title20, ),
                 const SizedBox(height: 30.0,),
 
                 const Text('매매비서 프리미엄에서 이용할 수 있는 정보입니다.',
-                  textAlign: TextAlign.center, textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                  textAlign: TextAlign.center, ),
                 const SizedBox(height: 25.0,),
                 const Text('프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
-                  textAlign: TextAlign.center, textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                  textAlign: TextAlign.center, ),
                 const SizedBox(height: 25.0,),
 
                 MaterialButton(
@@ -764,7 +764,7 @@ class SignalBoardState extends State<SignalBoardWidget> {
                       ),
                       child: const Center(
                         child: Text('프리미엄 가입하기', style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,),),
+                          ),),
                     ),
                   ),
                   onPressed: (){
@@ -841,11 +841,11 @@ class SignalBoardState extends State<SignalBoardWidget> {
                   const Padding(
                     padding: EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text('안내', style: TStyle.commonTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                      ),
                   ),
                   const SizedBox(height: 25.0,),
                   const Text(RString.err_network, textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,),
+                    ),
                   const SizedBox(height: 30.0,),
                   MaterialButton(
                     child: Center(
@@ -855,7 +855,7 @@ class SignalBoardState extends State<SignalBoardWidget> {
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
                           child: Text('확인', style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,),),
+                            ),),
                       ),
                     ),
                     onPressed: (){

@@ -284,7 +284,7 @@ class TileSignalAnal extends StatelessWidget {
                   aType,
                   style: TStyle.title20,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -292,7 +292,7 @@ class TileSignalAnal extends StatelessWidget {
                 Text(
                   desc,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -351,7 +351,7 @@ class TileSignalAnal extends StatelessWidget {
                         child: Text(
                           btnText,
                           style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          
                         ),
                       ),
                     ),

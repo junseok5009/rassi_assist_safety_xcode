@@ -1,14 +1,19 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/custom/AnimatedCountTextWidget.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../common/const.dart';
 import '../../../common/tstyle.dart';
 import '../../../common/ui_style.dart';
+import '../../../models/none_tr/chart_data.dart';
 import '../../../models/none_tr/stock/stock.dart';
 import '../../../models/pg_data.dart';
 import '../../../models/tr_pock/tr_pock10.dart';
@@ -31,171 +36,204 @@ class TileUpAndDown extends StatefulWidget {
 }
 
 class _TileUpAndDownState extends State<TileUpAndDown> {
+  bool _isChartVisible = false;
+  Color _chartColor = RColor.greyMore_999999;
+  ChartSeriesController? _chartController;
+  double _animationDuration = 0;
+
   @override
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
+
+      DLog.e('setState _chartController == null ? ${_chartController == null} / _animationDuration : ${_animationDuration}');
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _chartController?.animate();
+      });
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    int compareTradePrc = widget.item.listChart.first.tradePrc
+        .compareTo(widget.item.listChart.last.tradePrc);
+    _chartColor = compareTradePrc > 0
+        ? RColor.bgSell
+        : compareTradePrc < 0
+            ? RColor.bgBuy
+            : RColor.greyMore_999999;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 83,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 13,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //포켓명
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    decoration: UIStyle.boxRoundFullColor25c(
-                      const Color(0xffDCDFE2),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 3,
-                    ),
-                    child: Text(
-                      widget.item.pocketName,
-                      style: const TextStyle(
-                        fontSize: 11,
+    return VisibilityDetector(
+      key: ValueKey(widget.item.stockCode),
+      onVisibilityChanged: (visibilityInfo) {
+
+        if (!_isChartVisible && visibilityInfo.visibleFraction > 0.5) {
+          _isChartVisible = true;
+          if(_animationDuration != 1000) {
+            setState(() {
+              _animationDuration = 1000;
+            });
+          }else{
+            _chartController?.animate();
+          }
+          //DLog.e('animate ! _chartController : ${_chartController == null} / ${_chartController.seriesRenderer.}');
+        }
+        if (_isChartVisible && visibilityInfo.visibleFraction < 0.1) {
+          _isChartVisible = false;
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        height: 83,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 13,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //포켓명
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      decoration: UIStyle.boxRoundFullColor25c(
+                        const Color(0xffDCDFE2),
                       ),
-                      textAlign: TextAlign.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
+                      child: Text(
+                        widget.item.pocketName,
+                        style: const TextStyle(
+                          fontSize: 11,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  //종목명
+                  Expanded(
+                    child: Text(
+                      widget.item.stockName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                //종목명
-                Expanded(
-                  child: Text(
-                    widget.item.stockName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
+                ],
+              ),
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  //등락률
+                  Text(
+                    TStyle.getPercentString(
+                      widget.item.fluctuationRate,
+                    ),
+                    style: TextStyle(
                       fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: TStyle.getMinusPlusColor(
+                        widget.item.fluctuationRate,
+                      ),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            width: 5,
-          ),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                //등락률
-                Text(
-                  TStyle.getPercentString(
-                    widget.item.fluctuationRate,
-                  ),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: TStyle.getMinusPlusColor(
-                      widget.item.fluctuationRate,
+                  AnimatedCountTextWidget(
+                    count: _isChartVisible ? double.parse(widget.item.fluctuationRate,) : 0,
+                    duration: const Duration(
+                      milliseconds: 1000,
+                    ),
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: TStyle.getMinusPlusColor(
+                        widget.item.fluctuationRate,
+                      ),
                     ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(
-            width: 5,
-          ),
-          _setChartView(),
-        ],
+            const SizedBox(
+              width: 5,
+            ),
+            _setChartView(),
+          ],
+        ),
       ),
     );
   }
 
   Widget _setChartView() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
+        SizedBox(
           width: 90,
-          height: 40,
-          //color: Colors.yellow,
-          alignment: Alignment.center,
-          child: LineChart(
-            LineChartData(
-              lineTouchData: LineTouchData(
-                enabled: false,
-              ),
-              extraLinesData: ExtraLinesData(horizontalLines: [
-                HorizontalLine(
-                  y: widget.chartItem.chartMarkLineYAxis - 0.000001,
-                  //color: Colors.black.withOpacity(0.8),
-                  strokeWidth: 1.5,
-                  dashArray: [5, 2],
-                ),
-              ]),
-              lineBarsData: [
-                LineChartBarData(
-                  color: widget.chartItem.chartLineColor,
-                  spots: widget.chartItem.listChartData,
-                  isCurved: true,
-                  isStrokeCapRound: true,
-                  barWidth: 1.5,
-                  belowBarData: BarAreaData(
-                    show: false,
-                  ),
-                  dotData: FlDotData(show: false),
+          height: 42,
+          child: SfCartesianChart(
+            plotAreaBorderWidth: 0,
+            margin: const EdgeInsets.all(1),
+            primaryXAxis: CategoryAxis(
+              isVisible: false,
+              rangePadding: ChartRangePadding.none,
+              labelPlacement: LabelPlacement.onTicks,
+            ),
+            primaryYAxis: NumericAxis(
+              isVisible: false,
+              rangePadding: ChartRangePadding.none,
+              edgeLabelPlacement: EdgeLabelPlacement.hide,
+              plotOffset: 1,
+              plotBands: [
+                PlotBand(
+                  isVisible: true,
+                  start: int.parse(widget.item.listChart[0].tradePrc),
+                  end: int.parse(widget.item.listChart[0].tradePrc),
+                  borderColor: Colors.black,
+                  borderWidth: 1.4,
+                  dashArray: const [3, 4],
+                  shouldRenderAboveSeries: true,
                 ),
               ],
-              minY: widget.chartItem.chartYAxisMin,
-              //maxY: 10,
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: false,
-                  ),
-                ),
-                rightTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: false,
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: false,
-                  ),
-                ),
-                topTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: false,
-                  ),
-                ),
-              ),
-              gridData: FlGridData(
-                show: false,
-              ),
-              borderData: FlBorderData(show: false),
             ),
-            swapAnimationDuration: const Duration(milliseconds: 180),
-            swapAnimationCurve: Curves.fastLinearToSlowEaseIn,
-            //swapAnimationCurve: Curves.linear, // Optional
+            series: [
+              SplineSeries<ChartData, String>(
+                dataSource: widget.item.listChart,
+                xValueMapper: (item, index) => item.tradeDate,
+                yValueMapper: (item, index) => int.parse(item.tradePrc),
+                color: _chartColor,
+                width: 1.4,
+                enableTooltip: false,
+                animationDelay: 0,
+                animationDuration: _animationDuration,
+                onRendererCreated: (controller) => _chartController = controller,
+              ),
+            ],
           ),
         ),
         Text(
@@ -208,6 +246,38 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
         ),
       ],
     );
+  }
+
+  double get _findMaxTp {
+    if (widget.item.listChart.isEmpty) {
+      return 0;
+    } else if (widget.item.listChart.length == 1) {
+      return double.parse(widget.item.listChart[0].tradePrc);
+    } else {
+      var item = widget.item.listChart.reduce(
+        (curr, next) =>
+            double.parse(curr.tradePrc) > double.parse(next.tradePrc)
+                ? curr
+                : next,
+      );
+      return double.parse(item.tradePrc);
+    }
+  }
+
+  double get _findMinTp {
+    if (widget.item.listChart.isEmpty) {
+      return 0;
+    } else if (widget.item.listChart.length == 1) {
+      return double.parse(widget.item.listChart[0].tradePrc);
+    } else {
+      var item = widget.item.listChart.reduce(
+        (curr, next) =>
+            double.parse(curr.tradePrc) > double.parse(next.tradePrc)
+                ? next
+                : curr,
+      );
+      return double.parse(item.tradePrc);
+    }
   }
 }
 

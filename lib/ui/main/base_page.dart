@@ -15,10 +15,12 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
+import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/inapp_webview_page.dart';
+import 'package:rassi_assist/ui/login/agent/agent_welcome_page.dart';
 import 'package:rassi_assist/ui/main/my_page.dart';
 import 'package:rassi_assist/ui/main/notification_page.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
@@ -38,7 +40,7 @@ import '../stock_home/stock_home_tab.dart';
 
 //하단 메인 네비게이션 구성
 class BasePage extends StatefulWidget {
-  static const routeName = '/page_base';
+  static const routeName = '/base';
   static const String TAG = "[BasePage]";
 
   const BasePage({Key? key}) : super(key: key);
@@ -92,9 +94,11 @@ class BasePageState extends State<BasePage> {
     });
 
     // ===== 앱이 종료된 상태에서 열릴때
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message){
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
       debugPrint('onBackgroundOpen =====>');
-      if(message != null) {
+      if (message != null) {
         Map<String, dynamic> msgData = message.data;
         if (msgData != null) {
           debugPrint('onBackgroundOpen : ${msgData.toString()}');
@@ -128,15 +132,31 @@ class BasePageState extends State<BasePage> {
     }
 
     // 23.12.01 포켓 프로바이더 데이터 셋팅
-    Provider.of<UserInfoProvider>(context, listen: false).init();
+
     Provider.of<PocketProvider>(context, listen: false).setList();
     Provider.of<SignalProvider>(context, listen: false).setList();
+    _userInfoProviderInit().then((user04) {
+      if (user04.accountData.isWelcomeCheck == 'N') {
+        Navigator.push(
+          context,
+          CustomNvRouteClass.createRouteName(
+            instance: const AgentWelcomePage(),
+            routeName: AgentWelcomePage.routeName,
+          ),
+        );
+      }
+    });
     //SchedulerBinding.instance.addPostFrameCallback((_) => Provider.of<PurchaseHistoryProvider>(context, listen: false).init());
+  }
+
+  Future<User04> _userInfoProviderInit() async {
+    return await Provider.of<UserInfoProvider>(context, listen: false).init();
   }
 
   //시작시 포그라운드 푸시 받기 설정
   void _setFcmForeground() async {
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
@@ -154,8 +174,9 @@ class BasePageState extends State<BasePage> {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: WillPopScope(
         onWillPop: _onWillPop,
         child: _setLayout(),
@@ -166,7 +187,8 @@ class BasePageState extends State<BasePage> {
   //뒤로가기 2번 종료 (IOS 에서는 필요없고 android 에서만 필요)
   Future<bool> _onWillPop() {
     DateTime now = DateTime.now();
-    if (currentPressTime == null || now.difference(currentPressTime ?? now) > const Duration(seconds: 2)) {
+    if (currentPressTime == null ||
+        now.difference(currentPressTime ?? now) > const Duration(seconds: 2)) {
       currentPressTime = now;
       commonShowToast('한번 더 뒤로가기를 누르면 앱이 종료됩니다.');
       return Future.value(false);
@@ -306,12 +328,14 @@ class BasePageState extends State<BasePage> {
                           ? 3
                           : 0;
           if (SliverHomeWidget.globalKey.currentState == null) {
-            Provider.of<PageNotifier>(context, listen: false).setPageData(pageIndex);
+            Provider.of<PageNotifier>(context, listen: false)
+                .setPageData(pageIndex);
             setState(() {
               _selectedIndex = 0;
             });
           } else {
-            DefaultTabController.of(SliverHomeWidget.globalKey.currentContext!).animateTo(pageIndex);
+            DefaultTabController.of(SliverHomeWidget.globalKey.currentContext!)
+                .animateTo(pageIndex);
           }
           break;
         }
@@ -321,7 +345,9 @@ class BasePageState extends State<BasePage> {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           // 프리미엄 회원인지 아닌지 체크
           String? userCurProd0 = prefs.getString(Const.PREFS_CUR_PROD);
-          if (userCurProd0!.isNotEmpty && userCurProd0.toUpperCase().contains('AC_PR') && context.mounted) {
+          if (userCurProd0!.isNotEmpty &&
+              userCurProd0.toUpperCase().contains('AC_PR') &&
+              context.mounted) {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -341,7 +367,9 @@ class BasePageState extends State<BasePage> {
                 _selectedIndex = 0;
               });
             } else {
-              DefaultTabController.of(SliverHomeWidget.globalKey.currentContext!).animateTo(1);
+              DefaultTabController.of(
+                      SliverHomeWidget.globalKey.currentContext!)
+                  .animateTo(1);
             }
           }
           break;
@@ -445,7 +473,8 @@ class BasePageState extends State<BasePage> {
       // [조건별_매수후급]
       case LD.condition_cur_b:
         {
-          basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: 'CUR_B'));
+          basePageState.callPageRouteData(
+              const SignalMTopPage(), PgData(pgData: 'CUR_B'));
           break;
         }
       // [계정결제_프리미엄]
@@ -454,7 +483,8 @@ class BasePageState extends State<BasePage> {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           // 프리미엄 회원인지 아닌지 체크
           String? userCurProd = prefs.getString(Const.PREFS_CUR_PROD);
-          if (userCurProd!.isNotEmpty && userCurProd.toUpperCase().contains('AC_PR')) {
+          if (userCurProd!.isNotEmpty &&
+              userCurProd.toUpperCase().contains('AC_PR')) {
             if (SliverHomeWidget.globalKey.currentState != null) {
               SliverHomeWidget.globalKey.currentState?.navigateRefreshPay();
             } else {
@@ -475,7 +505,8 @@ class BasePageState extends State<BasePage> {
       case 'LPQ9':
         {
           if (SliverHomeWidget.globalKey.currentState != null) {
-            SliverHomeWidget.globalKey.currentState?.navigateRefreshPayPromotion(
+            SliverHomeWidget.globalKey.currentState
+                ?.navigateRefreshPayPromotion(
               PromotionPage(
                 promotionCode: landingCode,
               ),
@@ -516,7 +547,8 @@ class BasePageState extends State<BasePage> {
   }
 
   //종목홈 안떠있으면 닫지 않고 열기, 종목홈 떠있으면 닫고 종목홈 갱신시키기
-  goStockHomePageCheck(BuildContext pageBuildContext, String stockCode, String stockName, int pageIdx) {
+  goStockHomePageCheck(BuildContext pageBuildContext, String stockCode,
+      String stockName, int pageIdx) {
     appGlobal.stkCode = stockCode;
     appGlobal.stkName = stockName;
     appGlobal.tabIndex = pageIdx;
@@ -534,7 +566,8 @@ class BasePageState extends State<BasePage> {
   }
 
   //종목홈으로 이동 or 갱신
-  Future<String?> goStockHomePage(String stockCode, String stockName, int pageIdx) async {
+  Future<String?> goStockHomePage(
+      String stockCode, String stockName, int pageIdx) async {
     appGlobal.stkCode = stockCode;
     appGlobal.stkName = stockName;
     appGlobal.tabIndex = pageIdx;
@@ -553,7 +586,8 @@ class BasePageState extends State<BasePage> {
   }
 
   //포켓탭으로 이동
-  goPocketPage(int tabIndex, {int todayIndex = 0, String pktSn = '', bool isSignalInfo = false}) {
+  goPocketPage(int tabIndex,
+      {int todayIndex = 0, String pktSn = '', bool isSignalInfo = false}) {
     appGlobal.isSignalInfo = isSignalInfo;
     if (tabIndex == Const.PKT_INDEX_TODAY) {
       appGlobal.pocketTodayIndex = todayIndex;
@@ -651,7 +685,8 @@ class BasePageState extends State<BasePage> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -670,7 +705,8 @@ class BasePageState extends State<BasePage> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(
           position: offsetAnimation,

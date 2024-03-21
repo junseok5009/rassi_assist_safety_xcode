@@ -707,7 +707,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                     '나만의 매도 신호 수정',
                     style: TStyle.title18T,
                     textAlign: TextAlign.center,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 20.0,
@@ -728,7 +728,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                             style: TextStyle(
                               color: Colors.white,
                             ),
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),
@@ -753,7 +753,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                             style: TextStyle(
                               color: Colors.white,
                             ),
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

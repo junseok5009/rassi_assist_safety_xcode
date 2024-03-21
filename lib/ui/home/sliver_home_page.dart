@@ -499,7 +499,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                 const Text(
                   '안내',
                   style: TStyle.title20,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -508,7 +508,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                   '베이직 계정에서는 3종목까지\n추가가 가능합니다.',
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -516,7 +516,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                 const Text(
                   '종목추가와 포켓을 마음껏 이용할 수 있는\n프리미엄 계정으로 업그레이드 해보세요.',
                   textAlign: TextAlign.center,
-                  textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -534,7 +534,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                         child: Text(
                           '프리미엄 가입하기',
                           style: TStyle.btnTextWht15,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          
                         ),
                       ),
                     ),
@@ -847,7 +847,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                         child: Text(
                           prItem.title,
                           style: TStyle.defaultTitle,
-                          textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                          
                         ),
                       ),
                       const SizedBox(
@@ -898,7 +898,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                               child: Text(
                                 prItem.buttonTxt,
                                 style: TStyle.btnTextWht16,
-                                textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                                
                               ),
                             ),
                           ),
@@ -1029,7 +1029,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                   Text(
                     title,
                     style: TStyle.defaultTitle,
-                    textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                    
                   ),
                   const SizedBox(
                     height: 15.0,
@@ -1067,7 +1067,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                           child: Text(
                             btnText,
                             style: TStyle.btnTextWht16,
-                            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+                            
                           ),
                         ),
                       ),

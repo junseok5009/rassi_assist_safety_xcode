@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 // const 는 컴파일 시점에 상수화 된다. final 은 런타임에 상수화 된다.(생성시 설정 가능)
 class Const {
   static const bool isDebuggable = true; //상용버전[false] / 개발버전[true]
-  // static const BASE = "rassiapp";           //상용 서버
+  //static const BASE = "rassiapp";           //상용 서버
   static const BASE = "rassiappdev"; //개발 서버
   static const APP_VER = '1.2.4'; //빌드 번호 가져오는 방법
   static const VER_CODE = 54;
   static const bool isSkeletonLoader = true;
 
   /// android set
-  static const APP_VER_AOS = '1.2.4'; //안드로이드 버전
-  static const VER_CODE_AOS = 114;
+  static const APP_VER_AOS = '1.2.3001'; //안드로이드 버전
+  static const VER_CODE_AOS = 115;
   static const METHOD_CHANNEL_NAME = 'thinkpool.flutter.dev/channel_method';
   static const METHOD_CHANNEL_PUSH =
       'thinkpool.flutter.dev/channel_method_push';

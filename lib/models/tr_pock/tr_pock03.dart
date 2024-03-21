@@ -89,21 +89,21 @@ class TilePock03 extends StatelessWidget {
           Text(
             pktName,
             style: TStyle.title20,
-            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+            
           ),
           const SizedBox(
             height: 15.0,
           ),
           const Text(
             '종목수',
-            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+            
           ),
           const SizedBox(
             height: 5.0,
           ),
           Text(
             pktCnt,
-            textScaleFactor: Const.TEXT_SCALE_FACTOR,
+            
           ),
         ],
       ),

@@ -29,7 +29,6 @@ class StockHomeHomeTileReportAnalyzeState
   int _divIndex = 0; // 0 : 목표가 / 1 : 발생트렌드 / 2 : 발행증권사
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
-
   initPage() {
     if (_divIndex == 0 &&
         ReportAnalyzeChart1Page.globalKey.currentState != null) {

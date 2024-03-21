@@ -11,9 +11,9 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest01.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest02.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/custom/CustomBoxShadow.dart';
 import 'package:rassi_assist/ui/stock_home/page/trading_trends_by_date_page.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../common/const.dart';
 import '../../../common/net.dart';
@@ -36,8 +36,7 @@ class StockHomeHomeTileTradingTrends extends StatefulWidget {
 }
 
 class StockHomeHomeTileTradingTrendsState
-    extends State<StockHomeHomeTileTradingTrends> with AutomaticKeepAliveClientMixin<StockHomeHomeTileTradingTrends> {
-  bool _wantKeepAlive = false;
+    extends State<StockHomeHomeTileTradingTrends> {
   final AppGlobal _appGlobal = AppGlobal();
 
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 주, true 이면 천주
@@ -58,16 +57,7 @@ class StockHomeHomeTileTradingTrendsState
 
   late TrackballBehavior _sumTrackballBehavior;
   late TrackballBehavior _trendsTrackballBehavior;
-  bool _isChartSumVisible = false;
-  bool _isChartTrendsVisible = false;
 
-  ChartSeriesController? _chartSumLine1Controller;
-  ChartSeriesController? _chartSumLine2Controller;
-  ChartSeriesController? _chartTrendsController;
-
-
-  /*@override
-  bool get wantKeepAlive => true;*/
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -76,9 +66,6 @@ class StockHomeHomeTileTradingTrendsState
     _sumDateClickIndex = 0;
     _requestTrAll();
   }
-
-  @override
-  bool get wantKeepAlive => _wantKeepAlive;
 
   @override
   void initState() {
@@ -97,30 +84,20 @@ class StockHomeHomeTileTradingTrendsState
         height: 0,
       ),
       builder: (BuildContext context, TrackballDetails trackballDetails) {
-        DLog.e('pointIndex : ${trackballDetails.pointIndex} / '
-            'point : ${trackballDetails.point} / '
-            'seriesIndex : ${trackballDetails.seriesIndex} / '
-            'trackballDetails.series?.name : ${trackballDetails.series?.name} /'
-            '\n trackballDetails.groupingModeInfo?.currentPointIndices.toString() : ${trackballDetails.groupingModeInfo?.currentPointIndices.toString()} / '
-            '\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
-            '\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
-            '\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}');
         int index =
             trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
         var item = _sumListData[index];
         return Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withOpacity(0.8),
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 2,
+              CustomBoxShadow(
+                color: Colors.black.withOpacity(0.15),
                 blurRadius: 6,
-                offset: const Offset(0, 0),
-                blurStyle: BlurStyle.outer,
-              )
+                offset: const Offset(2, 2),
+              ),
             ],
           ),
           child: FittedBox(
@@ -234,13 +211,11 @@ class StockHomeHomeTileTradingTrendsState
             color: Colors.white.withOpacity(0.4),
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 2,
+              CustomBoxShadow(
+                color: Colors.black.withOpacity(0.15),
                 blurRadius: 6,
-                offset: const Offset(0, 0),
-                blurStyle: BlurStyle.outer,
-              )
+                offset: const Offset(2, 2),
+              ),
             ],
           ),
           child: FittedBox(
@@ -304,7 +279,6 @@ class StockHomeHomeTileTradingTrendsState
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Column(
       children: [
         Padding(
@@ -595,157 +569,145 @@ class StockHomeHomeTileTradingTrendsState
             ),
           ),
         ),
-        VisibilityDetector(
-          key: const Key('key2'),
-          onVisibilityChanged: (visibilityInfo) {
-            if (!_isChartTrendsVisible && visibilityInfo.visibleFraction > 0.9) {
-              _isChartTrendsVisible = true;
-              _chartTrendsController?.animate();
-            }
-            if (_isChartTrendsVisible && visibilityInfo.visibleFraction == 0) {
-              _isChartTrendsVisible = false;
-            }
-          },
-          child: SizedBox(
-            width: double.infinity,
-            height: 240,
-            child: SfCartesianChart(
-              plotAreaBorderWidth: 0,
-              enableMultiSelection: false,
-              primaryXAxis: CategoryAxis(
-                axisLine: const AxisLine(
-                  width: 1.2,
-                  color: RColor.chartGreyColor,
-                ),
-                majorGridLines: const MajorGridLines(
-                  width: 0,
-                ),
-                majorTickLines: const MajorTickLines(
-                  width: 0,
-                ),
-                desiredIntervals: 4,
-                //labelPlacement: LabelPlacement.onTicks,
-                axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
-                  TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
-                  const TextStyle(
-                    fontSize: 12,
-                    color: RColor.greyBasic_8c8c8c,
-                  ),
-                ),
-                //desiredIntervals: 4,
+        SizedBox(
+          width: double.infinity,
+          height: 240,
+          child: SfCartesianChart(
+            plotAreaBorderWidth: 0,
+            enableMultiSelection: false,
+            primaryXAxis: CategoryAxis(
+              axisLine: const AxisLine(
+                width: 1.2,
+                color: RColor.chartGreyColor,
               ),
-              primaryYAxis: NumericAxis(
-                rangePadding: ChartRangePadding.round,
-                isVisible: false,
-                axisLine: const AxisLine(
-                  width: 0,
-                ),
-                majorGridLines: const MajorGridLines(
-                  width: 0,
-                ),
-                majorTickLines: const MajorTickLines(
-                  width: 0,
+              majorGridLines: const MajorGridLines(
+                width: 0,
+              ),
+              majorTickLines: const MajorTickLines(
+                width: 0,
+              ),
+              desiredIntervals: 4,
+              //labelPlacement: LabelPlacement.onTicks,
+              axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
+                const TextStyle(
+                  fontSize: 12,
+                  color: RColor.greyBasic_8c8c8c,
                 ),
               ),
-              trackballBehavior: _trendsTrackballBehavior,
-              axes: <ChartAxis>[
-                CategoryAxis(
-                  name: 'xAxis',
-                  isVisible: false,
-                  opposedPosition: true,
-                  //labelPlacement: LabelPlacement.onTicks,
-                ),
-                NumericAxis(
-                  name: 'yAxis',
-                  opposedPosition: true,
-                  anchorRangeToVisiblePoints: true,
-                  rangePadding: ChartRangePadding.round,
-                  //edgeLabelPlacement: EdgeLabelPlacement.shift,
-                  //labelPlacement: LabelPlacement.onTicks,
-                  axisLine: const AxisLine(
-                    width: 0,
-                  ),
-                  majorGridLines: const MajorGridLines(
-                    color: RColor.chartGreyColor,
-                    width: 0.6,
-                    dashArray: [2, 2],
-                  ),
-                  majorTickLines: const MajorTickLines(
-                    width: 0,
-                  ),
-                  axisLabelFormatter: (axisLabelRenderArgs) {
-                    String value = axisLabelRenderArgs.text;
-                    if (_isRightYAxisUpUnit) {
-                      value = TStyle.getMoneyPoint(
-                          (axisLabelRenderArgs.value / 1000).round().toString());
-                    } else {
-                      value = TStyle.getMoneyPoint(
-                          axisLabelRenderArgs.value.round().toString());
-                    }
-                    return ChartAxisLabel(
-                      value,
-                      const TextStyle(
-                        fontSize: 12,
-                        color: RColor.greyBasic_8c8c8c,
-                      ),
-                    );
-                  },
-                )
-              ],
-              selectionType: SelectionType.point,
-              series: [
-                ColumnSeries<Invest01ChartData, String>(
-                  dataSource: _trendsListData,
-                  xValueMapper: (Invest01ChartData data, index) => data.td,
-                  yValueMapper: (Invest01ChartData data, index) {
-                    return _isTrendsDiv == 0
-                        ? int.parse(data.fv)
-                        : _isTrendsDiv == 1
-                            ? int.parse(data.ov)
-                            : int.parse(data.pv);
-                  },
-                  pointColorMapper: (Invest01ChartData data, index) {
-                    if (_isTrendsDiv == 0) {
-                      if (int.parse(data.fv) > 0) {
-                        return RColor.chartRed1;
-                      } else {
-                        return RColor.lightBlue_5886fe;
-                      }
-                    } else if (_isTrendsDiv == 1) {
-                      if (int.parse(data.ov) > 0) {
-                        return RColor.chartRed1;
-                      } else {
-                        return RColor.lightBlue_5886fe;
-                      }
-                    } else {
-                      if (int.parse(data.pv) > 0) {
-                        return RColor.chartRed1;
-                      } else {
-                        return RColor.lightBlue_5886fe;
-                      }
-                    }
-                  },
-                  yAxisName: 'yAxis',
-                  width: 0.4,
-                  enableTooltip: true,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(1),
-                  ),
-                  onRendererCreated: (controller) => _chartTrendsController = controller,
-                ),
-                LineSeries<Invest01ChartData, String>(
-                  dataSource: _trendsListData,
-                  xValueMapper: (item, index) => index.toString(),
-                  yValueMapper: (item, index) => int.parse(item.tp),
-                  color: RColor.chartTradePriceColor,
-                  width: 1.4,
-                  enableTooltip: false,
-                  //selectionBehavior: _selectionBehavior,
-                  //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
-                  xAxisName: 'xAxis',
-                ),
-              ],
+              //desiredIntervals: 4,
             ),
+            primaryYAxis: const NumericAxis(
+              rangePadding: ChartRangePadding.round,
+              isVisible: false,
+              axisLine: AxisLine(
+                width: 0,
+              ),
+              majorGridLines: MajorGridLines(
+                width: 0,
+              ),
+              majorTickLines: MajorTickLines(
+                width: 0,
+              ),
+            ),
+            trackballBehavior: _trendsTrackballBehavior,
+            axes: <ChartAxis>[
+              const CategoryAxis(
+                name: 'xAxis',
+                isVisible: false,
+                opposedPosition: true,
+                //labelPlacement: LabelPlacement.onTicks,
+              ),
+              NumericAxis(
+                name: 'yAxis',
+                opposedPosition: true,
+                anchorRangeToVisiblePoints: true,
+                rangePadding: ChartRangePadding.round,
+                //edgeLabelPlacement: EdgeLabelPlacement.shift,
+                //labelPlacement: LabelPlacement.onTicks,
+                axisLine: const AxisLine(
+                  width: 0,
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: RColor.chartGreyColor,
+                  width: 0.6,
+                  dashArray: [2, 2],
+                ),
+                majorTickLines: const MajorTickLines(
+                  width: 0,
+                ),
+                axisLabelFormatter: (axisLabelRenderArgs) {
+                  String value = axisLabelRenderArgs.text;
+                  if (_isRightYAxisUpUnit) {
+                    value = TStyle.getMoneyPoint(
+                        (axisLabelRenderArgs.value / 1000).round().toString());
+                  } else {
+                    value = TStyle.getMoneyPoint(
+                        axisLabelRenderArgs.value.round().toString());
+                  }
+                  return ChartAxisLabel(
+                    value,
+                    const TextStyle(
+                      fontSize: 12,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  );
+                },
+              )
+            ],
+            selectionType: SelectionType.point,
+            series: [
+              ColumnSeries<Invest01ChartData, String>(
+                dataSource: _trendsListData,
+                xValueMapper: (Invest01ChartData data, index) => data.td,
+                yValueMapper: (Invest01ChartData data, index) {
+                  return _isTrendsDiv == 0
+                      ? int.parse(data.fv)
+                      : _isTrendsDiv == 1
+                          ? int.parse(data.ov)
+                          : int.parse(data.pv);
+                },
+                pointColorMapper: (Invest01ChartData data, index) {
+                  if (_isTrendsDiv == 0) {
+                    if (int.parse(data.fv) > 0) {
+                      return RColor.chartRed1;
+                    } else {
+                      return RColor.lightBlue_5886fe;
+                    }
+                  } else if (_isTrendsDiv == 1) {
+                    if (int.parse(data.ov) > 0) {
+                      return RColor.chartRed1;
+                    } else {
+                      return RColor.lightBlue_5886fe;
+                    }
+                  } else {
+                    if (int.parse(data.pv) > 0) {
+                      return RColor.chartRed1;
+                    } else {
+                      return RColor.lightBlue_5886fe;
+                    }
+                  }
+                },
+                yAxisName: 'yAxis',
+                width: 0.4,
+                enableTooltip: true,
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(1),
+                ),
+                //onRendererCreated: (controller) => _chartTrendsController = controller,
+              ),
+              LineSeries<Invest01ChartData, String>(
+                dataSource: _trendsListData,
+                xValueMapper: (item, index) => index.toString(),
+                yValueMapper: (item, index) => int.parse(item.tp),
+                color: RColor.chartTradePriceColor,
+                width: 1.4,
+                enableTooltip: false,
+                //selectionBehavior: _selectionBehavior,
+                //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
+                xAxisName: 'xAxis',
+              ),
+            ],
           ),
         ),
         const SizedBox(
@@ -868,150 +830,125 @@ class StockHomeHomeTileTradingTrendsState
             ),
           ),
         ),
-        VisibilityDetector(
-          key: const Key('key1'),
-          onVisibilityChanged: (visibilityInfo) {
-            if (visibilityInfo.visibleFraction > 0.1 && !_wantKeepAlive) {
-              setState(() {
-                _wantKeepAlive = true;
-              });
-            }
-            if (!_isChartSumVisible && visibilityInfo.visibleFraction > 0.9) {
-              _isChartSumVisible = true;
-              _chartSumLine1Controller?.animate();
-              _chartSumLine2Controller?.animate();
-            }
-            if (_isChartSumVisible && visibilityInfo.visibleFraction == 0) {
-              _isChartSumVisible = false;
-            }
-          },
-          child: SizedBox(
-            width: double.infinity,
-            height: 240,
-            child: SfCartesianChart(
-              plotAreaBorderWidth: 0,
-              enableAxisAnimation: false,
-              primaryXAxis: CategoryAxis(
-                axisBorderType: AxisBorderType.withoutTopAndBottom,
+        SizedBox(
+          width: double.infinity,
+          height: 240,
+          child: SfCartesianChart(
+            plotAreaBorderWidth: 0,
+            enableAxisAnimation: false,
+            primaryXAxis: CategoryAxis(
+              axisBorderType: AxisBorderType.withoutTopAndBottom,
+              axisLine: const AxisLine(
+                width: 1.2,
+                color: RColor.chartGreyColor,
+              ),
+              majorGridLines: const MajorGridLines(
+                width: 0,
+              ),
+              majorTickLines: const MajorTickLines(
+                width: 0,
+              ),
+              desiredIntervals: 4,
+              labelPlacement: LabelPlacement.onTicks,
+              axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
+                const TextStyle(
+                  fontSize: 12,
+                  color: RColor.greyBasic_8c8c8c,
+                ),
+              ),
+            ),
+            primaryYAxis: const NumericAxis(
+              rangePadding: ChartRangePadding.round,
+              isVisible: false,
+            ),
+            axes: <ChartAxis>[
+              NumericAxis(
+                name: 'yAxis',
+                opposedPosition: true,
+                anchorRangeToVisiblePoints: true,
+                rangePadding: ChartRangePadding.round,
                 axisLine: const AxisLine(
-                  width: 1.2,
-                  color: RColor.chartGreyColor,
+                  width: 0,
                 ),
                 majorGridLines: const MajorGridLines(
-                  width: 0,
+                  color: RColor.chartGreyColor,
+                  width: 0.6,
+                  dashArray: [2, 2],
                 ),
                 majorTickLines: const MajorTickLines(
                   width: 0,
                 ),
-                desiredIntervals: 4,
-                labelPlacement: LabelPlacement.onTicks,
-                axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
-                  TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
-                  const TextStyle(
-                    fontSize: 12,
-                    color: RColor.greyBasic_8c8c8c,
-                  ),
-                ),
+                axisLabelFormatter: (axisLabelRenderArgs) {
+                  String value = axisLabelRenderArgs.text;
+                  if (_isRightYAxisUpUnit) {
+                    value = TStyle.getMoneyPoint(
+                        (axisLabelRenderArgs.value / 1000).round().toString());
+                  } else {
+                    value = TStyle.getMoneyPoint(
+                        axisLabelRenderArgs.value.round().toString());
+                  }
+                  return ChartAxisLabel(
+                    value,
+                    const TextStyle(
+                      fontSize: 12,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  );
+                },
+                numberFormat: NumberFormat.decimalPattern(), // 라벨의 형식 지정
+                // numberFormat: NumberFormat.simpleCurrency(locale: 'ko_KR', decimalDigits: 0,),
+                //rangePadding: ChartRangePadding.additional,
+                //maximumLabels: 4,
+                /* minimum: double.parse(_listChartData
+                    .reduce((curr, next) =>
+                        int.parse(curr.tp) < int.parse(next.tp) ? curr : next)
+                    .tp),*/
+                /*maximum: double.parse(_listChartData
+                    .reduce((curr, next) =>
+                        int.parse(curr.tp) > int.parse(next.tp) ? curr : next)
+                    .tp),*/
+                /*axisLabelFormatter: (axisLabelRenderArgs) {
+                  DLog.e('axisLabelRenderArgs.value : ${axisLabelRenderArgs.value}');
+                  return ChartAxisLabel('ddd', TextStyle(),);
+                },*/
+              )
+            ],
+            trackballBehavior: _sumTrackballBehavior,
+            tooltipBehavior: TooltipBehavior(),
+            series: [
+              //SplineRangeAreaSeries
+              // 외국인
+              AreaSeries<Invest02ChartData, String>(
+                dataSource: _sumListData,
+                xValueMapper: (item, index) => item.td,
+                yValueMapper: (item, index) => int.parse(item.afv),
+                yAxisName: 'yAxis',
+                color: RColor.chartYellow.withOpacity(0.08),
+                borderWidth: 1.5,
+                borderColor: RColor.chartYellow,
+                enableTooltip: true,
+                animationDuration: 1500,
               ),
-              primaryYAxis: NumericAxis(
-                rangePadding: ChartRangePadding.round,
-                isVisible: false,
+              AreaSeries<Invest02ChartData, String>(
+                dataSource: _sumListData,
+                xValueMapper: (item, index) => item.td,
+                yValueMapper: (item, index) => int.parse(item.aov),
+                yAxisName: 'yAxis',
+                color: RColor.chartGreen.withOpacity(0.08),
+                borderWidth: 1.5,
+                borderColor: RColor.chartGreen,
+                enableTooltip: true,
+                animationDuration: 1500,
               ),
-              axes: <ChartAxis>[
-                NumericAxis(
-                  name: 'yAxis',
-                  opposedPosition: true,
-                  anchorRangeToVisiblePoints: true,
-                  rangePadding: ChartRangePadding.round,
-                  axisLine: const AxisLine(
-                    width: 0,
-                  ),
-                  majorGridLines: const MajorGridLines(
-                    color: RColor.chartGreyColor,
-                    width: 0.6,
-                    dashArray: [2, 2],
-                  ),
-                  majorTickLines: const MajorTickLines(
-                    width: 0,
-                  ),
-                  desiredIntervals: 4,
-                  axisLabelFormatter: (axisLabelRenderArgs) {
-                    String value = axisLabelRenderArgs.text;
-                    if (_isRightYAxisUpUnit) {
-                      value = TStyle.getMoneyPoint(
-                          (axisLabelRenderArgs.value / 1000).round().toString());
-                    } else {
-                      value = TStyle.getMoneyPoint(
-                          axisLabelRenderArgs.value.round().toString());
-                    }
-                    return ChartAxisLabel(
-                      value,
-                      const TextStyle(
-                        fontSize: 12,
-                        color: RColor.greyBasic_8c8c8c,
-                      ),
-                    );
-                  },
-                  numberFormat: NumberFormat.decimalPattern(), // 라벨의 형식 지정
-                  // numberFormat: NumberFormat.simpleCurrency(locale: 'ko_KR', decimalDigits: 0,),
-                  //rangePadding: ChartRangePadding.additional,
-                  //maximumLabels: 4,
-                  /* minimum: double.parse(_listChartData
-                      .reduce((curr, next) =>
-                          int.parse(curr.tp) < int.parse(next.tp) ? curr : next)
-                      .tp),*/
-                  /*maximum: double.parse(_listChartData
-                      .reduce((curr, next) =>
-                          int.parse(curr.tp) > int.parse(next.tp) ? curr : next)
-                      .tp),*/
-                  /*axisLabelFormatter: (axisLabelRenderArgs) {
-                    DLog.e('axisLabelRenderArgs.value : ${axisLabelRenderArgs.value}');
-                    return ChartAxisLabel('ddd', TextStyle(),);
-                  },*/
-                )
-              ],
-              trackballBehavior: _sumTrackballBehavior,
-              tooltipBehavior: TooltipBehavior(),
-              series: [
-                //SplineRangeAreaSeries
-                // 외국인
-                AreaSeries<Invest02ChartData, String>(
-                  dataSource: _sumListData,
-                  xValueMapper: (item, index) => item.td,
-                  yValueMapper: (item, index) => int.parse(item.afv),
-                  yAxisName: 'yAxis',
-                  color: RColor.chartYellow.withOpacity(0.08),
-                  borderWidth: 1.5,
-                  borderColor: RColor.chartYellow,
-                  enableTooltip: true,
-                  animationDuration: 1500,
-                  onRendererCreated: (controller) {
-                    _chartSumLine1Controller = controller;
-                  },
-                ),
-                AreaSeries<Invest02ChartData, String>(
-                  dataSource: _sumListData,
-                  xValueMapper: (item, index) => item.td,
-                  yValueMapper: (item, index) => int.parse(item.aov),
-                  yAxisName: 'yAxis',
-                  color: RColor.chartGreen.withOpacity(0.08),
-                  borderWidth: 1.5,
-                  borderColor: RColor.chartGreen,
-                  enableTooltip: true,
-                  animationDuration: 1500,
-                  onRendererCreated: (controller) {
-                    _chartSumLine2Controller = controller;
-                  },
-                ),
-                LineSeries<Invest02ChartData, String>(
-                  dataSource: _sumListData,
-                  xValueMapper: (item, index) => item.td,
-                  yValueMapper: (item, index) => int.parse(item.tp),
-                  color: RColor.chartTradePriceColor,
-                  width: 1.4,
-                ),
-              ],
-            ),
+              LineSeries<Invest02ChartData, String>(
+                dataSource: _sumListData,
+                xValueMapper: (item, index) => item.td,
+                yValueMapper: (item, index) => int.parse(item.tp),
+                color: RColor.chartTradePriceColor,
+                width: 1.4,
+              ),
+            ],
           ),
         ),
         const SizedBox(

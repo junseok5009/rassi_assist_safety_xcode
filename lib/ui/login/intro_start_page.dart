@@ -12,6 +12,8 @@ import 'package:rassi_assist/ui/login/login_division_page.dart';
 class IntroStartPage extends StatefulWidget {
   const IntroStartPage({Key? key}) : super(key: key);
 
+  static const String routeName = "/intro_start";
+
   //const IntroStartPage({super.key});
 
   @override
@@ -24,10 +26,9 @@ class _IntroStartPageState extends State<IntroStartPage> {
     super.initState();
   }
 
-
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -72,33 +73,30 @@ class _IntroStartPageState extends State<IntroStartPage> {
                     }),
               ),
               InkWell(
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 12,
-                  ),
-                  decoration: UIStyle.boxRoundFullColor50c(
-                    RColor.purpleBasic_6565ff,
-                  ),
-                  child: const Text(
-                    '1초만에 라씨 매매비서 시작하기',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
+                  child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 12,
+                    ),
+                    decoration: UIStyle.boxRoundFullColor50c(
+                      RColor.purpleBasic_6565ff,
+                    ),
+                    child: const Text(
+                      '1초만에 라씨 매매비서 시작하기',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginDivisionPage(),
-                  ),
-                ),
-              ),
+                  onTap: () {
+                    Navigator.of(context)
+                        .pushNamed(LoginDivisionPage.routeName);
+                  }),
             ],
           ),
         ),
