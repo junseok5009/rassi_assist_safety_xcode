@@ -66,6 +66,7 @@ class AccountData {
   // test agent 추가
   final String joinLink1;
   final String joinLink2;
+  final String isAgent;
   final String isWelcomeCheck;
 
   const AccountData({
@@ -82,6 +83,7 @@ class AccountData {
     this.subsStatus = '',
     this.joinLink1 = '',
     this.joinLink2 = '',
+    this.isAgent = 'Y',
     this.isWelcomeCheck = 'N',
   });
 
@@ -100,6 +102,7 @@ class AccountData {
       subsStatus: json['subsStatus'] ?? '',
       joinLink1: json['joinLink1'] ?? '',
       joinLink2: json['joinLink2'] ?? '',
+      isAgent: json['isAgent'] ?? 'Y',
       isWelcomeCheck: json['isWelcomeCheck'] ?? 'N',
     );
   }

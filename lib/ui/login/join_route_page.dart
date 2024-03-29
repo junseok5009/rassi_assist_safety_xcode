@@ -128,6 +128,8 @@ class JoinRouteState extends State<JoinRoutePage> {
     ),
   ];
 
+  bool _isNetworkDo = false;
+
   @override
   void initState() {
     super.initState();
@@ -150,33 +152,50 @@ class JoinRouteState extends State<JoinRoutePage> {
         title: '',
         elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-        child: Column(
-          children: [
-            _setHeaderTile(),
-            Expanded(
-              child: Align(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  controller: _scrollController,
-                  itemCount: itemList.length + 1,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 20,
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+            child: Column(
+              children: [
+                _setHeaderTile(),
+                Expanded(
+                  child: Align(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      controller: _scrollController,
+                      itemCount: itemList.length + 1,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                      ),
+                      itemBuilder: (context, i) {
+                        if (i == 5) {
+                          return _setFooterTile();
+                        } else {
+                          int idx = i;
+                          return _setDivTile(idx, expandList[idx]);
+                        }
+                      },
+                    ),
                   ),
-                  itemBuilder: (context, i) {
-                    if (i == 5) {
-                      return _setFooterTile();
-                    } else {
-                      int idx = i;
-                      return _setDivTile(idx, expandList[idx]);
-                    }
-                  },
                 ),
+              ],
+            ),
+          ),
+          Visibility(
+            visible: _isNetworkDo,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.black.withOpacity(0.1),
+              alignment: Alignment.center,
+              child: Image.asset(
+                'images/gif_ios_loading_large.gif',
+                height: 20,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
 
       // 하단 동의하고 시작합니다
@@ -599,7 +618,8 @@ class JoinRouteState extends State<JoinRoutePage> {
   //회원가입 입력값 체크
   void _checkEditData() {
     if (_sJoinRoute.isEmpty) {
-      _showDialogMsg('가입하시게 된 경로를 선택해 주세요.');
+      CommonPopup.instance
+          .showDialogBasicConfirm(context, '알림', '가입하시게 된 경로를 선택해 주세요.');
     } else {
       //체크완료
       if (_isAgreeMarketing) {
@@ -611,6 +631,7 @@ class JoinRouteState extends State<JoinRoutePage> {
       DLog.d(JoinRoutePage.TAG, '### JoinRoute : $_sJoinRoute');
       DLog.d(JoinRoutePage.TAG,
           'widget.userJoinInfo.toString() : ${widget.userJoinInfo.toString()}');
+
       //라씨 회원가입
       if (widget.userJoinInfo.pgType == 'RASSI') {
         widget.userJoinInfo.userId = widget.userJoinInfo.userId.toLowerCase();
@@ -628,14 +649,15 @@ class JoinRouteState extends State<JoinRoutePage> {
                 utilsGetDeviceHpID(widget.userJoinInfo.phone));
         _reqType = 'join_sns';
         _reqParam =
-            "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(widget.userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SNSM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(widget.userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
+            "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(widget.userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(widget.userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
         _requestThink();
       }
       //네이버/카카오/애플
       else {
         if (widget.userJoinInfo.userId.isNotEmpty) {
           _reqType = 'join_sns';
-          _reqParam = "snsId=${Net.getEncrypt(widget.userJoinInfo.userId)}&snsPos=${widget.userJoinInfo.pgType}&nick=&userName=${widget.userJoinInfo.name}&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=${widget.userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N";
+          _reqParam =
+              "snsId=${Net.getEncrypt(widget.userJoinInfo.userId)}&snsPos=${widget.userJoinInfo.pgType}&nick=&userName=${widget.userJoinInfo.name}&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=${widget.userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N";
           _requestThink();
         }
       }
@@ -705,7 +727,8 @@ class JoinRouteState extends State<JoinRoutePage> {
           await CommonPopup.instance.showDialogBasicConfirm(
               context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
           if (mounted) {
-            Navigator.pushNamedAndRemoveUntil(context, IntroStartPage.routeName, (route) => false);
+            Navigator.pushNamedAndRemoveUntil(
+                context, IntroStartPage.routeName, (route) => false);
           }
         }
       } else {
@@ -721,75 +744,13 @@ class JoinRouteState extends State<JoinRoutePage> {
 
     if (mounted) {
       Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const BasePage(),
-              settings: const RouteSettings(name: '/base')),
-          (route) => false);
+        context,
+        MaterialPageRoute(
+            builder: (context) => const BasePage(),
+            settings: const RouteSettings(name: '/base')),
+        (route) => false,
+      );
     }
-  }
-
-  void _showDialogMsg(String msg) {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                  const Text(
-                    '알림',
-                    style: TStyle.title20,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  Text(
-                    msg,
-                  ),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 150,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: RColor.mainColor,
-                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
   }
 
   // 씽크풀 API 호출
@@ -806,7 +767,11 @@ class JoinRouteState extends State<JoinRoutePage> {
       //회원가입
       url = Net.THINK_JOIN;
     }
-
+    if (_isNetworkDo) {
+      return;
+    } else {
+      setState(() => _isNetworkDo = true);
+    }
     var urls = Uri.parse(url);
     final http.Response response =
         await http.post(urls, headers: Net.think_headers, body: _reqParam);
@@ -828,14 +793,13 @@ class JoinRouteState extends State<JoinRoutePage> {
           DLog.d(JoinRoutePage.TAG, "USER ID : ${resData.userId}");
           DLog.d(JoinRoutePage.TAG, "NICK : ${resData.nickName}");
           widget.userJoinInfo.userId = resData.userId;
-          HttpProcessClass()
+          await HttpProcessClass()
               .callHttpProcess0002(widget.userJoinInfo.userId)
-              .then((value) {
-            DLog.d(JoinRoutePage.TAG, 'then() value : $value');
+              .then((value) async {
             switch (value.appResultCode) {
               case 200:
                 {
-                  _goNextRoute();
+                  await _goNextRoute();
                   break;
                 }
               case 400:
@@ -852,6 +816,7 @@ class JoinRouteState extends State<JoinRoutePage> {
           });
         }
       }
+      setState(() => _isNetworkDo = false);
     } else if (_reqType == 'join_confirm') {
       //라씨 회원가입
       if (result != 'ERR' && result.isNotEmpty) {
@@ -878,12 +843,19 @@ class JoinRouteState extends State<JoinRoutePage> {
         });
       } else {
         //씽크풀 회원가입 실패
-        if (result == 'PWERR') {
-          _showDialogMsg('안전한 비밀번호로 다시 설정해 주세요.');
-        } else {
-          _showDialogMsg('회원 가입에 실패하였습니다. 고객센터로 문의해주세요.');
+        if (mounted) {
+          if (result == 'PWERR') {
+            CommonPopup.instance
+                .showDialogBasicConfirm(context, '알림', '안전한 비밀번호로 다시 설정해 주세요.');
+          } else {
+            CommonPopup.instance
+                .showDialogBasicConfirm(
+                    context, '알림', '회원 가입에 실패하였습니다. 고객센터로 문의해주세요.')
+                .then((value) => Navigator.pop(context));
+          }
         }
       }
+      setState(() => _isNetworkDo = false);
     }
   }
 }

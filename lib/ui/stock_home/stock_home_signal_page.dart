@@ -521,7 +521,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                               height: 270,
                               child: _setEChartView(),
                             ),
-                            _setSignalLineChart1,
+                            //_setSignalLineChart1,
                           ],
                         ),
                         const SizedBox(

@@ -14,6 +14,9 @@ class UserInfoProvider extends ChangeNotifier {
 
   User04 _user04 = const User04();
 
+  User04 get getUser04 => _user04;
+
+
   void clearUser04(){
     _user04 = const User04();
   }

@@ -136,7 +136,7 @@ class BasePageState extends State<BasePage> {
     Provider.of<PocketProvider>(context, listen: false).setList();
     Provider.of<SignalProvider>(context, listen: false).setList();
     _userInfoProviderInit().then((user04) {
-      if (user04.accountData.isWelcomeCheck == 'N') {
+      if (user04.accountData.isAgent == 'Y' && user04.accountData.isWelcomeCheck == 'N') {
         Navigator.push(
           context,
           CustomNvRouteClass.createRouteName(
@@ -347,7 +347,7 @@ class BasePageState extends State<BasePage> {
           String? userCurProd0 = prefs.getString(Const.PREFS_CUR_PROD);
           if (userCurProd0!.isNotEmpty &&
               userCurProd0.toUpperCase().contains('AC_PR') &&
-              context.mounted) {
+              mounted) {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -519,7 +519,7 @@ class BasePageState extends State<BasePage> {
       case LD.linkTypeUrl:
         {
           // 인앱 웹뷰 페이지
-          if (stkCode != null && stkCode.isNotEmpty) {
+          if (stkCode.isNotEmpty) {
             String title = stkName ?? '';
             Navigator.push(
               context,

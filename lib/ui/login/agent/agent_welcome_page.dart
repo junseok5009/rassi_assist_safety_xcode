@@ -74,10 +74,7 @@ class _AgentWelcomePageState extends State<AgentWelcomePage> {
               },
               child: Container(
                 width: double.infinity,
-                height: 75,
-                margin: EdgeInsets.only(
-                  top: 10,
-                ),
+                height: 70,
                 alignment: Alignment.center,
                 color: RColor.greyBox_dcdfe2,
                 child: Text(_pageIndex != 2 ? '다음 > ' : '확인하였습니다.'),

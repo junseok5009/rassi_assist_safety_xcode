@@ -10,8 +10,8 @@ class Const {
   static const bool isSkeletonLoader = true;
 
   /// android set
-  static const APP_VER_AOS = '1.2.3001'; //안드로이드 버전
-  static const VER_CODE_AOS = 115;
+  static const APP_VER_AOS = '1.2.4'; //안드로이드 버전
+  static const VER_CODE_AOS = 114;
   static const METHOD_CHANNEL_NAME = 'thinkpool.flutter.dev/channel_method';
   static const METHOD_CHANNEL_PUSH =
       'thinkpool.flutter.dev/channel_method_push';
@@ -172,12 +172,13 @@ class RColor {
   static const chartHighlighColor = Color(0xffe3e0f9);
   static const bubbleChartStrongRed = Color(0xfff95363);
   static const bubbleChartRed = Color(0xfff98f9b);
-  static const bubbleChartWeakRed = Color(0xffffd0d0);
+  static const bubbleChartWeakRed = Color(0xfff6bec3);
   static const bubbleChartStrongBlue = Color(0xff607fdc);
   static const bubbleChartBlue = Color(0xff8ca2dc);
   static const bubbleChartWeakBlue = Color(0xffb5c6f6);
-  static const bubbleChartGrey = Color(0xffe3e3e3);
+  static const bubbleChartGrey = Color(0xffd7d5d5);
   static const bubbleChartTxtColorRed = Color(0xffc42b60);
+  static const bubbleChartTxtColorBlue = Color(0xff4c6fb8);
   static const bubbleChartTxtColorGrey = Color(0xff6f6f6f);
 
   //HOME

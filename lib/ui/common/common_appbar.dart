@@ -299,7 +299,7 @@ class CommonAppbar{
             icon: const Icon(Icons.close),
             color: iconColor,
             onPressed: (){
-              if(buildContext != null && buildContext.mounted){
+              if(buildContext.mounted){
                 Navigator.pop(buildContext);
               }
             },

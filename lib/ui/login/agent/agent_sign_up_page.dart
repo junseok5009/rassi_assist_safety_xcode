@@ -56,6 +56,8 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
   final List<bool> _checkBoolList = [false, false, false]; // 약관 동의 체크 변수
   bool _checkAll = false; // 약관 동의 전체 체크 완료 여부
 
+  bool _isNetworkDo = false;
+
   @override
   void initState() {
     super.initState();
@@ -103,70 +105,37 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
         title: '',
         elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-        child: ListView(
-          children: [
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+            child: ListView(
               children: [
-                Text(
-                  '서비스 이용을 위해 가입을\n진행해 주세요.',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '서비스 이용을 위해 가입을\n진행해 주세요.',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '\n라씨 매매비서는 서비스 제공을 위해\n최소한의 정보만 수집하며\n수집된 정보 보안을 위해 최선을 다합니다.',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  '\n라씨 매매비서는 서비스 제공을 위해\n최소한의 정보만 수집하며\n수집된 정보 보안을 위해 최선을 다합니다.',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
+                const SizedBox(
+                  height: 40,
                 ),
-              ],
-            ),
-            const SizedBox(
-              height: 40,
-            ),
 
-            // 추천인
-            const Text(
-              '추천인',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Container(
-              width: double.infinity,
-              //height: 10,
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: RColor.greyBox_f5f5f5,
-                borderRadius: BorderRadius.circular(8),
-                //borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                _agentName,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: RColor.purpleBasic_6565ff,
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 30.0,
-            ),
-
-            // 휴대폰 번호
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                // 추천인
                 const Text(
-                  '휴대폰 번호',
+                  '추천인',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -175,172 +144,225 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
                 const SizedBox(
                   height: 10,
                 ),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    TextField(
-                      style: const TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        filled: true,
-                        hintText: '휴대폰 번호를 입력해 주세요',
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: RColor.greyBox_f5f5f5,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: RColor.greyBox_f5f5f5,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                      ),
-                      cursorColor: Colors.black,
-                      enabled: _phoneEditEnabled,
-                      controller: _phoneController,
+                Container(
+                  width: double.infinity,
+                  //height: 10,
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: RColor.greyBox_f5f5f5,
+                    borderRadius: BorderRadius.circular(8),
+                    //borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    _agentName,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: RColor.purpleBasic_6565ff,
                     ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        onTap: () {
-                          if (!_isConfirmPhone) {
-                            _checkPhone();
-                          }
-                        },
-                        child: Container(
-                          width: 75,
-                          height: 40,
-                          margin: const EdgeInsets.only(right: 4),
-                          decoration: UIStyle.boxRoundLine8LineColor(
-                            _isConfirmPhone
-                                ? RColor.greyBasic_8c8c8c
-                                : RColor.purpleBasic_6565ff,
+                  ),
+                ),
+                const SizedBox(
+                  height: 30.0,
+                ),
+
+                // 휴대폰 번호
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '휴대폰 번호',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        TextField(
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            filled: true,
+                            hintText: '휴대폰 번호를 입력해 주세요',
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: RColor.greyBox_f5f5f5,
+                              ),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8.0)),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: RColor.greyBox_f5f5f5,
+                              ),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8.0)),
+                            ),
                           ),
-                          child: Center(
-                            child: Text(
-                              _isConfirmPhone ? '인증완료' : '인증받기',
-                              style: TextStyle(
-                                color: _isConfirmPhone
-                                    ? RColor.greyBasicStrong_666666
+                          cursorColor: Colors.black,
+                          enabled: _phoneEditEnabled,
+                          controller: _phoneController,
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: InkWell(
+                            onTap: () {
+                              if (!_isConfirmPhone) {
+                                _checkPhone();
+                              }
+                            },
+                            child: Container(
+                              width: 75,
+                              height: 40,
+                              margin: const EdgeInsets.only(right: 4),
+                              decoration: UIStyle.boxRoundLine8LineColor(
+                                _isConfirmPhone
+                                    ? RColor.greyBasic_8c8c8c
                                     : RColor.purpleBasic_6565ff,
                               ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            // 인증번호
-            Visibility(
-              visible: _visibleAuth,
-              child: Container(
-                margin: const EdgeInsets.only(
-                  top: 10,
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    TextField(
-                      controller: _authController,
-                      style: const TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        filled: true,
-                        hintText: '수신된 인증번호를 입력하세요.',
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: RColor.greyBox_f5f5f5,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: RColor.greyBox_f5f5f5,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                      ),
-                      cursorColor: Colors.black,
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        onTap: () {
-                          _checkAuthNum(_authController.text.trim());
-                        },
-                        child: Container(
-                          width: 75,
-                          height: 40,
-                          margin: const EdgeInsets.only(right: 4),
-                          decoration: UIStyle.boxRoundLine8LineColor(
-                            RColor.purpleBasic_6565ff,
-                          ),
-                          child: const Center(
-                            child: Text(
-                              '확인',
-                              style: TextStyle(
-                                color: RColor.purpleBasic_6565ff,
+                              child: Center(
+                                child: Text(
+                                  _isConfirmPhone ? '인증완료' : '인증받기',
+                                  style: TextStyle(
+                                    color: _isConfirmPhone
+                                        ? RColor.greyBasicStrong_666666
+                                        : RColor.purpleBasic_6565ff,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ),
-            ),
 
-            const SizedBox(
-              height: 20.0,
-            ),
-            // 약관 동의 위젯
-            _setTermsBtns(),
+                // 인증번호
+                Visibility(
+                  visible: _visibleAuth,
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                      top: 10,
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        TextField(
+                          controller: _authController,
+                          style: const TextStyle(color: Colors.black),
+                          decoration: const InputDecoration(
+                            filled: true,
+                            hintText: '수신된 인증번호를 입력하세요.',
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: RColor.greyBox_f5f5f5,
+                              ),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8.0)),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: RColor.greyBox_f5f5f5,
+                              ),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(8.0)),
+                            ),
+                          ),
+                          cursorColor: Colors.black,
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: InkWell(
+                            onTap: () {
+                              _checkAuthNum(_authController.text.trim());
+                            },
+                            child: Container(
+                              width: 75,
+                              height: 40,
+                              margin: const EdgeInsets.only(right: 4),
+                              decoration: UIStyle.boxRoundLine8LineColor(
+                                RColor.purpleBasic_6565ff,
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '확인',
+                                  style: TextStyle(
+                                    color: RColor.purpleBasic_6565ff,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-            const SizedBox(
-              height: 50.0,
-            ),
-            Column(
-              children: [
-                CommonView.setConfirmBtnView(
-                  () {
-                    if (!_isConfirmPhone) {
-                      CommonPopup.instance.showDialogBasicConfirm(
-                          context, '알림', '전화번호를 인증해 주세요.');
-                    } else if (!_checkAll) {
-                      CommonPopup.instance
-                          .showDialogBasic(context, '알림', '서비스 이용약관에 동의해 주세요.');
-                    } else {
-                      _reqType = 'join_sns';
-                      DLog.e(
-                          'join_sns / userJoinInfo : ${_userJoinInfo.toString()}');
-                      if (_userJoinInfo.pgType == 'SSGOLLA') {
-                        _reqParam =
-                            //"snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(_userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SNSM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(_userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
-                            // TEST 마케팅 에이전트 : OLLAMAG , 전문가 에이전트 : OLLAEXAG
-                            "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(_userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=OLLAMAG&joinChannel=SNSM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(_userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
-                        _requestThink();
-                      }
-                      //네이버/카카오/애플/구글
-                      else {
-                        if (_userJoinInfo.userId.isNotEmpty) {
-                          _reqParam =
-                              "snsId=${Net.getEncrypt(_userJoinInfo.userId)}&snsPos=${_userJoinInfo.pgType}&nick=&userName=${_userJoinInfo.name}&sexGubun=&joinRoute=OLLAMAG&joinChannel=SM&email=${_userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${_userJoinInfo.phone}";
-                          //"snsId=${_userJoinInfo.userId}&snsPos=${_userJoinInfo.pgType}&nick=&userName=${_userJoinInfo.name}&sexGubun=&joinRoute=OLLAMAG&joinChannel=SM&email=${_userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N";
-                          _requestThink();
+                const SizedBox(
+                  height: 20.0,
+                ),
+                // 약관 동의 위젯
+                _setTermsBtns(),
+
+                const SizedBox(
+                  height: 50.0,
+                ),
+                Column(
+                  children: [
+                    CommonView.setConfirmBtnView(
+                      () {
+                        if (!_isConfirmPhone) {
+                          CommonPopup.instance.showDialogBasicConfirm(
+                              context, '알림', '전화번호를 인증해 주세요.');
+                        } else if (!_checkAll) {
+                          CommonPopup.instance.showDialogBasic(
+                              context, '알림', '서비스 이용약관에 동의해 주세요.');
+                        } else {
+                          _reqType = 'join_sns';
+                          if (_userJoinInfo.pgType == 'SSGOLLA') {
+                            _reqParam =
+                                //"snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(_userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(_userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
+                                // TEST 마케팅 에이전트 : OLLAMAG , 전문가 에이전트 : OLLAEXAG
+                                // 에이전트 회원가입은 휴대폰번호가 있어서 일반 회원으로 가입시키기 위해 join_channel = NM 입니다.
+                                "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(_userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=OLLAMAG&joinChannel=NM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(_userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
+                            _requestThink();
+                          }
+                          //네이버/카카오/애플/구글
+                          else {
+                            if (_userJoinInfo.userId.isNotEmpty) {
+                              _reqParam =
+                                  "snsId=${Net.getEncrypt(_userJoinInfo.userId)}&snsPos=${_userJoinInfo.pgType}&nick=&userName=${_userJoinInfo.name}&sexGubun=&joinRoute=OLLAMAG&joinChannel=NM&email=${_userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${_userJoinInfo.phone}";
+                              //"snsId=${_userJoinInfo.userId}&snsPos=${_userJoinInfo.pgType}&nick=&userName=${_userJoinInfo.name}&sexGubun=&joinRoute=OLLAMAG&joinChannel=SM&email=${_userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N";
+                              _requestThink();
+                            }
+                          }
                         }
-                      }
-                    }
-                  },
-                )
+                      },
+                    )
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+          Visibility(
+            visible: _isNetworkDo,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.black.withOpacity(0.1),
+              alignment: Alignment.center,
+              child: Image.asset(
+                'images/gif_ios_loading_large.gif',
+                height: 20,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -621,7 +643,7 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
 
   // 씽크풀 API 호출
   void _requestThink() async {
-    DLog.e('씽크풀 API _reqType : $_reqType / _reqParam : $_reqParam');
+    DLog.e('_requestThink _reqType : $_reqType / _reqParam : $_reqParam');
 
     String url = '';
     if (_reqType == 'phone_check') {
@@ -634,15 +656,12 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
       //회원가입
       url = Net.THINK_SNS_JOIN;
     }
-
-    var urls = Uri.parse(url);
-    /*if (_reqType == 'join_sns') {
-      DLog.e(
-          '_userJoinInfo.toString() : ${_userJoinInfo.toString()}');
-      DLog.e('_reqType : $_reqParam');
+    if (_isNetworkDo) {
       return;
-    }*/
-
+    } else {
+      setState(() => _isNetworkDo = true);
+    }
+    var urls = Uri.parse(url);
     final http.Response response =
         await http.post(urls, headers: Net.think_headers, body: _reqParam);
 
@@ -656,10 +675,8 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
       if (result == 'success' && mounted) {
         CommonPopup.instance.showDialogBasicConfirm(
             context, '알림', ('인증번호가 발송되었습니다.\n인증번호가 오지 않으면 입력하신 번호를 확인해 주세요.'));
-        setState(() {
-          _phoneEditEnabled = false;
-          _visibleAuth = true;
-        });
+        _phoneEditEnabled = false;
+        _visibleAuth = true;
       } else {
         _phoneEditEnabled = true;
         if (mounted) {
@@ -667,6 +684,7 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
               context, '알림', ('인증번호 요청이 실패하였습니다.\n정확한 번호 입력 후 다시 시도하여 주세요.'));
         }
       }
+      setState(() => _isNetworkDo = false);
     } else if (_reqType == 'phone_confirm') {
       //인증번호 확인
       if (result == '00' || result == 'success') {
@@ -704,6 +722,7 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
       } else {
         commonShowToast('인증번호를 확인해주세요');
       }
+      setState(() => _isNetworkDo = false);
     } else if (_reqType == 'join_sns') {
       //SNS 회원가입
       if (result.isNotEmpty) {
@@ -713,7 +732,7 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
           commonShowToast("회원가입에 실패했습니다");
         } else {
           _userJoinInfo.userId = resData.userId;
-          HttpProcessClass()
+          await HttpProcessClass()
               .callHttpProcess0002(_userJoinInfo.userId)
               .then((value) {
             switch (value.appResultCode) {
@@ -741,6 +760,7 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
               context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
         }
       }
+      setState(() => _isNetworkDo = false);
     }
   }
 

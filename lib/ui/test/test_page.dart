@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -23,6 +24,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
+import 'package:rassi_assist/ui/common/inapp_webview_page.dart';
 import 'package:rassi_assist/ui/login/intro_search_page.dart';
 import 'package:rassi_assist/ui/login/join_phone_page.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
@@ -46,6 +48,7 @@ import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/test/halflayer/test_half_layer_main.dart';
 import 'package:rassi_assist/ui/test/test_event_popup_page.dart';
 import 'package:rassi_assist/ui/test/test_image_fit.dart';
+import 'package:rassi_assist/ui/test/test_image_full_page.dart';
 import 'package:rassi_assist/ui/test/test_webview.dart';
 import 'package:rassi_assist/ui/test/web_chart.dart';
 import 'package:rassi_assist/ui/user/user_info_page.dart';
@@ -401,6 +404,21 @@ class TestState extends State<TestWidget> {
                   builder: (context) => TestEventPopupPage(),
                 ),
               );
+            },
+          ),
+        ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.redAccent[100],
+              child: const Text(
+                '이벤트웹뷰테스트',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(context, CustomNvRouteClass.createRoute(TestImageFullPage(imageUrl: 'https://files.thinkpool.com/rassi_signal/event_back_6.png',),),);
             },
           ),
         ),

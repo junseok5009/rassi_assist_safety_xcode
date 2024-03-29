@@ -63,8 +63,12 @@ class PayPremiumState extends State<PayPremiumPage> {
   String _priceSub = '';
   String _priceSingle = '';
 
-  bool _isPaymentSingle = false; //단건결제이면 true
-  bool _isPaymentSub = true; //구독결제이면 true
+  // Agent, 단건, 구독 순서 변수
+  final List _listDivPayment = [
+    false,
+    false,
+    false,
+  ];
 
   bool statusCon = false; //결제모듈 연결상태
   bool _bProgress = false; //결제 완료 전까지 프로그래스
@@ -85,14 +89,32 @@ class PayPremiumState extends State<PayPremiumPage> {
   // 23.10.13 프리미엄 결제 원래 가격 APP03 에서 가져오기
   String _originalPriceA01 = '';
 
+  // 24.03.22 Agent 결제 추가
+  bool _isAgent = false;
+
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(PayPremiumPage.TAG_NAME);
+    _isAgent = Provider.of<UserInfoProvider>(context, listen: false)
+            .getUser04
+            .accountData
+            .isAgent ==
+        'Y';
+    CustomFirebaseClass.logEvtScreenView(
+        PayPremiumPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
+    if (_isAgent) {
+      setState(() {
+        _listDivPayment[0] = true;
+      });
+    } else {
+      setState(() {
+        _listDivPayment[2] = true;
+      });
+    }
 
     _initBillingState();
     _loadPrefData().then((value) {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? appGlobal.userId ?? '';
+      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? appGlobal.userId;
       _curProd = _prefs.getString(Const.PREFS_CUR_PROD) ?? '';
       if (_userId == '') {
         Navigator.pop(context);
@@ -132,21 +154,24 @@ class PayPremiumState extends State<PayPremiumPage> {
         var userInfoProvider =
             Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
-        if (userInfoProvider.isPremiumUser() && context.mounted) {
+        if (userInfoProvider.isPremiumUser() && mounted) {
           Navigator.popUntil(
             context,
             ModalRoute.withName('/base'),
           );
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const PremiumCarePage()));
           CommonPopup.instance
               .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         } else {
-          Navigator.popUntil(
-            context,
-            ModalRoute.withName('/base'),
-          );
-          CommonPopup.instance
-              .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          if (mounted) {
+            Navigator.popUntil(
+              context,
+              ModalRoute.withName('/base'),
+            );
+            CommonPopup.instance
+                .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          }
         }
       } else {
         Navigator.popUntil(
@@ -160,7 +185,7 @@ class PayPremiumState extends State<PayPremiumPage> {
     //결제 에러 상태 리스너
     errCallback = (retStr) async {
       await CommonPopup.instance.showDialogBasicConfirm(context, '알림', retStr);
-      if (context.mounted) {
+      if (mounted) {
         Navigator.pop(context);
       }
     };
@@ -184,82 +209,67 @@ class PayPremiumState extends State<PayPremiumPage> {
         Colors.white,
         Colors.black,
       ),
+      backgroundColor: RColor.bgBasic_fdfdfd,
       body: SafeArea(
-        child: Container(
-          color: Colors.white,
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        _setTopDesc(),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        _setBanner(),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 10,
-                          ),
-                          child: Text(
-                            '결제 방식',
-                            style: TStyle.commonTitle,
-                          ),
-                        ),
-                        _setButtonSingle(),
-                        _setButtonSub(),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 6,
-                            horizontal: 20,
-                          ),
-                          child: Text(
-                            '★ 정기결제는 언제든 구독을 취소하실 수 있어요.',
-                            style: TextStyle(
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        _setPayInfo(),
-                        const SizedBox(
-                          height: 5.0,
-                        ),
-                        _setTerms(),
-                        const SizedBox(
-                          height: 15.0,
-                        ),
-                      ],
-                    ),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _setTopDesc(),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      _setBanner(),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      _isAgent ? _setAgentWidgets : _setNormalWidgets,
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      _setPayInfo(),
+                      const SizedBox(
+                        height: 5.0,
+                      ),
+                      _setTerms(),
+                      const SizedBox(
+                        height: 15.0,
+                      ),
+                    ],
                   ),
-                  Container(
+                ),
+                Visibility(
+                  visible: _isAgent
+                      ? (_listDivPayment[1] == true || _listDivPayment[2])
+                      : true,
+                  child: Container(
                     color: RColor.mainColor,
                     height: 70,
                     padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20),
+                      vertical: 10,
+                      horizontal: 20,
+                    ),
                     child: InkWell(
                       onTap: () async {
                         _isTryPayment = true;
                         if (_curProd.contains('ac_pr')) {
-                          commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+                          commonShowToast(
+                              '이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
                         } else {
                           DLog.d(PayPremiumPage.TAG, '단건 결제 요청');
                           setState(() {
                             _bProgress = true;
                           });
-                          if (_pdItemOnce != null && _isPaymentSingle) {
-                            dynamic result = await inAppBilling.requestStorePurchase(_pdItemOnce);
+                          if (_listDivPayment[1]) {
+                            dynamic result = await inAppBilling
+                                .requestStorePurchase(_pdItemOnce);
                             DLog.e('result : ${result.toString()}');
-                          } else if (_pdItemSub != null && _isPaymentSub) {
-                            dynamic result = await inAppBilling.requestStorePurchase(_pdItemSub);
+                          } else if (_listDivPayment[2]) {
+                            dynamic result = await inAppBilling
+                                .requestStorePurchase(_pdItemSub);
                             DLog.e('result : ${result.toString()}');
                           }
                         }
@@ -276,26 +286,75 @@ class PayPremiumState extends State<PayPremiumPage> {
                       ),
                     ),
                   ),
+                ),
+              ],
+            ),
+
+            //Progress
+            Visibility(
+              visible: _bProgress,
+              child: const Stack(
+                children: [
+                  Opacity(
+                    opacity: 0.3,
+                    child: ModalBarrier(dismissible: false, color: Colors.grey),
+                  ),
+                  Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-              //Progress
-              Visibility(
-                visible: _bProgress,
-                child: const Stack(
-                  children: [
-                    Opacity(
-                      opacity: 0.3,
-                      child: ModalBarrier(dismissible: false, color: Colors.grey),
-                    ),
-                    Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+  //단건 결제 버튼
+  Widget _setButtonAgent() {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        if (!_listDivPayment[0]) {
+          setState(() {
+            _listDivPayment[0] = true;
+            _listDivPayment[1] = false;
+            _listDivPayment[2] = false;
+          });
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: _listDivPayment[0] ? RColor.mainColor : RColor.lineGrey,
+            width: 1,
           ),
+          borderRadius: const BorderRadius.all(Radius.circular(14)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+        child: Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '12개월 무통장 결제',
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(
+                  height: 6,
+                ),
+                Text(
+                  _priceSingle,
+                  style: TStyle.title17,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -307,50 +366,25 @@ class PayPremiumState extends State<PayPremiumPage> {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        if (!_isPaymentSingle) {
+        if (!_listDivPayment[1]) {
           setState(() {
-            _isPaymentSub = false;
-            _isPaymentSingle = true;
+            _listDivPayment[1] = true;
+            _listDivPayment[0] = false;
+            _listDivPayment[2] = false;
           });
         }
       },
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-              color: _isPaymentSingle ? RColor.mainColor : RColor.lineGrey,
-              width: 0.8),
+              color: _listDivPayment[1] ? RColor.mainColor : RColor.lineGrey,
+              width: 1,
+          ),
           borderRadius: const BorderRadius.all(Radius.circular(14)),
-        ),
-        margin: const EdgeInsets.symmetric(
-          vertical: 6,
-          horizontal: 10,
         ),
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
         child: Row(
           children: [
-            Row(
-              children: [
-                Visibility(
-                  visible: _isPaymentSingle,
-                  child: Image.asset(
-                    'images/test_pay_icon_check_on.png',
-                    height: 16,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                Visibility(
-                  visible: !_isPaymentSingle,
-                  child: Image.asset(
-                    'images/test_pay_icon_check_off.png',
-                    height: 16,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              width: 14,
-            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -381,23 +415,21 @@ class PayPremiumState extends State<PayPremiumPage> {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        if (!_isPaymentSub) {
+        if (!_listDivPayment[2]) {
           setState(() {
-            _isPaymentSub = true;
-            _isPaymentSingle = false;
+            _listDivPayment[2] = true;
+            _listDivPayment[0] = false;
+            _listDivPayment[1] = false;
           });
         }
       },
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-              color: _isPaymentSub ? RColor.mainColor : RColor.lineGrey,
-              width: 0.8),
+              color: _listDivPayment[2] ? RColor.mainColor : RColor.lineGrey,
+              width: 1,
+          ),
           borderRadius: const BorderRadius.all(Radius.circular(15)),
-        ),
-        margin: const EdgeInsets.symmetric(
-          vertical: 6,
-          horizontal: 10,
         ),
         padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
         //EdgeInsets.symmetric(vertical: 20, horizontal: 10),
@@ -410,7 +442,7 @@ class PayPremiumState extends State<PayPremiumPage> {
                 Row(
                   children: [
                     Visibility(
-                      visible: _isPaymentSub,
+                      visible: _listDivPayment[2],
                       child: Image.asset(
                         'images/test_pay_icon_check_on.png',
                         height: 16,
@@ -418,7 +450,7 @@ class PayPremiumState extends State<PayPremiumPage> {
                       ),
                     ),
                     Visibility(
-                      visible: !_isPaymentSub,
+                      visible: !_listDivPayment[2],
                       child: Image.asset(
                         'images/test_pay_icon_check_off.png',
                         height: 16,
@@ -442,23 +474,27 @@ class PayPremiumState extends State<PayPremiumPage> {
                             fontSize: 15,
                           ),
                         ),
-                        const SizedBox(
-                          width: 14,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 2,
-                            horizontal: 8,
-                          ),
-                          decoration: const BoxDecoration(
-                            color: RColor.mainColor,
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          child: const Text(
-                            '추천상품',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
+                        Visibility(
+                          visible: !_isAgent,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 2,
+                              horizontal: 8,
+                            ),
+                            margin: const EdgeInsets.only(
+                              left: 14,
+                            ),
+                            decoration: const BoxDecoration(
+                              color: RColor.mainColor,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                            ),
+                            child: const Text(
+                              '추천상품',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                         )
@@ -616,7 +652,7 @@ class PayPremiumState extends State<PayPremiumPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebPage(),
+                    builder: (context) => const WebPage(),
                     settings: RouteSettings(
                       arguments: PgData(pgData: Net.AGREE_TERMS),
                     ),
@@ -635,7 +671,7 @@ class PayPremiumState extends State<PayPremiumPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => WebPage(),
+                    builder: (context) => const WebPage(),
                     settings: RouteSettings(
                       arguments: PgData(pgData: Net.AGREE_POLICY_INFO),
                     ),
@@ -654,6 +690,123 @@ class PayPremiumState extends State<PayPremiumPage> {
       child: Text(
         subTitle,
         style: TStyle.commonTitle,
+      ),
+    );
+  }
+
+  //에이전트 결제 화면
+  Widget get _setAgentWidgets {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '회원님을 위한 특별 할인 상품을 이용해 보세요.',
+            style: TStyle.commonTitle,
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          _setButtonAgent(),
+          const SizedBox(
+            height: 15,
+          ),
+          Theme(
+            data: ThemeData(
+              splashColor: Colors.transparent,
+            ).copyWith(
+              dividerColor: Colors.transparent,
+            ),
+            child: ListTileTheme(
+              contentPadding: const EdgeInsets.all(0),
+              dense: true,
+              horizontalTitleGap: 0.0,
+              minLeadingWidth: 0,
+              child: ExpansionTile(
+                collapsedIconColor: Colors.black,
+                iconColor: Colors.black,
+                //expandedAlignment: Alignment.centerLeft,
+                title: const Text(
+                  '다른 결제 방식 선택하기',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                onExpansionChanged: (expanded) {
+                  if (!expanded) {
+                    setState(() {
+                      _listDivPayment[0] = true;
+                      _listDivPayment[1] = false;
+                      _listDivPayment[2] = false;
+                    });
+                  }
+                },
+                children: [
+                  _setButtonSingle(),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  _setButtonSub(),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  const Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      '★ 정기결제는 언제든 구독을 취소하실 수 있어요.',
+                      style: TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //일반 결제 화면
+  Widget get _setNormalWidgets {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '결제 방식',
+            style: TStyle.commonTitle,
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          _setButtonSingle(),
+          const SizedBox(
+            height: 15,
+          ),
+          _setButtonSub(),
+          const SizedBox(
+            height: 15,
+          ),
+          const Align(
+            alignment: Alignment.topLeft,
+            child: Text(
+              '★ 정기결제는 언제든 구독을 취소하실 수 있어요.',
+              style: TextStyle(
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -729,12 +882,8 @@ class PayPremiumState extends State<PayPremiumPage> {
     if (trStr == TR.USER04) {
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        if (resData.retData.accountData != null) {
-          final AccountData accountData = resData.retData.accountData;
-          accountData.initUserStatus();
-        } else {
-          AccountData().setFreeUserStatus();
-        }
+        final AccountData accountData = resData.retData.accountData;
+        accountData.initUserStatus();
         _fetchPosts(
             TR.APP03,
             jsonEncode(<String, String>{
@@ -781,7 +930,7 @@ class PayPremiumState extends State<PayPremiumPage> {
         }
 
         setState(() {
-          if (_listPrBanner.length > 0) prBanner = true;
+          if (_listPrBanner.isNotEmpty) prBanner = true;
           //if (_listPrHgh.length > 0) prHGH = true;
           //if (_listPrMid.length > 0) prMID = true;
           //if (_listPrLow.length > 0) prLOW = true;

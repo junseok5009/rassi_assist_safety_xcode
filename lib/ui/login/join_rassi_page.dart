@@ -730,23 +730,30 @@ class RassiJoinState extends State<RassiJoinPage> {
     } else if (!_checkBoolList[2]) {
       CommonPopup.instance.showDialogBasic(context, '알림', '만 14세 이상을 확인해 주세요.');
     } else {
-      // 경로 선택으로 이동
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => JoinRoutePage(
-            userJoinInfo: UserJoinInfo(
-              userId: id.toLowerCase(),
-              // 아이디
-              email: pass,
-              // 비번
-              name: '',
-              phone: _strPhone.trim(),
-              pgType: 'RASSI',
+      // 씽크풀(일반)회원 가입 : 경로 선택으로 이동 / 씽크풀(에이전트)회원 가입 : 여기서 회원가입 시키고 앱 진입
+      if(_agentName.isEmpty){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JoinRoutePage(
+              userJoinInfo: UserJoinInfo(
+                // 아이디
+                userId: id.toLowerCase(),
+                // 비번
+                email: pass,
+                name: '',
+                phone: _strPhone.trim(),
+                pgType: 'RASSI',
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }else{
+        _reqType = 'join_confirm';
+        _reqParam =
+        'userid=${Net.getEncrypt(id.toLowerCase())}&passWd=${Net.getEncrypt(pass)}&hp=${Net.getEncrypt(_strPhone.trim())}&username=&sex_gubun=&joinRoute=OLLAMAG&daily=N&tm_sms_f=N';
+        _requestThink();
+      }
     }
   }
 
@@ -824,11 +831,13 @@ class RassiJoinState extends State<RassiJoinPage> {
         CommonPopup.instance.showDialogBasicConfirm(
             context, '알림', ('인증번호가 발송되었습니다.\n인증번호가 오지 않으면 입력하신 번호를 확인해 주세요.'));
         setState(() {
-          _phEnableField = true;
+          _phEnableField = false;
           _visibleAuth = true;
         });
       } else {
-        _phEnableField = true;
+        setState(() {
+          _phEnableField = true;
+        });
         if (mounted) {
           CommonPopup.instance.showDialogBasicConfirm(
               context, '알림', ('인증번호 요청이 실패하였습니다.\n정확한 번호 입력 후 다시 시도하여 주세요.'));
@@ -838,11 +847,11 @@ class RassiJoinState extends State<RassiJoinPage> {
       //인증번호 확인
       if (result == '00' || result == 'success') {
         //인증완료 회원가입 진행
-        commonShowToast('인증되었습니다');
+        commonShowToastCenter('인증되었습니다');
         setState(() {
           // 전화번호 필드 고정. 확인 완료
           _isPhoneCheck = true; //전화번호 확인 완료
-          _phEnableField = true;
+          _phEnableField = false;
           _visibleAuth = false;
         });
       } else if (result == '10' || result == '01' || result == '11') {

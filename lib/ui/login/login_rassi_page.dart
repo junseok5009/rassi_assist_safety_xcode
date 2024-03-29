@@ -233,16 +233,14 @@ class RassiLoginPageState extends State<RassiLoginPage> {
   }
 
   void _goBottomPage() {
-    if (_scrollController.position != null) {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 700),
-          curve: Curves.fastOutSlowIn,
-        );
-      });
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.fastOutSlowIn,
+      );
+    });
     }
-  }
 
   //아이디/비밀번호 찾기, 회원가입
   Widget _setAnotherRoute() {

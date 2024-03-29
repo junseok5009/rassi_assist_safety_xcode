@@ -1282,14 +1282,31 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
           }
           fontWeight = FontWeight.w700;
           padding = 10;
-          if (value >= 2.9) {
+          if (value > 3) {
             bgColor = RColor.bubbleChartStrongRed;
             padding = (3 * value) as double;
-          } else if (value >= 1) {
+          } else if (value > 1) {
             bgColor = RColor.bubbleChartRed;
             padding = (7 * value) as double;
             fontWeight = FontWeight.w600;
-          } else if (value <= -1 && value > -5) {
+          } else if (value > 0.1) {
+            bgColor = RColor.bubbleChartWeakRed;
+            padding = (7 * value) as double;
+            fontWeight = FontWeight.w400;
+            txtColor = RColor.bubbleChartTxtColorRed;
+          } else if (value > -0.1) {
+            bgColor = RColor.bubbleChartGrey;
+            value = value.abs();
+            padding = 10;
+            fontWeight = FontWeight.w400;
+            txtColor = const Color(0xff8a8a8a);
+          } else if (value > -1) {
+            bgColor = RColor.bubbleChartWeakBlue;
+            value = value.abs();
+            padding = (15 * value) as double;
+            fontWeight = FontWeight.w400;
+            txtColor = RColor.bubbleChartTxtColorBlue;
+          } else if (value > -5) {
             bgColor = RColor.bubbleChartBlue;
             value = value.abs();
             padding = (7 * value) as double;
@@ -1298,58 +1315,12 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
             bgColor = RColor.bubbleChartStrongBlue;
             value = value.abs();
             padding = 4.5 * value;
-            fontWeight = FontWeight.w500;
           } else {
-            fontWeight = FontWeight.w500;
+            bgColor = RColor.bubbleChartGrey;
+            value = value.abs();
             padding = 10;
-            switch (item.issueStatus) {
-              case 'bohab':
-                {
-                  if (value > 0.1) {
-                    bgColor = RColor.bubbleChartWeakRed;
-                    txtColor = RColor.bubbleChartTxtColorRed;
-                  } else if (value > -0.1) {
-                    DLog.e('보합 : item.keyword : ${item.keyword}');
-                    value = value.abs();
-                    bgColor = RColor.bubbleChartGrey;
-                    txtColor = RColor.bubbleChartTxtColorGrey;
-                  } else {
-                    value = value.abs();
-                    bgColor = RColor.bubbleChartWeakBlue;
-                    txtColor = Colors.blueAccent;
-                  }
-                  break;
-                }
-              case 'up':
-                {
-                  if (value > -0.7) {
-                    value = value.abs();
-                    bgColor = RColor.bubbleChartWeakRed;
-                    txtColor = RColor.bubbleChartTxtColorRed;
-                  } else {
-                    value = value.abs();
-                    bgColor = RColor.bubbleChartWeakBlue;
-                    txtColor = Colors.blueAccent;
-                  }
-                  break;
-                }
-              case 'dn':
-                {
-                  if (value > 0.7) {
-                    bgColor = RColor.bubbleChartWeakRed;
-                    txtColor = RColor.bubbleChartTxtColorRed;
-                  } else if (value > -0.7) {
-                    value = value.abs();
-                    bgColor = RColor.bubbleChartGrey;
-                    txtColor = RColor.bubbleChartTxtColorGrey;
-                  } else {
-                    value = value.abs();
-                    bgColor = RColor.bubbleChartWeakBlue;
-                    txtColor = Colors.blueAccent;
-                  }
-                  break;
-                }
-            }
+            fontWeight = FontWeight.w400;
+            txtColor = const Color(0xff8a8a8a);
           }
           if (value.abs() < minValue) {
             value = minValue;

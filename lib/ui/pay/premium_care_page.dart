@@ -586,7 +586,7 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                         padding: const EdgeInsets.symmetric(
                           vertical: 12,
                         ),
-                        child: Text(
+                        child: const Text(
                           '성과 TOP\n종목캐치',
                           textAlign: TextAlign.center,
                         ),
@@ -603,7 +603,7 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                         padding: const EdgeInsets.symmetric(
                           vertical: 12,
                         ),
-                        child: Text(
+                        child: const Text(
                           '조건별\n종목 리스트',
                           textAlign: TextAlign.center,
                         ),
@@ -714,7 +714,7 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
   }
 
   void _showDialog2ndItemViewExample1(BuildContext context) {
-    if (context != null) {
+    if (mounted) {
       showDialog(
         context: context,
         barrierDismissible: true,
@@ -806,7 +806,7 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
   }
 
   void _showDialog2ndItemViewExample2(BuildContext context) {
-    if (context != null) {
+    if (mounted) {
       showDialog(
         context: context,
         barrierDismissible: true,
@@ -1393,7 +1393,6 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                       value: _isChecked,
                       activeColor: Colors.black,
                       checkColor: Colors.black,
-                      //hoverColor: Colors.green,
                       side: MaterialStateBorderSide.resolveWith(
                         (states) => const BorderSide(width: 1.0, color: Colors.black),
                       ),
@@ -1618,6 +1617,20 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
     _requestThink();
   }
 
+  _requestGetSms(){
+    _reqType = 'get_sms';
+    _reqParam = "userid=$_userId";
+    _requestThink();
+  }
+
+  //간편 > 일반회원 전환
+  _requestChangeReg(String smsYn){
+    _reqType = 'change_reg';
+    _reqParam =
+        "userid=${Net.getEncrypt(_userId)}&nick=$_userId&hp=$_userPhoneNumber&tm_sms_f=$smsYn&join_channel=NM";
+    _requestThink();
+  }
+
   // 씽크풀 API 호출
   void _requestThink() async {
     String url = '';
@@ -1629,6 +1642,10 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
       url = Net.THINK_CERT_CONFIRM;
     } else if (_reqType == 'phone_change') {
       url = Net.THINK_CH_PHONE;
+    } else if (_reqType == 'get_sms') {
+      url = Net.THINK_INFO_MARKETING;
+    } else if (_reqType == 'change_reg') {
+      url = Net.THINK_JOIN_CHANGE_REG;
     }
 
     var urls = Uri.parse(url);
@@ -1675,19 +1692,29 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
       setState(() {});
     } else if (_reqType == 'phone_change') {
       if (result == '1') {
-        //_showDialogMsg('전화번호 변경이 완료되었습니다.');
+        _requestGetSms();
       }
-      /*else if(result == '-9') {
-        //DLog.d(UserInfoPage.TAG, '폰 변경 잘못된 Param');
-
-      } */
-      else {
-        //_showDialogMsg('전화번호 변경 요청이 실패하였습니다.');
-        //commonShowToastCenter('알 수 없는 오류');
-        //_reqType = '';
-        //_reqParam = '';
-        // _certConfirmTEController.clear();
-        // setState(() {});
+    } else if (_reqType == 'get_sms') {
+      final String result = response.body;
+      Map<String, dynamic> json = jsonDecode(result);
+      String smsYn = (json['tm_sms_f'] ?? 'N');
+      _requestChangeReg(smsYn);
+    } else if (_reqType == 'change_reg') {
+      DLog.d(PremiumCarePage.TAG_NAME, 'result : ${result.toString()}');
+      if (result == '0') {
+        DLog.d(PremiumCarePage.TAG_NAME, '입력 오류');
+      } else if(result == '-1') {
+        DLog.d(PremiumCarePage.TAG_NAME, '간편회원아님');
+      } else if(result == '-2') {
+        DLog.d(PremiumCarePage.TAG_NAME, '휴대폰번호필수');
+      }else if(result == '-3') {
+        DLog.d(PremiumCarePage.TAG_NAME, '불량등록된 휴대폰번호');
+      }else if(result == '-4') {
+        DLog.d(PremiumCarePage.TAG_NAME, '필명중복');
+      }else if(result == '-5') {
+        DLog.d(PremiumCarePage.TAG_NAME, '필명필수체크');
+      }else if(result == '-6') {
+        DLog.d(PremiumCarePage.TAG_NAME, '전화번호 중복');
       }
     }
   }

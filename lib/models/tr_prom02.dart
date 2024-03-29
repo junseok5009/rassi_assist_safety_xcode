@@ -344,6 +344,21 @@ class _CardProm02State extends State<CardProm02> {
           }
           break;
         }
+      case 'LPHG':
+        {
+          if(Platform.isAndroid) {
+            result = await Navigator.push(
+              buildContext,
+              CustomNvRouteClass.createRouteData(
+                const PayPremiumPromotionAosPage(),
+                RouteSettings(
+                  arguments: PgData(data: 'new_6m_70'),
+                ),
+              ),
+            );
+          }
+          break;
+        }
       case 'LPHF':
         {
           if(Platform.isAndroid) {
