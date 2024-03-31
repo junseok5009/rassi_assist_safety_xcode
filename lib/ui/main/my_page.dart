@@ -75,10 +75,12 @@ class MyPageState extends State<MyPage> {
 
   String _strGrade = '';
   String _imgGrade = 'images/main_my_icon_menu_1.png';
-  String _pushYn = ''; //PUSH 수신동의
+  bool _isPushOn = false; //PUSH 수신동의
   String _stockCnt = '';  //열람 가능 종목수
   String _pocketCnt = ''; //이용 가능 포켓수
   String _strUpgrade = ''; //결제 업그레이드
+  bool _isPremium = false;
+  bool _isUpgradeable = false;  //결제 업그레이드 가능
 
   List<Notice01> _listNotice = [];
 
@@ -305,7 +307,23 @@ class MyPageState extends State<MyPage> {
               Visibility(
                 child: InkWell(
                   child: Text(_strUpgrade),
-                  onTap: (){
+                  onTap: () async {
+
+                    if(_isPremium) {
+                      if(Platform.isAndroid && _isUpgradeable) {
+                        // 6개월 상품으로 업그레이드
+                        // String result = await CommonPopup.instance.showDialogUpgrade(context);
+                        // if (result == CustomNvRouteResult.landPremiumPage) {
+                        //   basePageState.navigateAndGetResultPayPremiumPage();
+                        // }
+                      }
+
+                    } else {
+                      String result = await CommonPopup.instance.showDialogPremium(context);
+                      if (result == CustomNvRouteResult.landPremiumPage) {
+                        basePageState.navigateAndGetResultPayPremiumPage();
+                      }
+                    }
 
                   },
                 ),
@@ -363,14 +381,14 @@ class MyPageState extends State<MyPage> {
 
               //매매신호 알림
               InkWell(
-                child: const Column(
+                child: Column(
                   children: [
-                    Text(
+                    const Text(
                       '매매신호 알림',
                       style: TStyle.content14,
                     ),
                     Text(
-                      'On',
+                      _isPushOn ? 'On' : 'Off',
                       style: TStyle.commonTitle,
                     ),
                   ],
@@ -411,7 +429,7 @@ class MyPageState extends State<MyPage> {
         ],
       ),
       onTap: () async {
-        UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+/*        UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         if (userInfoProvider.isPremiumUser()) {
           String result = await _showDialogPremiumAlready();
           if (mounted && result == CustomNvRouteResult.landing) {
@@ -429,7 +447,7 @@ class MyPageState extends State<MyPage> {
                 ? _navigateRefreshPay(context, const PayPremiumPage())
                 : _navigateRefreshPay(context, const PayPremiumAosPage());
           }
-        }
+        }*/
       },
     );
   }
@@ -629,11 +647,7 @@ class MyPageState extends State<MyPage> {
   void _showDialogAgree2(String smsYn) {
     bool bPush = false;
     bool bSms = false;
-    if (_pushYn == 'Y') {
-      bPush = true;
-    } else {
-      bPush = false;
-    }
+    bPush = _isPushOn;
     if (smsYn == 'Y') bSms = true;
 
     showDialog(
@@ -661,25 +675,19 @@ class MyPageState extends State<MyPage> {
                         height: 60,
                         fit: BoxFit.contain,
                       ),
-                      const SizedBox(
-                        height: 15.0,
-                      ),
+                      const SizedBox(height: 15),
                       const Text(
                         '마케팅 동의 변경',
                         style: TStyle.defaultTitle,
                         textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
                       ),
-                      const SizedBox(
-                        height: 25.0,
-                      ),
+                      const SizedBox(height: 25),
                       const Text(
                         RString.desc_marketing_agree,
                         style: TStyle.defaultContent,
                         textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
                       ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
+                      const SizedBox(height: 10),
                       //SMS 수신동의
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -732,9 +740,7 @@ class MyPageState extends State<MyPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 30.0,
-                      ),
+                      const SizedBox(height: 30),
                       Center(
                         child: MaterialButton(
                           child: Container(
@@ -1432,24 +1438,34 @@ class MyPageState extends State<MyPage> {
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
-    } else if (trStr == TR.USER04) {
+    }
+    else if (trStr == TR.USER04) {
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         User04 data = resData.retData;
         DLog.d(MyPage.TAG, data.accountData.toString());
 
-        //NOTE : aos / ios 구분 해서 처리 ios 는 업그레이드 결제 없음
         if (data.accountData != null) {
           final AccountData accountData = data.accountData;
           accountData.initUserStatusAfterPayment();
+          String curProd = accountData.productId;
+          String payMethod = accountData.payMethod;
+
           if (accountData.prodName == '프리미엄') {
             _strGrade = '프리미엄';
             _imgGrade = 'images/main_my_icon_menu_2.png';
             _stockCnt = '무제한';
             _pocketCnt = '10개';
+            _isPremium = true;
             if(Platform.isAndroid) {
-              //TODO 업그레이드 할 수 있는 결제인지 구분
-
+              if(curProd == 'ac_pr.am6d0' && curProd == 'ac_pr.am6d5' &&
+                  curProd == 'ac_pr.am6d7' && curProd == 'ac_pr.mw1e1' && curProd == 'ac_pr.m01') {
+                // 업그레이드 결제 차단
+              } else if (payMethod == 'PM50') {
+                // 업그레이드 결제 가능
+                _strUpgrade = '+기간 업그레이드';
+                _isUpgradeable = true;
+              }
             }
           }
           //3종목알림
@@ -1458,8 +1474,13 @@ class MyPageState extends State<MyPage> {
             _imgGrade = 'images/main_my_icon_menu_5.png';
             _stockCnt = '매일 5종목';
             _pocketCnt = '1개';
-            _strUpgrade = '프리미엄 업그레이드';
-            //NOTE : IOS 에서는 읽기모드
+            _isPremium = false;
+            if(Platform.isAndroid) {
+              if (payMethod == 'PM50') {
+                _strUpgrade = '프리미엄 업그레이드';
+                _isUpgradeable = true;
+              }
+            }
           }
           //베이직
           else {
@@ -1467,7 +1488,8 @@ class MyPageState extends State<MyPage> {
             _imgGrade = 'images/main_my_icon_menu_1.png';
             _stockCnt = '매일 5종목';
             _pocketCnt = '1개';
-            _strUpgrade = '프리미엄 업그레이드';
+            _strUpgrade = '프리미엄 업그레이드'; //일반 결제 화면으로 이동
+            _isPremium = false;
             if (Platform.isAndroid) inAppBilling.requestPurchaseAsync();
           }
         } else {
@@ -1476,6 +1498,8 @@ class MyPageState extends State<MyPage> {
           _imgGrade = 'images/main_my_icon_menu_1.png';
           _stockCnt = '매일 5종목';
           _pocketCnt = '1개';
+          _strUpgrade = '프리미엄 업그레이드'; //일반 결제 화면으로 이동
+          _isPremium = false;
           const AccountData().setFreeUserStatus();
         }
         setState(() {});
@@ -1524,7 +1548,9 @@ class MyPageState extends State<MyPage> {
             'userId': _userId,
             'selectCount': '10',
           }));
-    } else if (trStr == TR.APP02) {
+    }
+    //
+    else if (trStr == TR.APP02) {
       final TrApp02 resData = TrApp02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _listServiceCenterMenu.clear();
@@ -1535,26 +1561,24 @@ class MyPageState extends State<MyPage> {
       }
 
       _fetchPosts(
-          TR.POCK03,
+          TR.PUSH04,
           jsonEncode(<String, String>{
             'userId': _userId,
-            'selectCount': '10',
           }));
     }
-
     //푸시 설정 정보 조회
     else if (trStr == TR.PUSH04) {
       final TrPush04 resData = TrPush04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _pushYn = resData.retData.rcvAssentYn;
-        DLog.d(MyPage.TAG, '앱 푸시 수신동의 : $_pushYn');
+        if(resData.retData.rcvAssentYn == 'Y') _isPushOn = true;
+        DLog.d(MyPage.TAG, '앱 푸시 수신동의 : $_isPushOn');
 
         String type = 'get_sms';
         String strParam = "userid=$_userId";
-        _requestThink(type, strParam);
+        // _requestThink(type, strParam);
+        setState(() { });
       }
     }
-
     //푸시 토큰 등록
     else if (trStr == TR.PUSH01) {
       final TrPush01 resData = TrPush01.fromJson(jsonDecode(response.body));
