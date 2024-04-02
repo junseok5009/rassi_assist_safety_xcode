@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
@@ -25,7 +23,6 @@ import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_push04.dart';
 import 'package:rassi_assist/models/tr_user/tr_user04.dart';
-import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
@@ -43,6 +40,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/custom_nv_route_class.dart';
 import '../pay/payment_service.dart';
+
 
 /// 2020.10.06
 /// My
@@ -430,23 +428,19 @@ class MyPageState extends State<MyPage> {
               style: TStyle.textGreyDefault,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(width: 10),
-            InkWell(
-              child: Container(
-                height: 30,
-                decoration: const BoxDecoration(
-                  color: RColor.bgbora,
-                  shape: BoxShape.circle,
+            const SizedBox(width: 20),
+            Visibility(
+              visible: _isPremium,
+              child: InkWell(
+                child: const Icon(
+                  Icons.mood_rounded,
+                  size: 30,
+                  color: RColor.jinbora,
                 ),
-                alignment: Alignment.center,
-                child: const Text(
-                  '상담',
-                  style: TStyle.btnTextWht12,
-                ),
+                onTap: (){
+                  _showPremiumConsultKakao();
+                },
               ),
-              onTap: (){
-
-              },
             )
           ],
         )
@@ -645,9 +639,9 @@ class MyPageState extends State<MyPage> {
     );
   }
 
-  // 베이직일때
-  Future<String> _showDialogPremium() async {
-    if (context != null && context.mounted) {
+  //프리미엄 계정 전용 상담
+  _showPremiumConsultKakao() {
+    if (context.mounted) {
       return showDialog<String>(
         context: context,
         barrierDismissible: true,
@@ -677,55 +671,18 @@ class MyPageState extends State<MyPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
-                      '알림',
+                      '프리미엄 계정 전용 상담',
                       style: TStyle.title18T,
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      '계정을 업그레이드 하시고 매매비서를 더 완벽하게 이용해 보세요.',
-                      textAlign: TextAlign.start,
+                      '사용법을 좀 더 자세히 알고 싶으신가요?\n결제 관련 문의가 있으신가요?\n\n'
+                      '아래 상담하기 버튼을 누르시면\n바로 연결됩니다.',
+                      textAlign: TextAlign.center,
                       style: TStyle.content15,
                     ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 25,
-                      ),
-                      padding: const EdgeInsets.all(20),
-                      decoration: UIStyle.boxRoundFullColor6c(
-                        RColor.greyBox_f5f5f5,
-                      ),
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '프리미엄에서는\n',
-                              style: TStyle.content15,
-                            ),
-                            TextSpan(
-                              text: '매매신호 무제한+실시간 알림\n',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: RColor.mainColor,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '+포켓추가+나만의 매도신호\n',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: RColor.mainColor,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '등을 모두 이용하실 수 있습니다.',
-                              style: TStyle.content15,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 20),
+
                     InkWell(
                       child: Container(
                         height: 50,
@@ -737,15 +694,24 @@ class MyPageState extends State<MyPage> {
                         ),
                         alignment: Alignment.center,
                         child: const Text(
-                          '프리미엄계정 가입하기',
+                          '상담하기',
                           style: TextStyle(
                             color: Colors.white,
                           ),
                         ),
                       ),
                       onTap: () {
-                        Navigator.pop(context, CustomNvRouteResult.landPremiumPage);
+                        Navigator.pop(context);
+                        String strUrl = 'http://pf.kakao.com/_swxiLxb/chat';
+                        Platform.isIOS ? commonLaunchURL(strUrl) : commonLaunchUrlApp(strUrl);
                       },
+                    ),
+                    const SizedBox(height: 20),
+
+                    const Text(
+                      '이용시간 : 평일 오전9시 ~ 오후5시\n(점심시간 11:30~13:00)',
+                      textAlign: TextAlign.center,
+                      style: TStyle.content15,
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -1072,7 +1038,7 @@ class MyPageState extends State<MyPage> {
                     ),
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 20
                   ),
                   MaterialButton(
                     child: Center(
@@ -1141,7 +1107,6 @@ class MyPageState extends State<MyPage> {
     }
   }
 
-  //비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(MyPage.TAG, response.body);
 

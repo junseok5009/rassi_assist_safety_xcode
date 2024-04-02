@@ -58,7 +58,10 @@ class RString {
       '종목캐치 등 프리미엄 만을 위한 콘텐프를 제한없이 모두 이용하실 수 있습니다.';
   static const String user_usage_desc_basic1 = '';
   static const String user_usage_desc_basic2 = '';
-  static const String user_usage_desc_basic3 = '';
+  static const String user_premium_only_consultation_dese =
+      '프리미엄 계정 이용고객님을 위한 맞춤 상담을 제공합니다.'
+      '프리미엄 전용 상담은 MY페이지 메인화면 나의 계정 옆의 상담하기 버튼을 누르시면 연결됩니다.\n\n'
+      '프리미엄 계정 고객님이시라면 프리미엄 전용 상담 채널을 이용하세요!';
 
 
   // 결제 / pay
