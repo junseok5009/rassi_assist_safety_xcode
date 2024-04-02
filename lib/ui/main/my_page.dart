@@ -235,7 +235,6 @@ class MyPageState extends State<MyPage> {
                 ),
                 onTap: () {
                   _showDialogAdmin();
-                  // _navigateRefreshPay(context, TestPage(), PgData()); //TODO  임시코드
                 },
               ),
             ),
@@ -308,20 +307,28 @@ class MyPageState extends State<MyPage> {
                 child: InkWell(
                   child: Text(_strUpgrade),
                   onTap: () async {
-
                     if(_isPremium) {
+                      //TODO upgrade 한 뒤에 업그레이드 가능 상태 다시 확인
                       if(Platform.isAndroid && _isUpgradeable) {
                         // 6개월 상품으로 업그레이드
-                        // String result = await CommonPopup.instance.showDialogUpgrade(context);
-                        // if (result == CustomNvRouteResult.landPremiumPage) {
-                        //   basePageState.navigateAndGetResultPayPremiumPage();
-                        // }
+                        String result = await _showDialogPremiumUpgrade();
+                        if (result == CustomNvRouteResult.landPremiumPage) {
+                          basePageState.navigateAndGetResultPayPremiumPage();
+                        }
                       }
-
                     } else {
-                      String result = await CommonPopup.instance.showDialogPremium(context);
-                      if (result == CustomNvRouteResult.landPremiumPage) {
-                        basePageState.navigateAndGetResultPayPremiumPage();
+                      if(Platform.isAndroid && _isUpgradeable) {
+                        // 1개월 상품으로 업그레이드
+                        String result = await _showDialogPremiumUpgrade();
+                        if (result == CustomNvRouteResult.landPremiumPage) {
+                          basePageState.navigateAndGetResultPayPremiumPage();
+                        }
+                      } else {
+                        // 일반적인 프리미엄 결제
+                        String result = await CommonPopup.instance.showDialogPremium(context);
+                        if (result == CustomNvRouteResult.landPremiumPage) {
+                          basePageState.navigateAndGetResultPayPremiumPage();
+                        }
                       }
                     }
 
@@ -407,48 +414,43 @@ class MyPageState extends State<MyPage> {
 
   //나의 계정 좌측 유저 정보
   Widget _setUserStatus() {
-    return InkWell(
-      child: Row(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                _imgGrade,
-                height: 40,
-                fit: BoxFit.contain,
+    return Row(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              _imgGrade,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              _strGrade,
+              style: TStyle.textGreyDefault,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(width: 10),
+            InkWell(
+              child: Container(
+                height: 30,
+                decoration: const BoxDecoration(
+                  color: RColor.bgbora,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  '상담',
+                  style: TStyle.btnTextWht12,
+                ),
               ),
-              const SizedBox(width: 10),
-              Text(
-                _strGrade,
-                style: TStyle.textGreyDefault,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          )
-        ],
-      ),
-      onTap: () async {
-/*        UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-        if (userInfoProvider.isPremiumUser()) {
-          String result = await _showDialogPremiumAlready();
-          if (mounted && result == CustomNvRouteResult.landing) {
-            basePageState.goLandingPage(LD.linkTypeUrl, 'https://thinkpoolost.wixsite.com/moneybot/service', '', '', '');
-          }
-        } else {
-          String result = '';
-          if (userInfoProvider.is3StockUser()) {
-            result = await _showDialogPremiumUpgrade();
-          } else {
-            result = await _showDialogPremium();
-          }
-          if (mounted && result == CustomNvRouteResult.landPremiumPage) {
-            Platform.isIOS
-                ? _navigateRefreshPay(context, const PayPremiumPage())
-                : _navigateRefreshPay(context, const PayPremiumAosPage());
-          }
-        }*/
-      },
+              onTap: (){
+
+              },
+            )
+          ],
+        )
+      ],
     );
   }
 
@@ -643,156 +645,6 @@ class MyPageState extends State<MyPage> {
     );
   }
 
-  //마케팅동의 다이얼로그
-  void _showDialogAgree2(String smsYn) {
-    bool bPush = false;
-    bool bSms = false;
-    bPush = _isPushOn;
-    if (smsYn == 'Y') bSms = true;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Dialog(
-              backgroundColor: Colors.transparent,
-              insetPadding: const EdgeInsets.all(25), //전체 margin 동작
-              child: Container(
-                width: double.infinity,
-                // height: 250,
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: Colors.white,
-                ),
-
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'images/rassibs_img_infomation.png',
-                        height: 60,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(height: 15),
-                      const Text(
-                        '마케팅 동의 변경',
-                        style: TStyle.defaultTitle,
-                        textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
-                      ),
-                      const SizedBox(height: 25),
-                      const Text(
-                        RString.desc_marketing_agree,
-                        style: TStyle.defaultContent,
-                        textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
-                      ),
-                      const SizedBox(height: 10),
-                      //SMS 수신동의
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'SMS 수신동의',
-                            style: TStyle.defaultContent,
-                            textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
-                          ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                  value: bSms,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      bSms = value!;
-                                    });
-                                  }),
-                              const Text(
-                                '동의',
-                                textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      //PUSH 수신동의
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            '앱푸시 수신동의',
-                            style: TStyle.defaultContent,
-                            textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
-                          ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                  value: bPush,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      bPush = value!;
-                                    });
-                                  }),
-                              const Text(
-                                '동의',
-                                textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-                      Center(
-                        child: MaterialButton(
-                          child: Container(
-                            width: 180,
-                            height: 40,
-                            decoration: UIStyle.roundBtnStBox(),
-                            child: const Center(
-                              child: Text(
-                                '확인',
-                                style: TStyle.btnTextWht16,
-                                textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
-                              ),
-                            ),
-                          ),
-                          onPressed: () {
-                            saveMarketingAgree(bPush, bSms);
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  //마케팅동의 설정 저장
-  void saveMarketingAgree(bool bPush, bool bSms) {
-    DLog.d(MyPage.TAG, 'Agree $bPush | $bSms');
-
-    String pushYn = 'N';
-    if (bPush) pushYn = 'Y';
-    String smsYn = 'N';
-    if (bSms) smsYn = 'Y';
-
-    _fetchPosts(
-        TR.PUSH06,
-        jsonEncode(<String, String>{
-          'userId': _userId,
-          'rcvAssentYn': pushYn,
-        }));
-
-    String type = 'set_sms';
-    String param = 'userid=$_userId&etcData=tm_sms_f:$smsYn|daily:N|';
-    _requestThink(type, param);
-  }
-
   // 베이직일때
   Future<String> _showDialogPremium() async {
     if (context != null && context.mounted) {
@@ -828,9 +680,7 @@ class MyPageState extends State<MyPage> {
                       '알림',
                       style: TStyle.title18T,
                     ),
-                    const SizedBox(
-                      height: 20
-                    ),
+                    const SizedBox(height: 20),
                     const Text(
                       '계정을 업그레이드 하시고 매매비서를 더 완벽하게 이용해 보세요.',
                       textAlign: TextAlign.start,
@@ -897,133 +747,6 @@ class MyPageState extends State<MyPage> {
                         Navigator.pop(context, CustomNvRouteResult.landPremiumPage);
                       },
                     ),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ).then(
-        (value) {
-          if (value != null) {
-            return value;
-          } else {
-            return CustomNvRouteResult.cancel;
-          }
-        },
-      );
-    } else {
-      return CustomNvRouteResult.cancel;
-    }
-  }
-
-  // 3종목일때
-  Future<String> _showDialogPremiumUpgrade() async {
-    if (context != null && context.mounted) {
-      return showDialog<String>(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context, CustomNvRouteResult.cancel);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      '알림',
-                      style: TStyle.title18T,
-                    ),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    const Text(
-                      '추가 결제 없이 계정을 업그레이드 하시고 매매비서를 더 완벽하게 이용해 보세요.',
-                      textAlign: TextAlign.start,
-                      style: TStyle.content15,
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 25,
-                      ),
-                      padding: const EdgeInsets.all(20),
-                      decoration: UIStyle.boxRoundFullColor6c(
-                        RColor.greyBox_f5f5f5,
-                      ),
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '프리미엄에서는\n',
-                              style: TStyle.content15,
-                            ),
-                            TextSpan(
-                              text: '매매신호 무제한+실시간 알림\n',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: RColor.mainColor,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '+포켓추가+나만의 매도신호\n',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: RColor.mainColor,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '등을 모두 이용하실 수 있습니다.',
-                              style: TStyle.content15,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      child: Container(
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 30,
-                        ),
-                        decoration: UIStyle.boxRoundFullColor50c(
-                          RColor.mainColor,
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          '프리미엄계정 업그레이드',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context, CustomNvRouteResult.landPremiumPage);
-                      },
-                    ),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -1045,9 +768,9 @@ class MyPageState extends State<MyPage> {
     }
   }
 
-  // 프리미엄일때
-  Future<String> _showDialogPremiumAlready() async {
-    if (context != null && context.mounted) {
+  // 업그레이드 결제
+  Future<String> _showDialogPremiumUpgrade() async {
+    if (context.mounted) {
       return showDialog<String>(
         context: context,
         barrierDismissible: true,
@@ -1077,14 +800,12 @@ class MyPageState extends State<MyPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
-                      '알림',
+                      '프리미엄 계정 업그레이드',
                       style: TStyle.title18T,
                     ),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
+                    const SizedBox(height: 20),
                     const Text(
-                      '매매비서를 완벽하게 이용해 보세요.',
+                      '추가 결제 없이 프리미엄 계정을\n지금 바로 이용해 보세요.',
                       textAlign: TextAlign.start,
                       style: TStyle.content15,
                     ),
@@ -1139,19 +860,17 @@ class MyPageState extends State<MyPage> {
                         ),
                         alignment: Alignment.center,
                         child: const Text(
-                          '활용법 자세히 보기',
+                          '계정 업그레이드',
                           style: TextStyle(
                             color: Colors.white,
                           ),
                         ),
                       ),
                       onTap: () {
-                        Navigator.pop(context, CustomNvRouteResult.landing);
+                        Navigator.pop(context, CustomNvRouteResult.landPremiumPage);
                       },
                     ),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -1456,10 +1175,14 @@ class MyPageState extends State<MyPage> {
             _imgGrade = 'images/main_my_icon_menu_2.png';
             _stockCnt = '무제한';
             _pocketCnt = '10개';
+            _strUpgrade = '';
             _isPremium = true;
-            if(Platform.isAndroid) {
-              if(curProd == 'ac_pr.am6d0' && curProd == 'ac_pr.am6d5' &&
-                  curProd == 'ac_pr.am6d7' && curProd == 'ac_pr.mw1e1' && curProd == 'ac_pr.m01') {
+            if (Platform.isAndroid) {
+              if (curProd == 'ac_pr.am6d0' &&
+                  curProd == 'ac_pr.am6d5' &&
+                  curProd == 'ac_pr.am6d7' &&
+                  curProd == 'ac_pr.mw1e1' &&
+                  curProd == 'ac_pr.m01') {
                 // 업그레이드 결제 차단
               } else if (payMethod == 'PM50') {
                 // 업그레이드 결제 가능
@@ -1575,7 +1298,6 @@ class MyPageState extends State<MyPage> {
 
         String type = 'get_sms';
         String strParam = "userid=$_userId";
-        // _requestThink(type, strParam);
         setState(() { });
       }
     }
@@ -1601,40 +1323,5 @@ class MyPageState extends State<MyPage> {
         },
       ),
     );
-  }
-
-  // 씽크풀 API 호출
-  void _requestThink(String type, String param) async {
-    DLog.d(MyPage.TAG, 'marketing param : $param');
-
-    String nUrl = '';
-    if (type == 'get_sms') {
-      nUrl = Net.THINK_INFO_MARKETING;
-    } else if (type == 'set_sms') {
-      nUrl = Net.THINK_EDIT_MARKETING;
-    } else if (type == 'pay_complete') {
-      nUrl = Net.THINK_CHECK_DAILY; //로그인/결제 휴면 방지
-    }
-
-    var url = Uri.parse(nUrl);
-    final http.Response response = await http.post(
-      url,
-      headers: Net.think_headers,
-      body: param,
-    );
-
-    // response ------------------------------------------------
-    DLog.d(MyPage.TAG, '${response.statusCode}');
-    DLog.d(MyPage.TAG, response.body);
-
-    if (type == 'get_sms') {
-      final String result = response.body;
-      Map<String, dynamic> json = jsonDecode(result);
-      String strSms = json['tm_sms_f'] ?? 'N';
-      // _showDialogAgree(strSms);
-      _showDialogAgree2(strSms);
-    } else if (type == 'set_sms') {
-      //마케팅 수신 저장 완료
-    }
   }
 }
