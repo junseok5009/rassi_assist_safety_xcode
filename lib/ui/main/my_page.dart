@@ -302,6 +302,7 @@ class MyPageState extends State<MyPage> {
             children: [
               _setUserStatus(),
               Visibility(
+                visible: _isUpgradeable,
                 child: InkWell(
                   child: Text(_strUpgrade),
                   onTap: () async {
@@ -1134,6 +1135,7 @@ class MyPageState extends State<MyPage> {
           accountData.initUserStatusAfterPayment();
           String curProd = accountData.productId;
           String payMethod = accountData.payMethod;
+          DLog.d(MyPage.TAG, '현재 상품: $curProd');
 
           if (accountData.prodName == '프리미엄') {
             _strGrade = '프리미엄';
@@ -1143,12 +1145,14 @@ class MyPageState extends State<MyPage> {
             _strUpgrade = '';
             _isPremium = true;
             if (Platform.isAndroid) {
-              if (curProd == 'ac_pr.am6d0' &&
-                  curProd == 'ac_pr.am6d5' &&
-                  curProd == 'ac_pr.am6d7' &&
-                  curProd == 'ac_pr.mw1e1' &&
+              if (curProd == 'ac_pr.am6d0' ||
+                  curProd == 'ac_pr.am6d5' ||
+                  curProd == 'ac_pr.am6d7' ||
+                  curProd == 'ac_pr.mw1e1' ||
                   curProd == 'ac_pr.m01') {
                 // 업그레이드 결제 차단
+                _strUpgrade = '';
+                _isUpgradeable = false;
               } else if (payMethod == 'PM50') {
                 // 업그레이드 결제 가능
                 _strUpgrade = '+기간 업그레이드';

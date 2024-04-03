@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
@@ -367,8 +366,10 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
     _isTryPayment = true;
     //프리미엄 사용자의 업그레이드 요청 (1개월 -> 6개월)
     if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
-      if(_curProd == 'ac_pr.am6d0' && _curProd == 'ac_pr.am6d5' &&
-          _curProd == 'ac_pr.am6d7' && _curProd == 'ac_pr.mw1e1') {
+      if (_curProd == 'ac_pr.am6d0' ||
+          _curProd == 'ac_pr.am6d5' ||
+          _curProd == 'ac_pr.am6d7' ||
+          _curProd == 'ac_pr.mw1e1') {
         commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
       } else {
         DLog.d(PayPremiumPromotionAosPage.TAG, '새로운 업그레이드 결제 요청');

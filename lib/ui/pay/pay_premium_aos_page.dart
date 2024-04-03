@@ -57,6 +57,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
   String _curProd = ''; //현재 사용중인 상품은
   String _payMethod = '';
   bool _isUpgradeOn = false;
+  bool _isUpgradeOn6 = false; //6개월 업그레이드
   bool _isFirstBtn = true;
 
   final List<String> _productLists = Platform.isAndroid
@@ -107,11 +108,11 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
   @override
   void initState() {
     super.initState();
-    _isAgent = Provider.of<UserInfoProvider>(context, listen: false)
-            .getUser04
-            .accountData
-            .isAgent ==
-        'Y';
+    // _isAgent = Provider.of<UserInfoProvider>(context, listen: false)
+    //         .getUser04
+    //         .accountData
+    //         .isAgent ==
+    //     'Y';
     CustomFirebaseClass.logEvtScreenView(
         PayPremiumAosPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
     if (_isAgent) {
@@ -287,10 +288,10 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         DLog.e('didPop : $didPop');
         if (didPop) {
           return;
-        }else{
-          if(_bProgress){
+        } else {
+          if (_bProgress) {
             return;
-          }else{
+          } else {
             Navigator.of(context).pop();
           }
         }
@@ -379,6 +380,9 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     );
   }
 
+  // # 이미 1개월 정기결제 사용자가 또 1개월 정기결제를 결제하는 경우
+  // # 구글 결제모듈에서 이미 사용중인 상품이라고 차단됨, 1개월 단건 사용자는 1개월 정기결제를 할 수 있는지 테스트 필요
+  // # ios 1개월 정기 결제 사용자가 aos 1개월 정기 결제를 요청하는 경우는 -> 업그레이드 요청으로 가서 결제모듈에서 차단됨
   //프리미엄 구매 요청 시작하기
   void _requestPurchase() {
     DLog.d(PayPremiumAosPage.TAG, '결제 요청시 사용중인 pdCode : $_curProd');
@@ -386,10 +390,10 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR')) {
       //기존 결제가 AOS 일때만 업그레이드 결제 가능
       if (_payMethod == 'PM50') {
-        if (_curProd == 'ac_pr.am6d0' &&
-            _curProd == 'ac_pr.am6d5' &&
-            _curProd == 'ac_pr.am6d7' &&
-            _curProd == 'ac_pr.mw1e1' &&
+        if (_curProd == 'ac_pr.am6d0' ||
+            _curProd == 'ac_pr.am6d5' ||
+            _curProd == 'ac_pr.am6d7' ||
+            _curProd == 'ac_pr.mw1e1' ||
             _curProd == 'ac_pr.m01') {
           commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
         } else {
@@ -482,7 +486,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
       children: [
         //단건결제
         Visibility(
-          visible: !_isUpgradeOn,
+          visible: !_isUpgradeOn && !_isUpgradeOn6,
           child: InkWell(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
@@ -553,85 +557,88 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         ),
 
         // 1개월 정기결제
-        InkWell(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          child: Container(
-            decoration: _listDivPayment[2]
-                ? UIStyle.boxSelectedLineMainColor()
-                : UIStyle.boxUnSelectedLineMainGrey(),
-            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
-            margin: const EdgeInsets.only(
-              bottom: 15,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Row(
-                      children: [
-                        Visibility(
-                          visible: _listDivPayment[2],
-                          child: Image.asset(
-                            'images/icon_circle_check_y.png',
-                            height: 25,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        Visibility(
-                          visible: !_listDivPayment[2],
-                          child: Image.asset(
-                            'images/icon_circle_check_n.png',
-                            height: 25,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 15),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '매월 정기결제',
-                          style: TextStyle(
-                            fontSize: 15,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            _setOrgPriceText(_originalPriceA01),
-                            const SizedBox(width: 7),
-                            Text(
-                              _priceSub,
-                              style: TStyle.title18T,
+        Visibility(
+          visible: !_isUpgradeOn6,
+          child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            child: Container(
+              decoration: _listDivPayment[2]
+                  ? UIStyle.boxSelectedLineMainColor()
+                  : UIStyle.boxUnSelectedLineMainGrey(),
+              padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+              margin: const EdgeInsets.only(
+                bottom: 15,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Row(
+                        children: [
+                          Visibility(
+                            visible: _listDivPayment[2],
+                            child: Image.asset(
+                              'images/icon_circle_check_y.png',
+                              height: 25,
+                              fit: BoxFit.contain,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                _setPromotionText('22% 이상!'),
-              ],
+                          ),
+                          Visibility(
+                            visible: !_listDivPayment[2],
+                            child: Image.asset(
+                              'images/icon_circle_check_n.png',
+                              height: 25,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 15),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '매월 정기결제',
+                            style: TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              _setOrgPriceText(_originalPriceA01),
+                              const SizedBox(width: 7),
+                              Text(
+                                _priceSub,
+                                style: TStyle.title18T,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  _setPromotionText('22% 이상!'),
+                ],
+              ),
             ),
+            onTap: () {
+              setState(() {
+                _listDivPayment[2] = true;
+                _listDivPayment[0] = false;
+                _listDivPayment[1] = false;
+                _listDivPayment[3] = false;
+              });
+            },
           ),
-          onTap: () {
-            setState(() {
-              _listDivPayment[2] = true;
-              _listDivPayment[0] = false;
-              _listDivPayment[1] = false;
-              _listDivPayment[3] = false;
-            });
-          },
         ),
 
         // 6개월 정기결제
         Visibility(
-          visible: !_isUpgradeOn,
+          visible: !_isUpgradeOn || _isUpgradeOn6,
           child: InkWell(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
@@ -1073,7 +1080,6 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     _parseTrData(trStr, response);
   }
 
-  // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(PayPremiumAosPage.TAG, response.body);
 
@@ -1090,6 +1096,11 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
           _payMethod = accountData.payMethod;
           if (accountData.prodName == '프리미엄') {
             //이미 프리미엄 계정으로 결제 화면 종료
+            if (_payMethod == 'PM50') {
+              //인앱으로 결제한 경우
+              _isUpgradeOn6 = true;
+              _listDivPayment[3] = true;
+            }
           } else if (accountData.prodCode == 'AC_S3') {
             if (_payMethod == 'PM50') {
               //인앱으로 결제한 경우
