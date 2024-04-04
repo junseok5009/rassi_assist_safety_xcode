@@ -130,7 +130,7 @@ class MyPageState extends State<MyPage> {
 
   //저장된 데이터를 가져오는 것에 시간이 필요함
   Future<void> _loadPrefData() async {
-    // _getToken = await _messaging.getToken();
+    // _getToken = = (await FirebaseMessaging.instance.getToken()) ?? '';
     _prefs = await SharedPreferences.getInstance();
     _todayString = TStyle.getTodayString();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
@@ -270,9 +270,7 @@ class MyPageState extends State<MyPage> {
                 ),
                 SizedBox(width: 5),
                 ImageIcon(
-                  AssetImage(
-                    'images/rassi_icon_qu_bl.png',
-                  ),
+                  AssetImage('images/rassi_icon_qu_bl.png'),
                   size: 20,
                   color: Colors.grey,
                 ),
@@ -302,12 +300,11 @@ class MyPageState extends State<MyPage> {
             children: [
               _setUserStatus(),
               Visibility(
-                visible: _isUpgradeable,
+                visible: !_isPremium || _isUpgradeable,
                 child: InkWell(
                   child: Text(_strUpgrade),
                   onTap: () async {
                     if(_isPremium) {
-                      //TODO upgrade 한 뒤에 업그레이드 가능 상태 다시 확인
                       if(Platform.isAndroid && _isUpgradeable) {
                         // 6개월 상품으로 업그레이드
                         String result = await _showDialogPremiumUpgrade();
@@ -1038,9 +1035,7 @@ class MyPageState extends State<MyPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 20
-                  ),
+                  const SizedBox(height: 20),
                   MaterialButton(
                     child: Center(
                       child: Container(

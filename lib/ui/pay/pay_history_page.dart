@@ -50,7 +50,9 @@ class PayHistoryPageState extends State<PayHistoryPage> {
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(PayHistoryPage.TAG_NAME,);
+    CustomFirebaseClass.logEvtScreenView(
+      PayHistoryPage.TAG_NAME,
+    );
 
     _loadPrefData().then(
       (value) {
@@ -68,9 +70,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
     _prefs = await SharedPreferences.getInstance();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
 
-    Platform.isIOS
-        ? inAppBilling = PaymentService()
-        : inAppBilling = PaymentAosService();
+    Platform.isIOS ? inAppBilling = PaymentService() : inAppBilling = PaymentAosService();
   }
 
   @override
@@ -94,8 +94,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
               child: CommonView.setDatePickerBtnView(
                 "${_dateFormat.format(_dateTime)}년",
                 () async {
-                  await CommonDatePicker.showYearPicker(context, _dateTime)
-                      .then(
+                  await CommonDatePicker.showYearPicker(context, _dateTime).then(
                     (value) {
                       if (value != null) {
                         _dateTime = value;
@@ -114,7 +113,9 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                 : Expanded(
                     child: ListView.builder(
                       scrollDirection: Axis.vertical,
-                      padding: const EdgeInsets.symmetric(horizontal: 20,),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
                       itemCount: _orderList.length,
                       itemBuilder: (context, index) {
                         return _setTileOrder01(_orderList[index]);
@@ -149,13 +150,14 @@ class PayHistoryPageState extends State<PayHistoryPage> {
 
     if (item.chList.isNotEmpty) {
       pdName = item.chList[0].prodName;
-      period = '${TStyle.getDateSFormat(item.chList[0].startDate)}~${TStyle.getDateSFormat(item.chList[0].endDate)}';
+      period = '${TStyle.getDateSFormat(item.chList[0].startDate)}~'
+          '${TStyle.getDateSFormat(item.chList[0].endDate)}';
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20,),
+        const SizedBox(height: 20),
         Text(
           TStyle.getDateFormat(item.orderDttm),
           style: TStyle.textGrey14,
@@ -166,8 +168,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
           alignment: Alignment.centerLeft,
           decoration: UIStyle.boxRoundLine6(),
           child: Padding(
-            padding:
-                const EdgeInsets.all(15.0,),
+            padding: const EdgeInsets.all(15),
             child: Column(
               children: [
                 Row(
@@ -180,9 +181,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                         style: TStyle.contentGrey14,
                       ),
                     ),
-                    const SizedBox(
-                      width: 5.0,
-                    ),
+                    const SizedBox(width: 5),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -201,16 +200,12 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(
-                            height: 8,
-                          ),
+                          const SizedBox(height: 8),
                           Text(
                             pdName,
                             style: TStyle.commonPurple14,
                           ),
-                          const SizedBox(
-                            height: 3,
-                          ),
+                          const SizedBox(height: 3),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
@@ -222,9 +217,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                                   style: TStyle.textGreyDefault,
                                 ),
                               ),
-                              const SizedBox(
-                                width: 4.0,
-                              ),
+                              const SizedBox(width: 4),
                               Text(
                                 period,
                                 style: TStyle.defaultContent,
@@ -236,12 +229,10 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                     ),
                   ],
                 ),
-             
+
                 Visibility(
                   visible: hasRefund || isPossibleCancel,
-                  child: const SizedBox(
-                    height: 10,
-                  ),
+                  child: const SizedBox(height: 10),
                 ),
 
                 //환불내역
@@ -262,9 +253,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                               '환불',
                               style: TStyle.contentMGrey,
                             ),
-                            const SizedBox(
-                              width: 10.0,
-                            ),
+                            const SizedBox(width: 10),
                             Text(
                               TStyle.getMoneyPoint(item.refundAmt),
                               style: TStyle.title18,
@@ -305,9 +294,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                             if (item.orderChannel == 'CH33') {
                               _showRefundInfo(item.csPhoneNo);
                             } else if (item.orderChannel == 'CH32') {
-                              _goRefundPage(
-                                item.orderSn,
-                              );
+                              _goRefundPage(item.orderSn);
                             }
                           },
                         ),
@@ -336,10 +323,8 @@ class PayHistoryPageState extends State<PayHistoryPage> {
     );
   }
 
-  _navigateRefresh(
-      BuildContext context, Widget instance, RouteSettings settings) async {
-    final result =
-        await Navigator.push(context, CustomNvRouteClass.createRouteData(instance, settings));
+  _navigateRefresh(BuildContext context, Widget instance, RouteSettings settings) async {
+    final result = await Navigator.push(context, CustomNvRouteClass.createRouteData(instance, settings));
     if (result == 'cancel') {
       DLog.d(PayHistoryPage.TAG, '*** navigate cancel ***');
     } else {
@@ -380,38 +365,28 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                   height: 60,
                   fit: BoxFit.contain,
                 ),
-                const SizedBox(
-                  height: 15.0,
-                ),
+                const SizedBox(height: 15),
                 const Text(
                   '해지안내',
                   style: TStyle.title20,
                 ),
-                const SizedBox(
-                  height: 30.0,
-                ),
+                const SizedBox(height: 30),
                 const Text(
                   '해당 상품의 해지문의는\n 결제 고객센터로 연결해 주세요.',
                   textAlign: TextAlign.center,
                   style: TStyle.defaultContent,
                 ),
-                const SizedBox(
-                  height: 30.0,
-                ),
+                const SizedBox(height: 30),
                 const Text(
                   '결제 고객센터',
                   style: TStyle.defaultContent,
                 ),
-                const SizedBox(
-                  height: 5.0,
-                ),
+                const SizedBox(height: 5),
                 Text(
                   number,
                   style: TStyle.title22,
                 ),
-                const SizedBox(
-                  height: 15.0,
-                ),
+                const SizedBox(height: 15),
               ],
             ),
           ),

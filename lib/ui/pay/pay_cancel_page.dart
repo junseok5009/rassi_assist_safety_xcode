@@ -123,7 +123,7 @@ class PayCancelState extends State<PayCancelWidget> {
       elevation: 0,
       title: const Text('해지하기', style: TStyle.title17,),
       actions: [
-        IconButton(icon: Icon(Icons.close),
+        IconButton(icon: const Icon(Icons.close),
             color: Colors.black,
             onPressed: (){
               Navigator.of(context).pop('cancel');
@@ -178,23 +178,23 @@ class PayCancelState extends State<PayCancelWidget> {
         children: [
           Row(
             children: [
-              Text('사용기간  ', style: TStyle.textGreyDefault,),
+              const Text('사용기간  ', style: TStyle.textGreyDefault,),
               Text(_useDays, style: TStyle.content16,),
             ],
           ),
           Row(
             children: [
-              Text('사용금액  ', style: TStyle.textGreyDefault,),
+              const Text('사용금액  ', style: TStyle.textGreyDefault,),
               Text(_useAmt, style: TStyle.content16,),
             ],
           ),
           Row(
             children: [
-              Text('환불수수료  ', style: TStyle.textGreyDefault,),
+              const Text('환불수수료  ', style: TStyle.textGreyDefault,),
               Text(_cancelFee, style: TStyle.content16,),
             ],
           ),
-          const SizedBox(height: 15.0,),
+          const SizedBox(height: 15),
 
           Container(
             padding: const EdgeInsets.all(7),
@@ -231,11 +231,10 @@ class PayCancelState extends State<PayCancelWidget> {
           minWidth: 120.0,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
-              side: BorderSide(color: RColor.deepBlue)),
+              side: const BorderSide(color: RColor.deepBlue)),
           color: RColor.deepBlue,
           textColor: Colors.white,
-          child: const Text("취소", style: TextStyle(fontSize: 17),
-              textScaleFactor: Const.TEXT_SCALE_FACTOR),
+          child: const Text("취소", style: TextStyle(fontSize: 17),),
           onPressed: () {
             Navigator.of(context).pop('cancel');
           },
@@ -251,8 +250,7 @@ class PayCancelState extends State<PayCancelWidget> {
           textColor: Colors.white,
           child: const Text(
               "확인",
-              style: TextStyle(fontSize: 17),
-              textScaleFactor: Const.TEXT_SCALE_FACTOR),
+              style: TextStyle(fontSize: 17)),
           onPressed: () {
             _sendPayWebRefund();
           },
@@ -271,7 +269,7 @@ class PayCancelState extends State<PayCancelWidget> {
     // Navigator.push(context, new MaterialPageRoute(
     //   builder: (context) => PayWebPage(),
     // ));
-    _navigateRefresh(context, PayWebPage());
+    _navigateRefresh(context, const PayWebPage());
   }
 
   //결제웹 전달&리턴
@@ -336,7 +334,7 @@ class PayCancelState extends State<PayCancelWidget> {
                     style: TStyle.title20,
                     ),
                   const SizedBox(height: 30.0,),
-                  Text('$message', ),
+                  Text(message, ),
                   const SizedBox(height: 30.0,),
                   MaterialButton(
                     child: Center(
@@ -369,7 +367,7 @@ class PayCancelState extends State<PayCancelWidget> {
 
   // convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
-    DLog.d(PayCancelPage.TAG, trStr + ' ' +json);
+    DLog.d(PayCancelPage.TAG, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     final http.Response response = await http.post(

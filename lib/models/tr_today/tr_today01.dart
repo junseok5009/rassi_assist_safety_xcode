@@ -65,7 +65,7 @@ class TileTodayS01 extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: 125,
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
         child: Row(
           children: [
             listItem.isNotEmpty ? _setDataBox(listItem[0], 0) : _setNoDataBox(),
