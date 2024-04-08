@@ -37,7 +37,7 @@ class Invest23 {
   });
 
   factory Invest23.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Loan'] as List;
+    var list = json['list_Loan'] as List?;
     List<Invest23ChartData> dataList = list == null
         ? []
         : list.map((i) => Invest23ChartData.fromJson(i)).toList();
@@ -49,8 +49,7 @@ class Invest23 {
     );
   }
   factory Invest23.fromJsonWithIndex(Map<String, dynamic> json) {
-    var list = json['list_Loan'] as List;
-
+    var list = json['list_Loan'] as List?;
     List<Invest23ChartData> dataList = list == null
         ? []
         : list.asMap().entries.map((e) =>  Invest23ChartData.fromJsonWithIndex(e.value, e.key)).toList();

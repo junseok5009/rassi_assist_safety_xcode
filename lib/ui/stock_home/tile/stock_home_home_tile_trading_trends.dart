@@ -836,6 +836,7 @@ class StockHomeHomeTileTradingTrendsState
           child: SfCartesianChart(
             plotAreaBorderWidth: 0,
             enableAxisAnimation: false,
+
             primaryXAxis: CategoryAxis(
               axisBorderType: AxisBorderType.withoutTopAndBottom,
               axisLine: const AxisLine(

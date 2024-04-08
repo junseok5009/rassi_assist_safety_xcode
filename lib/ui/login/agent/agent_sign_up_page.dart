@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
+import 'package:rassi_assist/common/common_function_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
@@ -16,6 +17,7 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
+import 'package:rassi_assist/models/tr_mgr_agent/tr_mgr_agent02.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
@@ -44,6 +46,8 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
   String _strOnTime = ''; // 씽크풀 API 호출 시간
 
   String _agentName = ''; // 추천인
+  String _agentCode = ''; // 에이전트 코드
+  String _joinRoute = ''; // 씽크풀 에이전트 회원가입
 
   final _phoneController = TextEditingController(); // 휴대폰 번호 입력 박스 컨트롤러
   String _strPhone = ''; // 휴대폰 번호
@@ -63,15 +67,35 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
     super.initState();
     CustomFirebaseClass.logEvtScreenView('에이전트_회원가입');
     _loadPrefData().then((_) {
-      Future.delayed(Duration.zero, () {
-        Uri? strLink = AppGlobal().pendingDynamicLinkData?.link ??
-            Uri.parse(_prefs.getString(Const.PREFS_DEEPLINK_URI) ?? '');
-        strLink.queryParameters.forEach((key, value) {
-          //if(key == '')
-        });
-        _agentName = strLink.queryParameters.toString();
-        _userJoinInfo =
-            ModalRoute.of(context)!.settings.arguments as UserJoinInfo;
+      Future.delayed(Duration.zero, () async {
+
+        _userJoinInfo = ModalRoute.of(context)?.settings.arguments as UserJoinInfo;
+
+        // 24.03.15 Agent 추가, 링크 있을 경우 + 씽크풀 가입 X, 앱 가입 라서 신규 회원 가입
+        await CommonFunctionClass.instance.getSavedAgentLink.then(
+          (savedAgentLinkUri) => {
+            if (savedAgentLinkUri != null)
+              {
+                savedAgentLinkUri.queryParameters.forEach(
+                  (key, value) {
+                    if (key == 'agentCode') {
+                      _agentCode = value;
+                      _fetchPosts(
+                        TR.MGR_AGENT02,
+                        jsonEncode(
+                          <String, String>{
+                            "selectDiv": "CODE",
+                            "selectValue": _agentCode,
+                          },
+                        ),
+                      );
+                    }
+                  },
+                ),
+              }
+          },
+        );
+
         if (_userJoinInfo.pgType == 'SSGOLLA') {
           _strPhone = _userJoinInfo.phone;
           _phoneController.text = _userJoinInfo.phone;
@@ -324,20 +348,17 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
                               context, '알림', '서비스 이용약관에 동의해 주세요.');
                         } else {
                           _reqType = 'join_sns';
+                          // 에이전트 회원가입은 휴대폰번호가 있어서 일반 회원으로 가입시키기 위해 join_channel = NM 입니다.
                           if (_userJoinInfo.pgType == 'SSGOLLA') {
                             _reqParam =
-                                //"snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(_userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(_userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
-                                // TEST 마케팅 에이전트 : OLLAMAG , 전문가 에이전트 : OLLAEXAG
-                                // 에이전트 회원가입은 휴대폰번호가 있어서 일반 회원으로 가입시키기 위해 join_channel = NM 입니다.
-                                "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(_userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=OLLAMAG&joinChannel=NM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(_userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
+                                "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(_userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_joinRoute&joinChannel=NM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(_userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
                             _requestThink();
                           }
                           //네이버/카카오/애플/구글
                           else {
                             if (_userJoinInfo.userId.isNotEmpty) {
                               _reqParam =
-                                  "snsId=${Net.getEncrypt(_userJoinInfo.userId)}&snsPos=${_userJoinInfo.pgType}&nick=&userName=${_userJoinInfo.name}&sexGubun=&joinRoute=OLLAMAG&joinChannel=NM&email=${_userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${_userJoinInfo.phone}";
-                              //"snsId=${_userJoinInfo.userId}&snsPos=${_userJoinInfo.pgType}&nick=&userName=${_userJoinInfo.name}&sexGubun=&joinRoute=OLLAMAG&joinChannel=SM&email=${_userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N";
+                                  "snsId=${Net.getEncrypt(_userJoinInfo.userId)}&snsPos=${_userJoinInfo.pgType}&nick=&userName=${_userJoinInfo.name}&sexGubun=&joinRoute=$_joinRoute&joinChannel=NM&email=${_userJoinInfo.email}&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${_userJoinInfo.phone}";
                               _requestThink();
                             }
                           }
@@ -733,7 +754,10 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
         } else {
           _userJoinInfo.userId = resData.userId;
           await HttpProcessClass()
-              .callHttpProcess0002(_userJoinInfo.userId)
+              .callHttpProcess0002(
+            vUserId: _userJoinInfo.userId,
+            vAgentCode: _agentCode,
+          )
               .then((value) {
             switch (value.appResultCode) {
               case 200:
@@ -761,6 +785,43 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
         }
       }
       setState(() => _isNetworkDo = false);
+    }
+  }
+
+  void _fetchPosts(String trStr, String json) async {
+    DLog.i('$trStr $json');
+
+    var url = Uri.parse(Net.TR_BASE + trStr);
+    final http.Response response = await http.post(
+      url,
+      body: json,
+      headers: Net.headers,
+    );
+
+    _parseTrData(trStr, response);
+  }
+
+  Future<void> _parseTrData(String trStr, final http.Response response) async {
+    DLog.i(response.body);
+    if (trStr == TR.MGR_AGENT02) {
+      final TrMgrAgent02 resData =
+          TrMgrAgent02.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        setState(() {
+          _agentName = resData.retData.listAgent[0].agentName;
+          _joinRoute = resData.retData.listAgent[0].joinRoute;
+        });
+      } else if (resData.retCode == RT.NO_DATA) {
+        AppGlobal().pendingDynamicLinkData = null;
+        await _prefs.setString(Const.PREFS_DEEPLINK_URI, '');
+        if (mounted) {
+          CommonPopup.instance
+              .showDialogBasicConfirm(context, '알림', '에이전트 코드 오류')
+              .then((value) {
+            Navigator.pop(context);
+          });
+        }
+      }
     }
   }
 
@@ -831,6 +892,7 @@ class _AgentSignUpPageState extends State<AgentSignUpPage> {
     }
 
     AppGlobal().pendingDynamicLinkData = null;
+    await _prefs.setString(Const.PREFS_DEEPLINK_URI, '');
     basePageState = BasePageState();
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(

@@ -108,7 +108,7 @@ class HttpProcessClass {
   }
 
   // 회원가입 프로세스 User01 > psuh01 > push03
-  Future<HttpProcessResultClass> callHttpProcess0002(String vUserId) async {
+  Future<HttpProcessResultClass> callHttpProcess0002({required String vUserId, required String vAgentCode}) async {
     DLog.d(tag, 'ㅡㅡㅡㅡㅡ callHttpProcess0002 ㅡㅡㅡㅡㅡ');
     _callNum = 0002;
     _prefs = await SharedPreferences.getInstance();
@@ -133,6 +133,7 @@ class HttpProcessClass {
           'appEnv': _appEnv,
           'userGroup': 'UGTA',
           'groupSubDiv': '',
+          if(vAgentCode.isNotEmpty) 'agentCode' : vAgentCode,
         }));
 
     DLog.d(tag,

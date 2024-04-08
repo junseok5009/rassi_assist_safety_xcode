@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/login/agent/agent_welcome_first_page.dart';
@@ -65,7 +69,7 @@ class _AgentWelcomePageState extends State<AgentWelcomePage> {
             InkWell(
               onTap: () {
                 if (_pageIndex >= 2) {
-                  Navigator.pop(context);
+                  _fetchPostsWithParse();
                 } else {
                   setState(() {
                     _pageIndex++;
@@ -84,5 +88,21 @@ class _AgentWelcomePageState extends State<AgentWelcomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _fetchPostsWithParse() async {
+    var url = Uri.parse(Net.TR_BASE + TR.USER05);
+    await http.post(
+      url,
+      body: jsonEncode(
+        <String, String>{
+          "userId": _userId,
+        },
+      ),
+      headers: Net.headers,
+    );
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 }

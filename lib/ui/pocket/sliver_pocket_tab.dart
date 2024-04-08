@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
@@ -35,13 +36,12 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
         initialIndex: Provider.of<PageNotifier>(context, listen: false).pktIndex,
     );
     _userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-    //TODO @@@@@
-    // _userInfoProvider.addListener(refreshChildWithMoveTab(Provider.of<PageNotifier>(context, listen: false).pktIndex));
+    _userInfoProvider.addListener(() => refreshChildWithMoveTab(Provider.of<PageNotifier>(context, listen: false).pktIndex),);
   }
 
   @override
   void dispose() {
-    // _userInfoProvider.removeListener(refreshChildWithMoveTab(0));
+    _userInfoProvider.removeListener(() => refreshChildWithMoveTab(0),);
     super.dispose();
   }
 
@@ -171,6 +171,9 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
       }
     } else if (moveTabIndex == 1) {
       if (SliverPocketMyWidget.globalKey.currentState == null) {
+        if(changePocketSn.isNotEmpty){
+          AppGlobal().pocketSn = changePocketSn;
+        }
         _tabController.animateTo(1);
       } else {
         var childCurrentState = SliverPocketMyWidget.globalKey.currentState;
@@ -185,4 +188,5 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
       }
     }
   }
+
 }

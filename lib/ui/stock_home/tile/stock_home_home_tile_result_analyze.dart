@@ -28,7 +28,9 @@ class StockHomeHomeTileResultAnalyze extends StatefulWidget {
   static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey =
       GlobalKey();
 
-  StockHomeHomeTileResultAnalyze() : super(key: globalKey);
+  const StockHomeHomeTileResultAnalyze({super.key});
+
+  //StockHomeHomeTileResultAnalyze() : super(key: globalKey);
 
   @override
   State<StockHomeHomeTileResultAnalyze> createState() =>
@@ -72,8 +74,6 @@ class StockHomeHomeTileResultAnalyzeState
   ChartSeriesController? _chartColumnController;
   ChartSeriesController? _chartLineController;
 
-  //int _initSelectBarIndex = 0;
-
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
     _isQuart = true;
@@ -97,6 +97,7 @@ class StockHomeHomeTileResultAnalyzeState
   @override
   void dispose() {
     _swiperController.dispose();
+    _tooltipBehavior?.hide();
     super.dispose();
   }
 
@@ -1041,6 +1042,9 @@ class StockHomeHomeTileResultAnalyzeState
       child: SfCartesianChart(
         enableMultiSelection: false,
         plotAreaBorderWidth: 0,
+        margin: const EdgeInsets.symmetric(
+          vertical: 1,
+        ),
         primaryXAxis: CategoryAxis(
           axisBorderType: AxisBorderType.withoutTopAndBottom,
           axisLine: const AxisLine(
@@ -1067,10 +1071,11 @@ class StockHomeHomeTileResultAnalyzeState
             ),
           ),
         ),
-        primaryYAxis: NumericAxis(
+        primaryYAxis: const NumericAxis(
           axisBorderType: AxisBorderType.withoutTopAndBottom,
           rangePadding: ChartRangePadding.round,
           isVisible: false,
+          plotOffset: 2,
         ),
         axes: <ChartAxis>[
           CategoryAxis(
@@ -1123,7 +1128,7 @@ class StockHomeHomeTileResultAnalyzeState
                 ),
               );
             },
-            plotBands: [
+            plotBands: const [
               PlotBand(
                 start: 0,
                 end: 0,
@@ -1222,29 +1227,64 @@ class StockHomeHomeTileResultAnalyzeState
             xAxisName: 'xAxis',
             animationDelay: 0,
             animationDuration: _seriesAnimation,
-            dataLabelSettings: const DataLabelSettings(
+            dataLabelSettings: DataLabelSettings(
               isVisible: true,
               borderWidth: 1,
               borderColor: RColor.greyBoxLine_c9c9c9,
               color: Colors.white,
               opacity: 0.6,
               //labelAlignment: ChartDataLabelAlignment.top,
-              textStyle: TextStyle(
-                fontSize: 10,
+              textStyle: const TextStyle(
+                fontSize: 8,
                 color: Colors.black,
               ),
               showZeroValue: true,
-              overflowMode: OverflowMode.shift,
+              margin: EdgeInsets.zero,
+              builder: (data, point, series, pointIndex, seriesIndex) {
+                if (pointIndex == _highestIndex) {
+                  //DLog.e('최고 index : $pointIndex');
+                  //return '최고123';
+                  //return '최고 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
+                  return Container(
+                    /*padding: const EdgeInsets.all(2,),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: const BorderRadius.all(Radius.circular(4)),
+                      border: Border.all(width: 1, color: RColor.greyBox_dcdfe2,),
+                    ),*/
+                    child: Text(
+                      '최고 ${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원',
+                      style: const TextStyle(
+                        fontSize: 10,
+                      ),
+                    ),
+                  );
+                } else if (pointIndex == _lowestIndex) {
+                  //DLog.e('최저 index : $index');
+                  //return '최저';
+                  //return '최저 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
+                  return Container(
+                    /*padding: const EdgeInsets.all(2,),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: const BorderRadius.all(Radius.circular(4)),
+                      border: Border.all(width: 1, color: RColor.greyBox_dcdfe2,),
+                    ),*/
+                    child: Text(
+                      '최저 ${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원',
+                      style: const TextStyle(
+                        fontSize: 10,
+                      ),
+                    ),
+                  );
+                } else {
+                  //DLog.e('기타 index : $index');
+                  return const SizedBox();
+                }
+                //return Container(child: Text('${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원'),);
+              },
+              //overflowMode: OverflowMode.shift,
             ),
-            dataLabelMapper: (datum, index) {
-              if (index == _highestIndex) {
-                return '최고 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
-              } else if (index == _lowestIndex) {
-                return '최저 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
-              } else {
-                return '';
-              }
-            },
             onRendererCreated: (controller) {
               _chartLineController = controller;
             },
@@ -1345,7 +1385,7 @@ class StockHomeHomeTileResultAnalyzeState
       _confirmSearch10SalesIndexInListData = -1;
       _confirmSearch10SalesIndexInListBarData = -1;
 
-      int beforeListBarDataLength = _listBarData.length;
+      //int beforeListBarDataLength = _listBarData.length;
 
       _listData.clear();
       _listBarData.clear();

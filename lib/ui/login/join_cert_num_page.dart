@@ -4,21 +4,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
+import 'package:rassi_assist/common/common_function_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
+import 'package:rassi_assist/ui/login/agent/agent_sign_up_page.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
 import 'package:rassi_assist/ui/login/terms_of_use_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login_division_page.dart';
 
@@ -219,44 +219,48 @@ class JoinCertPageState extends State<JoinCertPage> {
         if (resData.resultCode.toString().trim() == '-1') {
           DLog.d(JoinCertPage.TAG, '씽크풀 가입안됨');
           if (mounted) {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            String agentLink =
-                AppGlobal().pendingDynamicLinkData?.link.toString() ??
-                    prefs.getString(Const.PREFS_DEEPLINK_URI) ??
-                    '';
-            if (agentLink.isNotEmpty && mounted) {
-              // Agent회원 - 회원가입으로 이동
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/agent_sign_up',
-                ModalRoute.withName(LoginDivisionPage.routeName),
-                arguments: UserJoinInfo(
-                  userId: Net.getEncrypt(_strPhone),
-                  email: '',
-                  name: '',
-                  phone: _strPhone,
-                  pgType: 'SSGOLLA',
-                ),
-              );
-            } else {
-              // 약관 동의로 이동
-              if (mounted) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TermsOfUsePage(
-                      UserJoinInfo(
-                        userId: '',
+            // 24.03.15 Agent 추가, 링크 있을 경우 + 씽크풀 가입 X, 앱 가입 라서 신규 회원 가입
+            await CommonFunctionClass.instance.isAgentLinkSaved.then(
+              (isAgentLinkSaved) => {
+                if (mounted && isAgentLinkSaved)
+                  {
+                    // Agent회원 - 회원가입으로 이동
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AgentSignUpPage.routeName,
+                      ModalRoute.withName(LoginDivisionPage.routeName),
+                      arguments: UserJoinInfo(
+                        userId: Net.getEncrypt(_strPhone),
                         email: '',
                         name: '',
                         phone: _strPhone,
                         pgType: 'SSGOLLA',
                       ),
                     ),
-                  ),
-                );
-              }
-            }
+                  }
+                else
+                  {
+                    // 약관 동의로 이동
+                    if (mounted)
+                      {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TermsOfUsePage(
+                              UserJoinInfo(
+                                userId: '',
+                                email: '',
+                                name: '',
+                                phone: _strPhone,
+                                pgType: 'SSGOLLA',
+                              ),
+                            ),
+                          ),
+                        ),
+                      },
+                  },
+              },
+            );
           }
         } else {
           DLog.d(JoinCertPage.TAG, '씽크풀 가입 되어 있음');

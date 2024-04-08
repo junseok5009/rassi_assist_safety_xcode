@@ -30,12 +30,14 @@ class User04 {
   final String prodCateg;
   final AccountData accountData;
   final CashData? cashData;
+  final AgentData agentData;
 
   const User04({
     this.cashRemain = '',
     this.prodCateg = '',
     this.accountData = const AccountData(),
     this.cashData,
+    this.agentData = const AgentData(),
   });
 
   factory User04.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class User04 {
       prodCateg: '',
       accountData: acntData,
       cashData: cItem,
+      agentData: json['struct_Agent'] == null ? const AgentData() : AgentData.fromJson(json['struct_Agent']),
     );
   }
 }
@@ -63,11 +66,6 @@ class AccountData {
   final String productId;
   final String isFreeUser;
   final String subsStatus;
-  // test agent 추가
-  final String joinLink1;
-  final String joinLink2;
-  final String isAgent;
-  final String isWelcomeCheck;
 
   const AccountData({
     this.userId = '',
@@ -81,10 +79,6 @@ class AccountData {
     this.productId = '',
     this.isFreeUser = '',
     this.subsStatus = '',
-    this.joinLink1 = '',
-    this.joinLink2 = '',
-    this.isAgent = 'Y',
-    this.isWelcomeCheck = 'N',
   });
 
   factory AccountData.fromJson(Map<String, dynamic> json) {
@@ -100,10 +94,6 @@ class AccountData {
       productId: json['productId'] ?? '',
       isFreeUser: json['isFreeUser'] ?? '',
       subsStatus: json['subsStatus'] ?? '',
-      joinLink1: json['joinLink1'] ?? '',
-      joinLink2: json['joinLink2'] ?? '',
-      isAgent: json['isAgent'] ?? 'Y',
-      isWelcomeCheck: json['isWelcomeCheck'] ?? 'N',
     );
   }
 
@@ -210,5 +200,30 @@ class CashData {
   @override
   String toString() {
     return '$cashRemain|$prodCateg';
+  }
+}
+
+class AgentData {
+  final String agentCode;
+  final String agentName;
+  final String agentConfrimYn;
+
+  const AgentData({
+    this.agentCode = '',
+    this.agentName = '',
+    this.agentConfrimYn = '',
+  });
+
+  factory AgentData.fromJson(Map<String, dynamic> json) {
+    return AgentData(
+      agentCode: json['agentCode'] ?? '',
+      agentName: json['agentName'] ?? '',
+      agentConfrimYn: json['agentConfrimYn'] ?? '',
+    );
+  }
+
+  @override
+  String toString() {
+    return '$agentCode|$agentName|$agentConfrimYn';
   }
 }

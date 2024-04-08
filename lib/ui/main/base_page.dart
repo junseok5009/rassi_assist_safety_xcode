@@ -15,7 +15,6 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
-import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
@@ -71,6 +70,8 @@ class BasePageState extends State<BasePage> {
 
   var appGlobal = AppGlobal();
 
+  bool _showPage = false;
+
   //var inAppBilling = PaymentService();
 
   @override
@@ -85,11 +86,9 @@ class BasePageState extends State<BasePage> {
       debugPrint('foreground message =====>');
       if (message != null) {
         Map<String, dynamic> msgData = message.data;
-        if (msgData != null) {
-          //받은 메시지 내용 ios 로그표시만, android notification 생성
-          DLog.d(BasePage.TAG, 'onMessage : ${msgData.toString()}');
-          // setAndroidForegroundMessaging(message);
-        }
+        //받은 메시지 내용 ios 로그표시만, android notification 생성
+        DLog.d(BasePage.TAG, 'onMessage : ${msgData.toString()}');
+        // setAndroidForegroundMessaging(message);
       }
     });
 
@@ -100,11 +99,9 @@ class BasePageState extends State<BasePage> {
       debugPrint('onBackgroundOpen =====>');
       if (message != null) {
         Map<String, dynamic> msgData = message.data;
-        if (msgData != null) {
-          debugPrint('onBackgroundOpen : ${msgData.toString()}');
-          _onSelectNotification(msgData);
-        }
-      } else {
+        debugPrint('onBackgroundOpen : ${msgData.toString()}');
+        _onSelectNotification(msgData);
+            } else {
         // _getAndroidBackgroundMessage();
       }
     });
@@ -114,11 +111,9 @@ class BasePageState extends State<BasePage> {
       debugPrint('onMessageOpen =====>');
       if (message != null) {
         Map<String, dynamic> msgData = message.data;
-        if (msgData != null) {
-          debugPrint('onMessageOpen : ${msgData.toString()}');
-          _onSelectNotification(msgData);
-        }
-      }
+        debugPrint('onMessageOpen : ${msgData.toString()}');
+        _onSelectNotification(msgData);
+            }
     });
 
     // 안드로이드 채널 생성
@@ -132,25 +127,34 @@ class BasePageState extends State<BasePage> {
     }
 
     // 23.12.01 포켓 프로바이더 데이터 셋팅
-
-    Provider.of<PocketProvider>(context, listen: false).setList();
-    Provider.of<SignalProvider>(context, listen: false).setList();
-    _userInfoProviderInit().then((user04) {
-      if (user04.accountData.isAgent == 'Y' && user04.accountData.isWelcomeCheck == 'N') {
-        Navigator.push(
-          context,
-          CustomNvRouteClass.createRouteName(
-            instance: const AgentWelcomePage(),
-            routeName: AgentWelcomePage.routeName,
-          ),
-        );
-      }
+    _initProvider().then((_) {
+      setState(() {
+        _showPage = true;
+      });
+      Provider.of<UserInfoProvider>(context, listen: false)
+          .init()
+          .then((user04) {
+        if (user04.agentData.agentCode.isNotEmpty &&
+            user04.agentData.agentConfrimYn == 'N') {
+          Navigator.push(
+            context,
+            CustomNvRouteClass.createRouteName(
+              instance: const AgentWelcomePage(),
+              routeName: AgentWelcomePage.routeName,
+            ),
+          );
+        }
+      });
     });
+
     //SchedulerBinding.instance.addPostFrameCallback((_) => Provider.of<PurchaseHistoryProvider>(context, listen: false).init());
   }
 
-  Future<User04> _userInfoProviderInit() async {
-    return await Provider.of<UserInfoProvider>(context, listen: false).init();
+  Future<void> _initProvider() async {
+    await Provider.of<PocketProvider>(context, listen: false).setList();
+    if (mounted) {
+      await Provider.of<SignalProvider>(context, listen: false).setList();
+    }
   }
 
   //시작시 포그라운드 푸시 받기 설정
@@ -179,7 +183,7 @@ class BasePageState extends State<BasePage> {
       ),
       child: WillPopScope(
         onWillPop: _onWillPop,
-        child: _setLayout(),
+        child: _showPage ? _setLayout() : _setLoadingLayout(),
       ),
     );
   }
@@ -198,15 +202,40 @@ class BasePageState extends State<BasePage> {
     return Future.value(true);
   }
 
+  Widget _setLoadingLayout() {
+    return Scaffold(
+      body: Container(),
+      bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        selectedItemColor: RColor.mainColor,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color.fromRGBO(249, 249, 249, 1),
+        items: <BottomNavigationBarItem>[
+          _buildBottomNavigationItem(
+              activeIconPath: 'images/base_tab_home_on.png',
+              iconPath: 'images/base_tab_home_off.png'),
+          _buildBottomNavigationItem(
+              activeIconPath: 'images/base_tab_trade_on.png',
+              iconPath: 'images/base_tab_trade_off.png'),
+          _buildBottomNavigationItem(
+              activeIconPath: 'images/base_tab_notice_on.png',
+              iconPath: 'images/base_tab_notice_off.png'),
+          _buildBottomNavigationItem(
+              activeIconPath: 'images/base_tab_my_on.png',
+              iconPath: 'images/base_tab_my_off.png'),
+        ],
+        currentIndex: 0,
+      ),
+    );
+  }
+
   Widget _setLayout() {
     return Scaffold(
       body: _widgetOptions[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        // unselectedFontSize: 0.0,
-        // selectedFontSize: 0.0,
         showSelectedLabels: false,
         showUnselectedLabels: false,
-//        unselectedItemColor: Colors.grey[900],
         selectedItemColor: RColor.mainColor,
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color.fromRGBO(249, 249, 249, 1),
@@ -270,12 +299,9 @@ class BasePageState extends State<BasePage> {
   /// 푸시 메시지 처리
   void _handlePushMessage(String msg) {
     DLog.d(BasePage.TAG, '# 푸시_handlePushMessage => $msg');
-
-    if (msg != null) {
-      Map<String, dynamic> json = jsonDecode(msg);
-      _onSelectNotification(json);
+    Map<String, dynamic> json = jsonDecode(msg);
+    _onSelectNotification(json);
     }
-  }
 
   //Notification 선택시 동작
   Future _onSelectNotification(Map<String, dynamic> message) async {
@@ -361,7 +387,7 @@ class BasePageState extends State<BasePage> {
             );
           } else {
             //홈_AI매매신호 == LPB2로
-            if (SliverHomeWidget.globalKey.currentState == null) {
+            if (SliverHomeWidget.globalKey.currentState == null && mounted) {
               Provider.of<PageNotifier>(context, listen: false).setPageData(1);
               setState(() {
                 _selectedIndex = 0;
@@ -520,7 +546,7 @@ class BasePageState extends State<BasePage> {
         {
           // 인앱 웹뷰 페이지
           if (stkCode.isNotEmpty) {
-            String title = stkName ?? '';
+            String title = stkName;
             Navigator.push(
               context,
               Platform.isAndroid
@@ -538,7 +564,7 @@ class BasePageState extends State<BasePage> {
       case LD.linkTypeOutLink:
         {
           // 외부 링크 실행
-          if (stkCode != null && stkCode.isNotEmpty) {
+          if (stkCode.isNotEmpty) {
             commonLaunchUrlAppOpen(stkCode);
           }
           break;

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
@@ -270,7 +269,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                     StockHomeHomeTileStockCompare(),
 
                     // 실적분석
-                    StockHomeHomeTileResultAnalyze(),
+                    const StockHomeHomeTileResultAnalyze(),
 
                     // 투자자별 매매동향 (외국인/기관 매매동향) + 일자별 매매동향 현황
                     StockHomeHomeTileTradingTrends(),
@@ -340,7 +339,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
           width: 10,
         ),
         Image.asset(
-          'images/test_logo_samsung.png',
+          //'images/test_logo_samsung.png',
+          '',
           width: 30,
           height: 30,
           fit: BoxFit.fill,
@@ -474,7 +474,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
         } else if (item.newsDiv == 'SCR') {
           // 잠정 실적
           basePageState.callPageRouteData(
-            ResultAnalyzePage(),
+            const ResultAnalyzePage(),
             PgData(
               stockName: _appGlobal.stkName,
               stockCode: _appGlobal.stkCode,
@@ -483,7 +483,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
         } else if (item.newsDiv == 'RPT') {
           // 최신 종목 리포트 리스트 페이지
           basePageState.callPageRouteData(
-            StockRecentReportListPage(),
+            const StockRecentReportListPage(),
             PgData(
               stockName: stkName,
               stockCode: stkCode,
@@ -567,7 +567,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
               horizontal: 15,
             ),
             padding: const EdgeInsets.all(20),
-            child: _signal01Data == null || _isFreeVisible
+            child: _isFreeVisible
                 ? (_acvList.isNotEmpty)
                     ? _setRassiSignalFreeView()
                     : _setRassiNoSignalFreeView()
@@ -590,11 +590,11 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       },
       child: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             width: double.infinity,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   '라씨매매비서는',
                   style: TextStyle(
@@ -869,11 +869,11 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       },
       child: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             width: double.infinity,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   '라씨매매비서는',
                   style: TextStyle(
@@ -1124,8 +1124,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                       contentDiv == 'SCR' ||
                       contentDiv == 'DIS' ||
                       contentDiv == 'RPT')
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         SizedBox(
                           width: 4,
                         ),
@@ -1183,7 +1183,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
             {
               // 최신 종목 리포트 리스트 페이지
               basePageState.callPageRouteData(
-                StockRecentReportListPage(),
+                const StockRecentReportListPage(),
                 PgData(
                   stockName: stkName,
                   stockCode: stkCode,
@@ -1197,7 +1197,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
             {
               // 잠정 실적
               basePageState.callPageRouteData(
-                ResultAnalyzePage(),
+                const ResultAnalyzePage(),
                 PgData(
                   stockName: _appGlobal.stkName,
                   stockCode: _appGlobal.stkCode,
@@ -1444,7 +1444,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                           ),
                           onTap: () {
                             basePageState.callPageRouteUpData(
-                              IssueViewer(),
+                              const IssueViewer(),
                               PgData(
                                 userId: '',
                                 pgSn: item.newsSn,
@@ -1825,8 +1825,8 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
             subTitle,
             style: TStyle.title18T,
           ),
-          Row(
-            children: const [
+          const Row(
+            children: [
               Text(
                 '더보기 ',
                 style: TextStyle(
@@ -2006,9 +2006,9 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) {
+        CommonPopup.instance.showDialogNetErr(context);
+      }
     }
   }
 

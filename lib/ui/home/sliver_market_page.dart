@@ -1284,26 +1284,26 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
           padding = 10;
           if (value > 3) {
             bgColor = RColor.bubbleChartStrongRed;
-            padding = (3 * value) as double;
+            padding = 3.0 * value;
           } else if (value > 1) {
             bgColor = RColor.bubbleChartRed;
-            padding = (7 * value) as double;
+            padding = 7.0 * value;
             fontWeight = FontWeight.w600;
           } else if (value > 0.1) {
             bgColor = RColor.bubbleChartWeakRed;
-            padding = (7 * value) as double;
+            padding = 10.0 * value;
             fontWeight = FontWeight.w400;
             txtColor = RColor.bubbleChartTxtColorRed;
           } else if (value > -0.1) {
             bgColor = RColor.bubbleChartGrey;
             value = value.abs();
-            padding = 10;
+            padding = 120.0 * value;
             fontWeight = FontWeight.w400;
             txtColor = const Color(0xff8a8a8a);
           } else if (value > -1) {
             bgColor = RColor.bubbleChartWeakBlue;
             value = value.abs();
-            padding = (15 * value) as double;
+            padding = 10.0 * value;
             fontWeight = FontWeight.w400;
             txtColor = RColor.bubbleChartTxtColorBlue;
           } else if (value > -5) {
@@ -1314,11 +1314,11 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
           } else if (value <= -5) {
             bgColor = RColor.bubbleChartStrongBlue;
             value = value.abs();
-            padding = 4.5 * value;
+            padding = 3.0 * value;
           } else {
             bgColor = RColor.bubbleChartGrey;
             value = value.abs();
-            padding = 10;
+            padding = 12;
             fontWeight = FontWeight.w400;
             txtColor = const Color(0xff8a8a8a);
           }

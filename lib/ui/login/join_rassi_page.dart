@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
+import 'package:rassi_assist/common/common_function_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
@@ -16,12 +18,14 @@ import 'package:rassi_assist/custom_lib/http_process_class.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/tr_mgr_agent/tr_mgr_agent02.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/sub/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'join_route_page.dart';
 
 /// 2020.09.29
@@ -65,7 +69,10 @@ class RassiJoinState extends State<RassiJoinPage> {
 
   final List<bool> _checkBoolList = [false, false, false];
   bool _checkAll = false;
-  String _agentName = '';
+
+  String _agentName = ''; // 추천인
+  String _agentCode = ''; // 에이전트 코드
+  String _joinRoute = ''; // 씽크풀 에이전트 회원가입
 
   @override
   void initState() {
@@ -73,16 +80,33 @@ class RassiJoinState extends State<RassiJoinPage> {
     CustomFirebaseClass.logEvtScreenView(RassiJoinPage.TAG_NAME);
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'in_signing_rassi');
-    _loadPrefData().then(
-      (_){
-        Uri? strLink = AppGlobal().pendingDynamicLinkData?.link ?? Uri.parse(_prefs.getString(Const.PREFS_DEEPLINK_URI) ?? '');
-        strLink.queryParameters.forEach((key, value) {
-          //if(key == '')
-        });
-        _agentName = strLink.queryParameters.toString();
-        setState(() {});
-      }
-    );
+    _loadPrefData().then((_) async {
+      // 24.03.15 Agent 추가, 링크 있을 경우 + 씽크풀 가입 X, 앱 가입 라서 신규 회원 가입
+      await CommonFunctionClass.instance.getSavedAgentLink.then(
+        (savedAgentLinkUri) => {
+          DLog.e('savedAgentLinkUri : ${savedAgentLinkUri.toString()}'),
+          if (savedAgentLinkUri != null)
+            {
+              savedAgentLinkUri.queryParameters.forEach(
+                (key, value) {
+                  if (key == 'agentCode') {
+                    _agentCode = value;
+                    _fetchPosts(
+                      TR.MGR_AGENT02,
+                      jsonEncode(
+                        <String, String>{
+                          "selectDiv": "CODE",
+                          "selectValue": _agentCode,
+                        },
+                      ),
+                    );
+                  }
+                },
+              ),
+            }
+        },
+      );
+    });
   }
 
   Future<void> _loadPrefData() async {
@@ -106,30 +130,33 @@ class RassiJoinState extends State<RassiJoinPage> {
               _setInputField(),
 
               // Agent - 링크 있을 경우에 추천인 보여주기.
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _setSubTitle(
-                    '추천인',
-                  ),
-                  Container(
-                    width: double.infinity,
-                    //height: 10,
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: RColor.greyBox_f5f5f5,
-                      borderRadius: BorderRadius.circular(8),
-                      //borderRadius: BorderRadius.circular(8),
+              Visibility(
+                visible: _agentName.isNotEmpty,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _setSubTitle(
+                      '추천인',
                     ),
-                    child: Text(
-                      _agentName,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: RColor.purpleBasic_6565ff,
+                    Container(
+                      width: double.infinity,
+                      //height: 10,
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: RColor.greyBox_f5f5f5,
+                        borderRadius: BorderRadius.circular(8),
+                        //borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _agentName,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: RColor.purpleBasic_6565ff,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
               const SizedBox(
@@ -731,7 +758,7 @@ class RassiJoinState extends State<RassiJoinPage> {
       CommonPopup.instance.showDialogBasic(context, '알림', '만 14세 이상을 확인해 주세요.');
     } else {
       // 씽크풀(일반)회원 가입 : 경로 선택으로 이동 / 씽크풀(에이전트)회원 가입 : 여기서 회원가입 시키고 앱 진입
-      if(_agentName.isEmpty){
+      if (_agentName.isEmpty) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -748,10 +775,10 @@ class RassiJoinState extends State<RassiJoinPage> {
             ),
           ),
         );
-      }else{
+      } else {
         _reqType = 'join_confirm';
         _reqParam =
-        'userid=${Net.getEncrypt(id.toLowerCase())}&passWd=${Net.getEncrypt(pass)}&hp=${Net.getEncrypt(_strPhone.trim())}&username=&sex_gubun=&joinRoute=OLLAMAG&daily=N&tm_sms_f=N';
+            'userid=${Net.getEncrypt(id.toLowerCase())}&passWd=${Net.getEncrypt(pass)}&hp=${Net.getEncrypt(_strPhone.trim())}&username=&sex_gubun=&joinRoute=$_joinRoute&daily=N&tm_sms_f=N';
         _requestThink();
       }
     }
@@ -877,7 +904,12 @@ class RassiJoinState extends State<RassiJoinPage> {
     } else if (_reqType == 'join_confirm') {
       //회원가입
       if (result != 'ERR' && result.isNotEmpty) {
-        HttpProcessClass().callHttpProcess0002(_strId).then((value) {
+        HttpProcessClass()
+            .callHttpProcess0002(
+          vUserId: _strId,
+          vAgentCode: _agentCode,
+        )
+            .then((value) {
           DLog.d(RassiJoinPage.TAG, 'then() value : $value');
           switch (value.appResultCode) {
             case 200:
@@ -991,28 +1023,63 @@ class RassiJoinState extends State<RassiJoinPage> {
     });
   }
 
+  void _fetchPosts(String trStr, String json) async {
+    DLog.i('$trStr $json');
+
+    var url = Uri.parse(Net.TR_BASE + trStr);
+    final http.Response response = await http.post(
+      url,
+      body: json,
+      headers: Net.headers,
+    );
+
+    _parseTrData(trStr, response);
+  }
+
+  Future<void> _parseTrData(String trStr, final http.Response response) async {
+    DLog.i(response.body);
+    if (trStr == TR.MGR_AGENT02) {
+      final TrMgrAgent02 resData =
+          TrMgrAgent02.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        setState(() {
+          _agentName = resData.retData.listAgent[0].agentName;
+          _joinRoute = resData.retData.listAgent[0].joinRoute;
+        });
+      } else if (resData.retCode == RT.NO_DATA) {
+        AppGlobal().pendingDynamicLinkData = null;
+        await _prefs.setString(Const.PREFS_DEEPLINK_URI, '');
+        if (mounted) {
+          CommonPopup.instance
+              .showDialogBasicConfirm(context, '알림', '에이전트 코드 오류')
+              .then((value) {
+            Navigator.pop(context);
+          });
+        }
+      }
+    }
+  }
+
   // 다음 페이지로 이동
-  void _goNextRoute(String userId) {
+  Future<void> _goNextRoute(String userId) async {
     commonShowToast('로그인 되었습니다.');
     CustomFirebaseClass.setUserProperty(
         CustomFirebaseProperty.LOGIN_STATUS, 'complete');
     CustomFirebaseClass.logEvtLogin(LoginPlatform.rassi.name);
     CustomFirebaseClass.logEvtSignUp(LoginPlatform.rassi.name);
     if (userId != '') {
-      AppGlobal().pendingDynamicLinkData = null;
+      if (_agentName.isNotEmpty) {
+        AppGlobal().pendingDynamicLinkData = null;
+        await _prefs.setString(Const.PREFS_DEEPLINK_URI, '');
+      }
       basePageState = BasePageState();
       if (mounted) {
-        if(_agentName.isNotEmpty){
-          AppGlobal().pendingDynamicLinkData = null;
-        }
         Navigator.pushNamedAndRemoveUntil(
           context,
           BasePage.routeName,
-              (route) => false,
+          (route) => false,
         );
       }
-    } else {
-
     }
   }
 

@@ -101,114 +101,110 @@ class StockHomeTabState extends State<StockHomeTab>
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
-          child: AppBar(
-            leadingWidth: 40,
-            //automaticallyImplyLeading: true,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: InkWell(
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(50),
+        child: AppBar(
+          leadingWidth: 40,
+          //automaticallyImplyLeading: true,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              if (mounted) {
+                Navigator.pop(
+                  context,
+                  CustomNvRouteResult.cancel,
+                );
+              }
+            },
+            child: const Icon(
+              Icons.arrow_back_ios_sharp,
+            ),
+          ),
+          actions: [
+            const SizedBox(
+              width: 4,
+            ),
+            InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
-              onTap: () {
-                if (context != null && context.mounted) {
-                  Navigator.pop(
-                    context,
-                    CustomNvRouteResult.cancel,
-                  );
-                }
-              },
               child: const Icon(
-                Icons.arrow_back_ios_sharp,
+                Icons.search,
+                size: 27,
+                color: Colors.black,
               ),
+              onTap: () {
+                //_getPocketStat();
+                _navigateAndGetResultSearchStockPage();
+              },
             ),
-            actions: [
-              const SizedBox(
-                width: 4,
-              ),
-              InkWell(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                child: const Icon(
-                  Icons.search,
-                  size: 27,
-                  color: Colors.black,
+            const SizedBox(
+              width: 10,
+            ),
+          ],
+          centerTitle: false,
+          iconTheme: const IconThemeData(color: Colors.black),
+          titleSpacing: 5.0,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              TabBar(
+                controller: _tabController,
+                labelColor: Colors.black,
+                indicatorColor: Colors.black,
+                indicatorPadding: const EdgeInsets.only(
+                  right: 0,
                 ),
-                onTap: () {
-                  //_getPocketStat();
-                  _navigateAndGetResultSearchStockPage();
-                },
-              ),
-              const SizedBox(
-                width: 10,
+                unselectedLabelColor: Colors.grey,
+                labelPadding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  //vertical: 5,
+                ),
+                isScrollable: true,
+                tabs: _setOnlyTitleTabView(),
+                //_setNormalTabView(),
               ),
             ],
-            centerTitle: false,
-            iconTheme: const IconThemeData(color: Colors.black),
-            titleSpacing: 5.0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                TabBar(
-                  controller: _tabController,
-                  labelColor: Colors.black,
-                  indicatorColor: Colors.black,
-                  indicatorPadding: const EdgeInsets.only(
-                    right: 0,
-                  ),
-                  unselectedLabelColor: Colors.grey,
-                  labelPadding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    //vertical: 5,
-                  ),
-                  isScrollable: true,
-                  tabs: _setOnlyTitleTabView(),
-                  //_setNormalTabView(),
-                ),
-              ],
-            ),
-            /* bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(10),
-              child: Container(
-                width: double.infinity,
-                height: 40,
-                color: Colors.white,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 10,
-                    ),
-                    TabBar(
-                      controller: _tabController,
-                      labelColor: Colors.black,
-                      indicatorColor: Colors.black,
-                      indicatorPadding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                      ),
-                      unselectedLabelColor: Colors.grey,
-                      labelPadding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 5,
-                      ),
-                      isScrollable: true,
-                      //tabs: _isTopScroll ? _setNormalTabView() : _setStockTabView(),
-                      tabs: _setNormalTabView(),
-                    ),
-                  ],
-                ),
-              ),
-            ),*/
           ),
+          /* bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(10),
+            child: Container(
+              width: double.infinity,
+              height: 40,
+              color: Colors.white,
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 10,
+                  ),
+                  TabBar(
+                    controller: _tabController,
+                    labelColor: Colors.black,
+                    indicatorColor: Colors.black,
+                    indicatorPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                    ),
+                    unselectedLabelColor: Colors.grey,
+                    labelPadding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 5,
+                    ),
+                    isScrollable: true,
+                    //tabs: _isTopScroll ? _setNormalTabView() : _setStockTabView(),
+                    tabs: _setNormalTabView(),
+                  ),
+                ],
+              ),
+            ),
+          ),*/
         ),
-        body: _setTabView(),
       ),
+      body: _setTabView(),
     );
   }
 
@@ -248,9 +244,7 @@ class StockHomeTabState extends State<StockHomeTab>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if(mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -261,12 +255,8 @@ class StockHomeTabState extends State<StockHomeTab>
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         User04 data = resData.retData;
-        if (data != null && data.accountData != null) {
-          final AccountData accountData = data.accountData;
-          accountData.initUserStatus();
-        } else {
-          AccountData().setFreeUserStatus();
-        }
+        final AccountData accountData = data.accountData;
+        accountData.initUserStatus();
       }
     }
   }
@@ -582,10 +572,9 @@ class StockHomeTabState extends State<StockHomeTab>
         stockCode: stkCode,
       ),
     );
-    if (context.mounted && result != null) {
+    if (mounted) {
       if (result == CustomNvRouteResult.refresh) {
-        Provider.of<StockInfoProvider>(context, listen: false)
-            .postRequest(stkCode);
+        Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
         _showBottomSheetMyStock();
       } else if (result == CustomNvRouteResult.cancel) {
         //
@@ -595,8 +584,7 @@ class StockHomeTabState extends State<StockHomeTab>
           _showAddSignalLayerAndResult();
         } else {
           String result = await CommonPopup.instance.showDialogPremium(context);
-          if (result == CustomNvRouteResult.landPremiumPage &&
-              context.mounted) {
+          if (result == CustomNvRouteResult.landPremiumPage && mounted) {
             Navigator.push(
               context,
               Platform.isIOS
@@ -607,7 +595,7 @@ class StockHomeTabState extends State<StockHomeTab>
         }
       } else if (result == CustomNvRouteResult.landPremiumPopup) {
         String result = await CommonPopup.instance.showDialogPremium(context);
-        if (result == CustomNvRouteResult.landPremiumPage && context.mounted) {
+        if (result == CustomNvRouteResult.landPremiumPage && mounted) {
           Navigator.push(
             context,
             Platform.isIOS
@@ -634,7 +622,7 @@ class StockHomeTabState extends State<StockHomeTab>
         stockCode: stkCode,
       ),
     );
-    if (context.mounted && result != null) {
+    if (mounted) {
       if (result == CustomNvRouteResult.refresh) {
         // auto refresh
       } else if (result == CustomNvRouteResult.cancel) {
@@ -736,7 +724,7 @@ class StockHomeTabState extends State<StockHomeTab>
       },
     );
 
-    if (context.mounted && result != null) {
+    if (mounted) {
       if (result == CustomNvRouteResult.refresh) {
         String result =
             await Provider.of<PocketProvider>(context, listen: false)
@@ -747,7 +735,7 @@ class StockHomeTabState extends State<StockHomeTab>
           ),
           pocketSn,
         );
-        if (context.mounted && result != null) {
+        if (mounted) {
           if (result == CustomNvRouteResult.refresh) {
             Provider.of<StockInfoProvider>(context, listen: false)
                 .postRequest(stkCode);

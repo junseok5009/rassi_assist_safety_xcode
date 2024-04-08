@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/custom_lib/tripledes/block_cipher.dart';
 import 'package:rassi_assist/custom_lib/tripledes/tripledes.dart';
 
@@ -174,6 +173,7 @@ class TR {
   static const USER02 = "TR_USER02"; //회원정보 조회
   static const USER03 = "TR_USER03"; //기기정보 등록
   static const USER04 = "TR_USER04"; //회원의 상품정보 조회
+  static const USER05 = "TR_USER05"; //에이전트 - 웰컴페이지 등록
 
   static const PUSH01 = "TR_PUSH01";
   static const PUSH02 = "TR_PUSH02";
@@ -337,6 +337,10 @@ class TR {
   static const QNA02 = "TR_QNA02"; //QNA 목록 조회
   static const QNA03 = "TR_QNA03"; //QNA 상세 조회
   static const QNA04 = "TR_QNA04"; //QNA 문제 해결
+
+  static const MGR_AGENT02 = 'TR_MGR_AGENT02';  // 에이전트 검색
+  static const MGR_AGENT03 = 'TR_MGR_AGENT03';  // 에이전트 등록/변경
+
 }
 
 /// 서버전문 응답 코드

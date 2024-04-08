@@ -624,7 +624,6 @@ class StockHomeHomeTileLoanTransactionState
             },
           )
         ],
-        //trackballBehavior: _trackballBehavior,
         //tooltipBehavior: TooltipBehavior(),
         trackballBehavior: _trackballBehavior,
         series: _getSeries,
@@ -677,7 +676,7 @@ class StockHomeHomeTileLoanTransactionState
           enableTooltip: false,
           //selectionBehavior: _selectionBehavior,
           //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
-          xAxisName: 'xAxis',
+          //xAxisName: 'xAxis',
           //onRendererCreated: (controller) => _chartController = controller,
         ),
       ];

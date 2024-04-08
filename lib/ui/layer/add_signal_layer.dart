@@ -19,9 +19,12 @@ import 'package:rassi_assist/ui/custom/AnimatedCountTextWidget.dart';
 
 class AddSignalLayer extends StatelessWidget {
   //const AddSignalLayer({super.key});
-  final Stock? stock;
+  final Stock stock;
 
-  const AddSignalLayer({Key? key, this.stock}) : super(key: key);
+  const AddSignalLayer({
+    required this.stock,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +74,9 @@ class AddSignalLayer extends StatelessWidget {
 }
 
 class AddSignalLayerView extends StatefulWidget {
-  final Stock? stock;
+  final Stock stock;
 
-  const AddSignalLayerView({Key? key, this.stock}) : super(key: key);
+  const AddSignalLayerView({Key? key, required this.stock}) : super(key: key);
 
   @override
   State<AddSignalLayerView> createState() => _AddSignalLayerViewState();
@@ -101,7 +104,7 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
         Provider.of<SignalLayerSliderProvider>(context, listen: false);
     _stockInfoProvider.addListener(_stockInfoProviderListener);
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      _stockInfoProvider.postRequest(widget.stock!.stockCode);
+      _stockInfoProvider.postRequest(widget.stock.stockCode);
     });
   }
 
@@ -602,7 +605,7 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
             String result =
                 await Provider.of<SignalProvider>(context, listen: false)
                     .addSignal(
-              _stockInfoProvider.getStockCode as Stock,
+              widget.stock,
               Provider.of<SignalLayerSliderProvider>(context, listen: false)
                   .getCurrentPrice
                   .toStringAsFixed(0),

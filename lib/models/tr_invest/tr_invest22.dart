@@ -30,14 +30,14 @@ class Invest22 {
   final List<Invest22ChartData> listChartData;
 
   const Invest22({
-    this.totalPageSize = '',
-    this.currentPageNo = '',
-    this.totalItemSize = '',
+    this.totalPageSize = '0',
+    this.currentPageNo = '0',
+    this.totalItemSize = '0',
     this.listChartData = const [],
   });
 
   factory Invest22.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Chart'] as List;
+    var list = json['list_Chart'] as List?;
     List<Invest22ChartData> dataList = list == null
         ? []
         : list.map((i) => Invest22ChartData.fromJson(i)).toList();
@@ -49,8 +49,7 @@ class Invest22 {
     );
   }
   factory Invest22.fromJsonWithIndex(Map<String, dynamic> json) {
-    var list = json['list_Chart'] as List;
-
+    var list = json['list_Chart'] as List?;
     List<Invest22ChartData> dataList = list == null
         ? []
         : list.asMap().entries.map((e) =>  Invest22ChartData.fromJsonWithIndex(e.value, e.key)).toList();
@@ -73,8 +72,8 @@ class Invest22ChartData {
   final String sr; // 매매비중
   final int index;
   Invest22ChartData({
-    this.td='', this.tp='', this.tv='', this.sv='',
-    this.asv='', this.sa='', this.sr='', this.index=0
+    this.td='', this.tp='0', this.tv='0', this.sv='0',
+    this.asv='0', this.sa='0', this.sr='0', this.index=0
   });
   factory Invest22ChartData.fromJson(Map<String, dynamic> json) {
     return Invest22ChartData(

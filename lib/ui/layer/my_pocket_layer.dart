@@ -42,7 +42,7 @@ class MyPocketLayerState extends State<MyPocketLayer> {
     CustomFirebaseClass.logEvtScreenView(
       '나의_포켓_레이어',
     );
-    if (widget.pocketSn != null && widget.pocketSn.isNotEmpty) {
+    if (widget.pocketSn.isNotEmpty) {
       _pocketSn = widget.pocketSn;
     }
     int pktLength = Provider.of<PocketProvider>(context, listen: false)
@@ -74,7 +74,7 @@ class MyPocketLayerState extends State<MyPocketLayer> {
                 constraints: const BoxConstraints(),
                 iconSize: 24,
                 onPressed: () {
-                  if (context != null && context.mounted) {
+                  if (mounted) {
                     Navigator.pop(context, CustomNvRouteResult.cancel);
                   }
                 },
@@ -162,9 +162,9 @@ class MyPocketLayerState extends State<MyPocketLayer> {
                   RColor.purple_e7e7ff,
                 ),
                 alignment: Alignment.center,
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Expanded(
                       child: Text(
                         '종목관리를 더 편하게, 포켓을 더 만들어 보세요.',

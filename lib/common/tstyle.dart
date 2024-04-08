@@ -441,14 +441,24 @@ class TStyle {
     fontSize: 13,
     color: Color(0xdd555555),
   );
-
+  static const textGrey14S = TextStyle(
+    //작은 그레이 텍스트
+    fontWeight: FontWeight.w400,
+    fontSize: 14,
+    color: Color(0xff666666),
+  );
   static const textGrey14 = TextStyle(
     //작은 그레이 텍스트
     fontWeight: FontWeight.w500,
     fontSize: 14,
     color: Color(0xdd555555),
   );
-
+  static const textGrey15S = TextStyle(
+    //작은 그레이 텍스트
+    fontWeight: FontWeight.w400,
+    fontSize: 15,
+    color: Color(0xff666666),
+  );
   static const textGrey15 = TextStyle(
     //작은 그레이 텍스트
     fontWeight: FontWeight.w500,

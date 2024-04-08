@@ -40,11 +40,11 @@ class Signal05 {
   });
 
   factory Signal05.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Signal'] as List;
+    var list = json['list_Signal'] as List?;
     List<SignalData> listData =
         list == null ? [] : list.map((e) => SignalData.fromJson(e)).toList();
 
-    var honorlist = json['list_HonorStock'] as List;
+    var honorlist = json['list_HonorStock']as List?;
     List<HonorData> hlistData = honorlist == null
         ? []
         : honorlist.map((e) => HonorData.fromJson(e)).toList();

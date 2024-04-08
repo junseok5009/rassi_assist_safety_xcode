@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
-import 'package:rassi_assist/ui/custom/AnimatedCountTextWidget.dart';
+import 'package:rassi_assist/ui/pocket/sliver_pocket_tab.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -45,8 +44,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
-
-      DLog.e('setState _chartController == null ? ${_chartController == null} / _animationDuration : ${_animationDuration}');
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _chartController?.animate();
       });
@@ -56,7 +53,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
   @override
   void initState() {
     super.initState();
-
     int compareTradePrc = widget.item.listChart.first.tradePrc
         .compareTo(widget.item.listChart.last.tradePrc);
     _chartColor = compareTradePrc > 0
@@ -71,14 +67,13 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
     return VisibilityDetector(
       key: ValueKey(widget.item.stockCode),
       onVisibilityChanged: (visibilityInfo) {
-
         if (!_isChartVisible && visibilityInfo.visibleFraction > 0.5) {
           _isChartVisible = true;
-          if(_animationDuration != 1000) {
+          if (_animationDuration != 1000) {
             setState(() {
               _animationDuration = 1000;
             });
-          }else{
+          } else {
             _chartController?.animate();
           }
           //DLog.e('animate ! _chartController : ${_chartController == null} / ${_chartController.seriesRenderer.}');
@@ -104,22 +99,27 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                   //포켓명
                   Expanded(
                     flex: 1,
-                    child: Container(
-                      decoration: UIStyle.boxRoundFullColor25c(
-                        const Color(0xffDCDFE2),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 3,
-                      ),
-                      child: Text(
-                        widget.item.pocketName,
-                        style: const TextStyle(
-                          fontSize: 11,
+                    child: InkWell(
+                      onTap: () {
+                        SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(1, changePocketSn: widget.item.pocketSn);
+                      },
+                      child: Container(
+                        decoration: UIStyle.boxRoundFullColor25c(
+                          const Color(0xffDCDFE2),
                         ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 3,
+                        ),
+                        child: Text(
+                          widget.item.pocketName,
+                          style: const TextStyle(
+                            fontSize: 11,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ),
@@ -164,19 +164,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  AnimatedCountTextWidget(
-                    count: _isChartVisible ? double.parse(widget.item.fluctuationRate,) : 0,
-                    duration: const Duration(
-                      milliseconds: 1000,
-                    ),
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: TStyle.getMinusPlusColor(
-                        widget.item.fluctuationRate,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -194,12 +181,12 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
     return Column(
       children: [
         SizedBox(
-          width: 90,
+          width: 80,
           height: 42,
           child: SfCartesianChart(
             plotAreaBorderWidth: 0,
-            margin: const EdgeInsets.all(1),
-            primaryXAxis: CategoryAxis(
+            margin: EdgeInsets.zero,
+            primaryXAxis: const CategoryAxis(
               isVisible: false,
               rangePadding: ChartRangePadding.none,
               labelPlacement: LabelPlacement.onTicks,
@@ -208,7 +195,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
               isVisible: false,
               rangePadding: ChartRangePadding.none,
               edgeLabelPlacement: EdgeLabelPlacement.hide,
-              plotOffset: 1,
+              plotOffset: 2,
               plotBands: [
                 PlotBand(
                   isVisible: true,
@@ -231,7 +218,8 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 enableTooltip: false,
                 animationDelay: 0,
                 animationDuration: _animationDuration,
-                onRendererCreated: (controller) => _chartController = controller,
+                onRendererCreated: (controller) =>
+                    _chartController = controller,
               ),
             ],
           ),

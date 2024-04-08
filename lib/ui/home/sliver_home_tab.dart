@@ -145,18 +145,18 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
                             indicatorColor: Colors.black,
                             indicatorWeight: 3,
                             labelColor: Colors.black,
-                            labelStyle: const TextStyle(
+                            labelStyle: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
                               color: RColor.blackTitle_141414,
                             ),
                             unselectedLabelColor: RColor.greyTitle_cdcdcd,
-                            unselectedLabelStyle: const TextStyle(
+                            unselectedLabelStyle: TextStyle(
                               fontSize: 16,
                               color: RColor.greyTitle_cdcdcd,
                             ),
                             isScrollable: true,
-                            tabs: const [
+                            tabs: [
                               SizedBox(
                                 width: 32,
                                 child: Tab(

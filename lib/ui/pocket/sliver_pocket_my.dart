@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -479,7 +478,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                       ),
                       _pocket.pktSn,
                     );
-                    if (context.mounted && result != null) {
+                    if (context.mounted) {
                       if (result == CustomNvRouteResult.refresh) {
                         /*Provider.of<StockInfoProvider>(context, listen: false)
                             .postRequest(stkCode);*/
@@ -855,10 +854,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             Const.STK_INDEX_HOME,
           );
         },
-        child: Wrap(
+        child: const Wrap(
           alignment: WrapAlignment.end,
           //crossAxisAlignment: CrossAxisAlignment.end,
-          children: const [
+          children: [
             Text(
               '장 시작 전 입니다.',
               style: TextStyle(
@@ -884,10 +883,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             Const.STK_INDEX_HOME,
           );
         },
-        child: Wrap(
+        child: const Wrap(
           alignment: WrapAlignment.end,
           //crossAxisAlignment: CrossAxisAlignment.end,
-          children: const [
+          children: [
             Text(
               '20분부터 업데이트 됩니다.\n(20분 지연)',
               style: TextStyle(
@@ -904,11 +903,11 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
 
   // 상장 폐지 종목
   _setDelist() {
-    return Expanded(
+    return const Expanded(
       child: Wrap(
         alignment: WrapAlignment.end,
         //crossAxisAlignment: CrossAxisAlignment.end,
-        children: const [
+        children: [
           Text(
             '상장폐지된 종목입니다.',
             style: TextStyle(
@@ -934,7 +933,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             context,
             _pocket.pktSn,
           );
-          if (result != null && context.mounted) {
+          if (mounted) {
             if (result == CustomNvRouteResult.landPremiumPopup) {
               String result =
                   await CommonPopup.instance.showDialogPremium(context);
@@ -958,8 +957,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   _pocketProvider.getPocketListIndexByPocketSn(result);
               if (resultPktIndex != -1) {
                 _pocket = _pocketProvider.getPocketList[resultPktIndex];
+                reload(changePocketSn: _pocket.pktSn);
+              } else {
+                reload();
               }
-              reload();
             }
           }
         },
@@ -993,9 +994,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
   }
 
   Future<bool> reload({String changePocketSn = ''}) async {
-    if (changePocketSn != null) {
+    if (changePocketSn.isNotEmpty) {
       _pocket = _pocketProvider.getPocketByPocketSn(changePocketSn);
-    } else if (_pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn) == -1) {
+    } else if (_pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn) ==
+        -1) {
       _pocket = _pocketProvider.getPocketList[0];
     } else if (_pocketListLength < _pocketProvider.getPocketList.length) {
       // 포켓을 새로 만든 경우
@@ -1028,10 +1030,6 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
       return true;
     } on TimeoutException catch (_) {
       DLog.d(SliverPocketMyWidget.TAG, 'ERR : TimeoutException (12 seconds)');
-      CommonPopup.instance.showDialogNetErr(context);
-      return false;
-    } on SocketException catch (_) {
-      DLog.d(SliverPocketMyWidget.TAG, 'ERR : SocketException');
       CommonPopup.instance.showDialogNetErr(context);
       return false;
     }

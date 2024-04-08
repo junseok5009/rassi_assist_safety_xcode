@@ -16,7 +16,6 @@ class UserInfoProvider extends ChangeNotifier {
 
   User04 get getUser04 => _user04;
 
-
   void clearUser04(){
     _user04 = const User04();
   }
@@ -32,6 +31,15 @@ class UserInfoProvider extends ChangeNotifier {
   //3종목 알림 사용자
   bool is3StockUser() {
     if (_user04.accountData.prodCode == 'AC_S3') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  //에이전트 회원 유무
+  bool get isAgentUser{
+    if (_user04.agentData.agentName.isNotEmpty && _user04.agentData.agentCode.isNotEmpty) {
       return true;
     } else {
       return false;

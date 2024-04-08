@@ -97,9 +97,7 @@ class PayPremiumState extends State<PayPremiumPage> {
     super.initState();
     _isAgent = Provider.of<UserInfoProvider>(context, listen: false)
             .getUser04
-            .accountData
-            .isAgent ==
-        'Y';
+            .agentData.agentCode.isNotEmpty;
     CustomFirebaseClass.logEvtScreenView(
         PayPremiumPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
     if (_isAgent) {

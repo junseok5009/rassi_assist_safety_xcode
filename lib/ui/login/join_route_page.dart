@@ -794,7 +794,10 @@ class JoinRouteState extends State<JoinRoutePage> {
           DLog.d(JoinRoutePage.TAG, "NICK : ${resData.nickName}");
           widget.userJoinInfo.userId = resData.userId;
           await HttpProcessClass()
-              .callHttpProcess0002(widget.userJoinInfo.userId)
+              .callHttpProcess0002(
+            vUserId: widget.userJoinInfo.userId,
+            vAgentCode: '',
+          )
               .then((value) async {
             switch (value.appResultCode) {
               case 200:
@@ -821,7 +824,10 @@ class JoinRouteState extends State<JoinRoutePage> {
       //라씨 회원가입
       if (result != 'ERR' && result.isNotEmpty) {
         HttpProcessClass()
-            .callHttpProcess0002(widget.userJoinInfo.userId)
+            .callHttpProcess0002(
+          vUserId: widget.userJoinInfo.userId,
+          vAgentCode: '',
+        )
             .then((value) {
           DLog.d(JoinRoutePage.TAG, 'then() value : $value');
           switch (value.appResultCode) {

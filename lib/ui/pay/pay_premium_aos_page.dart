@@ -100,7 +100,6 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
 
   // 24.03.22 Agent 결제 추가
   bool _isAgent = false;
-  bool _canPop = false;
 
   // NOTE 1. 이미 결제된 상품 확인 (프리미엄일 경우 결제 불가)
   // NOTE 2. 결제 가능 상태 확인 (매매비서 서버에 확인, 앱스토어 모듈에 확인)
@@ -110,9 +109,8 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     super.initState();
     _isAgent = Provider.of<UserInfoProvider>(context, listen: false)
             .getUser04
-            .accountData
-            .isAgent ==
-        'Y';
+            .agentData
+            .agentCode.isNotEmpty;
     CustomFirebaseClass.logEvtScreenView(
         PayPremiumAosPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
     if (_isAgent) {
@@ -1089,32 +1087,27 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         User04 data = resData.retData;
         DLog.d(PayPremiumAosPage.TAG, data.accountData.toString());
 
-        if (data.accountData != null) {
-          final AccountData accountData = data.accountData;
-          accountData.initUserStatus();
-          _curProd = accountData.productId;
-          _payMethod = accountData.payMethod;
-          if (accountData.prodName == '프리미엄') {
-            //이미 프리미엄 계정으로 결제 화면 종료
-            if (_payMethod == 'PM50') {
-              //인앱으로 결제한 경우
-              _isUpgradeOn6 = true;
-              _listDivPayment[3] = true;
-            }
-          } else if (accountData.prodCode == 'AC_S3') {
-            if (_payMethod == 'PM50') {
-              //인앱으로 결제한 경우
-              _isUpgradeOn = true;
-              _listDivPayment[2] = true;
-            }
-          } else {
-            //베이직 계정
+        final AccountData accountData = data.accountData;
+        accountData.initUserStatus();
+        _curProd = accountData.productId;
+        _payMethod = accountData.payMethod;
+        if (accountData.prodName == '프리미엄') {
+          //이미 프리미엄 계정으로 결제 화면 종료
+          if (_payMethod == 'PM50') {
+            //인앱으로 결제한 경우
+            _isUpgradeOn6 = true;
+            _listDivPayment[3] = true;
+          }
+        } else if (accountData.prodCode == 'AC_S3') {
+          if (_payMethod == 'PM50') {
+            //인앱으로 결제한 경우
+            _isUpgradeOn = true;
+            _listDivPayment[2] = true;
           }
         } else {
-          //회원정보 가져오지 못함
-          const AccountData().setFreeUserStatus();
+          //베이직 계정
         }
-        setState(() {});
+              setState(() {});
       } else {
         const AccountData().setFreeUserStatus();
       }
