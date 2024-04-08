@@ -428,6 +428,16 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
     }
   }
 
+  // Future<void> myMethod() async {
+  //   final startTime = DateTime.now(); // 시작 시간 기록
+  //
+  //   // 실행할 코드들...
+  //
+  //   final endTime = DateTime.now(); // 종료 시간 기록
+  //   final difference = endTime.difference(startTime); // 경과 시간 계산
+  //   DLog.d('#####','MS_Method 실행 시간: ${difference.inMilliseconds} ms');
+  // }
+
   //단건 결제 버튼
   Widget _setButtonAgent() {
     return InkWell(
