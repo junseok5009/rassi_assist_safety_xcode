@@ -3,7 +3,9 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -62,14 +64,21 @@ class PayCancelState extends State<PayCancelWidget> {
   String _lgTid = '';
   String _lgCancelAmt = '';
   bool _isBankTransfer = false;
+  String _refundEstDate = '';
+
+
+  final _bankNameController = TextEditingController();
+  final _accountNumController = TextEditingController();
+  final _accountHolderController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), () {
+    _loadPrefData().then((_) {
       DLog.d(PayCancelPage.TAG, "delayed user id : $_userId");
+      DLog.d(PayCancelPage.TAG, "delayed orderSn : $_orderSn");
+
       if (_userId != '') {
         _fetchPosts(
             TR.ORDER05,
@@ -84,16 +93,21 @@ class PayCancelState extends State<PayCancelWidget> {
   //저장된 데이터를 가져오는 것에 시간이 필요함
   _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    args = ModalRoute.of(context)!.settings.arguments as PgData;
+    _orderSn = args.pgSn;
+    setState(() { });
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    _orderSn = args.pgSn;
-
     return Scaffold(
       appBar: _setAppBar(),
       body: SafeArea(
@@ -263,10 +277,10 @@ class PayCancelState extends State<PayCancelWidget> {
     );
   }
 
-  //무통장
+  //무통장 환불 계좌 정보 입력
   Widget _setRefundBankTransfer() {
     return Visibility(
-      visible: true, // _isBankTransfer,
+      visible: _isBankTransfer,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -285,73 +299,66 @@ class PayCancelState extends State<PayCancelWidget> {
                       '환불 예정일  ',
                       style: TStyle.textGreyDefault,
                     ),
+                    const SizedBox(width: 2),
                     Text(
-                      _useDays,
+                      TStyle.getDateKorFormat(_refundEstDate),
                       style: TStyle.content16,
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Text(
                       '은  행  명  ',
                       style: TStyle.textGreyDefault,
                     ),
-                    Container(
+                    const SizedBox(width: 3),
+                    SizedBox(
                       width: 150,
                       child: TextField(
-                        decoration: InputDecoration(
-                          isDense: true,
-                          contentPadding: const EdgeInsets.all(8),
-                          // filled: true,
-                          // fillColor: Colors.black12,
-
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green,
-                              width: 1.0,
-                            ),
-                          ),
-
-                          // disabledBorder: OutlineInputBorder(
-                          //   borderSide: BorderSide.none,
-                          //   borderRadius: BorderRadius.circular(100),
-                          //   //border-radius가 적용된다.
-                          // ),
-
-                          //포커스 됐을 때 스타일을 설정해준다.
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.green,
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
+                        controller: _bankNameController,
+                        decoration: _setInputDecoration(),
+                        cursorColor: Colors.black,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Text(
                       '계좌번호  ',
                       style: TStyle.textGreyDefault,
                     ),
-                    Container(
-                      width: 150,
-                      child: TextField(),
+                    const SizedBox(width: 3),
+                    SizedBox(
+                      width: 220,
+                      child: TextField(
+                        controller: _accountNumController,
+                        decoration: _setInputDecoration(),
+                        cursorColor: Colors.black,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Text(
                       '예  금  주  ',
                       style: TStyle.textGreyDefault,
                     ),
-                    Container(
-                      width: 150,
-                      child: TextField(),
+                    const SizedBox(width: 3),
+                    SizedBox(
+                      width: 100,
+                      child: TextField(
+                        controller: _accountHolderController,
+                        decoration: _setInputDecoration(),
+                        cursorColor: Colors.black,
+                      ),
                     ),
                   ],
                 ),
@@ -369,7 +376,12 @@ class PayCancelState extends State<PayCancelWidget> {
                     "등록",
                     style: TextStyle(fontSize: 17),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    String bankName = _bankNameController.text.trim();
+                    String accountNum = _accountNumController.text.trim();
+                    String holder = _accountHolderController.text.trim();
+                    _checkEditData(bankName, accountNum, holder);
+                  },
                 ),
               ],
             ),
@@ -377,6 +389,53 @@ class PayCancelState extends State<PayCancelWidget> {
         ],
       ),
     );
+  }
+
+  InputDecoration _setInputDecoration() {
+    return const InputDecoration(
+      isDense: true,
+      contentPadding: EdgeInsets.all(5),
+      // filled: true,
+      // fillColor: Colors.black12,
+
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey,
+          width: 1.0,
+        ),
+      ),
+
+      // disabledBorder: OutlineInputBorder(
+      //   borderSide: BorderSide.none,
+      //   borderRadius: BorderRadius.circular(100),
+      //   //border-radius가 적용된다.
+      // ),
+
+      //포커스 됐을 때 스타일을 설정해준다.
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: RColor.mainColor,
+          width: 1.0,
+        ),
+      ),
+    );
+  }
+
+  //입력값 체크
+  void _checkEditData(final String bankName, final String account, final String holder) {
+    if (bankName.isEmpty) {
+      commonShowToast('은행명을 입력해 주세요');
+    } else {
+      if (account.isEmpty) {
+        commonShowToast('계좌번호를 입력해 주세요');
+      } else {
+        if (holder.isEmpty) {
+          commonShowToast('예금주를 입력해 주세요');
+        } else {
+          _requestRefundBank(bankName, account, holder);
+        }
+      }
+    }
   }
 
   //하단 안내
@@ -550,6 +609,20 @@ class PayCancelState extends State<PayCancelWidget> {
         });
   }
 
+  //무통장입금 환불 신청
+  void _requestRefundBank(String bankName, String accountNum, String holder) {
+    _fetchPosts(
+        TR.DEPOSIT02,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'orderSn': _orderSn,
+          'refundEstDate': _refundEstDate,
+          'bankName': bankName,
+          'accountNumber': accountNum,
+          'depositor': holder,
+        }));
+  }
+
   // convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
     DLog.d(PayCancelPage.TAG, '$trStr $json');
@@ -569,15 +642,13 @@ class PayCancelState extends State<PayCancelWidget> {
     DLog.d(PayCancelPage.TAG, response.body);
 
     if (trStr == TR.ORDER05) {
-      // final TrOrder05 resData = TrOrder05.fromJson(jsonDecode(response.body));
-      final TrOrder05 resData = TrOrder05.fromJson(jsonDecode(resStr));
+      final TrOrder05 resData = TrOrder05.fromJson(jsonDecode(response.body));
+      // final TrOrder05 resData = TrOrder05.fromJson(jsonDecode(resStr));
       if (resData.retCode == RT.SUCCESS) {
         Order05? item = resData.retData;
         if (item != null) {
-          if (item.payMethod == 'PM20') {
-            //현재 이용중, 무통장 결제, 환불가능금액 , 경우 환불 계좌 정보 입력 기능
-            _isBankTransfer = true;
-          }
+
+          _refundEstDate = item.refEstDate;
 
           _orderDate = TStyle.getDateTimeFormat(item.orderDttm);
           _paymentAmt = '${TStyle.getMoneyPoint(item.paymentAmt)}원';
@@ -589,13 +660,25 @@ class PayCancelState extends State<PayCancelWidget> {
           _lgTid = item.transactId;
           _lgCancelAmt = item.remainAmt;
 
+          if (item.payMethod == 'PM20') {
+            if(item.remainAmt == '' || item.remainAmt == '0'){
+              //환불 가능 금액 없음
+            } else {
+              _isBankTransfer = true;
+            }
+          }
+
           setState(() {});
         }
       } else if (resData.retCode == RT.NO_DATA) {
         // if(orderList.length == 0) isNoData = true;
         // setState(() {});
       }
-    } else if (trStr == '') {}
+    }
+    //무통장 환불 신청
+    else if (trStr == TR.DEPOSIT02) {
+
+    }
   }
 
   //완료, 실패 알림 후 페이지 자동 종료
@@ -638,7 +721,8 @@ class PayCancelState extends State<PayCancelWidget> {
       "usageMonth": "2",
       "usageAmt": "0",
       "cancelFee": "0",
-      "remainAmt": "0"
+      "remainAmt": "50000",
+      "refEstDate": "20240415"
     },
   "retCode": "0000",
   "retMsg": "success"

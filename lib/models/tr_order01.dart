@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 
-
 /// 2020.12.08
 /// 결제 내역
 class TrOrder01 {
@@ -17,13 +16,12 @@ class TrOrder01 {
     List<Order01>? rtList;
     list == null ? rtList = null : rtList = list.map((i) => Order01.fromJson(i)).toList();
     return TrOrder01(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        listData: list.map((i) => Order01.fromJson(i)).toList(),
+      retCode: json['retCode'],
+      retMsg: json['retMsg'],
+      listData: list.map((i) => Order01.fromJson(i)).toList(),
     );
   }
 }
-
 
 class Order01 {
   final String orderSn;
@@ -36,20 +34,35 @@ class Order01 {
   final String prodSubdiv;
   final String prodSubdivName;
   final String prodCateg;
+  final String pricePolicy; //가격정책 (MONTH, AUTO, FREE, CASH)
   final String orderDttm;
+  final String payMethod;
+  final String payMethodText;
   final String paymentAmt;
   final String refundAmt;
   final String refundDttm;
   final List<OrderChange> chList;
 
-  Order01({this.orderSn = '', this.svcDivision = '',
-    this.orderStatus = '', this.orderStatText = '',
-    this.orderChannel = '', this.orderChanText = '',
-    this.csPhoneNo = '', this.prodSubdiv = '',
-    this.prodSubdivName = '', this.prodCateg = '',
-    this.orderDttm = '', this.paymentAmt = '',
-    this.refundAmt = '', this.refundDttm = '',
-    this.chList = const []});
+  Order01({
+    this.orderSn = '',
+    this.svcDivision = '',
+    this.orderStatus = '',
+    this.orderStatText = '',
+    this.orderChannel = '',
+    this.orderChanText = '',
+    this.csPhoneNo = '',
+    this.prodSubdiv = '',
+    this.prodSubdivName = '',
+    this.prodCateg = '',
+    this.pricePolicy = '',
+    this.orderDttm = '',
+    this.payMethod = '',
+    this.payMethodText = '',
+    this.paymentAmt = '',
+    this.refundAmt = '',
+    this.refundDttm = '',
+    this.chList = const [],
+  });
 
   factory Order01.fromJson(Map<String, dynamic> json) {
     var list = json['list_OrderChange'] == null ? [] : json['list_OrderChange'] as List;
@@ -65,8 +78,11 @@ class Order01 {
       csPhoneNo: json['csPhoneNo'] ?? '',
       prodSubdiv: json['prodSubdiv'],
       prodSubdivName: json['prodSubdivName'],
-      prodCateg: json['prodCateg'],
-      orderDttm: json['orderDttm'],
+      prodCateg: json['prodCateg'] ?? '',
+      pricePolicy: json['pricePolicy'] ?? '',
+      orderDttm: json['orderDttm'] ?? '',
+      payMethod: json['payMethod'] ?? '',
+      payMethodText: json['payMethodText'] ?? '',
       paymentAmt: json['paymentAmt'],
       refundAmt: json['refundAmt'] ?? '0',
       refundDttm: json['refundDttm'] ?? '',
@@ -74,7 +90,6 @@ class Order01 {
     );
   }
 }
-
 
 class OrderChange {
   final String changeSeq;
@@ -86,10 +101,16 @@ class OrderChange {
   final String paymentAmt;
   final String orderDttm;
 
-  OrderChange({this.changeSeq = '', this.prodCode = '',
-    this.prodName = '', this.prodSubdiv = '',
-    this.startDate = '', this.endDate = '',
-    this.paymentAmt = '', this.orderDttm = '',});
+  OrderChange({
+    this.changeSeq = '',
+    this.prodCode = '',
+    this.prodName = '',
+    this.prodSubdiv = '',
+    this.startDate = '',
+    this.endDate = '',
+    this.paymentAmt = '',
+    this.orderDttm = '',
+  });
 
   factory OrderChange.fromJson(Map<String, dynamic> json) {
     return OrderChange(
@@ -105,7 +126,6 @@ class OrderChange {
   }
 }
 
-
 //결제 내역 (Tile 에서 메인뷰에 팝업 띄우는 내용으로 사용안함)
 class TileOrder01 extends StatelessWidget {
   final Order01 item;
@@ -114,27 +134,27 @@ class TileOrder01 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     String pdName = '';
     String period = '';
     bool _hasRefund = false;
 
-    if(item.refundAmt != '0') {
+    if (item.refundAmt != '0') {
       _hasRefund = true;
     } else {
       _hasRefund = false;
     }
     bool _isPossibleCancel = false;
-    if(item.orderChannel == 'CH32' || item.orderChannel == 'CH33') {
-      if(item.prodSubdiv.startsWith('M') && item.prodSubdiv != 'M01') {
+    if (item.orderChannel == 'CH32' || item.orderChannel == 'CH33') {
+      if (item.prodSubdiv.startsWith('M') && item.prodSubdiv != 'M01') {
         //1개월 이상의 상품이면서 환불되지 않은 상품에 해지하기 표시
-        if(!_hasRefund) _isPossibleCancel = true;
+        if (!_hasRefund) _isPossibleCancel = true;
       }
     }
 
-    if(item.chList.length > 0) {
+    if (item.chList.length > 0) {
       pdName = item.chList[0].prodName;
-      period = '${TStyle.getDateSFormat(item.chList[0].startDate)}~${TStyle.getDateSFormat(item.chList[0].endDate)}';
+      period = '${TStyle.getDateSFormat(item.chList[0].startDate)}'
+          '~${TStyle.getDateSFormat(item.chList[0].endDate)}';
     }
 
     return Container(
@@ -142,7 +162,10 @@ class TileOrder01 extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(TStyle.getDateFormat(item.orderDttm), style: TStyle.textSGrey,),
+          Text(
+            TStyle.getDateFormat(item.orderDttm),
+            style: TStyle.textSGrey,
+          ),
           Container(
             margin: const EdgeInsets.only(top: 7.0),
             width: double.infinity,
@@ -155,7 +178,7 @@ class TileOrder01 extends StatelessWidget {
                   color: Colors.grey.withOpacity(0.4),
                   spreadRadius: 3,
                   blurRadius: 7,
-                  offset: const Offset(0, 3),   //changes position of shadow
+                  offset: const Offset(0, 3), //changes position of shadow
                 )
               ],
             ),
@@ -173,27 +196,45 @@ class TileOrder01 extends StatelessWidget {
                         children: [
                           Container(
                             margin: const EdgeInsets.only(top: 2.0),
-                            child: const Text('결제', style: TStyle.contentMGrey,),),
-                          const SizedBox(width: 5.0,),
+                            child: const Text(
+                              '결제',
+                              style: TStyle.contentMGrey,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 5.0,
+                          ),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(TStyle.getMoneyPoint(item.paymentAmt), style: TStyle.title18,),
-                              const SizedBox(height: 8,),
-                              Text(pdName, style: TStyle.commonSPurple,),
-                              const SizedBox(height: 3,),
-                              Text('사용기한 $period', style: TStyle.textSGrey,),
+                              Text(
+                                TStyle.getMoneyPoint(item.paymentAmt),
+                                style: TStyle.title18,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                pdName,
+                                style: TStyle.commonSPurple,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '사용기한 $period',
+                                style: TStyle.textSGrey,
+                              ),
                             ],
                           ),
                         ],
                       ),
 
                       //(ex 월간 정기 상품)
-                      Text('(${item.prodSubdivName})', style: TStyle.textSGrey,),
+                      Text(
+                        '(${item.prodSubdivName})',
+                        style: TStyle.textSGrey,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 7,),
+                  const SizedBox(height: 7),
 
                   //환불내역
                   Visibility(
@@ -211,13 +252,22 @@ class TileOrder01 extends StatelessWidget {
                             children: [
                               Container(
                                 margin: const EdgeInsets.only(top: 2.0),
-                                child: const Text('환불', style: TStyle.contentMGrey,),),
-                              const SizedBox(width: 5.0,),
-                              Text(TStyle.getMoneyPoint(item.refundAmt), style: TStyle.title18,),
+                                child: const Text(
+                                  '환불',
+                                  style: TStyle.contentMGrey,
+                                ),
+                              ),
+                              const SizedBox(width: 5.0),
+                              Text(
+                                TStyle.getMoneyPoint(item.refundAmt),
+                                style: TStyle.title18,
+                              ),
                             ],
                           ),
-
-                          Text( TStyle.getDateSFormat(item.refundDttm), style: TStyle.textSGrey,),
+                          Text(
+                            TStyle.getDateSFormat(item.refundDttm),
+                            style: TStyle.textSGrey,
+                          ),
                         ],
                       ),
                     ),
@@ -229,18 +279,23 @@ class TileOrder01 extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(7),
                       decoration: UIStyle.boxWeakGrey10(),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
-                        children: const [
-                          Text('', style: TStyle.contentMGrey,),
-                          Text('- 해지하기  ', style: TStyle.contentMGrey,),
+                        children: [
+                          Text(
+                            '',
+                            style: TStyle.contentMGrey,
+                          ),
+                          Text(
+                            '- 해지하기  ',
+                            style: TStyle.contentMGrey,
+                          ),
                         ],
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -249,5 +304,4 @@ class TileOrder01 extends StatelessWidget {
       ),
     );
   }
-
 }

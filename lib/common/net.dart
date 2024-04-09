@@ -321,6 +321,8 @@ class TR {
   static const ORDER05 = "TR_ORDER05"; //주문 상세내역 조회
   static const INAPP01 = "TR_INAPP01";
   static const INAPP02 = "TR_INAPP02";
+  static const DEPOSIT02 = "TR_DEPOSIT02"; //무통장입금 환불
+
   static const INVEST01 = 'TR_INVEST01';
   static const INVEST02 = 'TR_INVEST02';
   static const INVEST03 = 'TR_INVEST03';

@@ -74,6 +74,13 @@ class PayHistoryPageState extends State<PayHistoryPage> {
   }
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppbar.basic(
@@ -135,18 +142,27 @@ class PayHistoryPageState extends State<PayHistoryPage> {
 
     bool hasRefund = false;
     if (item.refundAmt != null && item.refundAmt != '0') {
-      hasRefund = true;
+      hasRefund = true; //이미 해지된 금액이 존재함
     } else {
       hasRefund = false;
     }
     bool isPossibleCancel = false;
-    if (item.orderChannel == 'CH32' || item.orderChannel == 'CH33') {
-      if (item.prodSubdiv.startsWith('M') && item.prodSubdiv != 'M01') {
-        //1개월 이상의 상품이면서 환불되지 않은 상품에 해지하기 표시
-        if (!hasRefund) isPossibleCancel = true;
-      }
-      csNumber = item.csPhoneNo;
+
+    //인앱결제, 무료체험은 환불하기 없음 (구글/애플 정책을 따름)
+    if(item.payMethod == 'PM50' || item.payMethod == 'PM60' || item.payMethod == 'PM80' ) {
+
+    } else {
+      //1개월 이상의 상품이면서 환불되지 않은 상품에 해지하기 표시 (1개월이상 구분은 상세페이지 ???)
+      if (!hasRefund) isPossibleCancel = true;
     }
+
+    // if (item.orderChannel == 'CH32' || item.orderChannel == 'CH33') {
+    //   if (item.prodSubdiv.startsWith('M') && item.prodSubdiv != 'M01') {
+    //     //1개월 이상의 상품이면서 환불되지 않은 상품에 해지하기 표시
+    //     if (!hasRefund) isPossibleCancel = true;
+    //   }
+    //   csNumber = item.csPhoneNo;
+    // }
 
     if (item.chList.isNotEmpty) {
       pdName = item.chList[0].prodName;
@@ -290,7 +306,6 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                             style: TStyle.textGrey14,
                           ),
                           onTap: () {
-                            // _showRefundInfo(csNumber);
                             if (item.orderChannel == 'CH33') {
                               _showRefundInfo(item.csPhoneNo);
                             } else if (item.orderChannel == 'CH32') {
@@ -324,7 +339,10 @@ class PayHistoryPageState extends State<PayHistoryPage> {
   }
 
   _navigateRefresh(BuildContext context, Widget instance, RouteSettings settings) async {
-    final result = await Navigator.push(context, CustomNvRouteClass.createRouteData(instance, settings));
+    final result = await Navigator.push(
+      context,
+      CustomNvRouteClass.createRouteData(instance, settings),
+    );
     if (result == 'cancel') {
       DLog.d(PayHistoryPage.TAG, '*** navigate cancel ***');
     } else {
@@ -414,11 +432,13 @@ class PayHistoryPageState extends State<PayHistoryPage> {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
+      final http.Response response = await http
+          .post(
             url,
             body: json,
             headers: Net.headers,
-          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
@@ -434,6 +454,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
 
     if (trStr == TR.ORDER01) {
       final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(response.body));
+      // final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(resStr));
       _orderList.clear();
       if (resData.retCode == RT.SUCCESS && resData.listData.isNotEmpty) {
         _orderList.addAll(resData.listData);
@@ -468,6 +489,8 @@ class PayHistoryPageState extends State<PayHistoryPage> {
       "prodSubdivName": "정기결제 상품",
       "prodCateg": "AC",
       "orderDttm": "20211210094432",
+      "payMethod": "PM20",
+      "payMethodText": "무통장입금",
       "paymentAmt": "59400",
       "refundAmt": "0",
       "list_OrderChange": [
@@ -497,6 +520,8 @@ class PayHistoryPageState extends State<PayHistoryPage> {
       "prodSubdivName": "6개월 상품",
       "prodCateg": "AC",
       "orderDttm": "20211210092007",
+      "payMethod": "338000",
+      "payMethodText": "338000",
       "paymentAmt": "338000",
       "refundDttm": "20211210093921",
       "refundAmt": "0",

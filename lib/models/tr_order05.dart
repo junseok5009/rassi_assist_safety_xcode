@@ -1,4 +1,3 @@
-
 /// 2021.12.09
 /// 주문 상세 내역 조회
 class TrOrder05 {
@@ -16,7 +15,6 @@ class TrOrder05 {
     );
   }
 }
-
 
 class Order05 {
   final String orderSn;
@@ -45,34 +43,36 @@ class Order05 {
   final String usageAmt;
   final String cancelFee;
   final String remainAmt;
+  final String refEstDate; //환불 예정일
 
   Order05({
-      this.orderSn = '',
-      this.svcDivision = '',
-      this.orderStatus = '',
-      this.orderStatText = '',
-      this.orderChannel = '',
-      this.orderChanText = '',
-      this.svcCondition = '',
-      this.svcCondText = '',
-      this.prodCode = '',
-      this.prodName = '',
-      this.prodSubdiv = '',
-      this.prodSubdivName = '',
-      this.prodCateg = '',
-      this.startDate = '',
-      this.endDate = '',
-      this.pricePolicy = '',
-      this.orderDttm = '',
-      this.paymentAmt = '',
-      this.subscriptStat = '',
-      this.payMethod = '',
-      this.transactId = '',
-      this.usageDays = '',
-      this.usageMonth = '',
-      this.usageAmt = '',
-      this.cancelFee = '',
-      this.remainAmt = ''
+    this.orderSn = '',
+    this.svcDivision = '',
+    this.orderStatus = '',
+    this.orderStatText = '',
+    this.orderChannel = '',
+    this.orderChanText = '',
+    this.svcCondition = '',
+    this.svcCondText = '',
+    this.prodCode = '',
+    this.prodName = '',
+    this.prodSubdiv = '',
+    this.prodSubdivName = '',
+    this.prodCateg = '',
+    this.startDate = '',
+    this.endDate = '',
+    this.pricePolicy = '',
+    this.orderDttm = '',
+    this.paymentAmt = '',
+    this.subscriptStat = '',
+    this.payMethod = '',
+    this.transactId = '',
+    this.usageDays = '',
+    this.usageMonth = '',
+    this.usageAmt = '',
+    this.cancelFee = '',
+    this.remainAmt = '',
+    this.refEstDate = '',
   });
 
   factory Order05.fromJson(Map<String, dynamic> json) {
@@ -82,7 +82,6 @@ class Order05 {
       orderStatus: json['orderStatus'],
       orderStatText: json['orderStatText'],
       orderChannel: json['orderChannel'],
-
       orderChanText: json['orderChanText'],
       svcCondition: json['svcCondition'],
       svcCondText: json['svcCondText'],
@@ -95,16 +94,16 @@ class Order05 {
       endDate: json['endDate'],
       pricePolicy: json['pricePolicy'],
       orderDttm: json['orderDttm'],
-
-      paymentAmt: json['paymentAmt'],
-      subscriptStat: json['subscriptStat'],
-      payMethod: json['payMethod'],
-      transactId: json['transactId'],
-      usageDays: json['usageDays'],
-      usageMonth: json['usageMonth'],
-      usageAmt: json['usageAmt'],
-      cancelFee: json['cancelFee'],
-      remainAmt: json['remainAmt'],
+      paymentAmt: json['paymentAmt'] ?? '',
+      subscriptStat: json['subscriptStat'] ?? '',
+      payMethod: json['payMethod'] ?? '',
+      transactId: json['transactId'] ?? '',
+      usageDays: json['usageDays'] ?? '',
+      usageMonth: json['usageMonth'] ?? '',
+      usageAmt: json['usageAmt'] ?? '',
+      cancelFee: json['cancelFee'] ?? '',
+      remainAmt: json['remainAmt'] ?? '',
+      refEstDate: json['refEstDate'] ?? '',
     );
   }
 }
