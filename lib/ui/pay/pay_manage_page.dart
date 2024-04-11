@@ -16,7 +16,6 @@ import 'package:rassi_assist/models/tr_order02.dart';
 import 'package:rassi_assist/ui/pay/pay_cancel_sub.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 /// 2021.10.07
 /// 정기결제 내역
 class PayManagePage extends StatelessWidget {
@@ -29,8 +28,11 @@ class PayManagePage extends StatelessWidget {
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: Scaffold(
-        appBar: AppBar(toolbarHeight: 0,
-          backgroundColor: RColor.deepStat, elevation: 0,),
+        appBar: AppBar(
+          toolbarHeight: 0,
+          backgroundColor: RColor.deepStat,
+          elevation: 0,
+        ),
         body: PayManageWidget(),
       ),
     );
@@ -53,13 +55,17 @@ class PayManageState extends State<PayManageWidget> {
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(PayManagePage.TAG_NAME,);
+    CustomFirebaseClass.logEvtScreenView(
+      PayManagePage.TAG_NAME,
+    );
 
     _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), (){
+    Future.delayed(const Duration(milliseconds: 400), () {
       DLog.d(PayManagePage.TAG, "delayed user id : $_userId");
-      if(_userId != '') {
-        _fetchPosts(TR.ORDER02, jsonEncode(<String, String>{
+      if (_userId != '') {
+        _fetchPosts(
+            TR.ORDER02,
+            jsonEncode(<String, String>{
               'userId': _userId,
             }));
       }
@@ -92,21 +98,18 @@ class PayManageState extends State<PayManageWidget> {
                     return _setTileOrder02(orderList[index]);
                   },
                 ),
-
                 Visibility(
                   visible: _isInAppPay,
                   child: Container(
                     margin: const EdgeInsets.all(15.0),
                     child: Text(
-                      Platform.isIOS
-                          ? RString.desc_in_app_cancel
-                          : RString.desc_in_app_cancel_aos,
-                      style: TStyle.content17T,),
+                      Platform.isIOS ? RString.desc_in_app_cancel : RString.desc_in_app_cancel_aos,
+                      style: TStyle.content17T,
+                    ),
                   ),
                 ),
               ],
             ),
-
             Visibility(
               visible: isNoData,
               child: Container(
@@ -115,7 +118,8 @@ class PayManageState extends State<PayManageWidget> {
                 alignment: Alignment.topCenter,
                 child: const Text(
                   '이용중인 정기결제 상품이 없습니다',
-                  style: TStyle.defaultContent,),
+                  style: TStyle.defaultContent,
+                ),
               ),
             ),
           ],
@@ -135,8 +139,13 @@ class PayManageState extends State<PayManageWidget> {
             title: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('정기결제 관리', style: TStyle.defaultTitle,),
-                SizedBox(width: 55.0,),
+                Text(
+                  '정기결제 관리',
+                  style: TStyle.defaultTitle,
+                ),
+                SizedBox(
+                  width: 55.0,
+                ),
               ],
             ),
             iconTheme: const IconThemeData(color: Colors.black),
@@ -144,17 +153,22 @@ class PayManageState extends State<PayManageWidget> {
             toolbarHeight: 50,
             elevation: 1,
           ),
-
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Divider(height: 1.0, color: RColor.lineGrey,),
+              const Divider(
+                height: 1.0,
+                color: RColor.lineGrey,
+              ),
               Container(
                 width: double.infinity,
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 color: Colors.white,
-                child: const Text('이용중인 정기결제 상품', style: TStyle.commonTitle,),
+                child: const Text(
+                  '이용중인 정기결제 상품',
+                  style: TStyle.commonTitle,
+                ),
               ),
               // Divider(height: 1.0, color: RColor.lineGrey,),
             ],
@@ -166,10 +180,11 @@ class PayManageState extends State<PayManageWidget> {
 
   Widget _setTileOrder02(Order02 item) {
     String period = '';
-    period = '${TStyle.getDateSFormat(item.startDate)} ~ ${TStyle.getDateSFormat(item.endDate)}';
+    period = '${TStyle.getDateSFormat(item.startDate)} ~ '
+        '${TStyle.getDateSFormat(item.endDate)}';
 
     bool isClosed = false;
-    if(item.svcCondition == 'C') isClosed = true;
+    if (item.svcCondition == 'C') isClosed = true;
 
     return Container(
       margin: const EdgeInsets.all(12.0),
@@ -185,7 +200,7 @@ class PayManageState extends State<PayManageWidget> {
               color: Colors.grey.withOpacity(0.4),
               spreadRadius: 3,
               blurRadius: 7,
-              offset: const Offset(0, 3),   //changes position of shadow
+              offset: const Offset(0, 3), //changes position of shadow
             )
           ],
         ),
@@ -200,30 +215,41 @@ class PayManageState extends State<PayManageWidget> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 2.0),
-                    child: Text(item.prodName, style: TStyle.titleGrey,),),
-                  const Text('(정기결제)',
+                    child: Text(
+                      item.prodName,
+                      style: TStyle.titleGrey,
+                    ),
+                  ),
+                  const Text(
+                    '(정기결제)',
                     style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 18,
-                    color: Color(0xdd555555),
-                  ),),
-                  const SizedBox(height: 3,),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 18,
+                      color: Color(0xdd555555),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Container(
                         margin: const EdgeInsets.only(top: 2.0),
-                        child: const Text('사용기한  ',
-                          style: TStyle.textGreyDefault,),),
-                      const SizedBox(width: 4.0,),
-                      Text(period, style: TStyle.defaultContent,),
+                        child: const Text(
+                          '사용기한  ',
+                          style: TStyle.textGreyDefault,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        period,
+                        style: TStyle.defaultContent,
+                      ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 8,),
-
+              const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(7),
                 decoration: UIStyle.boxWeakGrey10(),
@@ -240,40 +266,50 @@ class PayManageState extends State<PayManageWidget> {
                         children: [
                           Container(
                             margin: const EdgeInsets.only(top: 2.0),
-                            child: const Text('다음 결제 예정일',
-                              style: TStyle.textGrey15,),),
-                          const SizedBox(width: 7.0,),
-                          Text(TStyle.getDateMdKorFormat(item.nextPayDate),
-                            style: TStyle.defaultContent,),
+                            child: const Text(
+                              '다음 결제 예정일',
+                              style: TStyle.textGrey15,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 7
+                          ),
+                          Text(
+                            TStyle.getDateMdKorFormat(item.nextPayDate),
+                            style: TStyle.defaultContent,
+                          ),
                         ],
                       ),
                     ),
-
                     Visibility(
                       visible: !isClosed,
                       child: InkWell(
-                        child: const Text( '- 정기결제 해지하기 ', style: TStyle.textGrey14,),
-                        onTap: (){
+                        child: const Text(
+                          '- 정기결제 해지하기 ',
+                          style: TStyle.textGrey14,
+                        ),
+                        onTap: () {
                           DLog.d(PayManagePage.TAG, '정기결제 해지하기 클릭, orderChannel : ${item.orderChannel}');
-                          if(item.orderChannel == 'CH33') {
+                          if (item.orderChannel == 'CH33') {
                             _showRefundInfo(item.csPhoneNo);
-                          } else if(item.orderChannel == 'CH32') {
-                            String period = '${TStyle.getDateSFormat(item.startDate)}~${TStyle.getDateSFormat(item.endDate)}';
+                          } else if (item.orderChannel == 'CH32') {
+                            String period = '${TStyle.getDateSFormat(item.startDate)}~'
+                                '${TStyle.getDateSFormat(item.endDate)}';
                             _goRefundPage(item.orderSn, item.nextPayDate, period, item.transactId);
                           }
                         },
                       ),
                     ),
-
                     Visibility(
                       visible: isClosed,
-                      child: const Text( '해지된 상품입니다', style: TStyle.textGrey14,),
+                      child: const Text(
+                        '해지된 상품입니다',
+                        style: TStyle.textGrey14,
+                      ),
                     ),
-
                   ],
                 ),
               ),
-
             ],
           ),
         ),
@@ -281,23 +317,23 @@ class PayManageState extends State<PayManageWidget> {
     );
   }
 
-  void _goRefundPage(String orderSn, String nextPayDay, String usePeriod, String tid ) {
-    _navigateRefresh(context, const PaySubCancelPage(), RouteSettings(
-      arguments: PgPay(orderSn: orderSn, nextPayDay: nextPayDay, period: usePeriod, lgTid: tid)
-    ));
+  void _goRefundPage(String orderSn, String nextPayDay, String usePeriod, String tid) {
+    _navigateRefresh(context, const PaySubCancelPage(),
+        RouteSettings(arguments: PgPay(orderSn: orderSn, nextPayDay: nextPayDay, period: usePeriod, lgTid: tid)));
   }
 
   _navigateRefresh(BuildContext context, Widget instance, RouteSettings settings) async {
     final result = await Navigator.push(context, _createRouteData(instance, settings));
-    if(result == 'cancel') {
+    if (result == 'cancel') {
       DLog.d(PaySubCancelPage.TAG, '*** navigate cancel ***');
-    }
-    else {
+    } else {
       DLog.d(PaySubCancelPage.TAG, '*** navigateRefresh');
       orderList.clear();
-      _fetchPosts(TR.ORDER02, jsonEncode(<String, String> {
-        'userId': _userId,
-      }));
+      _fetchPosts(
+          TR.ORDER02,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+          }));
     }
   }
 
@@ -314,7 +350,8 @@ class PayManageState extends State<PayManageWidget> {
 
         return SlideTransition(
           position: offsetAnimation,
-          child: child,);
+          child: child,
+        );
       },
     );
   }
@@ -327,12 +364,16 @@ class PayManageState extends State<PayManageWidget> {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),),
+            borderRadius: BorderRadius.circular(15.0),
+          ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               InkWell(
-                child: const Icon(Icons.close, color: Colors.black,),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.black,
+                ),
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -342,20 +383,33 @@ class PayManageState extends State<PayManageWidget> {
           content: SingleChildScrollView(
             child: Column(
               children: [
-                Image.asset('images/rassibs_img_infomation.png',
-                  height: 60, fit: BoxFit.contain,),
-                const SizedBox(height: 15.0,),
-                const Text('해지안내', style: TStyle.title20, ),
-                const SizedBox(height: 30.0,),
-                const Text('해당 상품의 해지문의는\n 결제 고객센터로 연결해 주세요.', textAlign: TextAlign.center,
-                  style: TStyle.defaultContent, ),
-                const SizedBox(height: 30.0,),
-                const Text('결제 고객센터',
-                  style: TStyle.defaultContent, ),
-                const SizedBox(height: 5.0,),
-                Text(number,
-                  style: TStyle.title22, ),
-                const SizedBox(height: 15.0,),
+                Image.asset(
+                  'images/rassibs_img_infomation.png',
+                  height: 60,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  '해지안내',
+                  style: TStyle.title20,
+                ),
+                const SizedBox(height: 30),
+                const Text(
+                  '해당 상품의 해지문의는\n 결제 고객센터로 연결해 주세요.',
+                  textAlign: TextAlign.center,
+                  style: TStyle.defaultContent,
+                ),
+                const SizedBox(height: 30),
+                const Text(
+                  '결제 고객센터',
+                  style: TStyle.defaultContent,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  number,
+                  style: TStyle.title22,
+                ),
+                const SizedBox(height: 15),
               ],
             ),
           ),
@@ -363,7 +417,6 @@ class PayManageState extends State<PayManageWidget> {
       },
     );
   }
-
 
   //네트워크 에러 알림
   void _showDialogNetErr() {
@@ -377,7 +430,10 @@ class PayManageState extends State<PayManageWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
-                  child: const Icon(Icons.close, color: Colors.black,),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                   },
@@ -387,16 +443,25 @@ class PayManageState extends State<PayManageWidget> {
             content: SingleChildScrollView(
               child: Column(
                 children: [
-                  Image.asset('images/rassibs_img_infomation.png',
-                    height: 60, fit: BoxFit.contain,),
-                  const SizedBox(height: 5.0,),
+                  Image.asset(
+                    'images/rassibs_img_infomation.png',
+                    height: 60,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 5),
                   const Padding(
                     padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text('안내', style: TStyle.commonTitle,),
+                    child: Text(
+                      '안내',
+                      style: TStyle.commonTitle,
+                    ),
                   ),
-                  const SizedBox(height: 25.0,),
-                  const Text(RString.err_network, textAlign: TextAlign.center,),
-                  const SizedBox(height: 30.0,),
+                  const SizedBox(height: 25),
+                  const Text(
+                    RString.err_network,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 30),
                   MaterialButton(
                     child: Center(
                       child: Container(
@@ -404,10 +469,14 @@ class PayManageState extends State<PayManageWidget> {
                         height: 40,
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
-                          child: Text('확인', style: TStyle.btnTextWht16,),),
+                          child: Text(
+                            '확인',
+                            style: TStyle.btnTextWht16,
+                          ),
+                        ),
                       ),
                     ),
-                    onPressed: (){
+                    onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
@@ -415,8 +484,7 @@ class PayManageState extends State<PayManageWidget> {
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   //convert 패키지의 jsonDecode 사용
@@ -425,14 +493,15 @@ class PayManageState extends State<PayManageWidget> {
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
-
     } on TimeoutException catch (_) {
       DLog.d(PayManagePage.TAG, 'ERR : TimeoutException (12 seconds)');
       _showDialogNetErr();
@@ -446,29 +515,26 @@ class PayManageState extends State<PayManageWidget> {
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(PayManagePage.TAG, response.body);
 
-    if(trStr == TR.ORDER02) {
-      // final TrOrder02 resData = TrOrder02.fromJson(jsonDecode(resStr)); //TEST DATA
+    if (trStr == TR.ORDER02) {
+      // final TrOrder02 resData = TrOrder02.fromJson(jsonDecode(_resStr)); //TEST DATA
       final TrOrder02 resData = TrOrder02.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         isNoData = false;
         orderList = resData.listData;
-        if(orderList != null && orderList.length > 0) {
+        if (orderList != null && orderList.length > 0) {
           Order02 item = orderList.first;
-          if(item.payMethod == 'PM60' || item.payMethod == 'PM50')    //인앱결제(ios) or Android
+          if (item.payMethod == 'PM60' || item.payMethod == 'PM50') //인앱결제(ios) or Android
             _isInAppPay = true;
         }
         setState(() {});
-      }
-      else if(resData.retCode == RT.NO_DATA) {
-        if(orderList.length == 0) isNoData = true;
+      } else if (resData.retCode == RT.NO_DATA) {
+        if (orderList.length == 0) isNoData = true;
         setState(() {});
       }
     }
   }
 
-
-
-  String resStr = '''
+  final String _resStr = '''
   {
   "trCode": "TR_ORDER02",
   "retData": [

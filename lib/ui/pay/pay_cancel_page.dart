@@ -60,13 +60,12 @@ class PayCancelState extends State<PayCancelWidget> {
   String _useDays = '';
   String _useAmt = '';
   String _cancelFee = '';
-  String _refundAmt = '';
+  String _remainAmt = '';
   String _lgTid = '';
   String _lgCancelAmt = '';
+
   bool _isBankTransfer = false;
   String _refundEstDate = '';
-
-
   final _bankNameController = TextEditingController();
   final _accountNumController = TextEditingController();
   final _accountHolderController = TextEditingController();
@@ -96,7 +95,7 @@ class PayCancelState extends State<PayCancelWidget> {
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
     args = ModalRoute.of(context)!.settings.arguments as PgData;
     _orderSn = args.pgSn;
-    setState(() { });
+    setState(() {});
   }
 
   @override
@@ -261,12 +260,13 @@ class PayCancelState extends State<PayCancelWidget> {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
+                //환불 가능한 금액
                 const Text(
                   '환불금액  ',
                   style: TStyle.textGreyDefault,
                 ),
                 Text(
-                  _refundAmt,
+                  _remainAmt,
                   style: TStyle.content16,
                 ),
               ],
@@ -496,6 +496,17 @@ class PayCancelState extends State<PayCancelWidget> {
     );
   }
 
+  //소항목 타이틀
+  Widget _setSubTitle(String subTitle) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30, left: 20, right: 10),
+      child: Text(
+        subTitle,
+        style: TStyle.defaultTitle,
+      ),
+    );
+  }
+
   // 결제웹에서 환불 처리
   void _sendPayWebRefund() {
     appGlobal.userId = _userId;
@@ -527,86 +538,84 @@ class PayCancelState extends State<PayCancelWidget> {
     } else {}
   }
 
-  //소항목 타이틀
-  Widget _setSubTitle(String subTitle) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30, left: 20, right: 10),
-      child: Text(
-        subTitle,
-        style: TStyle.defaultTitle,
-      ),
-    );
-  }
-
   //결제 완료시에만 사용 (결제 완료/실패 알림 -> 자동 페이지 종료)
   void _showDialogMsg(String message, String btnText) {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    _goPreviousPage();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
+    if (context.mounted) {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 15),
-                  const Text(
-                    '환불 안내',
-                    style: TStyle.title20,
-                  ),
-                  const SizedBox(height: 30),
-                  Text(message),
-                  const SizedBox(height: 30),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        // margin: const EdgeInsets.only(top: 20.0),
-                        decoration: const BoxDecoration(
-                          color: RColor.mainColor,
-                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        ),
-                        child: Center(
-                          child: Text(
-                            btnText,
-                            style: TStyle.btnTextWht16,
-                          ),
-                        ),
-                      ),
+                  InkWell(
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.black,
                     ),
-                    onPressed: () {
+                    onTap: () {
                       _goPreviousPage();
                       Navigator.pop(context);
                     },
                   ),
                 ],
               ),
-            ),
-          );
-        });
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Image.asset(
+                      'images/rassibs_img_infomation.png',
+                      height: 60,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 15),
+                    const Text(
+                      '환불 안내',
+                      style: TStyle.title20,
+                    ),
+                    const SizedBox(height: 30),
+                    Text(message),
+                    const SizedBox(height: 30),
+                    MaterialButton(
+                      child: Center(
+                        child: Container(
+                          width: 180,
+                          height: 40,
+                          // margin: const EdgeInsets.only(top: 20.0),
+                          decoration: const BoxDecoration(
+                            color: RColor.mainColor,
+                            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                          ),
+                          child: Center(
+                            child: Text(
+                              btnText,
+                              style: TStyle.btnTextWht16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        _goPreviousPage();
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+    }
+  }
+
+  //완료, 실패 알림 후 페이지 자동 종료
+  void _goPreviousPage() {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      Navigator.of(context).pop('complete'); //null 자리에 데이터를 넘겨 이전 페이지 갱신???
+    });
   }
 
   //무통장입금 환불 신청
@@ -616,7 +625,6 @@ class PayCancelState extends State<PayCancelWidget> {
         jsonEncode(<String, String>{
           'userId': _userId,
           'orderSn': _orderSn,
-          'refundEstDate': _refundEstDate,
           'bankName': bankName,
           'accountNumber': accountNum,
           'depositor': holder,
@@ -641,13 +649,13 @@ class PayCancelState extends State<PayCancelWidget> {
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(PayCancelPage.TAG, response.body);
 
+    //주문 상세내역 조회
     if (trStr == TR.ORDER05) {
       final TrOrder05 resData = TrOrder05.fromJson(jsonDecode(response.body));
-      // final TrOrder05 resData = TrOrder05.fromJson(jsonDecode(resStr));
+      // final TrOrder05 resData = TrOrder05.fromJson(jsonDecode(_resStr));
       if (resData.retCode == RT.SUCCESS) {
         Order05? item = resData.retData;
         if (item != null) {
-
           _refundEstDate = item.refEstDate;
 
           _orderDate = TStyle.getDateTimeFormat(item.orderDttm);
@@ -656,14 +664,15 @@ class PayCancelState extends State<PayCancelWidget> {
           _useDays = '${item.usageDays}일';
           _useAmt = '${TStyle.getMoneyPoint(item.usageAmt)}원';
           _cancelFee = '${TStyle.getMoneyPoint(item.cancelFee)}원';
-          _refundAmt = '${TStyle.getMoneyPoint(item.remainAmt)}원';
+          _remainAmt = '${TStyle.getMoneyPoint(item.remainAmt)}원';
           _lgTid = item.transactId;
           _lgCancelAmt = item.remainAmt;
 
-          if (item.payMethod == 'PM20') {
-            if(item.remainAmt == '' || item.remainAmt == '0'){
-              //환불 가능 금액 없음
-            } else {
+          if (item.remainAmt == '' || item.remainAmt == '0') {
+            //환불 가능 금액 없음
+          } else {
+            //무통장입금 환불신청
+            if (item.payMethod == 'PM20') {
               _isBankTransfer = true;
             }
           }
@@ -677,18 +686,17 @@ class PayCancelState extends State<PayCancelWidget> {
     }
     //무통장 환불 신청
     else if (trStr == TR.DEPOSIT02) {
-
+      Map<String, dynamic> resJson = jsonDecode(response.body);
+      String retCode = resJson['retCode'] ?? '';
+      if (retCode == RT.SUCCESS) {
+        _showDialogMsg('환불 신청이 완료되었습니다.', '확인');
+      } else {
+        _showDialogMsg('환불 신청이 실패했습니다.\n고객센터에 문의해주세요.', '확인');
+      }
     }
   }
 
-  //완료, 실패 알림 후 페이지 자동 종료
-  void _goPreviousPage() {
-    Future.delayed(const Duration(milliseconds: 500), () {
-      Navigator.of(context).pop('complete'); //null 자리에 데이터를 넘겨 이전 페이지 갱신???
-    });
-  }
-
-  String resStr = '''
+  final String _resStr = '''
   {
   "trCode": "TR_ORDER05",
   "retData": {

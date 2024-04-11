@@ -70,7 +70,9 @@ class PayHistoryPageState extends State<PayHistoryPage> {
     _prefs = await SharedPreferences.getInstance();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
 
-    Platform.isIOS ? inAppBilling = PaymentService() : inAppBilling = PaymentAosService();
+    Platform.isIOS
+        ? inAppBilling = PaymentService()
+        : inAppBilling = PaymentAosService();
   }
 
   @override
@@ -454,7 +456,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
 
     if (trStr == TR.ORDER01) {
       final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(response.body));
-      // final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(resStr));
+      // final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(_resStr));
       _orderList.clear();
       if (resData.retCode == RT.SUCCESS && resData.listData.isNotEmpty) {
         _orderList.addAll(resData.listData);
@@ -472,7 +474,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
     }
   }
 
-  String resStr = '''
+  final String _resStr = '''
   {
   "trCode": "TR_ORDER01",
   "retData": [
