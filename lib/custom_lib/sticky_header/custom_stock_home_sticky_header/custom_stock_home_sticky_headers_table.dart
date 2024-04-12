@@ -65,12 +65,12 @@ class CustomStockHomeStickyHeadersTable extends StatefulWidget {
     /// Turn scrollbars
     required this.showVerticalScrollbar,
     required this.showHorizontalScrollbar,
-  })  : this.shouldDisposeScrollControllers = scrollControllers == null,
-        this.scrollControllers = scrollControllers ?? ScrollControllers(),
-        this.onStickyLegendPressed = onStickyLegendPressed ?? (() {}),
-        this.onColumnTitlePressed = onColumnTitlePressed ?? ((_) {}),
-        this.onRowTitlePressed = onRowTitlePressed ?? ((_) {}),
-        this.onContentCellPressed = onContentCellPressed ?? ((_, __) {}),
+  })  : shouldDisposeScrollControllers = scrollControllers == null,
+        scrollControllers = scrollControllers ?? ScrollControllers(),
+        onStickyLegendPressed = onStickyLegendPressed ?? (() {}),
+        onColumnTitlePressed = onColumnTitlePressed ?? ((_) {}),
+        onRowTitlePressed = onRowTitlePressed ?? ((_) {}),
+        onContentCellPressed = onContentCellPressed ?? ((_, __) {}),
         super(key: key) {
     cellDimensions.runAssertions(rowsLength, columnsLength);
     cellAlignments.runAssertions(rowsLength, columnsLength);
@@ -224,7 +224,7 @@ class _CustomStockHomeStickyHeadersTableState extends State<CustomStockHomeStick
                 child: Scrollbar(
                   // Key is required to avoid 'The Scrollbar's ScrollController has no ScrollPosition attached.
                   key: Key('Row ${widget.showVerticalScrollbar}'),
-                  thumbVisibility: widget.showVerticalScrollbar ?? false,
+                  thumbVisibility: widget.showVerticalScrollbar,
                   controller:
                   widget.scrollControllers._horizontalTitleController,
                   child: SingleChildScrollView(
@@ -272,7 +272,7 @@ class _CustomStockHomeStickyHeadersTableState extends State<CustomStockHomeStick
                 child: Scrollbar(
                   // Key is required to avoid 'The Scrollbar's ScrollController has no ScrollPosition attached.
                   key: Key('Column ${widget.showHorizontalScrollbar}'),
-                  thumbVisibility: widget.showHorizontalScrollbar ?? false,
+                  thumbVisibility: widget.showHorizontalScrollbar,
                   controller: widget.scrollControllers._verticalBodyController,
                   child: SingleChildScrollView(
                     controller:

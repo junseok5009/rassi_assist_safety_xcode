@@ -286,7 +286,7 @@ class StockHomeHomeTileStockCompareState
               ),
             ),
             onTap: () {
-              if (_stockCompareDiv != 0)
+              if (_stockCompareDiv != 0) {
                 setState(
                   () {
                     _stockCompareDiv = 0;
@@ -299,6 +299,7 @@ class StockHomeHomeTileStockCompareState
                     _isRightYAxisUpUnit = _findMaxValue >= 1000;
                   },
                 );
+              }
             },
           ),
         ),

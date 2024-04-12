@@ -224,24 +224,19 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 height: 10.0,
               ),
 
-              _setSubTitleMore(
-                  "  최근 3일 매수 후 급등 종목", TStyle.commonTitle15, 'CUR_B'),
+              _setSubTitleMore("  최근 3일 매수 후 급등 종목", TStyle.commonTitle15, 'CUR_B'),
               _setTopRising(),
 
-              _setSubTitleMore(
-                  "  적중률 TOP 중 최근 3일 매수 종목", TStyle.commonTitle15, 'HIT_H'),
+              _setSubTitleMore("  적중률 TOP 중 최근 3일 매수 종목", TStyle.commonTitle15, 'HIT_H'),
               _setTopHitHolding(),
 
-              _setSubTitleMore(
-                  "  적중률 TOP 중 관망 종목", TStyle.commonTitle15, 'HIT_W'),
+              _setSubTitleMore("  적중률 TOP 중 관망 종목", TStyle.commonTitle15, 'HIT_W'),
               _setTopHitWatching(context),
 
-              _setSubTitleMore(
-                  "  평균수익률 TOP 중 최근 3일 매수 종목", TStyle.commonTitle15, 'AVG_H'),
+              _setSubTitleMore("  평균수익률 TOP 중 최근 3일 매수 종목", TStyle.commonTitle15, 'AVG_H'),
               _setTopAvgHolding(context),
 
-              _setSubTitleMore(
-                  "  평균수익률 TOP 중 관망 종목", TStyle.commonTitle15, 'AVG_W'),
+              _setSubTitleMore("  평균수익률 TOP 중 관망 종목", TStyle.commonTitle15, 'AVG_W'),
               _setTopAvgWatching(context),
 
               const SizedBox(
@@ -334,8 +329,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                                 color: Colors.white,
                                 width: 1.2,
                               ),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(25.0)),
+                              borderRadius: const BorderRadius.all(Radius.circular(25.0)),
                             ),
                             child: const Text(
                               '자세히보기',
@@ -357,8 +351,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   ),
                 ),
                 onTap: () {
-                  basePageState.callPageRouteUpData(
-                      SignalBoardPage(), PgData(pgData: _curProd));
+                  basePageState.callPageRouteUpData(SignalBoardPage(), PgData(pgData: _curProd));
                 },
               ),
 
@@ -408,36 +401,26 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
               if (_isFreeVisible) {
                 if (type == 'CUR_B') {
                   //3일내에 매수 후 급등 (FIND01)
-                  basePageState.callPageRouteData(
-                      const SignalMTopPage(), PgData(pgData: type));
+                  basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                 } else {
-                  _navigateRefresh(
-                      context,
-                      Platform.isIOS
-                          ? const PayPremiumPage()
-                          : const PayPremiumAosPage());
+                  _navigateRefresh(context, Platform.isIOS ? const PayPremiumPage() : const PayPremiumAosPage());
                 }
               } else {
                 if (type == 'CUR_B') {
                   //3일내에 매수 후 급등 (FIND01)
-                  basePageState.callPageRouteData(
-                      const SignalMTopPage(), PgData(pgData: type));
+                  basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                 } else if (type == 'HIT_H') {
                   //적중률 높은 최근 매수 (FIND02)
-                  basePageState.callPageRouteData(
-                      const SignalMTopPage(), PgData(pgData: type));
+                  basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                 } else if (type == 'HIT_W') {
                   //적중률 높은 최근 관망 (FIND03)
-                  basePageState.callPageRouteData(
-                      const SignalMTopPage(), PgData(pgData: type));
+                  basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                 } else if (type == 'AVG_H') {
                   //평균수익률 높은 최근 매수 (FIND04)
-                  basePageState.callPageRouteData(
-                      const SignalMTopPage(), PgData(pgData: type));
+                  basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                 } else if (type == 'AVG_W') {
                   //평균수익률 높은 관망 (FIND05)
-                  basePageState.callPageRouteData(
-                      const SignalMTopPage(), PgData(pgData: type));
+                  basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                 }
               }
             },
@@ -746,8 +729,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   physics: const NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   childAspectRatio: 4.5,
-                  children: List.generate(_catchStkList.length,
-                      (index) => TileStockCatch(_catchStkList[index])),
+                  children: List.generate(_catchStkList.length, (index) => TileStockCatch(_catchStkList[index])),
                 ),
               ],
             ),
@@ -826,8 +808,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   horizontal: 15.0,
                   vertical: 10,
                 ),
-                child: CommonView.setNoDataView(
-                    150, '적중률 TOP 중 최근 3일 매수 종목이 없습니다.'),
+                child: CommonView.setNoDataView(150, '적중률 TOP 중 최근 3일 매수 종목이 없습니다.'),
               )
             : Container(
                 width: double.infinity,
@@ -883,8 +864,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   horizontal: 15.0,
                   vertical: 10,
                 ),
-                child: CommonView.setNoDataView(
-                    150, '평균수익률 TOP 중 최근 3일 매수 종목이 없습니다.'),
+                child: CommonView.setNoDataView(150, '평균수익률 TOP 중 최근 3일 매수 종목이 없습니다.'),
               )
             : Container(
                 width: double.infinity,
@@ -912,8 +892,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   horizontal: 15.0,
                   vertical: 10,
                 ),
-                child:
-                    CommonView.setNoDataView(150, '평균수익률 TOP 중 관망 종목이 없습니다.'),
+                child: CommonView.setNoDataView(150, '평균수익률 TOP 중 관망 종목이 없습니다.'),
               )
             : Container(
                 width: double.infinity,
@@ -1005,9 +984,9 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 ),
               ],
             ),
-            Row(
+            const Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: const [
+              children: [
                 Text('TOP'),
                 Text(
                   '50',
@@ -1019,8 +998,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
           ],
         ),
         onTap: () {
-          basePageState.callPageRouteData(
-              SignalTopPage(), PgData(pgData: routeStr));
+          basePageState.callPageRouteData(SignalTopPage(), PgData(pgData: routeStr));
         },
       ),
     );
@@ -1058,8 +1036,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   Widget _setPrMid() {
     return Visibility(
       visible: prMID,
-      child: SizedBox(
-          width: double.infinity, height: 110, child: CardProm02(_listPrMid)),
+      child: SizedBox(width: double.infinity, height: 110, child: CardProm02(_listPrMid)),
     );
   }
 
@@ -1101,8 +1078,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -1136,15 +1112,14 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                     ),
                   ),
                   const SizedBox(
-                    height: 15.0,
+                    height: 20.0,
                   ),
                   const Text(
-                    'AI는 처리 프로세스에 따라 각 시점에서\n'
-                    '역할을 수행하며 이 과정을 통해 최적의 매매타이밍\n'
-                    'AI매매신호를 발생시켜 알려드립니다.',
-                    style: TStyle.textSGrey,
+                    'AI는 처리 프로세스에 따라 각 시점에서 '
+                    '역할을 수행하며 이 과정을 통해 최적의 매매타이밍에서 '
+                    'AI매매신호를 발생시킵니다.',
+                    style: TStyle.textMGrey,
                     textAlign: TextAlign.center,
-                    
                   ),
                 ],
               ),
@@ -1191,7 +1166,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 const Text(
                   '안내',
                   style: TStyle.title20,
-                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -1199,7 +1173,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 const Text(
                   '매매비서 프리미엄에서 이용할 수 있는 정보입니다.',
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -1207,7 +1180,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 const Text(
                   '프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -1225,18 +1197,13 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                         child: Text(
                           '프리미엄 가입하기',
                           style: TStyle.btnTextWht15,
-                          
                         ),
                       ),
                     ),
                   ),
                   onPressed: () {
                     Navigator.pop(context);
-                    _navigateRefreshPay(
-                        context,
-                        Platform.isIOS
-                            ? const PayPremiumPage()
-                            : const PayPremiumAosPage());
+                    _navigateRefreshPay(context, Platform.isIOS ? const PayPremiumPage() : const PayPremiumAosPage());
                   },
                 ),
               ],
@@ -1284,7 +1251,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   '성과 TOP 종목은?',
                   style: TStyle.title20,
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -1293,7 +1259,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   RString.desc_result_top,
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -1307,8 +1272,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   }
 
   _navigateRefresh(BuildContext context, Widget instance) async {
-    final result =
-        await Navigator.push(context, CustomNvRouteClass.createRoute(instance));
+    final result = await Navigator.push(context, CustomNvRouteClass.createRoute(instance));
     if (result == 'cancel') {
       DLog.d(SliverSignalWidget.TAG, '*** navigete cancel ***');
     } else {
@@ -1322,8 +1286,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   }
 
   _navigateRefreshPay(BuildContext context, Widget instance) async {
-    final result =
-        await Navigator.push(context, CustomNvRouteClass.createRoute(instance));
+    final result = await Navigator.push(context, CustomNvRouteClass.createRoute(instance));
     if (result == 'cancel') {
       DLog.d(SliverSignalWidget.TAG, '*** navigete cancel ***');
     } else {
@@ -1336,26 +1299,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     }
   }
 
-  _navigateSearchData(
-      BuildContext context, Widget instance, PgData pgData) async {
-    final result = await Navigator.push(
-        context,
-        _createRouteData(
-            instance,
-            RouteSettings(
-              arguments: pgData,
-            )));
-    if (result == 'cancel') {
-      DLog.d(SliverSignalWidget.TAG, '*** navigete cancel ***');
-    } else {
-      DLog.d(SliverSignalWidget.TAG, '*** navigateRefresh');
-      // _fetchPosts(TR.POCK03, jsonEncode(<String, String>{
-      //   'userId': _userId,
-      //   'selectCount': '10',
-      // }));
-    }
-  }
-
   //페이지 전환 에니메이션 (데이터 전달)
   Route _createRouteData(Widget instance, RouteSettings settings) {
     return PageRouteBuilder(
@@ -1364,8 +1307,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -1392,11 +1334,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      DLog.d(SliverSignalWidget.TAG, 'ERR : TimeoutException (12 seconds)');
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      DLog.d(SliverSignalWidget.TAG, 'ERR : SocketException');
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1412,13 +1350,8 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
       if (resData.retCode == RT.SUCCESS) {
         User04 data = resData.retData;
         _setUserStatus(data);
-
-        if (data.accountData != null) {
-          final AccountData accountData = data.accountData;
-          accountData.initUserStatusAfterPayment();
-        } else {
-          const AccountData().setFreeUserStatus();
-        }
+        final AccountData accountData = data.accountData;
+        accountData.initUserStatusAfterPayment();
         setState(() {});
       } else {
         const AccountData().setFreeUserStatus();
@@ -1450,33 +1383,26 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
           }
         }
         setState(() {
-          if (_listPrTop.length > 0) prTOP = true;
-          if (_listPrHgh.length > 0) prHGH = true;
-          if (_listPrMid.length > 0) prMID = true;
-          if (_listPrLow.length > 0) prLOW = true;
+          if (_listPrTop.isNotEmpty) prTOP = true;
+          if (_listPrHgh.isNotEmpty) prHGH = true;
+          if (_listPrMid.isNotEmpty) prMID = true;
+          if (_listPrLow.isNotEmpty) prLOW = true;
         });
       }
 
       _fetchPosts(
-          TR.SIGNAL05,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-            'selectCount': '50',
-            'includeData': 'Y'
-          }));
+          TR.SIGNAL05, jsonEncode(<String, String>{'userId': _userId, 'selectCount': '50', 'includeData': 'Y'}));
     } else if (trStr == TR.SIGNAL05) {
       final TrSignal05 resData = TrSignal05.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         final Signal05 data = resData.retData;
 
         honorList.clear();
-        if (data != null) {
-          _strBuy = data.buyCount;
-          _strSell = data.sellCount;
-          _strTime =
-              "${data.updateDttm.substring(4, 6)}/${data.updateDttm.substring(6, 8)}  ${data.updateDttm.substring(8, 10)}:${data.updateDttm.substring(10, 12)}";
-          honorList.addAll(data.listHonor);
-        }
+        _strBuy = data.buyCount;
+        _strSell = data.sellCount;
+        _strTime =
+            "${data.updateDttm.substring(4, 6)}/${data.updateDttm.substring(6, 8)}  ${data.updateDttm.substring(8, 10)}:${data.updateDttm.substring(10, 12)}";
+        honorList.addAll(data.listHonor);
 
         setState(() {});
       }
@@ -1514,8 +1440,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         _popularList = resData.retData.listStock;
       }
 
-      _fetchPosts(TR.FIND01,
-          jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
+      _fetchPosts(TR.FIND01, jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
     } else if (trStr == TR.FIND01) {
       final TrFind01 resData = TrFind01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
@@ -1526,8 +1451,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         });
       }
 
-      _fetchPosts(TR.FIND02,
-          jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
+      _fetchPosts(TR.FIND02, jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
     } else if (trStr == TR.FIND02) {
       final TrFind02 resData = TrFind02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
@@ -1538,8 +1462,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         });
       } else {}
 
-      _fetchPosts(TR.FIND03,
-          jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
+      _fetchPosts(TR.FIND03, jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
     } else if (trStr == TR.FIND03) {
       final TrFind03 resData = TrFind03.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
@@ -1554,8 +1477,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         });
       }
 
-      _fetchPosts(TR.FIND04,
-          jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
+      _fetchPosts(TR.FIND04, jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
     } else if (trStr == TR.FIND04) {
       final TrFind04 resData = TrFind04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
@@ -1570,8 +1492,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         });
       }
 
-      _fetchPosts(TR.FIND05,
-          jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
+      _fetchPosts(TR.FIND05, jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
     } else if (trStr == TR.FIND05) {
       final TrFind05 resData = TrFind05.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
@@ -1617,81 +1538,73 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   //회원정보 Status
   void _setUserStatus(User04 uData) {
     AccountData acData = uData.accountData;
-    if (acData != null) {
-      if (acData.prodName == '프리미엄') {
-        _isFreeVisible = false;
-      } else if (acData.prodCode == 'AC_S3') {
-        _isFreeVisible = true;
-      } else {
-        //베이직 계정
-        _isFreeVisible = true;
-      }
+    if (acData.prodName == '프리미엄') {
+      _isFreeVisible = false;
+    } else if (acData.prodCode == 'AC_S3') {
+      _isFreeVisible = true;
     } else {
-      //회원정보 가져오지 못함
+      //베이직 계정
       _isFreeVisible = true;
     }
   }
 
   //매매신호 현황
   _setParseSigStatus(Signal09 item) {
-    if (item != null) {
-      _isReqComplete = true; //기본값 노출방지
-      _isVisibleTimer = false;
-      _bIsTrading =
-          (item.noticeCode != 'TIME_BEFORE' && item.noticeCode.isNotEmpty);
+    _isReqComplete = true; //기본값 노출방지
+    _isVisibleTimer = false;
+    _bIsTrading = (item.noticeCode != 'TIME_BEFORE' && item.noticeCode.isNotEmpty);
 
-      //장시작 대기, 전일 미거래 종목 필터링중(08시 ~ 개장전)
-      if (item.noticeCode == 'TIME_BEFORE') {
-        _isBeforeTime = true;
-        _engineStr1 = 'AI는 현재 데이터 처리 중';
-        _engineStr2 = '';
-        _strLottie = 'assets/9678-colorfull-loading.json';
-      }
-      //장시작 후 첫 신호 발생전까지
-      else if (item.noticeCode == 'TIME_OPEN') {
-        _engineStr1 = 'AI는 현재 신호 발생 중';
-        _engineStr2 = '새로운 AI매매신호가 발생중입니다.';
-        _strLottie = 'assets/8796-dashboard-motion.json';
-      }
-      //9시 20분 첫 신호 발생부터 다음 신호 발생 정각까지 20분 단위 카운트 다운
-      else if (item.noticeCode == 'TIME_TERM') {
-        _engineStr1 = 'AI는 현재 실시간 분석 중';
-        _engineStr2 = '다음 신호 발생까지';
-        _strLottie = 'assets/985-phonological.json';
-        _isBeforeTime = false;
-        _isVisibleTimer = true;
-
-        if (item.remainTime != null) startTimer(item.remainTime);
-      }
-      //9시 40분 2번째 신호 발생부터 20분/40분/60분 해당 신호대 신호 발생까지 노출
-      else if (item.noticeCode == 'TIME_WAIT') {
-        _engineStr1 = 'AI는 현재 신호 발생 중';
-        _engineStr2 = '새로운 AI매매신호가 발생중입니다.';
-        _strLottie = 'assets/9925-check-purple.json';
-
-        startTimerWait();
-      }
-      //비영업일, 영업일 장종료후
-      else {
-        _engineStr1 = 'AI는 현재 학습 업데이트 중';
-        _engineStr2 = '데이터를 수집하여 학습에 반영중입니다.';
-        _strLottie = 'assets/41561-machine-learning.json';
-      }
-
-      _engineStatus = item.noticeCode;
-      _strBuy = item.buyCount ?? '0';
-      _strSell = item.sellCount ?? '0';
-      if (_strBuy == '0' && _strSell == '0') {
-        if (item.noticeCode == 'TIME_BEFORE') {
-          _emptyString = '장 시작 전 입니다.';
-        } else if (item.noticeCode != 'TIME_OPEN') {
-          _emptyString = '오늘 새로 발생된 매매신호가 없습니다.';
-        }
-      }
-      // _processTxt = item.processText;
-
-      setState(() {});
+    //장시작 대기, 전일 미거래 종목 필터링중(08시 ~ 개장전)
+    if (item.noticeCode == 'TIME_BEFORE') {
+      _isBeforeTime = true;
+      _engineStr1 = 'AI는 현재 데이터 처리 중';
+      _engineStr2 = '';
+      _strLottie = 'assets/9678-colorfull-loading.json';
     }
+    //장시작 후 첫 신호 발생전까지
+    else if (item.noticeCode == 'TIME_OPEN') {
+      _engineStr1 = 'AI는 현재 신호 발생 중';
+      _engineStr2 = '새로운 AI매매신호가 발생중입니다.';
+      _strLottie = 'assets/8796-dashboard-motion.json';
+    }
+    //9시 20분 첫 신호 발생부터 다음 신호 발생 정각까지 20분 단위 카운트 다운
+    else if (item.noticeCode == 'TIME_TERM') {
+      _engineStr1 = 'AI는 현재 실시간 분석 중';
+      _engineStr2 = '다음 신호 발생까지';
+      _strLottie = 'assets/985-phonological.json';
+      _isBeforeTime = false;
+      _isVisibleTimer = true;
+
+      startTimer(item.remainTime);
+    }
+    //9시 40분 2번째 신호 발생부터 20분/40분/60분 해당 신호대 신호 발생까지 노출
+    else if (item.noticeCode == 'TIME_WAIT') {
+      _engineStr1 = 'AI는 현재 신호 발생 중';
+      _engineStr2 = '새로운 AI매매신호가 발생중입니다.';
+      _strLottie = 'assets/9925-check-purple.json';
+
+      startTimerWait();
+    }
+    //비영업일, 영업일 장종료후
+    else {
+      _engineStr1 = 'AI는 현재 학습 업데이트 중';
+      _engineStr2 = '데이터를 수집하여 학습에 반영중입니다.';
+      _strLottie = 'assets/41561-machine-learning.json';
+    }
+
+    _engineStatus = item.noticeCode;
+    _strBuy = item.buyCount;
+    _strSell = item.sellCount;
+    if (_strBuy == '0' && _strSell == '0') {
+      if (item.noticeCode == 'TIME_BEFORE') {
+        _emptyString = '장 시작 전 입니다.';
+      } else if (item.noticeCode != 'TIME_OPEN') {
+        _emptyString = '오늘 새로 발생된 매매신호가 없습니다.';
+      }
+    }
+    // _processTxt = item.processText;
+
+    setState(() {});
   }
 
   void startTimer(String sTime) {

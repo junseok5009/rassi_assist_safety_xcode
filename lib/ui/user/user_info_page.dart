@@ -61,7 +61,6 @@ class UserInfoState extends State<UserInfoPage> {
   bool _isCertInput = false;
   String _certTime = '';
   String _sBtnPhone = '변경하기';
-  String _sPhoneHint = '';
 
   String _phone = ''; // 현재 회원의 전화번호
 
@@ -86,6 +85,8 @@ class UserInfoState extends State<UserInfoPage> {
   final FocusNode _certFocusNode = FocusNode();
   final _recommendController = TextEditingController();
   final FocusNode _recommendFocusNode = FocusNode();
+
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -125,10 +126,6 @@ class UserInfoState extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _setLayout();
-  }
-
-  Widget _setLayout() {
     return Scaffold(
       appBar: CommonAppbar.simpleNoTitleWithExit(
         context,
@@ -139,523 +136,572 @@ class UserInfoState extends State<UserInfoPage> {
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
-          child: Padding(
-            padding:
-                const EdgeInsets.only(left: 15, right: 10, top: 10, bottom: 15),
-            child: ListView(
-              children: [
-                const Text(
-                  '회원 정보 관리',
-                  style: TStyle.title18T,
-                ),
-                const SizedBox(height: 25),
-
-                //아이디
-                _setSubTitle("아이디"),
-                const SizedBox(height: 10),
-                _setGreyBoxWidget(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _userId,
-                          style: TStyle.textGrey15,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _pressedBtn(
-                        '로그아웃',
-                        _showDialogLogout,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  _userId.isEmpty
-                      ? ''
-                      : _userId.contains('@nv')
-                          ? '현재 네이버 아이디로 로그인하여 이용중입니다.'
-                          : _userId.contains('@ko')
-                              ? '현재 카카오 아이디로 로그인하여 이용중입니다.'
-                              : _userId.contains('@gl')
-                                  ? '현재 구글 아이디로 로그인하여 이용중입니다.'
-                                  : _userId.contains('@ap')
-                                      ? '현재 애플 아이디로 로그인하여 이용중입니다.'
-                                      : _userId.contains('@sa')
-                                          ? '현재 휴대폰번호로 간편하게 시작하기로 이용중입니다.'
-                                          : '현재 라씨(씽크풀) 아이디로 로그인하여 이용중입니다.',
-                  style: TStyle.contentGrey13,
-                ),
-
-                //비밀번호
-                Visibility(
-                  visible: !_userId.contains('@') ||
-                      (!_userId.contains('@nv') &&
-                          !_userId.contains('@ko') &&
-                          !_userId.contains('@gl') &&
-                          !_userId.contains('@ap') &&
-                          !_userId.contains('@sa')),
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                      top: 25,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 15),
+                child: ListView(
+                  children: [
+                    const Text(
+                      '회원 정보 관리',
+                      style: TStyle.title18T,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _setSubTitle("비밀번호"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        _setGreyBoxWidget(
-                          child: Row(
-                            //crossAxisAlignment: _isChPass ? CrossAxisAlignment.center : CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  enabled: _isChPass,
-                                  controller: _passController,
-                                  cursorColor: RColor.new_basic_text_color_grey,
-                                  decoration: InputDecoration(
-                                    hintText: _sPassHint,
-                                    hintStyle: TStyle.textGrey15,
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                  ),
-                                  focusNode: _passFocusNode,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              _pressedBtn(
-                                _sBtnPass,
-                                () {
-                                  //변경중
-                                  if (_isChPass) {
-                                    String chPass = _passController.text.trim();
-                                    if (_isPwCheck(chPass) ||
-                                        _passController.text.trim().length <
-                                            6) {
-                                      _showDialogMsg(RString
-                                          .join_err_pw_rule); //6~12자리 영문, 숫자만 가능
-                                    } else {
-                                      _requestChPass(chPass);
-                                    }
-                                  } else {
-                                    setState(() {
-                                      _sBtnPass = '확인';
-                                      _isChPass = true;
-                                      _sPassHint = '6~12자리 영문/숫자, 동일 3자리 불가';
-                                    });
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) {
-                                      FocusScope.of(context)
-                                          .requestFocus(_passFocusNode);
-                                    });
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                    const SizedBox(height: 25),
 
-                const SizedBox(height: 25),
-
-                //나의 추천인
-                _setSubTitle("나의 추천인"),
-                const SizedBox(height: 10),
-                _setGreyBoxWidget(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _isDoingRec
-                            // 에이전트 유저 + 추천인 입력 중(변경)
-                            ? TextField(
-                                enabled: _isDoingRec,
-                                controller: _recommendController,
-                                cursorColor: RColor.new_basic_text_color_grey,
-                                decoration: const InputDecoration(
-                                  hintText: '추천인을 입력해 주세요.',
-                                  hintStyle: TStyle.textGrey15,
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                                focusNode: _recommendFocusNode,
-                                onChanged: (text) {
-                                  _clickRecItemIndex = -1;
-                                  if (text.length > 1) {
-                                    if (!_isSearh02Processing) {
-                                      _isSearh02Processing = true;
-                                      _recSearchText = text.toString();
-                                      _requestTrMgrAgent02(_recSearchText);
-                                    }
-                                  } else {
-                                    setState(() {
-                                      _isSearchingRec = false;
-                                    });
-                                  }
-                                },
-                                scrollPadding: const EdgeInsets.only(
-                                  bottom: 300,
-                                ),
-                              )
-                            // 에이전트 유저 + 추천인 노출
-                            : _userInfoProvider.isAgentUser
-                                ? Text(
-                                    _userInfoProvider
-                                        .getUser04.agentData.agentName,
-                                    style: TStyle.textGrey15,
-                                  )
-                                // 에이전트 유저가 아님
-                                : const Text(
-                                    '추천을 받아 라씨 매매비서에 가입한 경우 추천인이 표시됩니다.',
-                                    style: TStyle.textGrey15,
-                                  ),
-                      ),
-                      _pressedBtn(
-                        _userInfoProvider.isAgentUser && !_isDoingRec
-                            ? '변경하기'
-                            : '등록하기',
-                        () {
-                          // 추천인 등록 과정
-                          if (_isDoingRec) {
-                            if (_clickRecItemIndex == -1) {
-                              CommonPopup.instance.showDialogBasicConfirm(
-                                  context,
-                                  '알림',
-                                  '등록하실 추천인을 선택하신 후 등록하기를 눌러주세요.');
-                            } else {
-                              setState(() {
-                                _isDoingRec = false;
-                              });
-                              // 1. 우리 서버 - 추천인 등록
-
-                              // 2. 웹 API joinRoute 변경
-                              _requestUserEditJoinRoute();
-                            }
-                          } else {
-                            setState(() {
-                              _isDoingRec = true;
-                            });
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              FocusScope.of(context)
-                                  .requestFocus(_recommendFocusNode);
-                            });
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                //추천인 연관 검색어
-                Visibility(
-                  visible: _isSearchingRec,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 110,
-                    child: ListView.builder(
-                      physics: const ScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                      ),
-                      shrinkWrap: true,
-                      itemCount: _listRec.length,
-                      itemBuilder: (BuildContext context, index) =>
-                          _setRecommendListChild(index, _listRec[index]),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                _setSubTitle("휴대폰 번호"),
-                const SizedBox(height: 10),
-                _setGreyBoxWidget(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          enabled: _isChPhone,
-                          controller: _phoneController,
-                          style: TStyle.textGrey15,
-                          decoration: InputDecoration(
-                            hintText: _sPhoneHint,
-                            hintStyle: TStyle.textGrey15,
-                            border: InputBorder.none,
-                            counterText: '',
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          maxLines: 1,
-                          maxLength: 13,
-                          textInputAction: TextInputAction.done,
-                          cursorColor: RColor.new_basic_text_color_grey,
-                          keyboardType: TextInputType.number,
-                          scrollPadding: const EdgeInsets.only(
-                            bottom: 500,
-                          ),
-                          focusNode: _phoneFocusNode,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ], // On
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      _pressedBtn(
-                        _sBtnPhone,
-                        () {
-                          //변경중
-                          if (_isChPhone) {
-                            String chPhone = _phoneController.text.trim();
-                            if (chPhone.length > 7) {
-                              DLog.d('인증번호요청 -> ', chPhone);
-                              _requestCertNum(chPhone);
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                FocusScope.of(context)
-                                    .requestFocus(_phoneFocusNode);
-                              });
-                            } else {
-                              _showDialogMsg('휴대폰 번호를 입력해주세요');
-                            }
-                          } else {
-                            setState(() {
-                              _isChPhone = true;
-                              _sBtnPhone = '인증번호 요청';
-                              _sPhoneHint = '번호 입력 후 인증번호 요청해주세요.';
-                            });
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              FocusScope.of(context)
-                                  .requestFocus(_phoneFocusNode);
-                            });
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                //인증번호 입력
-                Visibility(
-                  visible: _isCertInput,
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                      top: 10,
-                    ),
-                    child: _setGreyBoxWidget(
+                    //아이디
+                    _setSubTitle("아이디"),
+                    const SizedBox(height: 10),
+                    _setGreyBoxWidget(
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: TextField(
-                              controller: _certController,
-                              cursorColor: RColor.new_basic_text_color_grey,
-                              decoration: const InputDecoration(
-                                hintText: '인증번호 입력',
-                                hintStyle: TStyle.textGrey15,
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                              focusNode: _certFocusNode,
+                            child: Text(
+                              _userId,
+                              style: TStyle.textGrey15,
                             ),
                           ),
                           const SizedBox(
                             width: 10,
                           ),
                           _pressedBtn(
-                            '확인',
+                            false,
+                            '로그아웃',
+                            _showDialogLogout,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      _userId.isEmpty
+                          ? ''
+                          : _userId.contains('@nv')
+                              ? '현재 네이버 아이디로 로그인하여 이용중입니다.'
+                              : _userId.contains('@ko')
+                                  ? '현재 카카오 아이디로 로그인하여 이용중입니다.'
+                                  : _userId.contains('@gl')
+                                      ? '현재 구글 아이디로 로그인하여 이용중입니다.'
+                                      : _userId.contains('@ap')
+                                          ? '현재 애플 아이디로 로그인하여 이용중입니다.'
+                                          : _userId.contains('@sa')
+                                              ? '현재 휴대폰번호로 간편하게 시작하기로 이용중입니다.'
+                                              : '현재 라씨(씽크풀) 아이디로 로그인하여 이용중입니다.',
+                      style: TStyle.contentGrey13,
+                    ),
+
+                    //비밀번호
+                    Visibility(
+                      visible: !_userId.contains('@') ||
+                          (!_userId.contains('@nv') &&
+                              !_userId.contains('@ko') &&
+                              !_userId.contains('@gl') &&
+                              !_userId.contains('@ap') &&
+                              !_userId.contains('@sa')),
+                      child: Container(
+                        margin: const EdgeInsets.only(
+                          top: 25,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _setSubTitle("비밀번호"),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            _setGreyBoxWidget(
+                              child: Row(
+                                //crossAxisAlignment: _isChPass ? CrossAxisAlignment.center : CrossAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: _isChPass
+                                        ? TextField(
+                                            enabled: _isChPass,
+                                            controller: _passController,
+                                            cursorColor: RColor.new_basic_text_color_grey,
+                                            style: TStyle.textGrey15,
+                                            decoration: InputDecoration(
+                                              hintText: _sPassHint,
+                                              hintStyle: const TextStyle(
+                                                fontSize: 15,
+                                                color: RColor.new_basic_text_color_light_grey,
+                                              ),
+                                              border: InputBorder.none,
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                            focusNode: _passFocusNode,
+                                          )
+                                        : Text(
+                                            _sPassHint,
+                                            style: TStyle.textGrey15,
+                                          ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  _pressedBtn(
+                                    _isChPass,
+                                    _sBtnPass,
+                                    () {
+                                      //변경중
+                                      if (_isChPass) {
+                                        String chPass = _passController.text.trim();
+                                        if (_isPwCheck(chPass) || _passController.text.trim().length < 6) {
+                                          CommonPopup.instance.showDialogBasicConfirm(
+                                            context,
+                                            '알림',
+                                            RString.join_err_pw_rule,
+                                          ); //6~12자리 영문, 숫자만 가능
+                                        } else {
+                                          _requestChPass(chPass);
+                                        }
+                                      } else {
+                                        setState(() {
+                                          _sBtnPass = '확인';
+                                          _isChPass = true;
+                                          _sPassHint = '6~12자리 영문/숫자, 동일 3자리 불가';
+                                        });
+                                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                                          FocusScope.of(context).requestFocus(_passFocusNode);
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    //나의 추천인
+                    _setSubTitle("나의 추천인"),
+                    const SizedBox(height: 10),
+                    _setGreyBoxWidget(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: _isDoingRec
+                                // 에이전트 유저 + 추천인 입력 중(변경)
+                                ? TextField(
+                                    enabled: _isDoingRec,
+                                    controller: _recommendController,
+                                    cursorColor: RColor.new_basic_text_color_grey,
+                                    style: TStyle.textGrey15,
+                                    decoration: const InputDecoration(
+                                      hintText: '추천인을 입력해 주세요.',
+                                      hintStyle: TextStyle(
+                                        fontSize: 15,
+                                        color: RColor.new_basic_text_color_light_grey,
+                                      ),
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                    focusNode: _recommendFocusNode,
+                                    onChanged: (_) async {
+                                      _clickRecItemIndex = -1;
+                                      await Future.delayed(const Duration(milliseconds: 10));
+                                      if (_recommendController.text.length > 1) {
+                                        if (!_isSearh02Processing) {
+                                          _isSearh02Processing = true;
+                                          _recSearchText = _recommendController.text.toUpperCase().trim();
+                                          _requestTrMgrAgent02(_recSearchText);
+                                        } else {
+                                          _recSearchText = _recommendController.text.toUpperCase().trim();
+                                        }
+                                      } else {
+                                        setState(() {
+                                          _isSearchingRec = false;
+                                        });
+                                      }
+                                    },
+                                    scrollPadding: const EdgeInsets.only(
+                                      bottom: 150,
+                                    ),
+                                  )
+                                // 에이전트 유저 + 추천인 노출
+                                : _userInfoProvider.isAgentUser
+                                    ? Text(
+                                        _userInfoProvider.getUser04.agentData.agentName,
+                                        style: TStyle.textGrey15,
+                                      )
+                                    // 에이전트 유저가 아님
+                                    : const Text(
+                                        '추천을 받아 라씨 매매비서에 가입한 경우 추천인이 표시됩니다.',
+                                        style: TStyle.textMGrey,
+                                      ),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          _pressedBtn(
+                            _isDoingRec,
+                            _userInfoProvider.isAgentUser && !_isDoingRec ? '변경하기' : '등록하기',
                             () {
-                              String strNum = _certController.text.trim();
-                              if (strNum.length > 4) {
-                                _requestCertConfirm(
-                                    _phoneController.text.trim(), strNum);
+                              // 추천인 등록 과정
+                              if (_isDoingRec) {
+                                if (_clickRecItemIndex == -1) {
+                                  CommonPopup.instance
+                                      .showDialogBasicConfirm(context, '알림', '등록하실 추천인을 선택하신 후 등록하기를 눌러주세요.');
+                                } else {
+                                  setState(() {
+                                    _isDoingRec = false;
+                                  });
+                                  // 우리 서버 - 추천인 등록 > 웹 API joinRoute 변경
+                                  _requestUserEditJoinRoute();
+                                }
                               } else {
-                                _showDialogMsg('인증번호를 입력해주세요');
+                                setState(() {
+                                  _isDoingRec = true;
+                                });
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  FocusScope.of(context).requestFocus(_recommendFocusNode);
+                                });
                               }
                             },
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ),
+                    //추천인 연관 검색어
+                    Visibility(
+                      visible: _isSearchingRec,
+                      child: Container(
+                        width: double.infinity,
+                        height: (_listRec.length * 30) + 20,
+                        margin: const EdgeInsets.only(
+                          top: 10,
+                        ),
+                        constraints: const BoxConstraints(
+                          minHeight: 40,
+                        ),
+                        decoration: UIStyle.boxRoundFullColor8c(
+                          RColor.greyBox_f5f5f5,
+                        ),
+                        child: ListView.builder(
+                          physics: const ScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 5,
+                          ),
+                          shrinkWrap: true,
+                          itemCount: _listRec.length,
+                          itemBuilder: (BuildContext context, index) => _setRecommendListChild(index, _listRec[index]),
+                        ),
+                      ),
+                    ),
 
-                const SizedBox(height: 25),
+                    const SizedBox(height: 25),
 
-                //마케팅 동의
-                _setSubTitle("마케팅 동의"),
-                const SizedBox(height: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      runSpacing: 0,
-                      spacing: 10,
-                      alignment: WrapAlignment.start,
-                      runAlignment: WrapAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 114,
+                    _setSubTitle("휴대폰 번호"),
+                    const SizedBox(height: 10),
+                    _setGreyBoxWidget(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _isChPhone
+                                ? TextField(
+                                    enabled: _isChPhone,
+                                    controller: _phoneController,
+                                    cursorColor: RColor.new_basic_text_color_grey,
+                                    style: TStyle.textGrey15,
+                                    decoration: const InputDecoration(
+                                      hintText: '번호 입력 후 인증번호를 요청해주세요.',
+                                      hintStyle: TextStyle(
+                                        fontSize: 15,
+                                        color: RColor.new_basic_text_color_light_grey,
+                                      ),
+                                      border: InputBorder.none,
+                                      counterText: '',
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                    maxLines: 1,
+                                    maxLength: 13,
+                                    textInputAction: TextInputAction.done,
+                                    keyboardType: TextInputType.number,
+                                    scrollPadding: const EdgeInsets.only(
+                                      bottom: 500,
+                                    ),
+                                    focusNode: _phoneFocusNode,
+                                    inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly], // On
+                                  )
+                                : Text(
+                                    _phone.length == 11
+                                        ? '${_phone.substring(0, 3)}-${_phone.substring(3, 7)}-${_phone.substring(7)}'
+                                        : _phone,
+                                    style: TStyle.textGrey15,
+                                  ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          _pressedBtn(
+                            _isChPhone,
+                            _sBtnPhone,
+                            () {
+                              //변경중
+                              if (_isChPhone) {
+                                String chPhone = _phoneController.text.trim();
+                                if (chPhone.length > 7) {
+                                  DLog.d('인증번호요청 -> ', chPhone);
+                                  _requestCertNum(chPhone);
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    FocusScope.of(context).requestFocus(_phoneFocusNode);
+                                  });
+                                } else {
+                                  CommonPopup.instance.showDialogBasicConfirm(
+                                    context,
+                                    '알림',
+                                    '휴대폰 번호를 입력해주세요',
+                                  );
+                                }
+                              } else {
+                                setState(() {
+                                  _isChPhone = true;
+                                  _sBtnPhone = '인증번호 요청';
+                                });
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  FocusScope.of(context).requestFocus(_phoneFocusNode);
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    //인증번호 입력
+                    Visibility(
+                      visible: _isCertInput,
+                      child: Container(
+                        margin: const EdgeInsets.only(
+                          top: 15,
+                        ),
+                        child: _setGreyBoxWidget(
                           child: Row(
                             children: [
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Checkbox(
-                                    activeColor: RColor.purpleBasic_6565ff,
-                                    checkColor: RColor.purpleBasic_6565ff,
-                                    side: MaterialStateBorderSide.resolveWith(
-                                      (states) => BorderSide(
-                                        width: 1.2,
-                                        color: _smsYn
-                                            ? RColor.purpleBasic_6565ff
-                                            : RColor.iconGrey,
-                                      ),
+                              Expanded(
+                                child: TextField(
+                                  controller: _certController,
+                                  cursorColor: RColor.new_basic_text_color_grey,
+                                  style: TStyle.textGrey15,
+                                  decoration: const InputDecoration(
+                                    hintText: '수신된 인증번호를 입력하세요.',
+                                    hintStyle: TextStyle(
+                                      fontSize: 15,
+                                      color: RColor.new_basic_text_color_light_grey,
                                     ),
-                                    fillColor:
-                                        MaterialStateProperty.resolveWith(
-                                            (Set states) {
-                                      if (states
-                                          .contains(MaterialState.disabled)) {
-                                        return Colors.white70;
-                                      }
-                                      return Colors.white;
-                                    }),
-                                    value: _smsYn,
-                                    onChanged: (value) {
-                                      _smsYn = value!;
-                                      String param =
-                                          'userid=$_userId&etcData=tm_sms_f:${_smsYn == true ? 'Y' : 'N'}|daily:N|';
-                                      _requestThink('user_edit', param);
-                                    }),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  focusNode: _certFocusNode,
+                                ),
                               ),
                               const SizedBox(
-                                width: 5,
+                                width: 10,
                               ),
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () {
-                                    _smsYn = !_smsYn;
-                                    String param =
-                                        'userid=$_userId&etcData=tm_sms_f:${_smsYn == true ? 'Y' : 'N'}|daily:N|';
-                                    _requestThink('user_edit', param);
+                              _pressedBtn(
+                                true,
+                                '확인',
+                                () {
+                                  String strNum = _certController.text.trim();
+                                  if (strNum.length > 4) {
+                                    _requestCertConfirm(_phoneController.text.trim(), strNum);
+                                  } else {
+                                    CommonPopup.instance.showDialogBasicConfirm(
+                                      context,
+                                      '알림',
+                                      '인증번호를 입력해주세요',
+                                    );
+                                  }
                                 },
-                                child: const Text(
-                                  'SMS 수신동의',
-                                  style: TStyle.textGrey15S,
-                                ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        SizedBox(
-                          width: 135,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Checkbox(
-                                    activeColor: RColor.purpleBasic_6565ff,
-                                    checkColor: RColor.purpleBasic_6565ff,
-                                    side: MaterialStateBorderSide.resolveWith(
-                                      (states) => BorderSide(
-                                          width: 1.2,
-                                          color: _pushYn
-                                              ? RColor.purpleBasic_6565ff
-                                              : RColor.iconGrey),
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    //마케팅 동의
+                    _setSubTitle("마케팅 동의"),
+                    const SizedBox(height: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          runSpacing: 0,
+                          spacing: 10,
+                          alignment: WrapAlignment.start,
+                          runAlignment: WrapAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 114,
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: Checkbox(
+                                        activeColor: RColor.purpleBasic_6565ff,
+                                        checkColor: RColor.purpleBasic_6565ff,
+                                        side: MaterialStateBorderSide.resolveWith(
+                                          (states) => BorderSide(
+                                            width: 1.2,
+                                            color: _smsYn ? RColor.purpleBasic_6565ff : RColor.iconGrey,
+                                          ),
+                                        ),
+                                        fillColor: MaterialStateProperty.resolveWith((Set states) {
+                                          if (states.contains(MaterialState.disabled)) {
+                                            return Colors.white70;
+                                          }
+                                          return Colors.white;
+                                        }),
+                                        value: _smsYn,
+                                        onChanged: (value) {
+                                          _smsYn = value!;
+                                          String param =
+                                              'userid=$_userId&etcData=tm_sms_f:${_smsYn == true ? 'Y' : 'N'}|daily:N|';
+                                          _requestThink('user_edit', param);
+                                        }),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  InkWell(
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () {
+                                      _smsYn = !_smsYn;
+                                      String param =
+                                          'userid=$_userId&etcData=tm_sms_f:${_smsYn == true ? 'Y' : 'N'}|daily:N|';
+                                      _requestThink('user_edit', param);
+                                    },
+                                    child: const Text(
+                                      'SMS 수신동의',
+                                      style: TStyle.textGrey15S,
                                     ),
-                                    fillColor:
-                                        MaterialStateProperty.resolveWith(
-                                            (Set states) {
-                                      if (states
-                                          .contains(MaterialState.disabled)) {
-                                        return Colors.white70;
-                                      }
-                                      return Colors.white;
-                                    }),
-                                    value: _pushYn,
-                                    onChanged: (value) {
-                                      _pushYn = value!;
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            SizedBox(
+                              width: 135,
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: Checkbox(
+                                        activeColor: RColor.purpleBasic_6565ff,
+                                        checkColor: RColor.purpleBasic_6565ff,
+                                        side: MaterialStateBorderSide.resolveWith(
+                                          (states) => BorderSide(
+                                              width: 1.2, color: _pushYn ? RColor.purpleBasic_6565ff : RColor.iconGrey),
+                                        ),
+                                        fillColor: MaterialStateProperty.resolveWith((Set states) {
+                                          if (states.contains(MaterialState.disabled)) {
+                                            return Colors.white70;
+                                          }
+                                          return Colors.white;
+                                        }),
+                                        value: _pushYn,
+                                        onChanged: (value) {
+                                          _pushYn = value!;
+                                          _fetchPosts(
+                                              TR.PUSH06,
+                                              jsonEncode(<String, String>{
+                                                'userId': _userId,
+                                                'rcvAssentYn': _pushYn == true ? 'Y' : 'N',
+                                              }));
+                                        }),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  InkWell(
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    onTap: () {
+                                      _pushYn = !_pushYn;
                                       _fetchPosts(
                                           TR.PUSH06,
                                           jsonEncode(<String, String>{
                                             'userId': _userId,
-                                            'rcvAssentYn':
-                                                _pushYn == true ? 'Y' : 'N',
+                                            'rcvAssentYn': _pushYn == true ? 'Y' : 'N',
                                           }));
-                                    }),
+                                    },
+                                    child: const Text(
+                                      '앱푸시 수신동의',
+                                      style: TStyle.textGrey15S,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              InkWell(
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: (){
-                                  _pushYn = !_pushYn;
-                                  _fetchPosts(
-                                      TR.PUSH06,
-                                      jsonEncode(<String, String>{
-                                        'userId': _userId,
-                                        'rcvAssentYn':
-                                        _pushYn == true ? 'Y' : 'N',
-                                      }));
-                                },
-                                child: const Text(
-                                  '앱푸시 수신동의',
-                                  style: TStyle.textGrey15S,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        const Text(
+                          '수신에 동의하시면 이벤트 및 서비스 등의 혜택을 받으실 수 있습니다.(유료서비스 관련 및 회사의 주요 정책은 동의 여부와 관계없이 발송됩니다.)',
+                          style: TStyle.contentGrey13,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 5),
-                    const Text(
-                      '수신에 동의하시면 이벤트 및 서비스 등의 혜택을 받으실 수 있습니다.(유료서비스 관련 및 회사의 주요 정책은 동의 여부와 관계없이 발송됩니다.)',
-                      style: TStyle.contentGrey13,
+
+                    const SizedBox(height: 25),
+
+                    //회원 탈퇴
+                    _setSubTitle("회원탈퇴"),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            '라씨 매매비서를 더이상 이용하지 않을 경우 회원 탈퇴를 진행해 주세요.',
+                            style: TStyle.textGrey14S,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        _pressedBtn(
+                          false,
+                          '회원탈퇴',
+                          _showDialogClose,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 25),
-
-                //회원 탈퇴
-                _setSubTitle("회원탈퇴"),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '라씨 매매비서를 더이상 이용하지 않을 경우\n회원 탈퇴를 진행해 주세요.',
-                      style: TStyle.textGrey14S,
-                    ),
-                    _pressedBtn(
-                      '회원탈퇴',
-                      _showDialogClose,
-                    ),
-                  ],
+              ),
+              Visibility(
+                visible: _isLoading,
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.grey.withOpacity(0.1),
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'images/gif_ios_loading_large.gif',
+                    height: 25,
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -687,19 +733,16 @@ class UserInfoState extends State<UserInfoPage> {
   Widget _setSubTitle(String subTitle) {
     return Text(
       subTitle,
-      style: TStyle.content15,
+      style: TStyle.subTitle16,
     );
   }
 
   //추천인 연관검색어 리스트
   Widget _setRecommendListChild(int index, MgrAgent02Agent agent) {
-    String s1 =
-        agent.agentName.substring(0, agent.agentName.indexOf(_recSearchText));
-    String s2 = agent.agentName.substring(
-        agent.agentName.indexOf(_recSearchText),
-        agent.agentName.indexOf(_recSearchText) + _recSearchText.length);
-    String s3 = agent.agentName.substring(
-        agent.agentName.indexOf(_recSearchText) + _recSearchText.length);
+    int s1i1 = agent.agentName.indexOf(_recSearchText);
+    String s1 = agent.agentName.substring(0, s1i1 == -1 ? 0 : s1i1);
+    String s2 = agent.agentName.substring(s1i1, s1i1 + _recSearchText.length);
+    String s3 = agent.agentName.substring(s1i1 + _recSearchText.length);
     return InkWell(
       onTap: () {
         setState(() {
@@ -739,7 +782,11 @@ class UserInfoState extends State<UserInfoPage> {
     );
   }
 
-  Widget _pressedBtn(String title, Function function) {
+  Widget _pressedBtn(
+    bool isOnBtn,
+    String title,
+    Function function,
+  ) {
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -749,12 +796,16 @@ class UserInfoState extends State<UserInfoPage> {
         padding: const EdgeInsets.all(
           7,
         ),
-        decoration: UIStyle.boxRoundLine8LineColor(
-          RColor.greyBox_dcdfe2,
-        ),
+        decoration: isOnBtn
+            ? UIStyle.boxRoundLine8LineColor(
+                RColor.purpleBasic_6565ff,
+              )
+            : UIStyle.boxRoundLine8LineColor(
+                RColor.greyBox_dcdfe2,
+              ),
         child: Text(
           title,
-          style: TStyle.textGrey14S,
+          style: TStyle.textGrey15,
         ),
       ),
     );
@@ -777,6 +828,7 @@ class UserInfoState extends State<UserInfoPage> {
   }
 
   void _requestTrMgrAgent02(String keyword) {
+    //DLog.d('','_requestTrMgrAgent02 keyword : ${keyword}');
     _fetchPosts(
       TR.MGR_AGENT02,
       jsonEncode(
@@ -877,8 +929,7 @@ class UserInfoState extends State<UserInfoPage> {
 
     await _prefs.setString(Const.PREFS_USER_ID, '');
     if (mounted) {
-      Navigator.pushNamedAndRemoveUntil(
-          context, IntroStartPage.routeName, (route) => false);
+      Navigator.pushNamedAndRemoveUntil(context, IntroStartPage.routeName, (route) => false);
     }
 
     if (Platform.isAndroid) {
@@ -978,74 +1029,17 @@ class UserInfoState extends State<UserInfoPage> {
         });
   }
 
-  void _showDialogMsg(String content) {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 5),
-                  _setSubTitle('알림'),
-                  const SizedBox(height: 25),
-                  Text(
-                    content,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 30),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        decoration: UIStyle.roundBtnStBox(),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
   // convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
     DLog.d(UserInfoPage.TAG, '$trStr $json');
 
+    if (_isLoading) {
+      return;
+    } else {
+      if (trStr != TR.MGR_AGENT02) {
+        setState(() => _isLoading = true);
+      }
+    }
     var url = Uri.parse(Net.TR_BASE + trStr);
     final http.Response response = await http.post(
       url,
@@ -1059,20 +1053,18 @@ class UserInfoState extends State<UserInfoPage> {
   // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(UserInfoPage.TAG, response.body);
+    if (_isLoading) {
+      setState(() => _isLoading = false);
+    }
 
     if (trStr == TR.USER02) {
       final TrUser02 resData = TrUser02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         String hp = resData.retData.userHp.trim();
         if (hp == 'null' || hp == 'NULL' || hp.isEmpty || hp == '없음') {
-          _sPhoneHint = '없음';
           _sBtnPhone = '등록하기';
+          _phone = '없음';
         } else {
-          _sPhoneHint = hp;
-          if (_sPhoneHint.length == 11) {
-            _sPhoneHint =
-                '${_sPhoneHint.substring(0, 3)}-${_sPhoneHint.substring(3, 7)}-${_sPhoneHint.substring(7)}';
-          }
           _phone = hp;
         }
         setState(() {});
@@ -1138,17 +1130,16 @@ class UserInfoState extends State<UserInfoPage> {
 
     // 광고성 푸시 설정
     else if (trStr == TR.PUSH06) {
-      final TrNoRetData resData =
-          TrNoRetData.fromJson(jsonDecode(response.body));
+      final TrNoRetData resData = TrNoRetData.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         setState(() {});
+        CommonPopup.instance.showDialogBasicConfirm(context, '알림', _pushYn == true ? '동의 되었습니다.' : '동의가 취소되었습니다.');
       }
     }
 
     //유저 추천인 직접 타이핑 검색
     else if (trStr == TR.MGR_AGENT02) {
-      final TrMgrAgent02 resData =
-          TrMgrAgent02.fromJson(jsonDecode(response.body));
+      final TrMgrAgent02 resData = TrMgrAgent02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         List<MgrAgent02Agent>? list = resData.retData.listAgent;
         _listRec.clear();
@@ -1159,12 +1150,16 @@ class UserInfoState extends State<UserInfoPage> {
           _listRec.clear();
           _isSearchingRec = false;
         }
-        if (_recSearchText != _recommendController.text) {
+        if (_recSearchText != _recommendController.text.toUpperCase().trim()) {
           if (_recommendController.text.length > 1) {
             _isSearh02Processing = true;
-            _recSearchText = _recommendController.text;
+            _recSearchText = _recommendController.text.toUpperCase().trim();
             _requestTrMgrAgent02(_recSearchText);
+          } else {
+            _isSearh02Processing = false;
           }
+        } else {
+          _isSearh02Processing = false;
         }
       } else {
         //오류
@@ -1184,13 +1179,23 @@ class UserInfoState extends State<UserInfoPage> {
     }
     //프리미엄 사용자 -> 탈퇴 불가
     else if (aData.prodName == '프리미엄') {
-      _showDialogMsg('현재 사용중인 유료 결제 서비스가 있습니다.\n'
-          '사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+      if (mounted) {
+        CommonPopup.instance.showDialogBasicConfirm(
+            context,
+            '알림',
+            '현재 사용중인 유료 결제 서비스가 있습니다.\n'
+                '사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+      }
     }
     //유료상품 사용자 -> 탈퇴 불가
     else if (aData.prodCode == 'AC_S3') {
-      _showDialogMsg('현재 사용중인 유료 결제 서비스가 있습니다.\n'
-          '사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+      if (mounted) {
+        CommonPopup.instance.showDialogBasicConfirm(
+            context,
+            '알림',
+            '현재 사용중인 유료 결제 서비스가 있습니다.\n'
+                '사용중인 서비스를 해지하신 후\n탈퇴를 하시기 바랍니다.');
+      }
     }
     //사용 상품 없음
     else {
@@ -1237,8 +1242,7 @@ class UserInfoState extends State<UserInfoPage> {
   _requestAppClose() {
     DLog.d(UserInfoPage.TAG, '회원탈퇴 처리');
 
-    String strParam =
-        "userid=${Net.getEncrypt(_userId)}&memo=RassiAssistDismiss";
+    String strParam = "userid=${Net.getEncrypt(_userId)}&memo=RassiAssistDismiss";
     _requestThink('close', strParam);
 
     _fetchPosts(
@@ -1262,32 +1266,33 @@ class UserInfoState extends State<UserInfoPage> {
 
   //에이전트 (joinRoute 변경)
   _requestUserEditJoinRoute() async {
+    DLog.e('_clickRecItemIndex : $_clickRecItemIndex / _listRec[_clickRecItemIndex].agentCode : ${_listRec[_clickRecItemIndex].agentCode}');
+    // 1. 매매비서 DB에도 에이전트 추천인 등록 + 웰컴페이지 띄워서 확인하세요는 여기서 안해도 됩니다.
+    if (_clickRecItemIndex >= _listRec.length) {
+      _showRecCancelPopup();
+      return;
+    }
     final http.Response response = await http.post(
-        Uri.parse(Net.THINK_EDIT_MARKETING),
-        headers: Net.think_headers,
-        body: 'userid=$_userId&etcData=join_route:OLLAMAG|');
-    final String result = response.body;
-    if (result == '1') {
-      DLog.d(UserInfoPage.TAG, '회원정보 변경 성공');
-      // 매매비서 DB에도 에이전트 추천인 등록 + 웰컴페이지 띄워서 확인하세요는 여기서 안해도 됩니다.
-      if (_clickRecItemIndex >= _listRec.length) {
-        _showRecCancelPopup();
-        return;
-      }
-      final http.Response response = await http.post(
-        Uri.parse(Net.TR_BASE + TR.MGR_AGENT03),
-        body: jsonEncode(
-          <String, String>{
-            'userId': _userId,
-            'agentCode': _listRec[_clickRecItemIndex].agentCode,
-          },
-        ),
-        headers: Net.headers,
-      );
-      final TrNoRetData resData =
-          TrNoRetData.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS) {
-        await _userInfoProvider.updatePayment();
+      Uri.parse(Net.TR_BASE + TR.MGR_AGENT03),
+      body: jsonEncode(
+        <String, String>{
+          'userId': _userId,
+          'agentCode': _listRec[_clickRecItemIndex].agentCode,
+        },
+      ),
+      headers: Net.headers,
+    );
+    final TrNoRetData resData = TrNoRetData.fromJson(jsonDecode(response.body));
+    DLog.e('resData : ${resData.toString()}');
+    if (resData.retCode == RT.SUCCESS) {
+      await _userInfoProvider.updatePayment();
+      final http.Response response = await http.post(Uri.parse(Net.THINK_EDIT_MARKETING),
+          headers: Net.think_headers,
+          body: 'userid=$_userId&etcData=join_route:${_listRec[_clickRecItemIndex].joinRoute}|');
+      final String result = response.body;
+      DLog.e('result2 : ${result.toString()}');
+      if (result == '1') {
+        DLog.d(UserInfoPage.TAG, '회원정보 변경 성공');
         setState(() {
           _isSearchingRec = false;
           _clickRecItemIndex = -1;
@@ -1299,9 +1304,12 @@ class UserInfoState extends State<UserInfoPage> {
             '추천인이 등록되었습니다.',
           );
         }
-      } else {
+      } /*else {
+      씽크풀에서 실패한다면..? 모르겠
         _showRecCancelPopup();
-      }
+      }*/
+    } else if (int.parse(resData.retCode) > 1000) {
+      if (mounted) CommonPopup.instance.showDialogBasicConfirm(context, '알림', resData.retMsg);
     } else {
       _showRecCancelPopup();
     }
@@ -1320,8 +1328,7 @@ class UserInfoState extends State<UserInfoPage> {
 
   // 씽크풀 API 호출
   void _requestThink(String type, String param) async {
-    DLog.d(UserInfoPage.TAG,
-        'param : $param / Net.getEncrypt($_userId) : ${Net.getEncrypt(_userId)}');
+    DLog.d(UserInfoPage.TAG, 'param : $param / Net.getEncrypt($_userId) : ${Net.getEncrypt(_userId)}');
 
     String url = '';
     if (type == 'ch_pass') {
@@ -1343,8 +1350,7 @@ class UserInfoState extends State<UserInfoPage> {
     }
 
     var urls = Uri.parse(url);
-    final http.Response response =
-        await http.post(urls, headers: Net.think_headers, body: param);
+    final http.Response response = await http.post(urls, headers: Net.think_headers, body: param);
 
     DLog.d(UserInfoPage.TAG, '${response.statusCode}');
     DLog.d(UserInfoPage.TAG, response.body);
@@ -1359,17 +1365,22 @@ class UserInfoState extends State<UserInfoPage> {
           _isChPass = false;
           _sPassHint = '******';
         });
-        _showDialogMsg('비밀번호가 변경되었습니다.');
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '비밀번호가 변경되었습니다.');
+        }
       } else {
-        _showDialogMsg('비밀번호 변경시 오류가 발생하였습니다.');
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '비밀번호 변경시 오류가 발생하였습니다.');
+        }
       }
     } else if (type == 'cert_num') {
       setState(() {
         _isChPhone = false;
         _isCertInput = true;
       });
-      _showDialogMsg('인증번호를 요청했습니다.');
       if (mounted) {
+        CommonPopup.instance
+            .showDialogBasicConfirm(context, '알림', '인증번호가 발송되었습니다.\n\n인증번호가 수신되지 않으면 등록하신 휴대폰 번호를 확인해 주세요.');
         FocusScope.of(context).requestFocus(_certFocusNode);
       }
     } else if (type == 'cert_confirm') {
@@ -1377,30 +1388,41 @@ class UserInfoState extends State<UserInfoPage> {
         DLog.d(UserInfoPage.TAG, '인증번호 확인 완료');
         _requestChPhone(_phoneController.text.trim());
       } else {
-        _showDialogMsg('인증번호가 틀립니다.\n인증번호를 확인 후 다시 입력해 주세요.');
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '인증번호가 틀립니다.\n인증번호를 확인 후 다시 입력해 주세요.');
+        }
       }
     } else if (type == 'phone_change') {
       if (result == '1') {
         DLog.d(UserInfoPage.TAG, '전화번호 변경 완료');
         _phone = _phoneController.text;
         _requestChangeReg();
-        _showDialogMsg('전화번호 변경이 완료되었습니다.');
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '휴대폰 번호가 변경되었습니다.');
+        }
       } else if (result == '-9') {
         DLog.d(UserInfoPage.TAG, '폰 변경 잘못된 Param');
       } else {
-        _showDialogMsg('전화번호 변경 요청이 실패하였습니다.');
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '휴대폰 번호 변경 요청이 실패하였습니다.');
+        }
       }
     } else if (type == 'close') {
       if (result == '1') {
         DLog.d(UserInfoPage.TAG, '씽크풀 회원 탈퇴 완료');
       } else {
-        _showDialogMsg('회원 탈퇴에 실패하였습니다.');
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '회원 탈퇴에 실패하였습니다.');
+        }
       }
     } else if (type == 'user_edit') {
       DLog.d(UserInfoPage.TAG, 'result : ${result.toString()}');
       if (result == '1') {
         DLog.d(UserInfoPage.TAG, '회원정보 변경 성공');
         setState(() {});
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', _smsYn == true ? '동의 되었습니다.' : '동의가 취소되었습니다.');
+        }
       } else {
         DLog.d(UserInfoPage.TAG, '회원정보 변경 실패');
       }

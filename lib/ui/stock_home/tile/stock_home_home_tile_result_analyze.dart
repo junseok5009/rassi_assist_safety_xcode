@@ -25,20 +25,17 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 /// 종목홈(개편)_홈_실적분석
 
 class StockHomeHomeTileResultAnalyze extends StatefulWidget {
-  static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey =
-      GlobalKey();
+  static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey = GlobalKey();
 
   const StockHomeHomeTileResultAnalyze({super.key});
 
   //StockHomeHomeTileResultAnalyze() : super(key: globalKey);
 
   @override
-  State<StockHomeHomeTileResultAnalyze> createState() =>
-      StockHomeHomeTileResultAnalyzeState();
+  State<StockHomeHomeTileResultAnalyze> createState() => StockHomeHomeTileResultAnalyzeState();
 }
 
-class StockHomeHomeTileResultAnalyzeState
-    extends State<StockHomeHomeTileResultAnalyze>
+class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultAnalyze>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileResultAnalyze> {
   //bool _wantKeepAlive = false;
 
@@ -264,9 +261,7 @@ class StockHomeHomeTileResultAnalyzeState
               const SizedBox(
                 height: 20,
               ),
-              _shome05structPrice.isEmpty()
-                  ? _setNoDataViewShome05()
-                  : _setDataViewShome05(),
+              _shome05structPrice.isEmpty() ? _setNoDataViewShome05() : _setDataViewShome05(),
               InkWell(
                 onTap: () {
                   // 실적분석 상세페이지 이동
@@ -327,8 +322,7 @@ class StockHomeHomeTileResultAnalyzeState
             child: const Center(
               child: Text(
                 '!',
-                style: TextStyle(
-                    fontSize: 18, color: RColor.new_basic_text_color_grey),
+                style: TextStyle(fontSize: 18, color: RColor.new_basic_text_color_grey),
               ),
             ),
           ),
@@ -368,8 +362,7 @@ class StockHomeHomeTileResultAnalyzeState
             child: const Center(
               child: Text(
                 '!',
-                style: TextStyle(
-                    fontSize: 18, color: RColor.new_basic_text_color_grey),
+                style: TextStyle(fontSize: 18, color: RColor.new_basic_text_color_grey),
               ),
             ),
           ),
@@ -484,9 +477,7 @@ class StockHomeHomeTileResultAnalyzeState
                     vertical: 6,
                   ),
                   child: Text(
-                    _shome05structPrice.pbr.isEmpty
-                        ? 'N/A'
-                        : TStyle.getMoneyPoint(_shome05structPrice.pbr),
+                    _shome05structPrice.pbr.isEmpty ? 'N/A' : TStyle.getMoneyPoint(_shome05structPrice.pbr),
                   ),
                 ),
               ],
@@ -538,9 +529,7 @@ class StockHomeHomeTileResultAnalyzeState
                     vertical: 6,
                   ),
                   child: Text(
-                    _shome05structPrice.eps.isEmpty
-                        ? 'N/A'
-                        : TStyle.getMoneyPoint(_shome05structPrice.eps),
+                    _shome05structPrice.eps.isEmpty ? 'N/A' : TStyle.getMoneyPoint(_shome05structPrice.eps),
                   ),
                 ),
               ],
@@ -693,16 +682,13 @@ class StockHomeHomeTileResultAnalyzeState
                 horizontal: 15,
                 vertical: 4,
               ),
-              decoration: _isQuart
-                  ? UIStyle.boxNewSelectBtn1()
-                  : UIStyle.boxNewUnSelectBtn1(),
+              decoration: _isQuart ? UIStyle.boxNewSelectBtn1() : UIStyle.boxNewUnSelectBtn1(),
               child: InkWell(
                 child: Center(
                   child: Text(
                     '분기',
                     style: TextStyle(
-                      color:
-                          _isQuart ? Colors.black : RColor.btnUnSelectGreyText,
+                      color: _isQuart ? Colors.black : RColor.btnUnSelectGreyText,
                       fontSize: 15,
                     ),
                   ),
@@ -723,16 +709,13 @@ class StockHomeHomeTileResultAnalyzeState
                 horizontal: 15,
                 vertical: 4,
               ),
-              decoration: _isQuart
-                  ? UIStyle.boxNewUnSelectBtn1()
-                  : UIStyle.boxNewSelectBtn1(),
+              decoration: _isQuart ? UIStyle.boxNewUnSelectBtn1() : UIStyle.boxNewSelectBtn1(),
               child: InkWell(
                 child: Center(
                   child: Text(
                     '연간',
                     style: TextStyle(
-                      color:
-                          _isQuart ? RColor.btnUnSelectGreyText : Colors.black,
+                      color: _isQuart ? RColor.btnUnSelectGreyText : Colors.black,
                       fontSize: 15,
                     ),
                   ),
@@ -812,9 +795,7 @@ class StockHomeHomeTileResultAnalyzeState
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      _isQuart
-                          ? '${item.tradeDate.substring(0, 4)}년 ${item.quarter}분기'
-                          : '${item.year}년',
+                      _isQuart ? '${item.tradeDate.substring(0, 4)}년 ${item.quarter}분기' : '${item.year}년',
                       style: TStyle.subTitle16,
                     ),
                     Visibility(
@@ -861,8 +842,7 @@ class StockHomeHomeTileResultAnalyzeState
                                     : '(YoY ${TStyle.getPercentString(item.salesIncRateYoY)})',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
-                                  color: TStyle.getMinusPlusColor(
-                                      item.salesIncRateYoY),
+                                  color: TStyle.getMinusPlusColor(item.salesIncRateYoY),
                                   fontSize: 14,
                                 ),
                               ),
@@ -905,8 +885,7 @@ class StockHomeHomeTileResultAnalyzeState
                                     : '(YoY ${TStyle.getPercentString(item.profitIncRateYoY)})',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
-                                  color: TStyle.getMinusPlusColor(
-                                      item.profitIncRateYoY),
+                                  color: TStyle.getMinusPlusColor(item.profitIncRateYoY),
                                   fontSize: 14,
                                 ),
                               ),
@@ -941,8 +920,7 @@ class StockHomeHomeTileResultAnalyzeState
                                   Flexible(
                                     child: FittedBox(
                                       child: Text(
-                                        TStyle
-                                            .getBillionUnitWithMoneyPointByDouble(
+                                        TStyle.getBillionUnitWithMoneyPointByDouble(
                                           item.netProfit,
                                         ),
                                         style: TStyle.commonTitle,
@@ -988,9 +966,7 @@ class StockHomeHomeTileResultAnalyzeState
                       ),
                     ),
                     Text(
-                      item.profitRate.isEmpty
-                          ? ''
-                          : TStyle.getPercentString(item.profitRate),
+                      item.profitRate.isEmpty ? '' : TStyle.getPercentString(item.profitRate),
                       style: TStyle.commonTitle,
                     ),
                   ],
@@ -1060,8 +1036,7 @@ class StockHomeHomeTileResultAnalyzeState
           axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
             _isQuart
                 ? (_confirmSearch10SalesIndexInListBarData != -1 &&
-                        axisLabelRenderArgs.value ==
-                            _confirmSearch10SalesIndexInListBarData)
+                        axisLabelRenderArgs.value == _confirmSearch10SalesIndexInListBarData)
                     ? '${axisLabelRenderArgs.text.substring(2)}Q\n(잠정)'
                     : '${axisLabelRenderArgs.text.substring(2)}Q'
                 : axisLabelRenderArgs.text.substring(0, 4),
@@ -1114,11 +1089,9 @@ class StockHomeHomeTileResultAnalyzeState
             axisLabelFormatter: (axisLabelRenderArgs) {
               String value = axisLabelRenderArgs.text;
               if (_isRightYAxisUpUnit) {
-                value = TStyle.getMoneyPoint(
-                    (axisLabelRenderArgs.value / 1000).toString());
+                value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 1000).toString());
               } else {
-                value = TStyle.getMoneyPoint(
-                    axisLabelRenderArgs.value.round().toString());
+                value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
               }
               return ChartAxisLabel(
                 value,
@@ -1151,9 +1124,7 @@ class StockHomeHomeTileResultAnalyzeState
         onTooltipRender: (tooltipArgs) {
           if (_swipeIndex <= _listBarData.length - 1) {
             var item = _listBarData[_swipeIndex];
-            tooltipArgs.header = _isQuart
-                ? '${item.tradeDate.substring(0, 4)}/${item.quarter}분기'
-                : '${item.year}년';
+            tooltipArgs.header = _isQuart ? '${item.tradeDate.substring(0, 4)}/${item.quarter}분기' : '${item.year}년';
             tooltipArgs.text = TStyle.getComboUnitWithMoneyPointByDouble(
               '${double.tryParse(
                     _divIndex == 0
@@ -1170,8 +1141,7 @@ class StockHomeHomeTileResultAnalyzeState
         series: [
           ColumnSeries<Search10Sales, String>(
             dataSource: _listBarData,
-            xValueMapper: (Search10Sales data, index) =>
-                '${data.year}/${data.quarter}',
+            xValueMapper: (Search10Sales data, index) => '${data.year}/${data.quarter}',
             yValueMapper: (Search10Sales data, index) =>
                 double.tryParse(
                   _divIndex == 0
@@ -1187,8 +1157,7 @@ class StockHomeHomeTileResultAnalyzeState
               if (index == _swipeIndex) {
                 return RColor.sigBuy;
               } else {
-                if (_isQuart &&
-                    index == _confirmSearch10SalesIndexInListBarData) {
+                if (_isQuart && index == _confirmSearch10SalesIndexInListBarData) {
                   return RColor.chartGreyColor.withOpacity(0.4);
                 } else {
                   return RColor.chartGreyColor;
@@ -1196,8 +1165,7 @@ class StockHomeHomeTileResultAnalyzeState
               }
             },
             onPointTap: (pointInteractionDetails) {
-              if (pointInteractionDetails.pointIndex != null &&
-                  pointInteractionDetails.pointIndex != _swipeIndex) {
+              if (pointInteractionDetails.pointIndex != null && pointInteractionDetails.pointIndex != _swipeIndex) {
                 _seriesAnimation = 0;
                 _swipeIndex = pointInteractionDetails.pointIndex ?? 0;
                 _swiperController.move(
@@ -1411,8 +1379,7 @@ class StockHomeHomeTileResultAnalyzeState
       await Future.delayed(const Duration(milliseconds: 100));
 
       _isNoData = 'N';
-      if (resData.retCode == RT.SUCCESS &&
-          resData.retData.notApplicable == 'N') {
+      if (resData.retCode == RT.SUCCESS && resData.retData.notApplicable == 'N') {
         if (resData.retData.listSales.isNotEmpty) {
           _listData.addAll(resData.retData.listSales);
           resData.retData.listSales.asMap().forEach((key, element) {
@@ -1425,14 +1392,11 @@ class StockHomeHomeTileResultAnalyzeState
             if (element.netProfit.isNotEmpty) {
               _listDivIndexIsNoData[2] = false;
             }
-            if (element.sales.isNotEmpty ||
-                element.salesProfit.isNotEmpty ||
-                element.netProfit.isNotEmpty) {
+            if (element.sales.isNotEmpty || element.salesProfit.isNotEmpty || element.netProfit.isNotEmpty) {
               _listBarData.add(element);
               if (_isQuart && element.confirmYn == 'N') {
                 _confirmSearch10SalesIndexInListData = key;
-                _confirmSearch10SalesIndexInListBarData =
-                    _listBarData.length - 1;
+                _confirmSearch10SalesIndexInListBarData = _listBarData.length - 1;
               }
             }
           });
@@ -1503,26 +1467,18 @@ class StockHomeHomeTileResultAnalyzeState
       double value = 0;
       if (_divIndex == 0) {
         var item = _listBarData.reduce(
-          (curr, next) => (double.tryParse(curr.sales) ?? 0) >
-                  (double.tryParse(next.sales) ?? 0)
-              ? curr
-              : next,
+          (curr, next) => (double.tryParse(curr.sales) ?? 0) > (double.tryParse(next.sales) ?? 0) ? curr : next,
         );
         value = double.tryParse(item.sales) ?? 0;
       } else if (_divIndex == 1) {
         var item = _listBarData.reduce(
-          (curr, next) => (double.tryParse(curr.salesProfit) ?? 0) >
-                  (double.tryParse(next.salesProfit) ?? 0)
-              ? curr
-              : next,
+          (curr, next) =>
+              (double.tryParse(curr.salesProfit) ?? 0) > (double.tryParse(next.salesProfit) ?? 0) ? curr : next,
         );
         value = double.tryParse(item.salesProfit) ?? 0;
       } else if (_divIndex == 2) {
         var item = _listBarData.reduce(
-          (curr, next) => (double.tryParse(curr.netProfit) ?? 0) >
-                  (double.tryParse(next.netProfit) ?? 0)
-              ? curr
-              : next,
+          (curr, next) => (double.tryParse(curr.netProfit) ?? 0) > (double.tryParse(next.netProfit) ?? 0) ? curr : next,
         );
         value = double.tryParse(item.netProfit) ?? 0;
       } else {
@@ -1556,26 +1512,20 @@ class StockHomeHomeTileResultAnalyzeState
       if (_divIndex == 0) {
         var item = _listBarData.reduce(
           (curr, next) => (double.tryParse(next.sales) ?? 0) == 0 ||
-                  (double.tryParse(curr.sales) ?? 0) <
-                      (double.tryParse(next.sales) ?? 0)
+                  (double.tryParse(curr.sales) ?? 0) < (double.tryParse(next.sales) ?? 0)
               ? curr
               : next,
         );
         return double.tryParse(item.sales) ?? 0;
       } else if (_divIndex == 1) {
         var item = _listBarData.reduce(
-          (curr, next) => (double.tryParse(curr.salesProfit) ?? 0) <
-                  (double.tryParse(next.salesProfit) ?? 0)
-              ? curr
-              : next,
+          (curr, next) =>
+              (double.tryParse(curr.salesProfit) ?? 0) < (double.tryParse(next.salesProfit) ?? 0) ? curr : next,
         );
         return double.tryParse(item.salesProfit) ?? 0;
       } else if (_divIndex == 2) {
         var item = _listBarData.reduce(
-          (curr, next) => (double.tryParse(curr.netProfit) ?? 0) <
-                  (double.tryParse(next.netProfit) ?? 0)
-              ? curr
-              : next,
+          (curr, next) => (double.tryParse(curr.netProfit) ?? 0) < (double.tryParse(next.netProfit) ?? 0) ? curr : next,
         );
         return double.tryParse(item.netProfit) ?? 0;
       } else {
@@ -1689,8 +1639,7 @@ class StockHomeHomeTileResultAnalyzeState
                                 : Row(
                                     children: [
                                       Text(
-                                        TStyle
-                                            .getComboUnitWithMoneyPointByDouble(
+                                        TStyle.getComboUnitWithMoneyPointByDouble(
                                           item.sales,
                                         ),
                                         style: TStyle.contentSBLK,
@@ -1735,8 +1684,7 @@ class StockHomeHomeTileResultAnalyzeState
                                 : Row(
                                     children: [
                                       Text(
-                                        TStyle
-                                            .getBillionUnitWithMoneyPointByDouble(
+                                        TStyle.getBillionUnitWithMoneyPointByDouble(
                                           item.salesProfit,
                                         ),
                                         style: TStyle.contentSBLK,
@@ -1751,8 +1699,7 @@ class StockHomeHomeTileResultAnalyzeState
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
-                                          color: TStyle.getMinusPlusColor(
-                                              item.profitIncRateYoY),
+                                          color: TStyle.getMinusPlusColor(item.profitIncRateYoY),
                                         ),
                                       ),
                                     ],
@@ -1780,9 +1727,7 @@ class StockHomeHomeTileResultAnalyzeState
                                 : Row(
                                     children: [
                                       Text(
-                                        TStyle
-                                            .getBillionUnitWithMoneyPointByDouble(
-                                                item.netProfit),
+                                        TStyle.getBillionUnitWithMoneyPointByDouble(item.netProfit),
                                         style: TStyle.contentSBLK,
                                       ),
                                       const SizedBox(
@@ -1863,15 +1808,13 @@ class StockHomeHomeTileResultAnalyzeState
     // 최솟값과 최댓값을 이용하여 적절한 간격 계산
     double range = double.parse((maxValue - minValue).toStringAsFixed(1));
     double interval = range / 4; // 예시로 4개의 간격으로 나눔
-    double roundedInterval =
-        pow(10, (log(interval) / log(10)).floor()).toDouble();
+    double roundedInterval = pow(10, (log(interval) / log(10)).floor()).toDouble();
     /*if(_isRightYAxisUpUnit && interval < 4){
       roundedInterval = double.parse(pow(10, (log(interval) / log(10)).floor()).toStringAsFixed(1));
       DLog.e('_getInterval : ${double.parse((roundedInterval * ((range / 4) / roundedInterval).ceil()).toStringAsFixed(1))}');
       return double.parse((roundedInterval * ((range / 4) / roundedInterval).ceil()).toStringAsFixed(1));
     }*/
-    return (roundedInterval * ((range / 4) / roundedInterval).ceil())
-        .toDouble();
+    return (roundedInterval * ((range / 4) / roundedInterval).ceil()).toDouble();
   }
 }
 

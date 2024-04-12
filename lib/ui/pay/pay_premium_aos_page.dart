@@ -453,36 +453,12 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
           });
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: _listDivPayment[0] ? RColor.mainColor : RColor.lineGrey,
-            width: 0.8,
-          ),
-          borderRadius: const BorderRadius.all(Radius.circular(14)),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-        child: Row(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '12개월 무통장 결제',
-                  style: TextStyle(
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(
-                  height: 6,
-                ),
-                Text(
-                  _priceSingle,
-                  style: TStyle.title17,
-                ),
-              ],
-            ),
-          ],
+      child: InkWell(
+        onTap: (){
+          commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}');
+        },
+        child: Container(
+          child: Image.network('https://files.thinkpool.com/rassi_signal/fav01.png', width: double.infinity,),
         ),
       ),
     );

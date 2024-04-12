@@ -281,7 +281,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                     StockHomeHomeTileReportAnalyze(),
 
                     // 소셜 분석
-                    StockHomeHomeTileSocialAnalyze(_sns06),
+                    StockHomeHomeTileSocialAnalyze(sns06: _sns06,),
 
                     // 보호 예수
                     if (_invest24.listInvest24Lockup.isNotEmpty)

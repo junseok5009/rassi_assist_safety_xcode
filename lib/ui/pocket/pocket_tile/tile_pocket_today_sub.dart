@@ -76,7 +76,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
           } else {
             _chartController?.animate();
           }
-          //DLog.e('animate ! _chartController : ${_chartController == null} / ${_chartController.seriesRenderer.}');
         }
         if (_isChartVisible && visibilityInfo.visibleFraction < 0.1) {
           _isChartVisible = false;
@@ -101,7 +100,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                     flex: 1,
                     child: InkWell(
                       onTap: () {
-                        SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(1, changePocketSn: widget.item.pocketSn);
+                        SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(moveTabIndex: 1, changePocketSn: widget.item.pocketSn);
                       },
                       child: Container(
                         decoration: UIStyle.boxRoundFullColor25c(
@@ -185,22 +184,39 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
           height: 42,
           child: SfCartesianChart(
             plotAreaBorderWidth: 0,
-            margin: EdgeInsets.zero,
+            margin: EdgeInsets.all(1,),
             primaryXAxis: const CategoryAxis(
               isVisible: false,
               rangePadding: ChartRangePadding.none,
               labelPlacement: LabelPlacement.onTicks,
             ),
             primaryYAxis: NumericAxis(
-              isVisible: false,
+              //isVisible: false,
+              labelStyle: TextStyle(fontSize: 0,),
+              axisLine: const AxisLine(
+                width: 0,
+              ),
+              majorGridLines: const MajorGridLines(
+                width: 0,
+              ),
+              majorTickLines: const MajorTickLines(
+                width: 0,
+              ),
+              minorGridLines: const MinorGridLines(
+                width: 0,
+              ),
+              minorTickLines: const MinorTickLines(
+                width: 0,
+              ),
               rangePadding: ChartRangePadding.none,
               edgeLabelPlacement: EdgeLabelPlacement.hide,
               plotOffset: 2,
               plotBands: [
                 PlotBand(
                   isVisible: true,
-                  start: int.parse(widget.item.listChart[0].tradePrc),
-                  end: int.parse(widget.item.listChart[0].tradePrc),
+                  start: int.parse(widget.item.listChart.first.tradePrc),
+                  end: int.parse(widget.item.listChart.first.tradePrc),
+                  color: Colors.black,
                   borderColor: Colors.black,
                   borderWidth: 1.4,
                   dashArray: const [3, 4],

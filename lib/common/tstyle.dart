@@ -181,7 +181,7 @@ class TStyle {
 
   static const subTitle16 = TextStyle(
     //좀 더 작은(리스트) 소항목 타이틀 (bold)
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
     fontSize: 16,
     color: Color(0xff111111),
   );

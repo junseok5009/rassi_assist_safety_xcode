@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
@@ -19,9 +18,10 @@ import '../../../models/tr_signal/tr_signal09.dart';
 
 /// [홈_홈 오늘의 AI매매신호는?] - 2023.09.07 HJS
 class HomeTileTodaySignal extends StatefulWidget {
-  static final GlobalKey<HomeTileTodaySignalState> globalKey =
-  GlobalKey();
+  static final GlobalKey<HomeTileTodaySignalState> globalKey = GlobalKey();
+
   HomeTileTodaySignal() : super(key: globalKey);
+
   @override
   State<HomeTileTodaySignal> createState() => HomeTileTodaySignalState();
 }
@@ -125,11 +125,11 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
 
   //롤링 현황 텍스트
   Widget _setTileSigString(SignalCount item) {
-    String timeStr = TStyle.getTimeFormat(item.tradeTime ?? '');
+    String timeStr = TStyle.getTimeFormat(item.tradeTime);
     String honor;
     String endStr;
-    String cnt = item.tradeCount ?? '0';
-    if (item.honorDiv != null && item.honorDiv.isNotEmpty) {
+    String cnt = item.tradeCount;
+    if (item.honorDiv.isNotEmpty) {
       if (item.honorDiv == 'WIN_RATE') {
         honor = '적중률 TOP 종목';
       } else if (item.honorDiv == 'PROFIT_10P') {
@@ -337,7 +337,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
     else if (_noticeCode == 'TIME_TERM') {
       _engineStr1 = 'AI는 현재 실시간 분석 중';
       _engineStr2 = 'AI의 다음 신호 발생까지';
-      if (_signal09.remainTime != null) _startTimer(_signal09.remainTime);
+      _startTimer(_signal09.remainTime);
     }
     //9시 40분 2번째 신호 발생부터 20분/40분/60분 해당 신호대 신호 발생까지 노출
     else if (_noticeCode == 'TIME_WAIT') {
@@ -366,35 +366,37 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
               children: [
                 _signalView(),
                 //롤링 현황 - 새로운 매매신호 발생(Signal09) / 장 종료 후 - 오늘 매수 / 매도 종목들 롤링
-                if(_listSigStatus.isNotEmpty) Container(
-                  width: double.infinity,
-                  height: 32,
-                  padding: const EdgeInsets.all(3),
-                  margin: const EdgeInsets.only(
-                    top: 15,
+                if (_listSigStatus.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    height: 32,
+                    padding: const EdgeInsets.all(3),
+                    margin: const EdgeInsets.only(
+                      top: 15,
+                    ),
+                    decoration: UIStyle.boxRoundFullColor8c(
+                      RColor.greyBox_f5f5f5,
+                    ),
+                    child: Swiper(
+                      loop: true,
+                      autoplay: _listSigStatus.length > 1 ? true : false,
+                      autoplayDelay: 4000,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _listSigStatus.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        if (_noticeCode == 'TIME_TERM' ||
+                            _noticeCode == 'TIME_WAIT') {
+                          return _setTileSigString(_listSigStatus[index]);
+                        } else if (_noticeCode == 'TIME_CLOSE' ||
+                            _noticeCode == 'TIME_DAWN') {
+                          return _setTileSigStringTimeClose(
+                              _listSigStatus[index]);
+                        } else {
+                          return const SizedBox();
+                        }
+                      },
+                    ),
                   ),
-                  decoration: UIStyle.boxRoundFullColor8c(
-                    RColor.greyBox_f5f5f5,
-                  ),
-                  child: Swiper(
-                    loop: true,
-                    autoplay: _listSigStatus.length > 1 ? true : false,
-                    autoplayDelay: 4000,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _listSigStatus.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (_noticeCode == 'TIME_TERM' ||
-                          _noticeCode == 'TIME_WAIT') {
-                        return _setTileSigString(_listSigStatus[index]);
-                      } else if (_noticeCode == 'TIME_CLOSE' || _noticeCode == 'TIME_DAWN') {
-                        return _setTileSigStringTimeClose(
-                            _listSigStatus[index]);
-                      } else {
-                        return const SizedBox();
-                      }
-                    },
-                  ),
-                ),
               ],
             ),
     );
@@ -693,7 +695,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
     });
   }
 
-  initPage(){
+  initPage() {
     _requestTrSignal09();
   }
 
@@ -717,9 +719,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -732,8 +732,6 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
       _listSigStatus.clear();
       if (resData.retCode == RT.SUCCESS) {
         _signal09 = resData.resData;
-
-
 
         if (!_signal09.isEmpty()) {
           _initData();
@@ -798,7 +796,6 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                   const Text(
                     'AI의 처리 프로세스',
                     style: TStyle.defaultTitle,
-                    
                   ),
                   const SizedBox(
                     height: 15.0,
@@ -812,15 +809,14 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                     ),
                   ),
                   const SizedBox(
-                    height: 15.0,
+                    height: 20.0,
                   ),
                   const Text(
-                    'AI는 처리 프로세스에 따라 각 시점에서\n'
-                    '역할을 수행하며 이 과정을 통해 최적의 매매타이밍\n'
-                    'AI매매신호를 발생시켜 알려드립니다.',
-                    style: TStyle.textSGrey,
+                    'AI는 처리 프로세스에 따라 각 시점에서 '
+                    '역할을 수행하며 이 과정을 통해 최적의 매매타이밍에서 '
+                    'AI매매신호를 발생시킵니다.',
+                    style: TStyle.textMGrey,
                     textAlign: TextAlign.center,
-                    
                   ),
                 ],
               ),

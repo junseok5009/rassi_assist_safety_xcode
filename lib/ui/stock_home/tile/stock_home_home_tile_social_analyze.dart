@@ -19,41 +19,23 @@ import '../page/recent_social_list_page.dart';
 /// 종목홈(개편)_홈_소셜분석
 
 class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
-  StockHomeHomeTileSocialAnalyze(this.sns06, {Key? key}) : super(key: key);
+  StockHomeHomeTileSocialAnalyze({required this.sns06, Key? key})
+      : super(key: key);
   final AppGlobal appGlobal = AppGlobal();
   final Sns06 sns06;
-  bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 원, true 이면 만원
-  String _socialGrade = '';
   final List<SNS06ChartData> _listChartData = [];
   final String _socialPopupMsg = '라씨 매매비서는 메이저 증권 커뮤니티 참여 현황을 실시간으로 수집합니다.\n'
       '수집된 양을 이전기간과 비교하여 참여도의 증가와 감소를 수치화하여 참여 정도를 알려드립니다.\n'
       '커뮤니티 참여도가 높아지면 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
 
-  late TrackballBehavior _trackballBehavior;
+  late final TrackballBehavior _trackballBehavior;
   final List<PlotBand> _listPlotBand = [];
-
   @override
   Widget build(BuildContext context) {
     _initListData();
     if (sns06.listPriceChart.isEmpty) {
       return const SizedBox();
     } else {
-      switch (sns06.concernGrade) {
-        case '1':
-          _socialGrade = '조용조용';
-          break;
-        case '2':
-          _socialGrade = '수군수군';
-          break;
-        case '3':
-          _socialGrade = '왁자지껄';
-          break;
-        case '4':
-          _socialGrade = '폭발';
-          break;
-        default:
-          _socialGrade = '';
-      }
       return Column(
         children: [
           Padding(
@@ -72,7 +54,8 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                     InkWell(
                       onTap: () {
                         CommonPopup.instance.showDialogTitleMsg(
-                            context, '소셜지수란?', _socialPopupMsg);
+                            context, '소셜지수란?', _socialPopupMsg,
+                        );
                       },
                       splashColor: Colors.transparent,
                       child: const Row(
@@ -171,10 +154,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                           const SizedBox(
                             width: 6,
                           ),
-                          Text(
-                            _socialGrade,
-                            style: TStyle.title18T,
-                          ),
+                          _getConcernGradeText,
                         ],
                       ),
                     ],
@@ -342,6 +322,30 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
     }
   }
 
+  Widget get _getConcernGradeText {
+    String textValue = '';
+    switch (sns06.concernGrade) {
+      case '1':
+        textValue = '조용조용';
+        break;
+      case '2':
+        textValue = '수군수군';
+        break;
+      case '3':
+        textValue = '왁자지껄';
+        break;
+      case '4':
+        textValue = '폭발';
+        break;
+      default:
+        textValue = '';
+    }
+    return Text(
+      textValue,
+      style: TStyle.title18T,
+    );
+  }
+
   Widget _setChart(BuildContext context) {
     return Column(
       children: [
@@ -351,7 +355,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
         Align(
           alignment: Alignment.centerRight,
           child: Text(
-            _isRightYAxisUpUnit ? '단위:만원' : '단위:원',
+            _findMinValue >= 100000 ? '단위:만원' : '단위:원',
             style: const TextStyle(
               fontSize: 11,
               color: RColor.new_basic_text_color_grey,
@@ -439,7 +443,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                 interval: _getInterval,
                 axisLabelFormatter: (axisLabelRenderArgs) {
                   String value = axisLabelRenderArgs.text;
-                  if (_isRightYAxisUpUnit) {
+                  if (_findMinValue >= 100000) {
                     value = TStyle.getMoneyPoint(
                         (axisLabelRenderArgs.value / 10000).round().toString());
                   } else {
@@ -578,7 +582,6 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
 
     _listChartData.clear();
     _listChartData.addAll(sns06.listPriceChart);
-    _isRightYAxisUpUnit = _findMinValue >= 100000;
 
     bool isStartBomb = false;
     int isStartBombIndex = 0;
@@ -603,8 +606,11 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                   text: '폭발',
                   textAngle: 0,
                   verticalTextAlignment: TextAnchor.start,
-                  verticalTextPadding:'0%',
-                  textStyle: const TextStyle(fontSize: 12,color: RColor.chartRed1,),
+                  verticalTextPadding: '0%',
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    color: RColor.chartRed1,
+                  ),
                   start: isStartBombIndex,
                   end: index,
                   opacity: 0.55,
@@ -621,8 +627,11 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                   text: '폭발',
                   textAngle: 0,
                   verticalTextAlignment: TextAnchor.start,
-                  verticalTextPadding:'0%',
-                  textStyle: const TextStyle(fontSize: 12,color: RColor.chartRed1,),
+                  verticalTextPadding: '0%',
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    color: RColor.chartRed1,
+                  ),
                   start: isStartBombIndex,
                   end: index - 1,
                   opacity: 0.55,
@@ -650,6 +659,20 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
   }
 
   double get _findMinValue {
+    if (_listChartData.length < 2) {
+      return 0;
+    }
+    var item = _listChartData.reduce((curr, next) => double.parse(curr.tp) == 0
+        ? next
+        : double.parse(next.tp) == 0
+            ? curr
+            : double.parse(curr.tp) < double.parse(next.tp)
+                ? curr
+                : next);
+    return double.parse(item.tp);
+  }
+
+  double _getFindMinValue() {
     if (_listChartData.length < 2) {
       return 0;
     }

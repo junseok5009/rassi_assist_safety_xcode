@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
@@ -36,12 +37,13 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
         initialIndex: Provider.of<PageNotifier>(context, listen: false).pktIndex,
     );
     _userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-    _userInfoProvider.addListener(() => refreshChildWithMoveTab(Provider.of<PageNotifier>(context, listen: false).pktIndex),);
+    //_userInfoProvider.addListener(() => refreshChildWithMoveTab(Provider.of<PageNotifier>(context, listen: false).pktIndex),);
+    _userInfoProvider.addListener(refreshChildWithMoveTab);
   }
 
   @override
   void dispose() {
-    _userInfoProvider.removeListener(() => refreshChildWithMoveTab(0),);
+    _userInfoProvider.removeListener(refreshChildWithMoveTab,);
     super.dispose();
   }
 
@@ -161,7 +163,7 @@ class SliverPocketTabWidgetState extends State<SliverPocketTab> with SingleTicke
     );
   }
 
-  refreshChildWithMoveTab(int moveTabIndex, {String changePocketSn = ''}) {
+  refreshChildWithMoveTab({int moveTabIndex = 0, String changePocketSn = ''}) {
     if (moveTabIndex == 0) {
       if (SliverPocketTodayWidget.globalKey.currentState == null) {
         _tabController.animateTo(0);

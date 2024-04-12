@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
+import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/login/agent/agent_welcome_first_page.dart';
@@ -59,7 +60,7 @@ class _AgentWelcomePageState extends State<AgentWelcomePage> {
           children: [
             Expanded(
               child: Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
+                  padding: const EdgeInsets.fromLTRB(30, 10, 30, 20),
                   child: _pageIndex == 0
                       ? const AgentWelcomeFirstPage()
                       : _pageIndex == 1
@@ -78,10 +79,22 @@ class _AgentWelcomePageState extends State<AgentWelcomePage> {
               },
               child: Container(
                 width: double.infinity,
-                height: 70,
+                height: 55,
                 alignment: Alignment.center,
-                color: RColor.greyBox_dcdfe2,
-                child: Text(_pageIndex != 2 ? '다음 > ' : '확인하였습니다.'),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                ),
+                decoration: UIStyle.boxRoundFullColor6c(
+                  RColor.purpleBasic_6565ff,
+                ),
+                child: Text(
+                  _pageIndex != 2 ? '다음' : '확인하였습니다.',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             )
           ],

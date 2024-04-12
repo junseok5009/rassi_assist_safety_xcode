@@ -10,4 +10,9 @@ class TrNoRetData {
       retMsg: json['retMsg'],
     );
   }
+
+  @override
+  String toString() {
+    return 'retCode : $retCode / retMsg : $retMsg';
+  }
 }

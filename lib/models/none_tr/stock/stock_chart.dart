@@ -21,7 +21,7 @@ class StockChart {
   });
 
   factory StockChart.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Chart'] as List;
+    var list = json['list_Chart'] as List?;
     List<ChartData> rtList;
     list == null ? rtList = const [] : rtList = list.map((i) => ChartData.fromJson(i)).toList();
 

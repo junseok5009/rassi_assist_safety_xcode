@@ -62,13 +62,13 @@ class Rassi13 {
   });
 
   factory Rassi13.fromJson(Map<String, dynamic> json) {
-    var listT = json['list_Tag'] as List;
-    List<Tag>? rtList;
+    var listT = json['list_Tag'] as List?;
+    List<Tag> rtList;
     listT == null
-        ? rtList = null
+        ? rtList = []
         : rtList = listT.map((e) => Tag.fromJson(e)).toList();
 
-    var listS = json['list_Stock'] as List;
+    var listS = json['list_Stock'] as List?;
     List<Stock> rsList;
     listS == null
         ? rsList = []
@@ -82,7 +82,7 @@ class Rassi13 {
       elapsedTmTx: json['elapsedTmTx'] ?? '',
       imageUrl: json['imageUrl'] ?? '',
       viewLinkYn: json['viewLinkYn'] ?? '',
-      listTag: listT.map((e) => Tag.fromJson(e)).toList(),
+      listTag: rtList,
       listStock: rsList,
     );
   }

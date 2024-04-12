@@ -34,6 +34,7 @@ import 'package:rassi_assist/ui/tiles/card_require_pay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
 import '../../provider/stock_home/stock_home_tab_name_provider.dart';
 import 'stock_home_tab.dart';
 
@@ -47,8 +48,7 @@ class StockHomeSignalPage extends StatefulWidget {
   State<StatefulWidget> createState() => StockHomeSignalPageState();
 }
 
-class StockHomeSignalPageState extends State<StockHomeSignalPage>
-    with AutomaticKeepAliveClientMixin {
+class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   final AppGlobal _appGlobal = AppGlobal();
   late SharedPreferences _prefs;
   String _userId = "";
@@ -109,23 +109,11 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
   late ZoomPanBehavior _zoomPanBehavior;
   final List<ChartData> _signalChartDataList = [];
 
-
-
   final List<ChartData> chartData = [];
 
   // 라씨매매비서는 현재?
   List<SignalAnal> _acvList = []; //AI 매매신호 성과 : 적중률, 누적수익률, 매매횟수 등등
   bool _hasSellResults = true; //매매신호(매도) 성과 표시여부
-
-
-
-  @override
-  bool get wantKeepAlive => varWantKeepAlive;
-
-  @override
-  void updateKeepAlive() {
-    super.updateKeepAlive();
-  }
 
   @override
   void initState() {
@@ -133,7 +121,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
       enablePinching: true,
       zoomMode: ZoomMode.x,
       enablePanning: true,
-
     );
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
@@ -208,7 +195,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
@@ -221,7 +207,10 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                         _showBottomSheet = false;
                       });
                       // [포켓 > 나의포켓 > 포켓선택]
-                      basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
+                      basePageState.goPocketPage(Const.PKT_INDEX_MY,
+                          pktSn: Provider.of<StockInfoProvider>(context,
+                                  listen: false)
+                              .getPockSn);
                       Navigator.popUntil(
                         context,
                         ModalRoute.withName('/base'),
@@ -232,9 +221,10 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                       height: AppGlobal().isTablet ? 130 : 110,
                       color: const Color(0xd9a064e0),
                       margin: EdgeInsets.only(
-                        bottom: MediaQuery.of(_scaffoldKey.currentState!.context)
-                            .viewPadding
-                            .bottom,
+                        bottom:
+                            MediaQuery.of(_scaffoldKey.currentState!.context)
+                                .viewPadding
+                                .bottom,
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 25,
@@ -329,7 +319,8 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                       setState(() {
                         _showBottomSheet = false;
                       });
-                      StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
+                      StockHomeTab.globalKey.currentState!
+                          .showAddStockLayerAndResult();
                     },
                     child: Container(
                       width: double.infinity,
@@ -1428,10 +1419,12 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
         ? InkWell(
             onTap: () {
               // [포켓 > 나의포켓 > 포켓선택]
-              basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
+              basePageState.goPocketPage(Const.PKT_INDEX_MY,
+                  pktSn: Provider.of<StockInfoProvider>(context, listen: false)
+                      .getPockSn);
               Navigator.popUntil(
-                  context,
-                  ModalRoute.withName('/base'),
+                context,
+                ModalRoute.withName('/base'),
               );
             },
             child: Container(
@@ -1660,7 +1653,8 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
                     ),
                     onPressed: () {
                       Navigator.pop(buildContext);
-                      StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
+                      StockHomeTab.globalKey.currentState!
+                          .showAddStockLayerAndResult();
                     },
                   ),
                 ],
@@ -1800,7 +1794,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
     );
   }
 
-  Widget get _setSignalLineChart1{
+  Widget get _setSignalLineChart1 {
     return SizedBox(
       width: double.infinity,
       height: 300,
@@ -1808,9 +1802,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
         plotAreaBorderWidth: 0,
         margin: const EdgeInsets.all(1),
         zoomPanBehavior: _zoomPanBehavior,
-        onZooming: (zoomingArgs) {
-
-        },
+        onZooming: (zoomingArgs) {},
         primaryXAxis: const CategoryAxis(
           //isVisible: false,
           rangePadding: ChartRangePadding.none,
@@ -1831,7 +1823,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
             dataSource: _signalChartDataList,
             xValueMapper: (item, index) => item.tradeDate,
             yValueMapper: (item, index) => int.parse(item.tradePrc),
-            pointColorMapper:(ChartData data, _) {
+            pointColorMapper: (ChartData data, _) {
               return RColor.chartTradePriceColor;
             },
             width: 1.4,
@@ -1861,7 +1853,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage>
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      if(mounted){
+      if (mounted) {
         CommonPopup.instance.showDialogNetErr(context);
       }
     }
