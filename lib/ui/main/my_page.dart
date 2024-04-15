@@ -57,7 +57,6 @@ class MyPage extends StatefulWidget {
 }
 
 class MyPageState extends State<MyPage> {
-  // final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
   final String _appEnv = Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
   var appGlobal = AppGlobal();
@@ -200,7 +199,7 @@ class MyPageState extends State<MyPage> {
             _setMyAccount(),
             _setUserStatusCard(),
             const SizedBox(height: 15),
-            _setUserStatusText(),
+            // _setUserStatusText(),
 
             //상단 프로모션
             _setPrHigh(),
@@ -498,7 +497,7 @@ class MyPageState extends State<MyPage> {
             const SizedBox(width: 15),
             Text(
               _strGrade,
-              style: _isPremium ? TStyle.textMainColor18 : TStyle.textGrey18,
+              style: _isPremium ? TStyle.textMainColor19 : TStyle.textGrey18,
               textAlign: TextAlign.center,
             ),
             const SizedBox(width: 15),
@@ -696,7 +695,7 @@ class MyPageState extends State<MyPage> {
         margin: const EdgeInsets.only(
           left: 15.0,
           right: 15.0,
-          top: 10.0,
+          top: 15.0,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         alignment: Alignment.centerLeft,
@@ -744,7 +743,7 @@ class MyPageState extends State<MyPage> {
         margin: const EdgeInsets.only(
           left: 15.0,
           right: 15.0,
-          top: 10.0,
+          top: 15.0,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         alignment: Alignment.centerLeft,

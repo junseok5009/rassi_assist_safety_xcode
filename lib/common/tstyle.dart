@@ -539,10 +539,10 @@ class TStyle {
     fontSize: 16,
     color: RColor.mainColor,
   );
-  static const textMainColor18 = TextStyle(
+  static const textMainColor19 = TextStyle(
     // [매인] 컬러
     fontWeight: FontWeight.w500,
-    fontSize: 18,
+    fontSize: 19,
     color: RColor.mainColor,
   );
 
