@@ -256,6 +256,13 @@ class TStyle {
     color: Color(0xff111111),
   );
 
+  static const content16T = TextStyle(
+    //본문 내용
+    fontWeight: FontWeight.w500,
+    fontSize: 16,
+    color: Color(0xff111111),
+  );
+
   static const content17T = TextStyle(
     //본문 내용
     fontWeight: FontWeight.w500,
@@ -288,6 +295,13 @@ class TStyle {
     //본문 내용
     fontWeight: FontWeight.w400,
     fontSize: 14,
+    color: RColor.greyBasicStrong_666666,
+  );
+
+  static const contentGreyTitle = TextStyle(
+    //본문 내용
+    fontWeight: FontWeight.w500,
+    fontSize: 16,
     color: RColor.greyBasicStrong_666666,
   );
 
@@ -525,6 +539,13 @@ class TStyle {
     fontSize: 16,
     color: RColor.mainColor,
   );
+  static const textMainColor18 = TextStyle(
+    // [매인] 컬러
+    fontWeight: FontWeight.w500,
+    fontSize: 18,
+    color: RColor.mainColor,
+  );
+
   static const textMBuy = TextStyle(
     //중간 [매수] 컬러
     fontWeight: FontWeight.w600,

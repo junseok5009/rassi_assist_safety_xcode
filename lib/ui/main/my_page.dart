@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,7 +42,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/custom_nv_route_class.dart';
 import '../pay/payment_service.dart';
 
-
 /// 2020.10.06
 /// My
 class MyPage extends StatefulWidget {
@@ -72,17 +72,16 @@ class MyPageState extends State<MyPage> {
   String _dayCheckPush = '';
 
   String _strGrade = '';
-  String _imgGrade = 'images/main_my_icon_menu_1.png';
+  String _imgGrade = 'images/main_my_icon_basic.png';
+  Color _colorGrade = RColor.bgMyPage;
   bool _isPushOn = false; //PUSH 수신동의
-  String _stockCnt = '';  //열람 가능 종목수
+  String _stockCnt = ''; //열람 가능 종목수
   String _pocketCnt = ''; //이용 가능 포켓수
   String _strUpgrade = ''; //결제 업그레이드
   bool _isPremium = false;
-  bool _isUpgradeable = false;  //결제 업그레이드 가능
+  bool _isUpgradeable = false; //결제 업그레이드 가능
 
   List<Notice01> _listNotice = [];
-
-  bool _bPayFinished = true; //결제 시도를 하지 않은 상태(결제 완료, 결과가 에러, 결제 시도를 안한 상태 : true)
 
   bool prTOP = false, prHGH = false, prMID = false, prLOW = false;
   final List<Prom02> _listPrTop = [];
@@ -130,13 +129,12 @@ class MyPageState extends State<MyPage> {
 
   //저장된 데이터를 가져오는 것에 시간이 필요함
   Future<void> _loadPrefData() async {
-    // _getToken = = (await FirebaseMessaging.instance.getToken()) ?? '';
+    _getToken = (await FirebaseMessaging.instance.getToken()) ?? '';
     _prefs = await SharedPreferences.getInstance();
     _todayString = TStyle.getTodayString();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
     _preToken = _prefs.getString(Const.PREFS_SAVED_TOKEN) ?? '';
     _dayCheckPush = _prefs.getString(Const.PREFS_DAY_CHECK_MY) ?? '';
-    _bPayFinished = _prefs.getBool(Const.PREFS_PAY_FINISHED) ?? true;
     appGlobal.userId = _userId;
 
     Platform.isIOS ? inAppBilling = PaymentService() : inAppBilling = PaymentAosService();
@@ -170,15 +168,23 @@ class MyPageState extends State<MyPage> {
         'MY',
         [
           //회원정보 설정
-          IconButton(
-            icon: const ImageIcon(
-              AssetImage(
-                'images/main_arlim_icon_mdf.png',
-              ),
-              color: Colors.black,
-              size: 20,
+          InkWell(
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ImageIcon(
+                  AssetImage(
+                    'images/main_arlim_icon_mdf.png',
+                  ),
+                  color: RColor.greyBasicStrong_666666,
+                  size: 21,
+                ),
+                SizedBox(width: 5,),
+                Text('설정', style: TStyle.contentGreyTitle,),
+                SizedBox(width: 15,),
+              ],
             ),
-            onPressed: () {
+            onTap: () {
               basePageState.callPageRouteUP(const UserInfoPage());
             },
           ),
@@ -193,18 +199,21 @@ class MyPageState extends State<MyPage> {
             //나의 계정
             _setMyAccount(),
             _setUserStatusCard(),
+            const SizedBox(height: 15),
+            _setUserStatusText(),
 
             //상단 프로모션
             _setPrHigh(),
-            const SizedBox(height: 10),
 
             _setSubTitle("라씨 매매비서,\n알고 쓰면 더 유용한 나의 비서"),
+            const SizedBox(height: 10),
             _setNoticeList(context),
             const SizedBox(height: 20),
             _setPrMid(),
+            const SizedBox(height: 10),
 
             _setSubTitle("나의 결제 관리"),
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
             _setPaymentDiv(),
             const SizedBox(height: 25),
 
@@ -212,7 +221,7 @@ class MyPageState extends State<MyPage> {
             _setPayBanner(),
 
             _setSubTitle("고객센터"),
-            const SizedBox(height: 3),
+            const SizedBox(height: 10),
             _setServiceCenterMenu(),
 
             Visibility(
@@ -252,7 +261,7 @@ class MyPageState extends State<MyPage> {
   //나의 계정
   Widget _setMyAccount() {
     return Padding(
-      padding: const EdgeInsets.only(top: 15, left: 10, right: 15),
+      padding: const EdgeInsets.only(top: 25, left: 20, right: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -268,7 +277,7 @@ class MyPageState extends State<MyPage> {
                   '계정별 이용안내',
                   style: TStyle.textGrey14,
                 ),
-                SizedBox(width: 5),
+                SizedBox(width: 7),
                 ImageIcon(
                   AssetImage('images/rassi_icon_qu_bl.png'),
                   size: 20,
@@ -290,117 +299,172 @@ class MyPageState extends State<MyPage> {
     return Container(
       width: double.infinity,
       decoration: UIStyle.boxShadowBasic(16),
-      margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
-      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
+      padding: const EdgeInsets.only(bottom: 15),
       child: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: const BoxDecoration(
+              color: RColor.greyBox_f5f5f5,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                //상단 좌측 사용 상품정보
+                _setUserStatus(),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _setUserStatus(),
-              Visibility(
-                visible: !_isPremium || _isUpgradeable,
-                child: InkWell(
-                  child: Text(_strUpgrade),
-                  onTap: () async {
-                    if(_isPremium) {
-                      if(Platform.isAndroid && _isUpgradeable) {
-                        // 6개월 상품으로 업그레이드
-                        String result = await _showDialogPremiumUpgrade();
-                        if (result == CustomNvRouteResult.landPremiumPage) {
-                          basePageState.navigateAndGetResultPayPremiumPage();
-                        }
-                      }
-                    } else {
-                      if(Platform.isAndroid && _isUpgradeable) {
-                        // 1개월 상품으로 업그레이드
-                        String result = await _showDialogPremiumUpgrade();
-                        if (result == CustomNvRouteResult.landPremiumPage) {
-                          basePageState.navigateAndGetResultPayPremiumPage();
+                Visibility(
+                  visible: !_isPremium || _isUpgradeable,
+                  child: InkWell(
+                    child: Container(
+                      decoration: UIStyle.boxRoundLine6bgColor(
+                        RColor.bgBasic_fdfdfd,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 10,
+                      ),
+                      child: Text(_strUpgrade),
+                    ),
+                    onTap: () async {
+                      if (_isPremium) {
+                        if (Platform.isAndroid && _isUpgradeable) {
+                          // 6개월 상품으로 업그레이드
+                          String result = await _showDialogPremiumUpgrade();
+                          if (result == CustomNvRouteResult.landPremiumPage) {
+                            basePageState.navigateAndGetResultPayPremiumPage();
+                          }
                         }
                       } else {
-                        // 일반적인 프리미엄 결제
-                        String result = await CommonPopup.instance.showDialogPremium(context);
-                        if (result == CustomNvRouteResult.landPremiumPage) {
-                          basePageState.navigateAndGetResultPayPremiumPage();
+                        if (Platform.isAndroid && _isUpgradeable) {
+                          // 1개월 상품으로 업그레이드
+                          String result = await _showDialogPremiumUpgrade();
+                          if (result == CustomNvRouteResult.landPremiumPage) {
+                            basePageState.navigateAndGetResultPayPremiumPage();
+                          }
+                        } else {
+                          // 일반적인 프리미엄 결제
+                          String result = await CommonPopup.instance.showDialogPremium(context);
+                          if (result == CustomNvRouteResult.landPremiumPage) {
+                            basePageState.navigateAndGetResultPayPremiumPage();
+                          }
                         }
                       }
-                    }
-
-                  },
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 15),
-          const Divider(height: 3),
-          const SizedBox(height: 15),
-
+          const SizedBox(height: 20),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               //AI 매매신호
-              InkWell(
-                child: Column(
-                  children: [
-                    const Text(
-                      'AI 매매신호',
-                      style: TStyle.content14,
-                    ),
-                    Text(
-                      _stockCnt,
-                      style: TStyle.commonTitle,
-                    ),
-                  ],
+              Expanded(
+                child: InkWell(
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 45,
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'AI 매매신호',
+                          style: TStyle.content16T,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _isPremium
+                          ? Image.asset('images/main_my_icon_sig_cnt1.png', height: 35)
+                          : Image.asset('images/main_my_icon_sig_cnt.png', height: 35),
+                      const SizedBox(height: 15),
+                      Text(
+                        _stockCnt,
+                        style: TStyle.content17T,
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    basePageState.goLandingPage(LD.main_signal, '', '', '', '');
+                  },
                 ),
-                onTap: () {
-                  basePageState.goLandingPage(LD.main_signal, '', '', '', '');
-                },
               ),
 
               //포켓
-              InkWell(
-                child: Column(
-                  children: [
-                    const Text(
-                      '포켓',
-                      style: TStyle.content14,
-                    ),
-                    Text(
-                      _pocketCnt,
-                      style: TStyle.commonTitle,
-                    ),
-                  ],
+              Expanded(
+                child: InkWell(
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 45,
+                        alignment: Alignment.center,
+                        // color: RColor.bubbleChartGrey,
+                        child: const Text(
+                          '포켓',
+                          style: TStyle.content16T,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Image.asset(
+                        'images/main_my_icon_pocket.png',
+                        height: 35,
+                        color: _isPremium ? RColor.mainColor : Colors.black,
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        _pocketCnt,
+                        style: TStyle.content17T,
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    basePageState.goPocketPage(
+                      Const.PKT_INDEX_TODAY,
+                      todayIndex: 0,
+                    );
+                  },
                 ),
-                onTap: () {
-                  basePageState.goPocketPage(
-                    Const.PKT_INDEX_TODAY,
-                    todayIndex: 0,
-                  );
-                },
               ),
 
               //매매신호 알림
-              InkWell(
-                child: Column(
-                  children: [
-                    const Text(
-                      '매매신호 알림',
-                      style: TStyle.content14,
-                    ),
-                    Text(
-                      _isPushOn ? 'On' : 'Off',
-                      style: TStyle.commonTitle,
-                    ),
-                  ],
+              Expanded(
+                child: InkWell(
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 45,
+                        alignment: Alignment.center,
+                        // color: RColor.bubbleChartGrey,
+                        child: const Text(
+                          '매매신호\n알림',
+                          style: TStyle.content16T,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Image.asset(
+                        'images/main_my_icon_sig_bell.png',
+                        height: 35,
+                        color: _isPremium ? RColor.mainColor : Colors.black,
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        _isPushOn ? 'ON' : 'OFF',
+                        style: TStyle.content17T,
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    basePageState.goLandingPage(LD.main_info, '', '', '', '');
+                  },
                 ),
-                onTap: () {
-                  basePageState.goLandingPage(LD.main_info, '', '', '', '');
-                },
               ),
-
             ],
           ),
         ],
@@ -415,34 +479,87 @@ class MyPageState extends State<MyPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              _imgGrade,
-              height: 40,
-              fit: BoxFit.contain,
+            Container(
+              width: 50,
+              height: 50,
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Image.asset(
+                _imgGrade,
+                width: 35,
+                height: 35,
+                fit: BoxFit.contain,
+              ),
             ),
-            const SizedBox(width: 10),
+
+            const SizedBox(width: 15),
             Text(
               _strGrade,
-              style: TStyle.textGreyDefault,
+              style: _isPremium ? TStyle.textMainColor18 : TStyle.textGrey18,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(width: 20),
+            const SizedBox(width: 15),
             Visibility(
               visible: _isPremium,
               child: InkWell(
-                child: const Icon(
-                  Icons.mood_rounded,
-                  size: 30,
-                  color: RColor.jinbora,
+                child: Image.asset(
+                  'images/icon_kakao_talk.png',
+                  height: 30,
+                  fit: BoxFit.contain,
                 ),
-                onTap: (){
+                onTap: () {
                   _showPremiumConsultKakao();
                 },
               ),
-            )
+            ),
           ],
         )
       ],
+    );
+  }
+
+  //계정별 프로모션 내용
+  Widget _setUserStatusText() {
+    return InkWell(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        decoration: UIStyle.boxRoundFullColor10c(
+          RColor.purple_e7e7ff,
+        ),
+        child: const Text(
+          '회원님, 라씨 매매비서 프리미엄을 이용해 보세요!',
+          style: TStyle.content16,
+        ),
+      ),
+      onTap: () async {
+        if (_isPremium) {
+          if (Platform.isAndroid && _isUpgradeable) {
+            // 6개월 상품으로 업그레이드
+            String result = await _showDialogPremiumUpgrade();
+            if (result == CustomNvRouteResult.landPremiumPage) {
+              basePageState.navigateAndGetResultPayPremiumPage();
+            }
+          }
+        } else {
+          if (Platform.isAndroid && _isUpgradeable) {
+            // 1개월 상품으로 업그레이드
+            String result = await _showDialogPremiumUpgrade();
+            if (result == CustomNvRouteResult.landPremiumPage) {
+              basePageState.navigateAndGetResultPayPremiumPage();
+            }
+          } else {
+            // 일반적인 프리미엄 결제
+            String result = await CommonPopup.instance.showDialogPremium(context);
+            if (result == CustomNvRouteResult.landPremiumPage) {
+              basePageState.navigateAndGetResultPayPremiumPage();
+            }
+          }
+        }
+      },
     );
   }
 
@@ -465,10 +582,10 @@ class MyPageState extends State<MyPage> {
   //소항목 타이틀
   Widget _setSubTitle(String subTitle) {
     return Padding(
-      padding: const EdgeInsets.only(top: 15, left: 10, right: 10),
+      padding: const EdgeInsets.only(top: 25, left: 20, right: 20),
       child: Text(
         subTitle,
-        style: TStyle.title17,
+        style: TStyle.title18T,
       ),
     );
   }
@@ -476,47 +593,60 @@ class MyPageState extends State<MyPage> {
   //나의 결제 관리
   Widget _setPaymentDiv() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+      height: 110,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: UIStyle.boxWithOpacity16(),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          InkWell(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'images/main_my_icon_m_menu_2.png',
-                  height: 30,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 7),
-                const Text('결제 내역', style: TStyle.textGrey15,),
-              ],
+          Expanded(
+            child: InkWell(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'images/main_my_bill_list.png',
+                    height: 35,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 7),
+                  const Text(
+                    '나의 결제 내역',
+                    style: TStyle.textGrey15,
+                  ),
+                ],
+              ),
+              onTap: () {
+                Navigator.pushNamed(context, PayHistoryPage.routeName);
+              },
             ),
-            onTap: () {
-              Navigator.pushNamed(context, PayHistoryPage.routeName);
-            },
           ),
-
-          const Divider(thickness: 3,),
-
-          InkWell(
-            child: Row(
-              children: [
-                Image.asset(
-                  'images/main_my_icon_m_menu_3.png',
-                  height: 30,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 7),
-                const Text('정기결제', style: TStyle.textGrey15,),
-              ],
+          Container(
+            width: 0.5,
+            height: 110,
+            color: Colors.grey,
+          ),
+          Expanded(
+            child: InkWell(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'images/main_my_subscription.png',
+                    height: 39,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 7),
+                  const Text(
+                    '정기 결제 이용 현황',
+                    style: TStyle.textGrey15,
+                  ),
+                ],
+              ),
+              onTap: () {
+                Navigator.pushNamed(context, PayManagePage.routeName);
+              },
             ),
-            onTap: () {
-              Navigator.pushNamed(context, PayManagePage.routeName);
-            },
           ),
         ],
       ),
@@ -570,8 +700,9 @@ class MyPageState extends State<MyPage> {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         alignment: Alignment.centerLeft,
-        decoration: UIStyle.boxRoundLine6bgColor(
-          Colors.white,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -617,8 +748,9 @@ class MyPageState extends State<MyPage> {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         alignment: Alignment.centerLeft,
-        decoration: UIStyle.boxRoundLine6bgColor(
-          Colors.white,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -680,7 +812,6 @@ class MyPageState extends State<MyPage> {
                       style: TStyle.content15,
                     ),
                     const SizedBox(height: 20),
-
                     InkWell(
                       child: Container(
                         height: 50,
@@ -705,7 +836,6 @@ class MyPageState extends State<MyPage> {
                       },
                     ),
                     const SizedBox(height: 20),
-
                     const Text(
                       '이용시간 : 평일 오전9시 ~ 오후5시\n(점심시간 11:30~13:00)',
                       textAlign: TextAlign.center,
@@ -1118,8 +1248,7 @@ class MyPageState extends State<MyPage> {
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
-    }
-    else if (trStr == TR.USER04) {
+    } else if (trStr == TR.USER04) {
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         User04 data = resData.retData;
@@ -1134,7 +1263,7 @@ class MyPageState extends State<MyPage> {
 
           if (accountData.prodName == '프리미엄') {
             _strGrade = '프리미엄';
-            _imgGrade = 'images/main_my_icon_menu_2.png';
+            _imgGrade = 'images/main_my_icon_premium.png';
             _stockCnt = '무제한';
             _pocketCnt = '10개';
             _strUpgrade = '';
@@ -1150,7 +1279,7 @@ class MyPageState extends State<MyPage> {
                 _isUpgradeable = false;
               } else if (payMethod == 'PM50') {
                 // 업그레이드 결제 가능
-                _strUpgrade = '+기간 업그레이드';
+                _strUpgrade = '기간 업그레이드';
                 _isUpgradeable = true;
               }
             }
@@ -1158,11 +1287,11 @@ class MyPageState extends State<MyPage> {
           //3종목알림
           else if (accountData.prodCode == 'AC_S3') {
             _strGrade = '3종목 알림';
-            _imgGrade = 'images/main_my_icon_menu_5.png';
+            _imgGrade = 'images/main_my_icon_three.png';
             _stockCnt = '매일 5종목';
             _pocketCnt = '1개';
             _isPremium = false;
-            if(Platform.isAndroid) {
+            if (Platform.isAndroid) {
               if (payMethod == 'PM50') {
                 _strUpgrade = '프리미엄 업그레이드';
                 _isUpgradeable = true;
@@ -1172,7 +1301,7 @@ class MyPageState extends State<MyPage> {
           //베이직
           else {
             _strGrade = '베이직';
-            _imgGrade = 'images/main_my_icon_menu_1.png';
+            _imgGrade = 'images/main_my_icon_basic.png';
             _stockCnt = '매일 5종목';
             _pocketCnt = '1개';
             _strUpgrade = '프리미엄 업그레이드'; //일반 결제 화면으로 이동
@@ -1182,7 +1311,7 @@ class MyPageState extends State<MyPage> {
         } else {
           //회원정보 가져오지 못함
           _strGrade = '베이직';
-          _imgGrade = 'images/main_my_icon_menu_1.png';
+          _imgGrade = 'images/main_my_icon_basic.png';
           _stockCnt = '매일 5종목';
           _pocketCnt = '1개';
           _strUpgrade = '프리미엄 업그레이드'; //일반 결제 화면으로 이동
@@ -1257,13 +1386,15 @@ class MyPageState extends State<MyPage> {
     else if (trStr == TR.PUSH04) {
       final TrPush04 resData = TrPush04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        if(resData.retData.rcvAssentYn == 'Y') _isPushOn = true;
+        if (resData.retData.rcvAssentYn == 'Y') _isPushOn = true;
         DLog.d(MyPage.TAG, '앱 푸시 수신동의 : $_isPushOn');
 
         String type = 'get_sms';
         String strParam = "userid=$_userId";
-        setState(() { });
+        setState(() {});
       }
+
+      _checkPushToken();
     }
     //푸시 토큰 등록
     else if (trStr == TR.PUSH01) {
