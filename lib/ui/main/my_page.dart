@@ -531,9 +531,7 @@ class MyPageState extends State<MyPage> {
         // 6개월 상품으로 업그레이드
         String result = await _showDialogPremiumUpgrade();
         if (result == CustomNvRouteResult.landPremiumPage) {
-          Platform.isIOS
-              ? _navigateRefreshPay(context, const PayPremiumPage())
-              : _navigateRefreshPay(context, const PayPremiumAosPage());
+          if(mounted) _navigateRefreshPay(context);
         }
       }
     } else {
@@ -541,17 +539,13 @@ class MyPageState extends State<MyPage> {
         // 1개월 상품으로 업그레이드
         String result = await _showDialogPremiumUpgrade();
         if (result == CustomNvRouteResult.landPremiumPage) {
-          Platform.isIOS
-              ? _navigateRefreshPay(context, const PayPremiumPage())
-              : _navigateRefreshPay(context, const PayPremiumAosPage());
+          if(mounted) _navigateRefreshPay(context);
         }
       } else {
         // 일반적인 프리미엄 결제
         String result = await CommonPopup.instance.showDialogPremium(context);
         if (result == CustomNvRouteResult.landPremiumPage) {
-          Platform.isIOS
-              ? _navigateRefreshPay(context, const PayPremiumPage())
-              : _navigateRefreshPay(context, const PayPremiumAosPage());
+          if(mounted) _navigateRefreshPay(context);
         }
       }
     }
@@ -698,12 +692,21 @@ class MyPageState extends State<MyPage> {
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Stack(
           children: [
-            Text(
-              title,
-              style: TStyle.content16,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                title,
+                style: TStyle.content16,
+              ),
+            ),
+            const Align(
+              alignment: Alignment.centerRight,
+              child: ImageIcon(
+                AssetImage('images/main_my_icon_arrow.png'),
+                size: 20,
+              ),
             ),
           ],
         ),
@@ -746,12 +749,18 @@ class MyPageState extends State<MyPage> {
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Stack(
           children: [
-            Text(
-              title,
-              style: TStyle.content16,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(title, style: TStyle.content16),
+            ),
+            const Align(
+              alignment: Alignment.centerRight,
+              child: ImageIcon(
+                AssetImage('images/main_my_icon_arrow.png'),
+                size: 20,
+              ),
             ),
           ],
         ),
@@ -996,9 +1005,7 @@ class MyPageState extends State<MyPage> {
           ),
         ),
         onTap: () {
-          Platform.isIOS
-              ? _navigateRefreshPay(context, const PayPremiumPage())
-              : _navigateRefreshPay(context, const PayPremiumAosPage());
+          if(mounted) _navigateRefreshPay(context);
         },
       ),
     );
@@ -1052,12 +1059,15 @@ class MyPageState extends State<MyPage> {
     );
   }
 
-  _navigateRefreshPay(BuildContext context, Widget instance) async {
+  _navigateRefreshPay(BuildContext context,) async {
+    Widget? instance;
+    Platform.isIOS
+        ? instance = const PayPremiumPage()
+        : instance = const PayPremiumAosPage();
+
     dynamic result = await Navigator.push(
       context,
-      CustomNvRouteClass.createRoute(
-        (instance),
-      ),
+      CustomNvRouteClass.createRoute(instance),
     );
     if (result == 'cancel') {
       DLog.d(MyPage.TAG, '*** navigete cancel ***');
@@ -1192,16 +1202,26 @@ class MyPageState extends State<MyPage> {
     );
   }
 
-  void _adminEntrance(String sCode) {
+  Future<void> _adminEntrance(String sCode) async {
     if (_adminCode == '') {
       commonShowToast('관리자코드가 없습니다.');
     } else if (_adminCode != sCode) {
       commonShowToast('입력된 코드가 틀립니다.');
     } else if (_adminCode == sCode) {
-      _navigateRefreshPay(
+      dynamic result = await Navigator.push(
         context,
-        TestPage(),
+        CustomNvRouteClass.createRoute(TestPage()),
       );
+      if (result == 'cancel') {
+        DLog.d(MyPage.TAG, '*** navigete cancel ***');
+      } else {
+        DLog.d(MyPage.TAG, '*** navigateRefresh');
+        _fetchPosts(
+            TR.USER04,
+            jsonEncode(<String, String>{
+              'userId': _userId,
+            }));
+      }
     }
   }
 

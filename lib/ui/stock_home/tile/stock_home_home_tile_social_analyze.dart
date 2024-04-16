@@ -28,7 +28,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
       '수집된 양을 이전기간과 비교하여 참여도의 증가와 감소를 수치화하여 참여 정도를 알려드립니다.\n'
       '커뮤니티 참여도가 높아지면 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
 
-  late final TrackballBehavior _trackballBehavior;
+  late TrackballBehavior _trackballBehavior;
   final List<PlotBand> _listPlotBand = [];
   @override
   Widget build(BuildContext context) {

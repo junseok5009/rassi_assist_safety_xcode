@@ -72,22 +72,30 @@ class TileNotice01 extends StatelessWidget {
       decoration: UIStyle.boxRoundFullColor10c(
         RColor.greyBox_f5f5f5,
       ),
-      // decoration: UIStyle.boxRoundLine6bgColor(Colors.white,),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
         child: Container(
           width: double.infinity,
           height: 60,
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.all(15.0),
+          child: Stack(
             children: [
-              Text(
-                item.title,
-                style: TStyle.content16,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  item.title,
+                  style: TStyle.content16,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Align(
+                alignment: Alignment.centerRight,
+                child: ImageIcon(
+                  AssetImage('images/main_my_icon_arrow.png'),
+                  size: 20,
+                  // color: Colors.grey,
+                ),
               ),
             ],
           ),
