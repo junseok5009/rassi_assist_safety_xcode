@@ -72,11 +72,11 @@ class MyPageState extends State<MyPage> {
 
   String _strGrade = '';
   String _imgGrade = 'images/main_my_icon_basic.png';
-  Color _colorGrade = RColor.bgMyPage;
   bool _isPushOn = false; //PUSH 수신동의
   String _stockCnt = ''; //열람 가능 종목수
   String _pocketCnt = ''; //이용 가능 포켓수
   String _strUpgrade = ''; //결제 업그레이드
+  String _strPromotionText = ''; //텍스트 프로모션
   bool _isPremium = false;
   bool _isUpgradeable = false; //결제 업그레이드 가능
 
@@ -199,7 +199,7 @@ class MyPageState extends State<MyPage> {
             _setMyAccount(),
             _setUserStatusCard(),
             const SizedBox(height: 15),
-            // _setUserStatusText(),
+            _setUserStatusText(),
 
             //상단 프로모션
             _setPrHigh(),
@@ -317,6 +317,7 @@ class MyPageState extends State<MyPage> {
                 //상단 좌측 사용 상품정보
                 _setUserStatus(),
 
+                //프리미엄 업그레이드 버튼
                 Visibility(
                   visible: !_isPremium || _isUpgradeable,
                   child: InkWell(
@@ -328,32 +329,13 @@ class MyPageState extends State<MyPage> {
                         vertical: 4,
                         horizontal: 10,
                       ),
-                      child: Text(_strUpgrade),
+                      child: Text(
+                        _strUpgrade,
+                        style: TStyle.subTitle16,
+                      ),
                     ),
                     onTap: () async {
-                      if (_isPremium) {
-                        if (Platform.isAndroid && _isUpgradeable) {
-                          // 6개월 상품으로 업그레이드
-                          String result = await _showDialogPremiumUpgrade();
-                          if (result == CustomNvRouteResult.landPremiumPage) {
-                            basePageState.navigateAndGetResultPayPremiumPage();
-                          }
-                        }
-                      } else {
-                        if (Platform.isAndroid && _isUpgradeable) {
-                          // 1개월 상품으로 업그레이드
-                          String result = await _showDialogPremiumUpgrade();
-                          if (result == CustomNvRouteResult.landPremiumPage) {
-                            basePageState.navigateAndGetResultPayPremiumPage();
-                          }
-                        } else {
-                          // 일반적인 프리미엄 결제
-                          String result = await CommonPopup.instance.showDialogPremium(context);
-                          if (result == CustomNvRouteResult.landPremiumPage) {
-                            basePageState.navigateAndGetResultPayPremiumPage();
-                          }
-                        }
-                      }
+                      _showPayDialogAndNavigate();
                     },
                   ),
                 ),
@@ -493,7 +475,6 @@ class MyPageState extends State<MyPage> {
                 fit: BoxFit.contain,
               ),
             ),
-
             const SizedBox(width: 15),
             Text(
               _strGrade,
@@ -520,46 +501,60 @@ class MyPageState extends State<MyPage> {
     );
   }
 
-  //계정별 프로모션 내용
+  //계정별 텍스트 프로모션
   Widget _setUserStatusText() {
-    return InkWell(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-        decoration: UIStyle.boxRoundFullColor10c(
-          RColor.purple_e7e7ff,
+    return Visibility(
+      visible: !_isPremium || _isUpgradeable,
+      child: InkWell(
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          decoration: UIStyle.boxRoundFullColor10c(
+            RColor.purple_e7e7ff,
+          ),
+          child: Text(
+            _strPromotionText,
+            style: TStyle.content16,
+          ),
         ),
-        child: const Text(
-          '회원님, 라씨 매매비서 프리미엄을 이용해 보세요!',
-          style: TStyle.content16,
-        ),
+        onTap: () async {
+          _showPayDialogAndNavigate();
+        },
       ),
-      onTap: () async {
-        if (_isPremium) {
-          if (Platform.isAndroid && _isUpgradeable) {
-            // 6개월 상품으로 업그레이드
-            String result = await _showDialogPremiumUpgrade();
-            if (result == CustomNvRouteResult.landPremiumPage) {
-              basePageState.navigateAndGetResultPayPremiumPage();
-            }
-          }
-        } else {
-          if (Platform.isAndroid && _isUpgradeable) {
-            // 1개월 상품으로 업그레이드
-            String result = await _showDialogPremiumUpgrade();
-            if (result == CustomNvRouteResult.landPremiumPage) {
-              basePageState.navigateAndGetResultPayPremiumPage();
-            }
-          } else {
-            // 일반적인 프리미엄 결제
-            String result = await CommonPopup.instance.showDialogPremium(context);
-            if (result == CustomNvRouteResult.landPremiumPage) {
-              basePageState.navigateAndGetResultPayPremiumPage();
-            }
-          }
-        }
-      },
     );
+  }
+
+  //결제 페이지 전 팝업
+  _showPayDialogAndNavigate() async {
+    if (_isPremium) {
+      if (Platform.isAndroid && _isUpgradeable) {
+        // 6개월 상품으로 업그레이드
+        String result = await _showDialogPremiumUpgrade();
+        if (result == CustomNvRouteResult.landPremiumPage) {
+          Platform.isIOS
+              ? _navigateRefreshPay(context, const PayPremiumPage())
+              : _navigateRefreshPay(context, const PayPremiumAosPage());
+        }
+      }
+    } else {
+      if (Platform.isAndroid && _isUpgradeable) {
+        // 1개월 상품으로 업그레이드
+        String result = await _showDialogPremiumUpgrade();
+        if (result == CustomNvRouteResult.landPremiumPage) {
+          Platform.isIOS
+              ? _navigateRefreshPay(context, const PayPremiumPage())
+              : _navigateRefreshPay(context, const PayPremiumAosPage());
+        }
+      } else {
+        // 일반적인 프리미엄 결제
+        String result = await CommonPopup.instance.showDialogPremium(context);
+        if (result == CustomNvRouteResult.landPremiumPage) {
+          Platform.isIOS
+              ? _navigateRefreshPay(context, const PayPremiumPage())
+              : _navigateRefreshPay(context, const PayPremiumAosPage());
+        }
+      }
+    }
   }
 
   //알고 쓰면 더 유용한 나의 비서
@@ -758,7 +753,6 @@ class MyPageState extends State<MyPage> {
               title,
               style: TStyle.content16,
             ),
-            // Icon(Icons.search, size: 20, color: Color.fromARGB(255, 53, 60, 115),),
           ],
         ),
       ),
@@ -1247,7 +1241,9 @@ class MyPageState extends State<MyPage> {
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
-    } else if (trStr == TR.USER04) {
+    }
+    //회원정보 조회
+    else if (trStr == TR.USER04) {
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         User04 data = resData.retData;
@@ -1266,6 +1262,7 @@ class MyPageState extends State<MyPage> {
             _stockCnt = '무제한';
             _pocketCnt = '10개';
             _strUpgrade = '';
+            _strPromotionText = '';
             _isPremium = true;
             if (Platform.isAndroid) {
               if (curProd == 'ac_pr.am6d0' ||
@@ -1280,6 +1277,7 @@ class MyPageState extends State<MyPage> {
                 // 업그레이드 결제 가능
                 _strUpgrade = '기간 업그레이드';
                 _isUpgradeable = true;
+                _strPromotionText = '프리미엄 계정의 기간을 업그레이드 해보세요!';
               }
             }
           }
@@ -1289,6 +1287,7 @@ class MyPageState extends State<MyPage> {
             _imgGrade = 'images/main_my_icon_three.png';
             _stockCnt = '매일 5종목';
             _pocketCnt = '1개';
+            _strPromotionText = '추가 결제 없이 프리미엄으로 업그레이드 해보세요!';
             _isPremium = false;
             if (Platform.isAndroid) {
               if (payMethod == 'PM50') {
@@ -1304,6 +1303,7 @@ class MyPageState extends State<MyPage> {
             _stockCnt = '매일 5종목';
             _pocketCnt = '1개';
             _strUpgrade = '프리미엄 업그레이드'; //일반 결제 화면으로 이동
+            _strPromotionText = '회원님, 라씨 매매비서 프리미엄을 이용해 보세요!';
             _isPremium = false;
             if (Platform.isAndroid) inAppBilling.requestPurchaseAsync();
           }
@@ -1314,6 +1314,7 @@ class MyPageState extends State<MyPage> {
           _stockCnt = '매일 5종목';
           _pocketCnt = '1개';
           _strUpgrade = '프리미엄 업그레이드'; //일반 결제 화면으로 이동
+          _strPromotionText = '';
           _isPremium = false;
           const AccountData().setFreeUserStatus();
         }
@@ -1364,7 +1365,7 @@ class MyPageState extends State<MyPage> {
             'selectCount': '10',
           }));
     }
-    //
+    //고객센터 조회
     else if (trStr == TR.APP02) {
       final TrApp02 resData = TrApp02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {

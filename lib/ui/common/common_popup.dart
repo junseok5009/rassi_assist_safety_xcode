@@ -422,7 +422,7 @@ class CommonPopup {
                       height: 20.0,
                     ),
                     const Text(
-                      '프리미엄 계정에서 이용이 가능합니다.\n계정을 업그레이드 하시고 매매비서를\n더 완벽하게 이용해 보세요.',
+                      '프리미엄 계정에서 이용이 가능합니다.\n계정을 업그레이드 하시고 매매비서를 더 완벽하게 이용해 보세요.',
                       textAlign: TextAlign.start,
                       style: TStyle.content15,
                     ),
