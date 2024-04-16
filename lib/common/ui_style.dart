@@ -143,6 +143,16 @@ class UIStyle {
     );
   }
 
+  //BOX 기본 네모 박스 (Line)
+  static BoxDecoration boxSquareLine() {
+    return BoxDecoration(
+      border: Border.all(
+        color: RColor.lineGrey,
+        width: 1,
+      ),
+    );
+  }
+
   //BOX 라운드 보더 라인 (Line)
   static BoxDecoration boxRoundLine() {
     return BoxDecoration(
