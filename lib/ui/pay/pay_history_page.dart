@@ -308,9 +308,12 @@ class PayHistoryPageState extends State<PayHistoryPage> {
                             style: TStyle.textGrey14,
                           ),
                           onTap: () {
+                            DLog.d(PayHistoryPage.TAG, '#### $isPossibleCancel');
                             if (item.orderChannel == 'CH33') {
                               _showRefundInfo(item.csPhoneNo);
                             } else if (item.orderChannel == 'CH32') {
+                              _goRefundPage(item.orderSn);
+                            } else if (isPossibleCancel) {
                               _goRefundPage(item.orderSn);
                             }
                           },
@@ -450,7 +453,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
     }
   }
 
-  // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
+
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(PayHistoryPage.TAG, response.body);
 
