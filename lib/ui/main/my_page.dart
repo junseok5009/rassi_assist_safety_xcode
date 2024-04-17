@@ -821,14 +821,23 @@ class MyPageState extends State<MyPage> {
                           horizontal: 30,
                         ),
                         decoration: UIStyle.boxRoundFullColor50c(
-                          RColor.mainColor,
+                          RColor.kakao,
                         ),
                         alignment: Alignment.center,
-                        child: const Text(
-                          '상담하기',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'images/icon_kakao_talk.png',
+                              height: 30,
+                              fit: BoxFit.contain,
+                            ),
+                            const SizedBox(width: 7),
+                            const Text(
+                              '상담하기',
+                              style: TStyle.subTitle16,
+                            )
+                          ],
                         ),
                       ),
                       onTap: () {
