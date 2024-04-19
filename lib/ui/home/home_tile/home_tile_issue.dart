@@ -4,8 +4,8 @@ import 'package:rassi_assist/common/ui_style.dart';
 import '../../../common/const.dart';
 import '../../../common/strings.dart';
 import '../../../common/tstyle.dart';
-import '../../../models/pg_data.dart';
 import '../../../models/none_tr/stock/stock.dart';
+import '../../../models/pg_data.dart';
 import '../../../models/tr_issue03.dart';
 import '../../main/base_page.dart';
 import '../../news/issue_list_page.dart';
@@ -55,8 +55,7 @@ class HomeTileIssue extends StatelessWidget {
     if (dataList.isNotEmpty) {
       if (dataList[0].issueDttm.isNotEmpty) {
         var dayStr = dataList[0].issueDttm.substring(0, 8);
-        dayOfWeek =
-            '${TStyle.getDateDivFormat(dayStr)}  ${TStyle.getWeekdayKor(dayStr)}';
+        dayOfWeek = '${TStyle.getDateDivFormat(dayStr)}  ${TStyle.getWeekdayKor(dayStr)}';
       }
     }
 
@@ -135,8 +134,7 @@ class TileIssue03N extends StatelessWidget {
   final Color bColor;
   final Color tbColor;
 
-  const TileIssue03N(this.item, this.bColor, this.tbColor, {Key? key})
-      : super(key: key);
+  const TileIssue03N(this.item, this.bColor, this.tbColor, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -163,8 +161,13 @@ class TileIssue03N extends StatelessWidget {
         ),
       ),
       onTap: () {
-        basePageState.callPageRouteUpData(IssueViewer(),
-            PgData(userId: '', pgSn: item.newsSn, pgData: item.issueSn));
+        basePageState.callPageRouteUpData(
+            const IssueViewer(),
+            PgData(
+              userId: '',
+              pgSn: item.newsSn,
+              pgData: item.issueSn,
+            ));
       },
     );
   }
@@ -173,59 +176,16 @@ class TileIssue03N extends StatelessWidget {
     String statusText = '';
     Color? statusColor;
     num value = double.parse(item.avgFluctRate);
-    if (value > 3) {
+    if (value > 0.1) {
       statusText = '▲ 상승중';
-      statusColor = RColor.sigBuy;
-    } else if (value < -3) {
-      statusText = '▼ 하락중';
-      statusColor = RColor.sigSell;
+      statusColor = RColor.bubbleChartStrongRed;
+    } else if (value > -0.1) {
+      statusText = '- 0.00%';
+      statusColor = RColor.bubbleChartGrey;
     } else {
-      //statusText = '- 0.00%';
-      //statusColor = RColor.bubbleChartGrey;
-      switch (item.issueStatus) {
-        case 'bohab':
-          {
-            if (value > 0.1) {
-              statusText = '▲ 상승중';
-              statusColor = RColor.sigBuy;
-            } else if (value > -0.1) {
-              statusText = '- 0.00%';
-              statusColor = RColor.bubbleChartTxtColorGrey;
-            } else {
-              statusText = '▼ 하락중';
-              statusColor = RColor.sigSell;
-            }
-            break;
-          }
-        case 'up':
-          {
-            if (value > -0.7) {
-              statusText = '▲ 상승중';
-              statusColor = RColor.sigBuy;
-            } else {
-              statusText = '▼ 하락중';
-              statusColor = RColor.sigSell;
-            }
-            break;
-          }
-        case 'dn':
-          {
-            if (value > 0.7) {
-              statusText = '▲ 상승중';
-              statusColor = RColor.sigBuy;
-            } else if (value > -0.7) {
-              statusText = '- 0.00%';
-              statusColor = RColor.bubbleChartTxtColorGrey;
-            } else {
-              value = value.abs();
-              statusText = '▼ 하락중';
-              statusColor = RColor.sigSell;
-            }
-            break;
-          }
-      }
+      statusText = '▼ 하락중';
+      statusColor = RColor.bubbleChartStrongBlue;
     }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -284,8 +244,7 @@ class TileIssue03N extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.start,
       spacing: 7,
       alignment: WrapAlignment.start,
-      children:
-          List.generate(len, (index) => _relayStock(item.listStock[index])),
+      children: List.generate(len, (index) => _relayStock(item.listStock[index])),
     );
   }
 

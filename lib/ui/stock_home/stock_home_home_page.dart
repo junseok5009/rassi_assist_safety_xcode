@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -28,12 +30,14 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_ai_breaking_news_list_page.dart';
+import 'package:rassi_assist/ui/stock_home/page/stock_company_overview_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_info_page.dart';
 import 'package:rassi_assist/ui/stock_home/stock_home_tab.dart';
 import 'package:rassi_assist/ui/stock_home/tile/stock_home_home_tile_event_view.dart';
 import 'package:rassi_assist/ui/stock_home/tile/stock_home_home_tile_result_analyze.dart';
 import 'package:rassi_assist/ui/stock_home/tile/stock_home_home_tile_trading_trends.dart';
 import 'package:rassi_assist/ui/sub/lockup_return_page.dart';
+import 'package:rassi_assist/ui/web/inapp_webview_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/none_tr/app_global.dart';
@@ -61,8 +65,7 @@ class StockHomeHomePage extends StatefulWidget {
   State<StatefulWidget> createState() => StockHomeHomePageState();
 }
 
-class StockHomeHomePageState extends State<StockHomeHomePage>
-    with AutomaticKeepAliveClientMixin<StockHomeHomePage> {
+class StockHomeHomePageState extends State<StockHomeHomePage> with AutomaticKeepAliveClientMixin<StockHomeHomePage> {
   final AppGlobal _appGlobal = AppGlobal();
   late SharedPreferences _prefs;
 
@@ -129,8 +132,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
     );
     stkCode = _appGlobal.stkCode;
     stkName = _appGlobal.stkName;
-    _stockTabNameProvider =
-        Provider.of<StockTabNameProvider>(context, listen: false);
+    _stockTabNameProvider = Provider.of<StockTabNameProvider>(context, listen: false);
     _showBottomSheet = true;
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -155,8 +157,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
           }
         } else {}
       } else {
-        if (_stockTabNameProvider.getIsTop &&
-            _scrollController.position.pixels > 0) {
+        if (_stockTabNameProvider.getIsTop && _scrollController.position.pixels > 0) {
           _stockTabNameProvider.setTopFalse();
         }
       }
@@ -217,9 +218,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                 builder: (context) => SafeArea(
                   child: Container(
                     margin: EdgeInsets.only(
-                      bottom: MediaQuery.of(_scaffoldKey.currentState!.context)
-                          .viewPadding
-                          .bottom,
+                      bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom,
                     ),
                     child: _setAddPocket(),
                   ),
@@ -281,11 +280,12 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                     StockHomeHomeTileReportAnalyze(),
 
                     // 소셜 분석
-                    StockHomeHomeTileSocialAnalyze(sns06: _sns06,),
+                    StockHomeHomeTileSocialAnalyze(
+                      sns06: _sns06,
+                    ),
 
                     // 보호 예수
-                    if (_invest24.listInvest24Lockup.isNotEmpty)
-                      _setLockupList(),
+                    if (_invest24.listInvest24Lockup.isNotEmpty) _setLockupList(),
 
                     // AI속보
                     _setRassiroList(),
@@ -393,8 +393,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                 autoplay: _listRassi04News.length > 1,
                 autoplayDelay: 3000,
                 itemCount: _listRassi04News.length,
-                itemBuilder: (BuildContext context, int index) =>
-                    _setTodayBriefView(_listRassi04News[index]),
+                itemBuilder: (BuildContext context, int index) => _setTodayBriefView(_listRassi04News[index]),
               ),
             ),
           if (_stkBriefing.isEmpty)
@@ -418,9 +417,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                     child: const Center(
                       child: Text(
                         '!',
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: RColor.new_basic_text_color_grey),
+                        style: TextStyle(fontSize: 18, color: RColor.new_basic_text_color_grey),
                       ),
                     ),
                   ),
@@ -439,8 +436,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
             )
           else
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
               child: Wrap(
                 children: [
                   Text(
@@ -585,8 +581,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
   Widget _setRassiNoSignalFreeView() {
     return InkWell(
       onTap: () {
-        StockHomeTab.globalKey.currentState!
-            .funcTabMove(Const.STK_INDEX_SIGNAL);
+        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
       },
       child: Column(
         children: [
@@ -658,8 +653,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
   Widget _setRassiSignalFreeView() {
     return InkWell(
       onTap: () {
-        StockHomeTab.globalKey.currentState!
-            .funcTabMove(Const.STK_INDEX_SIGNAL);
+        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
       },
       child: Column(
         children: [
@@ -864,8 +858,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
     }
     return InkWell(
       onTap: () {
-        StockHomeTab.globalKey.currentState!
-            .funcTabMove(Const.STK_INDEX_SIGNAL);
+        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
       },
       child: Column(
         children: [
@@ -935,13 +928,11 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
               const SizedBox(
                 height: 4,
               ),
-              if (_signal01Data.signalData.tradeFlag == 'B' ||
-                  _signal01Data.signalData.tradeFlag == 'S')
+              if (_signal01Data.signalData.tradeFlag == 'B' || _signal01Data.signalData.tradeFlag == 'S')
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    TStyle.getPercentString(
-                        _signal01Data.signalData.profitRate),
+                    TStyle.getPercentString(_signal01Data.signalData.profitRate),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -1091,9 +1082,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                             _listShome07StockContent[index].title,
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: (contentDiv == 'SCR' ||
-                                      contentDiv == 'DIS' ||
-                                      contentDiv == 'RPT')
+                              fontWeight: (contentDiv == 'SCR' || contentDiv == 'DIS' || contentDiv == 'RPT')
                                   ? FontWeight.w600
                                   : FontWeight.w400,
                             ),
@@ -1101,9 +1090,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                             maxLines: 1,
                           ),
                         ),
-                        if (contentDiv == 'SCR' ||
-                            contentDiv == 'DIS' ||
-                            contentDiv == 'RPT')
+                        if (contentDiv == 'SCR' || contentDiv == 'DIS' || contentDiv == 'RPT')
                           Row(
                             children: [
                               const SizedBox(
@@ -1147,7 +1134,14 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
           //GPT
           case 'GPT':
             {
-              _showChatGptShome06Dialog(index);
+              Navigator.push(
+                context,
+                CustomNvRouteClass.createRouteName(
+                  instance: const StockCompanyOverviewPage(),
+                  routeName: StockCompanyOverviewPage.routeName,
+                  arguments: _listShome07StockContent[index],
+                ),
+              );
               break;
             }
 
@@ -1212,16 +1206,17 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
 
   // 챗GPT 오늘의 요약 기업 개요 레이어
   _showChatGptShome06Dialog(int index) {
-    // auto height 레이어
+    // full height 레이어
     showModalBottomSheet<dynamic>(
       isScrollControlled: true,
+      useSafeArea: true,
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext bc) {
         return Container(
           padding: const EdgeInsets.symmetric(
             vertical: 20,
-            horizontal: 15,
+            horizontal: 20,
           ),
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -1230,7 +1225,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
               topRight: Radius.circular(20.0),
             ),
           ),
-          height: MediaQuery.of(context).size.height * 3 / 4,
+          //height: MediaQuery.of(context).size.height * 3 / 4,
           child: Column(
             children: [
               Container(
@@ -1254,18 +1249,19 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                   //physics: NeverScrollableScrollPhysics(),
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Image.asset(
-                          'images/icon_chat_gpt_logo.jpg',
-                          width: 24,
-                          height: 24,
+                          'images/icon_shome07_1.png',
+                          width: 18,
+                          height: 18,
                         ),
                         const SizedBox(
                           width: 10,
                         ),
-                        Expanded(
+                        const Expanded(
                           child: Text(
-                            '챗GPT가 요약한 $stkName의 사업 개요',
+                            '챗GPT가 요약한 사업 개요',
                             style: TStyle.title17,
                           ),
                         ),
@@ -1312,6 +1308,32 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                       ),
                     ),
                   ],
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    Platform.isAndroid
+                        ? CustomNvRouteClass.createRouteSlow1(
+                            InappWebviewPage('$stkName 보고서', _listShome07StockContent[index].linkUrl),
+                          )
+                        : CustomNvRouteClass.createRoute(
+                            InappWebviewPage('$stkName 보고서', _listShome07StockContent[index].linkUrl),
+                          ),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 50,
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 10,
+                  ),
+                  decoration: UIStyle.boxRoundLine6bgColor(
+                    RColor.bgBasic_fdfdfd,
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text('보고서 원문 보기'),
                 ),
               ),
             ],
@@ -1428,12 +1450,9 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
                                           ),
                                         ),
                                         onTap: () {
-                                          _appGlobal.stkCode =
-                                              item.stkList[index].stockCode;
-                                          _appGlobal.stkName =
-                                              item.stkList[index].stockName;
-                                          StockHomeTab.globalKey.currentState!
-                                              .refreshChild();
+                                          _appGlobal.stkCode = item.stkList[index].stockCode;
+                                          _appGlobal.stkName = item.stkList[index].stockName;
+                                          StockHomeTab.globalKey.currentState!.refreshChild();
                                         },
                                       );
                                     },
@@ -1499,9 +1518,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
               style: TextStyle(
                 color: _issueSelectIndex == index ? Colors.white : Colors.black,
                 fontSize: 15,
-                fontWeight: _issueSelectIndex == index
-                    ? FontWeight.bold
-                    : FontWeight.w400,
+                fontWeight: _issueSelectIndex == index ? FontWeight.bold : FontWeight.w400,
               ),
             ),
           ),
@@ -1714,8 +1731,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
         setState(() {
           _showBottomSheet = false;
         });
-        StockHomeTab.globalKey.currentState!
-            .funcTabMove(Const.STK_INDEX_SIGNAL);
+        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
       },
       child: Container(
         height: AppGlobal().isTablet ? 130 : 110,
@@ -1927,12 +1943,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       },
     );
     String jsonDISCLOS01 = jsonEncode(
-      <String, String>{
-        'userId': _userId,
-        'stockCode': stkCode,
-        'pageNo': '0',
-        'pageItemSize': '5'
-      },
+      <String, String>{'userId': _userId, 'stockCode': stkCode, 'pageNo': '0', 'pageItemSize': '5'},
     );
 
     await Future.wait(
@@ -2051,8 +2062,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
       final TrSignal01 resData = TrSignal01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _signal01Data = resData.retData;
-        _isForbiddenShow = _signal01Data.signalData.isForbidden == 'Y' ||
-                _signal01Data.signalData.signalTargetYn == 'N'
+        _isForbiddenShow = _signal01Data.signalData.isForbidden == 'Y' || _signal01Data.signalData.signalTargetYn == 'N'
             ? true
             : false;
         _isFreeVisible = false;
@@ -2092,8 +2102,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
     else if (trStr == TR.SHOME07) {
       _listShome07StockContent.clear();
       final TrShome07 resData = TrShome07.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS &&
-          resData.retData!.listStockContent.isNotEmpty) {
+      if (resData.retCode == RT.SUCCESS && resData.retData!.listStockContent.isNotEmpty) {
         _listShome07StockContent.addAll(resData.retData!.listStockContent);
       }
     }
@@ -2144,8 +2153,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage>
 
     // NOTE 공시
     else if (trStr == TR.DISCLOS01) {
-      final TrDisclos01 resData =
-          TrDisclos01.fromJson(jsonDecode(response.body));
+      final TrDisclos01 resData = TrDisclos01.fromJson(jsonDecode(response.body));
       _listDisclos.clear();
       if (resData.retCode == RT.SUCCESS) {
         Disclos01 data = resData.retData;
@@ -2197,8 +2205,7 @@ class StockHomeMainChartModel {
 
 class MyBehavior extends ScrollBehavior {
   @override
-  Widget buildOverscrollIndicator(
-      BuildContext context, Widget child, ScrollableDetails details) {
+  Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) {
     return child;
   }
 }

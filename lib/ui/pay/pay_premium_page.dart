@@ -22,7 +22,7 @@ import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/pay/payment_service.dart';
 import 'package:rassi_assist/ui/pay/premium_care_page.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2022.05.01
@@ -309,7 +309,7 @@ class PayPremiumState extends State<PayPremiumPage> {
     );
   }
 
-  //단건 결제 버튼
+  //에이전트 단건 결제 버튼
   Widget _setButtonAgent() {
     return InkWell(
       splashColor: Colors.transparent,
@@ -566,7 +566,7 @@ class PayPremiumState extends State<PayPremiumPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "App Store 구매안내",
+            "안내",
             style: TStyle.commonTitle,
           ),
           const SizedBox(
@@ -678,8 +678,8 @@ class PayPremiumState extends State<PayPremiumPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '회원님을 위한 특별 할인 상품을 이용해 보세요.',
+          Text(
+            '${Provider.of<UserInfoProvider>(context, listen: false).getUser04.agentData.agentName}님이 회원님께 드리는 특별한 할인 혜택',
             style: TStyle.commonTitle,
           ),
           const SizedBox(
@@ -861,9 +861,12 @@ class PayPremiumState extends State<PayPremiumPage> {
         accountData.initUserStatus();
         _fetchPosts(
             TR.APP03,
-            jsonEncode(<String, String>{
+            _isAgent ? jsonEncode(<String, String>{
               'userId': _userId,
-            }));
+              'payMethod' : 'PM20'
+            }) : jsonEncode(<String, String>{
+              'userId': _userId,
+            },),);
       } else {
         Navigator.pop(context);
       }
@@ -874,16 +877,16 @@ class PayPremiumState extends State<PayPremiumPage> {
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData!.listPaymentGuide.isNotEmpty) {
           _listApp03.addAll(resData.retData!.listPaymentGuide);
-          setState(() {});
         }
-        _fetchPosts(
-            TR.PROM02,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-              'viewPage': 'LPH1',
-              'promoDiv': '',
-            }));
       }
+      setState(() {});
+      _fetchPosts(
+          TR.PROM02,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'viewPage': 'LPH1',
+            'promoDiv': '',
+          }));
     }
 
     //홍보

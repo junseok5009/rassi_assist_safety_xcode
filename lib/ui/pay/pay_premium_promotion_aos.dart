@@ -22,7 +22,7 @@ import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
 import 'package:rassi_assist/ui/pay/premium_care_page.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/ui_style.dart';

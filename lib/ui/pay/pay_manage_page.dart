@@ -13,38 +13,24 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_pay.dart';
 import 'package:rassi_assist/models/tr_order02.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/pay/pay_cancel_sub.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2021.10.07
 /// 정기결제 내역
-class PayManagePage extends StatelessWidget {
+class PayManagePage extends StatefulWidget {
   static const routeName = '/page_pay_manage';
   static const String TAG = "[PayManagePage]";
   static const String TAG_NAME = 'MY_정기결제관리';
 
+  const PayManagePage({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepStat,
-          elevation: 0,
-        ),
-        body: PayManageWidget(),
-      ),
-    );
-  }
+  State<StatefulWidget> createState() => PayManagePageState();
 }
 
-class PayManageWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => PayManageState();
-}
-
-class PayManageState extends State<PayManageWidget> {
+class PayManagePageState extends State<PayManagePage> {
   late SharedPreferences _prefs;
   String _userId = "";
 
@@ -58,10 +44,7 @@ class PayManageState extends State<PayManageWidget> {
     CustomFirebaseClass.logEvtScreenView(
       PayManagePage.TAG_NAME,
     );
-
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), () {
-      DLog.d(PayManagePage.TAG, "delayed user id : $_userId");
+    _loadPrefData().then((value) {
       if (_userId != '') {
         _fetchPosts(
             TR.ORDER02,
@@ -72,18 +55,19 @@ class PayManageState extends State<PayManageWidget> {
     });
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _setCustomAppBar(),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '정기결제 관리',
+        elevation: 1,
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -124,56 +108,6 @@ class PayManageState extends State<PayManageWidget> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // 타이틀바(AppBar)
-  PreferredSizeWidget _setCustomAppBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(100),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          AppBar(
-            title: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '정기결제 관리',
-                  style: TStyle.defaultTitle,
-                ),
-                SizedBox(
-                  width: 55.0,
-                ),
-              ],
-            ),
-            iconTheme: const IconThemeData(color: Colors.black),
-            backgroundColor: Colors.white,
-            toolbarHeight: 50,
-            elevation: 1,
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Divider(
-                height: 1.0,
-                color: RColor.lineGrey,
-              ),
-              Container(
-                width: double.infinity,
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                color: Colors.white,
-                child: const Text(
-                  '이용중인 정기결제 상품',
-                  style: TStyle.commonTitle,
-                ),
-              ),
-              // Divider(height: 1.0, color: RColor.lineGrey,),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -271,9 +205,7 @@ class PayManageState extends State<PayManageWidget> {
                               style: TStyle.textGrey15,
                             ),
                           ),
-                          const SizedBox(
-                            width: 7
-                          ),
+                          const SizedBox(width: 7),
                           Text(
                             TStyle.getDateMdKorFormat(item.nextPayDate),
                             style: TStyle.defaultContent,
@@ -521,46 +453,19 @@ class PayManageState extends State<PayManageWidget> {
       if (resData.retCode == RT.SUCCESS) {
         isNoData = false;
         orderList = resData.listData;
-        if (orderList != null && orderList.length > 0) {
+        if (orderList.isNotEmpty) {
           Order02 item = orderList.first;
-          if (item.payMethod == 'PM60' || item.payMethod == 'PM50') //인앱결제(ios) or Android
+          if (item.payMethod == 'PM60' || item.payMethod == 'PM50') {
+            //인앱결제(ios) or Android
             _isInAppPay = true;
+          }
         }
         setState(() {});
       } else if (resData.retCode == RT.NO_DATA) {
-        if (orderList.length == 0) isNoData = true;
+        if (orderList.isEmpty) isNoData = true;
         setState(() {});
       }
     }
   }
 
-  final String _resStr = '''
-  {
-  "trCode": "TR_ORDER02",
-  "retData": [
-    {
-      "orderSn": "30395",
-      "svcDivision": "S",
-      "orderStatus": "OSP2",
-      "orderStatText": "결제완료",
-      "orderChannel": "CH32",
-      "orderChanText": "Web > TradingPoint",
-      "svcCondition": "U",
-      "svcCondText": "사용중",
-      "prodCode": "AC_PR",
-      "prodName": "프리미엄",
-      "prodSubdiv": "A01",
-      "prodCateg": "AC",
-      "startDate": "20211210",
-      "endDate": "20220110",
-      "paymentAmt": "59400",
-      "nextPayDate": "20220110",
-      "payMethod": "PM10",
-      "transactId": "think20211210094432hKFL3"
-    }
-  ],
-  "retCode": "0000",
-  "retMsg": "success"
-  }
-  ''';
 }

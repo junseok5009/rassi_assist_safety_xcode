@@ -7,7 +7,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/login/join_route_page.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 
 // 24.01.04 [회원가입-약관동의]
 class TermsOfUsePage extends StatefulWidget {

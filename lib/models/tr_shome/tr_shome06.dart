@@ -20,6 +20,8 @@ class Shome06 {
   final String updateDate;
   final String title;
   final String content;
+  final String linkUrl;
+  final String refMonth;
 
   const Shome06({
     this.stockCode = '',
@@ -27,14 +29,10 @@ class Shome06 {
     this.updateDate = '',
     this.title = '',
     this.content = '',
+    this.linkUrl='',
+    this.refMonth=''
   });
-  // Shome06.empty(){
-  //   stockCode = '';
-  //   stockName = '';
-  //   updateDate = '';
-  //   title = '';
-  //   content = '';
-  // }
+
   factory Shome06.fromJson(Map<String, dynamic> json) {
     return Shome06(
       stockCode: json['stockCode'] ?? '',
@@ -42,6 +40,8 @@ class Shome06 {
       updateDate: json['updateDate'] ?? '',
       title: json['title'] ?? '',
       content: json['content'] ?? '',
+      linkUrl: json['linkUrl'] ?? '',
+      refMonth: json['refMonth'] ?? '',
     );
   }
 }

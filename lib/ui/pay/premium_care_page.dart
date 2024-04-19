@@ -13,6 +13,7 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
+import 'package:rassi_assist/ui/web/only_web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/common_class.dart';
@@ -20,7 +21,6 @@ import '../../common/custom_firebase_class.dart';
 import '../../common/net.dart';
 import '../../models/tr_basic.dart';
 import '../common/common_popup.dart';
-import '../common/only_web_view.dart';
 
 class PremiumCarePage extends StatefulWidget {
   //const PremiumCarePage({super.key});

@@ -42,7 +42,7 @@ import 'package:rassi_assist/ui/pay/pay_premium_promotion_aos.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_promotion_page.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
 import 'package:rassi_assist/ui/promotion/promotion_page.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/tr_compare/tr_compare01.dart';
@@ -95,11 +95,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   // 지금, 마켓뷰는?
   final List<Issue03> _listIssue03 = [];
 
-  bool bSelPktA = true,
-      bSelPktB = false,
-      bSelPktC = false,
-      bSelPktD = false,
-      bSelPktE = false;
+  bool bSelPktA = true, bSelPktB = false, bSelPktC = false, bSelPktD = false, bSelPktE = false;
 
   late SwiperController controller;
   final List<StkCatch03> _listCatch03 = []; //이 시간 종목캐치
@@ -168,13 +164,16 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
           SliverList(
-            delegate: SliverChildListDelegate([
+            delegate: SliverChildListDelegate(
+                addAutomaticKeepAlives: true, [
               const SizedBox(
                 height: 15,
               ),
 
               // 땡정보
-              HomeTileDdinfo(_today05),
+              HomeTileDdinfo(
+                today05: _today05,
+              ),
 
               const SizedBox(
                 height: 20,
@@ -206,7 +205,9 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
 
               // 내 종목 현황
               //const HomeTileMystockStatus(),
-              HomeTileMystockStatus2(_pock11,),
+              HomeTileMystockStatus2(
+                _pock11,
+              ),
 
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 20),
@@ -235,7 +236,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               _setPrHigh(),
 
               // 비교해서 더 좋은 찾기
-              if (_compare01 != null) HomeTileStockCompareList(_compare01),
+              HomeTileStockCompareList(_compare01),
 
               // 지금, 마켓뷰는?
               // 이 시간 추천 태그
@@ -255,8 +256,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               ),
 
               // 오늘의 이슈
-              if (_listIssue03.isNotEmpty)
-                HomeTileIssue(listIssue03: _listIssue03),
+              if (_listIssue03.isNotEmpty) HomeTileIssue(listIssue03: _listIssue03),
               const SizedBox(
                 height: 15.0,
               ),
@@ -272,7 +272,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   //이 시간 추천 태그
   Widget _setIssueTag() {
     return Visibility(
-      visible: _listTagN != null && _listTagN.isNotEmpty,
+      visible: _listTagN.isNotEmpty,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -286,15 +286,13 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
           _setSubTitle("이 시간 추천 태그"),
           Container(
             width: double.infinity,
-            margin:
-                const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 5),
+            margin: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 5),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             decoration: UIStyle.boxShadowBasic(16),
             child: Wrap(
               spacing: 7.0,
               alignment: WrapAlignment.center,
-              children: List.generate(
-                  _listTagN.length, (index) => TileChipTag(_listTagN[index])),
+              children: List.generate(_listTagN.length, (index) => TileChipTag(_listTagN[index])),
             ),
           ),
         ],
@@ -311,8 +309,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         margin: const EdgeInsets.only(
           top: 20,
         ),
-        height:
-            appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
+        height: appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
         child: CardProm02(_listPrTop),
       ),
     );
@@ -324,8 +321,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       visible: _listPrHgh.isNotEmpty,
       child: SizedBox(
         width: double.infinity,
-        height:
-            appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
+        height: appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
         child: CardProm02(_listPrHgh),
       ),
     );
@@ -337,8 +333,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       visible: _listPrMid.isNotEmpty,
       child: SizedBox(
         width: double.infinity,
-        height:
-            appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
+        height: appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
         child: CardProm02(_listPrMid),
       ),
     );
@@ -350,8 +345,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       visible: _listPrLow.isNotEmpty,
       child: SizedBox(
         width: double.infinity,
-        height:
-            appGlobal.isTablet ? 260 : MediaQuery.of(context).size.width / 2,
+        height: appGlobal.isTablet ? 260 : MediaQuery.of(context).size.width / 2,
         child: CardProm02(_listPrLow),
       ),
     );
@@ -376,8 +370,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -499,7 +492,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                 const Text(
                   '안내',
                   style: TStyle.title20,
-                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -508,7 +500,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                   '베이직 계정에서는 3종목까지\n추가가 가능합니다.',
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -516,7 +507,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                 const Text(
                   '종목추가와 포켓을 마음껏 이용할 수 있는\n프리미엄 계정으로 업그레이드 해보세요.',
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -534,7 +524,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                         child: Text(
                           '프리미엄 가입하기',
                           style: TStyle.btnTextWht15,
-                          
                         ),
                       ),
                     ),
@@ -669,8 +658,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                                           horizontal: 12,
                                           vertical: 4,
                                         ),
-                                        decoration:
-                                            UIStyle.boxRoundFullColor25c(
+                                        decoration: UIStyle.boxRoundFullColor25c(
                                           Colors.black.withOpacity(0.5),
                                         ),
                                         child: Text(
@@ -703,8 +691,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       boxFit = BoxFit.fitHeight;
       try {
         int endSubStringInt = item.content.lastIndexOf('.');
-        String linkColorCode =
-            '0xff${item.content.substring(endSubStringInt - 6, endSubStringInt)}';
+        String linkColorCode = '0xff${item.content.substring(endSubStringInt - 6, endSubStringInt)}';
         bgColorInteger = int.parse(linkColorCode);
       } on FormatException {
         bgColorInteger = 0xffF3F4F8;
@@ -747,58 +734,42 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         navigateRefreshPay();
       } else if (prItem.linkPage == 'LPH7') {
         navigateRefreshPayPromotion(
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : const PayPremiumPromotionAosPage(),
+          Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad5'),
         );
       } else if (prItem.linkPage == 'LPH8') {
         navigateRefreshPayPromotion(
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : const PayPremiumPromotionAosPage(),
+          Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad4'),
         );
       } else if (prItem.linkPage == 'LPH9') {
         navigateRefreshPayPromotion(
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : const PayPremiumPromotionAosPage(),
+          Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
           PgData(data: 'ad3'),
         );
       } else if (prItem.linkPage == 'LPHA') {
         navigateRefreshPayPromotion(
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : const PayPremiumPromotionAosPage(),
+          Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
           PgData(data: 'at1'),
         );
       } else if (prItem.linkPage == 'LPHB') {
         navigateRefreshPayPromotion(
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : const PayPremiumPromotionAosPage(),
+          Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
           PgData(data: 'at2'),
         );
       } else if (prItem.linkPage == 'LPHE') {
         navigateRefreshPayPromotion(
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : const PayPremiumPromotionAosPage(),
+          Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
           PgData(data: 'new_6m_50'),
         );
       } else if (prItem.linkPage == 'LPHG') {
         navigateRefreshPayPromotion(
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : const PayPremiumPromotionAosPage(),
+          Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
           PgData(data: 'new_6m_70'),
         );
       } else if (prItem.linkPage == 'LPHF') {
         navigateRefreshPayPromotion(
-          Platform.isIOS
-              ? const PayPremiumPromotionPage()
-              : const PayPremiumPromotionAosPage(),
+          Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
           PgData(data: 'new_7d'),
         );
       } else if (prItem.linkPage.contains('LPQ')) {
@@ -812,11 +783,9 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         basePageState.goLandingPage(prItem.linkPage, '', '', '', '');
       }
     } else if (prItem.linkType == LD.linkTypeUrl) {
-      basePageState.goLandingPage(
-          LD.linkTypeUrl, prItem.linkPage, prItem.title, '', '');
+      basePageState.goLandingPage(LD.linkTypeUrl, prItem.linkPage, prItem.title, '', '');
     } else if (prItem.linkType == LD.linkTypeOutLink) {
-      basePageState.goLandingPage(
-          LD.linkTypeOutLink, prItem.linkPage, '', '', '');
+      basePageState.goLandingPage(LD.linkTypeOutLink, prItem.linkPage, '', '', '');
     } else {}
   }
 
@@ -847,7 +816,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                         child: Text(
                           prItem.title,
                           style: TStyle.defaultTitle,
-                          
+
                         ),
                       ),
                       const SizedBox(
@@ -898,7 +867,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                               child: Text(
                                 prItem.buttonTxt,
                                 style: TStyle.btnTextWht16,
-                                
+
                               ),
                             ),
                           ),
@@ -1005,8 +974,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   }*/
 
   //마케팅 팝업 (팝업 형식이 필요할때)
-  void _showDialogMarketing(
-      String title, String txtHtml, String btnText, String desUrl) {
+  void _showDialogMarketing(String title, String txtHtml, String btnText, String desUrl) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1029,7 +997,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                   Text(
                     title,
                     style: TStyle.defaultTitle,
-                    
                   ),
                   const SizedBox(
                     height: 15.0,
@@ -1037,8 +1004,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
 
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 15),
-                    padding:
-                        const EdgeInsets.only(left: 15, right: 10, top: 10),
+                    padding: const EdgeInsets.only(left: 15, right: 10, top: 10),
                     decoration: const BoxDecoration(
                       color: Color(0x55ccc9fe),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -1067,7 +1033,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                           child: Text(
                             btnText,
                             style: TStyle.btnTextWht16,
-                            
                           ),
                         ),
                       ),
@@ -1092,9 +1057,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                       Expanded(
                         child: Container(
                           decoration: const BoxDecoration(
-                            border: Border(
-                                right:
-                                    BorderSide(color: Colors.grey, width: 1)),
+                            border: Border(right: BorderSide(color: Colors.grey, width: 1)),
                           ),
                           child: MaterialButton(
                             child: const Text(
@@ -1103,8 +1066,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
                             ),
                             onPressed: () {
                               Navigator.pop(context);
-                              _prefs.setString(
-                                  Const.PREFS_DAY_CHECK_AD_HOME, _todayString);
+                              _prefs.setString(Const.PREFS_DAY_CHECK_AD_HOME, _todayString);
                             },
                           ),
                         ),
@@ -1373,8 +1335,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     //이 시간 종목캐치
     else if (trStr == TR.STKCATCH03) {
       _listCatch03.clear();
-      final TrStkCatch03 resData =
-          TrStkCatch03.fromJson(jsonDecode(response.body));
+      final TrStkCatch03 resData = TrStkCatch03.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData.isNotEmpty) {
           _listCatch03.addAll(resData.retData);
@@ -1387,8 +1348,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
             'userId': _userId,
           }));
     } else if (trStr == TR.COMPARE01) {
-      final TrCompare01 resData =
-          TrCompare01.fromJson(jsonDecode(response.body));
+      final TrCompare01 resData = TrCompare01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _compare01 = resData.retData;
       }
@@ -1412,7 +1372,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
-
         // 테스트를 위한 데이터 입니다.
         /*resData.retData.add(Prom02(
           title: 'dd',
@@ -1463,18 +1422,13 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         User04 data = resData.retData;
         DLog.d(SliverHomeWidget.TAG, data.accountData.toString());
 
-        if (data.accountData != null) {
-          final AccountData accountData = data.accountData;
-          accountData.initUserStatusAfterPayment();
+        final AccountData accountData = data.accountData;
+        accountData.initUserStatusAfterPayment();
 
-          if (Platform.isAndroid) {
-            if (appGlobal.isFreeUser) inAppBilling.requestPurchaseAsync();
-          }
-        } else {
-          //회원정보 가져오지 못함
-          const AccountData().setFreeUserStatus();
+        if (Platform.isAndroid) {
+          if (appGlobal.isFreeUser) inAppBilling.requestPurchaseAsync();
         }
-      } else {
+            } else {
         const AccountData().setFreeUserStatus();
       }
       setState(() {});
@@ -1543,8 +1497,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     }
 
     var url = Uri.parse(nUrl);
-    final http.Response response =
-        await http.post(url, headers: Net.think_headers, body: param);
+    final http.Response response = await http.post(url, headers: Net.think_headers, body: param);
 
     DLog.d(SliverHomeWidget.TAG, '${response.statusCode}');
     DLog.d(SliverHomeWidget.TAG, response.body);

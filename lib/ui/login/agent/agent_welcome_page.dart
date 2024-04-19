@@ -60,13 +60,14 @@ class _AgentWelcomePageState extends State<AgentWelcomePage> {
           children: [
             Expanded(
               child: Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 10, 30, 20),
+                  padding: const EdgeInsets.fromLTRB(30, 20, 30, 20),
                   child: _pageIndex == 0
                       ? const AgentWelcomeFirstPage()
                       : _pageIndex == 1
                           ? const AgentWelcomeSecondPage()
                           : const AgentWelcomeThirdPage()),
             ),
+
             InkWell(
               onTap: () {
                 if (_pageIndex >= 2) {
@@ -83,6 +84,7 @@ class _AgentWelcomePageState extends State<AgentWelcomePage> {
                 alignment: Alignment.center,
                 margin: const EdgeInsets.symmetric(
                   horizontal: 10,
+                  vertical: 10,
                 ),
                 decoration: UIStyle.boxRoundFullColor6c(
                   RColor.purpleBasic_6565ff,

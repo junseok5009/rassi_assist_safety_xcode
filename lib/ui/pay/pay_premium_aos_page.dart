@@ -22,7 +22,7 @@ import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
 import 'package:rassi_assist/ui/pay/premium_care_page.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/ui_style.dart';
@@ -107,12 +107,8 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
   @override
   void initState() {
     super.initState();
-    _isAgent = Provider.of<UserInfoProvider>(context, listen: false)
-            .getUser04
-            .agentData
-            .agentCode.isNotEmpty;
-    CustomFirebaseClass.logEvtScreenView(
-        PayPremiumAosPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
+    _isAgent = Provider.of<UserInfoProvider>(context, listen: false).getUser04.agentData.agentCode.isNotEmpty;
+    CustomFirebaseClass.logEvtScreenView(PayPremiumAosPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
     if (_isAgent) {
       setState(() {
         _listDivPayment[0] = true;
@@ -232,25 +228,21 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
           _bProgress = false;
         });
       } else if (status == 'pay_success') {
-        var userInfoProvider =
-            Provider.of<UserInfoProvider>(context, listen: false);
+        var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
         if (userInfoProvider.isPremiumUser() && context.mounted) {
           Navigator.popUntil(
             context,
             ModalRoute.withName('/base'),
           );
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const PremiumCarePage()));
-          CommonPopup.instance
-              .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         } else {
           Navigator.popUntil(
             context,
             ModalRoute.withName('/base'),
           );
-          CommonPopup.instance
-              .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         }
       } else {
         Navigator.popUntil(
@@ -323,9 +315,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                         ),
 
                         //구매안내
-                        Platform.isIOS ? _setPayInfo() : _setPayInfoAOS(),
-                        //이용약관, 개인정보처리방침(ios만 표시)
-                        Platform.isIOS ? _setTerms() : Container(),
+                        _setPayInfoAOS(),
                       ],
                     ),
                   ),
@@ -334,8 +324,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                   Container(
                     color: RColor.mainColor,
                     height: 70,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     child: InkWell(
                       child: const Center(
                         child: Text(
@@ -362,8 +351,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
                   children: [
                     Opacity(
                       opacity: 0.3,
-                      child:
-                          ModalBarrier(dismissible: false, color: Colors.grey),
+                      child: ModalBarrier(dismissible: false, color: Colors.grey),
                     ),
                     Center(
                       child: CircularProgressIndicator(),
@@ -454,11 +442,14 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         }
       },
       child: InkWell(
-        onTap: (){
+        onTap: () {
           commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}');
         },
         child: Container(
-          child: Image.network('https://files.thinkpool.com/rassi_signal/fav01.png', width: double.infinity,),
+          child: Image.network(
+            'https://files.thinkpool.com/rassi_signal/fav01.png',
+            width: double.infinity,
+          ),
         ),
       ),
     );
@@ -475,9 +466,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             child: Container(
-              decoration: _listDivPayment[1]
-                  ? UIStyle.boxSelectedLineMainColor()
-                  : UIStyle.boxUnSelectedLineMainGrey(),
+              decoration: _listDivPayment[1] ? UIStyle.boxSelectedLineMainColor() : UIStyle.boxUnSelectedLineMainGrey(),
               padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
               margin: const EdgeInsets.only(
                 bottom: 15,
@@ -547,9 +536,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             child: Container(
-              decoration: _listDivPayment[2]
-                  ? UIStyle.boxSelectedLineMainColor()
-                  : UIStyle.boxUnSelectedLineMainGrey(),
+              decoration: _listDivPayment[2] ? UIStyle.boxSelectedLineMainColor() : UIStyle.boxUnSelectedLineMainGrey(),
               padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
               margin: const EdgeInsets.only(
                 bottom: 15,
@@ -627,9 +614,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             child: Container(
-              decoration: _listDivPayment[3]
-                  ? UIStyle.boxSelectedLineMainColor()
-                  : UIStyle.boxUnSelectedLineMainGrey(),
+              decoration: _listDivPayment[3] ? UIStyle.boxSelectedLineMainColor() : UIStyle.boxUnSelectedLineMainGrey(),
               padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -810,7 +795,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "App Store 구매안내",
+            "안내",
             style: TStyle.commonTitle,
           ),
           const SizedBox(
@@ -950,8 +935,8 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '회원님을 위한 특별 할인 상품을 이용해 보세요.',
+          Text(
+            '${Provider.of<UserInfoProvider>(context, listen: false).getUser04.agentData.agentName}님이 회원님께 드리는 특별한 할인 혜택',
             style: TStyle.commonTitle,
           ),
           const SizedBox(
@@ -1093,16 +1078,20 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         } else {
           //베이직 계정
         }
-              setState(() {});
+        setState(() {});
       } else {
         const AccountData().setFreeUserStatus();
       }
-
       _fetchPosts(
-          TR.APP03,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-          }));
+        TR.APP03,
+        _isAgent
+            ? jsonEncode(<String, String>{'userId': _userId, 'payMethod': 'PM20'})
+            : jsonEncode(
+                <String, String>{
+                  'userId': _userId,
+                },
+              ),
+      );
     }
     //
     else if (trStr == TR.APP03) {
@@ -1114,14 +1103,14 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
           _listApp03.addAll(resData.retData!.listPaymentGuide);
           setState(() {});
         }
-        _fetchPosts(
-            TR.PROM02,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-              'viewPage': 'LPH1',
-              'promoDiv': '',
-            }));
       }
+      _fetchPosts(
+          TR.PROM02,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'viewPage': 'LPH1',
+            'promoDiv': '',
+          }));
     }
     //홍보
     else if (trStr == TR.PROM02) {

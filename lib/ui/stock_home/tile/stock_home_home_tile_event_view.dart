@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
@@ -19,13 +18,13 @@ import 'package:rassi_assist/provider/stock_home/stock_home_event_view_div_provi
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_expanded_view.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
-import 'package:rassi_assist/ui/common/only_web_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/recent_social_list_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/result_analyze_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_disclos_list_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_issue_page.dart';
 import 'package:rassi_assist/ui/stock_home/stock_home_tab.dart';
+import 'package:rassi_assist/ui/web/only_web_view.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 
 /// 2023.02.14_HJS
@@ -33,14 +32,12 @@ import 'package:skeleton_loader/skeleton_loader.dart';
 
 class StockHomeHomeTileEventView extends StatefulWidget {
   static String TAG = 'StockHomeHomeTileEventView';
-  static final GlobalKey<StockHomeHomeTileEventViewState> globalKey =
-      GlobalKey();
+  static final GlobalKey<StockHomeHomeTileEventViewState> globalKey = GlobalKey();
 
   StockHomeHomeTileEventView() : super(key: globalKey);
 
   @override
-  State<StockHomeHomeTileEventView> createState() =>
-      StockHomeHomeTileEventViewState();
+  State<StockHomeHomeTileEventView> createState() => StockHomeHomeTileEventViewState();
 }
 
 class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
@@ -61,13 +58,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
   int _eventDivSelectedIndex = 0;
   final List<Search12DivModel> _listEventChartDivModel = Search12DivModel().getListEvent();
 
-  final List<String> _listEventMoreStr = [
-    '종목이슈',
-    '소셜지수',
-    '자세한 차트',
-    '공시 모아',
-    '실적분석'
-  ];
+  final List<String> _listEventMoreStr = ['종목이슈', '소셜지수', '자세한 차트', '공시 모아', '실적분석'];
 
   // 이벤트 차트 변수
   String _eventChartOption = '{}';
@@ -146,9 +137,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                     onWebResourceError: (p0, p1) {
                       DLog.e('onWebResourceError p0 : $p0 / p1 : $p1');
                     },
-                    option: _stockHomeEventViewDivProvider.getIndex == 2
-                        ? _eventChartOption
-                        : _commonChartOption,
+                    option: _stockHomeEventViewDivProvider.getIndex == 2 ? _eventChartOption : _commonChartOption,
                     extraScript: '''
                   const upColor = 'red'; // 상승 봉 색깔
                   const upBorderColor = 'red'; // 상승 선 색깔
@@ -215,8 +204,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                     },
                   ),
                 ),
-                if (_beforeOpening &&
-                    _stockHomeEventViewDivProvider.getIndex == 0)
+                if (_beforeOpening && _stockHomeEventViewDivProvider.getIndex == 0)
                   Container(
                     alignment: Alignment.center,
                     color: RColor.bgBasic_fdfdfd,
@@ -225,8 +213,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                     ),
                     child: const Text('장 시작 전 입니다.'),
                   )
-                else if (_beforeChart &&
-                    _stockHomeEventViewDivProvider.getIndex == 0)
+                else if (_beforeChart && _stockHomeEventViewDivProvider.getIndex == 0)
                   Container(
                     alignment: Alignment.center,
                     color: RColor.bgBasic_fdfdfd,
@@ -242,8 +229,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                       ),
                     ),
                   )
-                else if (_stockHomeEventViewDivProvider.getIndex == 2 &&
-                    _isEventExist)
+                else if (_stockHomeEventViewDivProvider.getIndex == 2 && _isEventExist)
                   Container(
                     alignment: Alignment.center,
                     //color: RColor.bgBasic_fdfdfd,
@@ -373,7 +359,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                         {
                           // 커뮤니티
                           basePageState.callPageRouteData(
-                            RecentSocialListPage(),
+                            const RecentSocialListPage(),
                             PgData(
                               stockName: _appGlobal.stkName,
                               stockCode: _appGlobal.stkCode,
@@ -389,8 +375,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                             CustomNvRouteClass.createRoute(
                               OnlyWebViewPage(
                                 title: '',
-                                url:
-                                    'https://m.thinkpool.com/item/$_stockCode/chart',
+                                url: 'https://m.thinkpool.com/item/$_stockCode/chart',
                               ),
                             ),
                           );
@@ -412,7 +397,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                         {
                           // 실적발표
                           basePageState.callPageRouteData(
-                            ResultAnalyzePage(),
+                            const ResultAnalyzePage(),
                             PgData(
                               stockName: _appGlobal.stkName,
                               stockCode: _appGlobal.stkCode,
@@ -508,8 +493,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                         ),
                       ),
                       onTap: () {
-                        StockHomeTab.globalKey.currentState
-                            ?.showDelStockPopupAndResult(
+                        StockHomeTab.globalKey.currentState?.showDelStockPopupAndResult(
                           provider.getPockSn,
                         );
                       },
@@ -523,8 +507,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                           horizontal: 8,
                           vertical: 7,
                         ),
-                        decoration:
-                            UIStyle.boxRoundLine6LineColor(Colors.black),
+                        decoration: UIStyle.boxRoundLine6LineColor(Colors.black),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -549,8 +532,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                         ),
                       ),
                       onTap: () {
-                        StockHomeTab.globalKey.currentState
-                            ?.showAddStockLayerAndResult();
+                        StockHomeTab.globalKey.currentState?.showAddStockLayerAndResult();
                       },
                     );
                   }
@@ -647,8 +629,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                           Expanded(
                             child: provider.getTradingHaltYn == 'N'
                                 ? Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.baseline,
+                                    crossAxisAlignment: CrossAxisAlignment.baseline,
                                     textBaseline: TextBaseline.alphabetic,
                                     children: [
                                       Text(
@@ -664,29 +645,17 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                                         width: 5,
                                       ),
                                       Text(
-                                        _stockHomeEventViewDivProvider
-                                                    ?.getIndex ==
-                                                0
+                                        _stockHomeEventViewDivProvider.getIndex == 0
                                             ? ''
-                                            : _stockHomeEventViewDivProvider
-                                                        ?.getIndex ==
-                                                    1
+                                            : _stockHomeEventViewDivProvider.getIndex == 1
                                                 ? '(1개월 수익률)'
-                                                : _stockHomeEventViewDivProvider
-                                                            ?.getIndex ==
-                                                        2
+                                                : _stockHomeEventViewDivProvider.getIndex == 2
                                                     ? '(3개월 수익률)'
-                                                    : _stockHomeEventViewDivProvider
-                                                                ?.getIndex ==
-                                                            3
+                                                    : _stockHomeEventViewDivProvider.getIndex == 3
                                                         ? '(올해 수익률)'
-                                                        : _stockHomeEventViewDivProvider
-                                                                    ?.getIndex ==
-                                                                4
+                                                        : _stockHomeEventViewDivProvider.getIndex == 4
                                                             ? '(1년 수익률)'
-                                                            : _stockHomeEventViewDivProvider
-                                                                        ?.getIndex ==
-                                                                    5
+                                                            : _stockHomeEventViewDivProvider.getIndex == 5
                                                                 ? '(3년 수익률)'
                                                                 : '',
                                         style: const TextStyle(
@@ -695,11 +664,10 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                                       ),
                                     ],
                                   )
-                                : Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.baseline,
+                                : const Row(
+                                    crossAxisAlignment: CrossAxisAlignment.baseline,
                                     textBaseline: TextBaseline.alphabetic,
-                                    children: const [
+                                    children: [
                                       Text(
                                         '0  0.00%',
                                         style: TextStyle(
@@ -737,8 +705,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                                   CustomNvRouteClass.createRoute(
                                     OnlyWebViewPage(
                                       title: '',
-                                      url:
-                                          'https://m.thinkpool.com/item/$_stockCode/chart',
+                                      url: 'https://m.thinkpool.com/item/$_stockCode/chart',
                                     ),
                                   ),
                                 );
@@ -759,7 +726,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
   }
 
   Widget _setEventChartDateDivView(int index) {
-    if (_stockHomeEventViewDivProvider?.getIndex == index) {
+    if (_stockHomeEventViewDivProvider.getIndex == index) {
       return Container(
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.symmetric(
@@ -783,7 +750,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         onTap: () {
-          _stockHomeEventViewDivProvider?.setIndex(index);
+          _stockHomeEventViewDivProvider.setIndex(index);
           Provider.of<StockInfoProvider>(context, listen: false).postRequestDiv(
             _stockCode,
             _listChartDateDivModel[index].divCode,
@@ -875,8 +842,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
     _listPriceEventChart.asMap().forEach(
       (index, value) {
         //_eventChartData += '${double.parse(value.tp)},';
-        _eventChartData +=
-            '{value : ${double.tryParse(value.tp) ?? "''"}, value1: ${value.ec}, value2: [';
+        _eventChartData += '{value : ${double.tryParse(value.tp) ?? "''"}, value1: ${value.ec}, value2: [';
 
         for (var element in value.titleList) {
           _eventChartData += "'$element',";
@@ -911,9 +877,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
 
     var maxTpItem = _findMaxTpEventItem;
     bool isOffsetMax = (maxTpItem.index < _listPriceEventChart.length / 10) ||
-            (maxTpItem.index >
-                _listPriceEventChart.length -
-                    (_listPriceEventChart.length / 10))
+            (maxTpItem.index > _listPriceEventChart.length - (_listPriceEventChart.length / 10))
         ? true
         : false;
     _eventChartMarkPointData += '''
@@ -936,9 +900,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
 
     var minTpItem = _findMinTpEventItem;
     bool isOffsetMin = (minTpItem.index < _listPriceEventChart.length / 10) ||
-            (minTpItem.index >
-                _listPriceEventChart.length -
-                    (_listPriceEventChart.length / 10))
+            (minTpItem.index > _listPriceEventChart.length - (_listPriceEventChart.length / 10))
         ? true
         : false;
     _eventChartMarkPointData += '''
@@ -994,10 +956,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
       return _listPriceEventChart[0];
     } else {
       return _listPriceEventChart.reduce(
-        (curr, next) =>
-            (double.tryParse(curr.tp) ?? 0) > (double.tryParse(next.tp) ?? 0)
-                ? curr
-                : next,
+        (curr, next) => (double.tryParse(curr.tp) ?? 0) > (double.tryParse(next.tp) ?? 0) ? curr : next,
       );
     }
   }
@@ -1009,10 +968,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
       return _listPriceEventChart[0];
     } else {
       return _listPriceEventChart.reduce(
-        (curr, next) =>
-            (double.tryParse(curr.tp) ?? 0) > (double.tryParse(next.tp) ?? 0)
-                ? next
-                : curr,
+        (curr, next) => (double.tryParse(curr.tp) ?? 0) > (double.tryParse(next.tp) ?? 0) ? next : curr,
       );
     }
   }
@@ -1026,29 +982,24 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
     _commonChartXAxisData = '[';
     _listPriceCommonChart.asMap().forEach(
       (index, value) {
-        _commonChartData +=
-            '{value : ${double.tryParse(value.tp)}, value1: ${value.ec}, value2: [';
+        _commonChartData += '{value : ${double.tryParse(value.tp)}, value1: ${value.ec}, value2: [';
         for (var element in value.titleList) {
           _commonChartData += "'$element',";
         }
         //_commonChartData += "], lineStyle: { color: 'red', width: 15, }, },";
 
         _commonChartData += '],},';
-        _commonChartXAxisData +=
-            "'${_stockHomeEventViewDivProvider?.getIndex == 0 ? value.tt : value.td}',";
+        _commonChartXAxisData += "'${_stockHomeEventViewDivProvider.getIndex == 0 ? value.tt : value.td}',";
       },
     );
 
     if (_eventDivSelectedIndex == 0 && (_beforeOpening || _beforeChart)) {
     } else {
       var maxTpItem = _findMaxTpCommonItem;
-      bool isOffsetMax =
-          (maxTpItem.index < _listPriceCommonChart.length / 10) ||
-                  (maxTpItem.index >
-                      _listPriceCommonChart.length -
-                          (_listPriceCommonChart.length / 10))
-              ? true
-              : false;
+      bool isOffsetMax = (maxTpItem.index < _listPriceCommonChart.length / 10) ||
+              (maxTpItem.index > _listPriceCommonChart.length - (_listPriceCommonChart.length / 10))
+          ? true
+          : false;
       _commonChartMarkPointData += '''
     {        
       coord: [${maxTpItem.index}, ${maxTpItem.tp}],
@@ -1068,13 +1019,10 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
     ''';
 
       var minTpItem = _findMinTpCommonItem;
-      bool isOffsetMin =
-          (minTpItem.index < _listPriceCommonChart.length / 10) ||
-                  (minTpItem.index >
-                      _listPriceCommonChart.length -
-                          (_listPriceCommonChart.length / 10))
-              ? true
-              : false;
+      bool isOffsetMin = (minTpItem.index < _listPriceCommonChart.length / 10) ||
+              (minTpItem.index > _listPriceCommonChart.length - (_listPriceCommonChart.length / 10))
+          ? true
+          : false;
       _commonChartMarkPointData += '''
     {        
       coord: [${minTpItem.index}, ${minTpItem.tp}],
@@ -1094,10 +1042,10 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
     ''';
     }
 
-    if (_stockHomeEventViewDivProvider?.getIndex == 0 && !_beforeOpening) {
+    if (_stockHomeEventViewDivProvider.getIndex == 0 && !_beforeOpening) {
       _commonChartMarkLine = '''
     {
-      show: ${_stockHomeEventViewDivProvider?.getIndex == 0 ? 'true' : 'false'},
+      show: ${_stockHomeEventViewDivProvider.getIndex == 0 ? 'true' : 'false'},
       symbol: 'none',      
       label: {
         show: true,
@@ -1131,8 +1079,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
     //DLog.w('_commonChartXAxisData : $_commonChartXAxisData');
 
     double maxTp = double.tryParse(_findMaxTpCommonItem.tp) ?? 0;
-    _commonChartRightMargin = _stockHomeEventViewDivProvider.getIndex == 0 &&
-            (_beforeOpening || _beforeChart)
+    _commonChartRightMargin = _stockHomeEventViewDivProvider.getIndex == 0 && (_beforeOpening || _beforeChart)
         ? '5%'
         : maxTp > 1000000
             ? '20%'
@@ -1189,9 +1136,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
 
   int get _find1DEventHasTpCount {
     int count = 0;
-    _listPriceCommonChart
-        .takeWhile((value) => value.tp.isNotEmpty)
-        .forEach((element) {
+    _listPriceCommonChart.takeWhile((value) => value.tp.isNotEmpty).forEach((element) {
       count = element.index;
     });
     return count;
@@ -1437,10 +1382,10 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                       type: 'value',
                       position: 'right',
                       min: function (value) {
-                          return ${_stockHomeEventViewDivProvider?.getIndex != 0 ? 'value.min' : (double.tryParse(_findMinTpCommonItem.tp) ?? 0) > (double.tryParse(_commonChartPreClosePrice) ?? 0) ? '${double.tryParse(_commonChartPreClosePrice) ?? 0}' : 'value.min'} 
+                          return ${_stockHomeEventViewDivProvider.getIndex != 0 ? 'value.min' : (double.tryParse(_findMinTpCommonItem.tp) ?? 0) > (double.tryParse(_commonChartPreClosePrice) ?? 0) ? '${double.tryParse(_commonChartPreClosePrice) ?? 0}' : 'value.min'} 
                       },                      
                       max: function (value) {
-                          return ${_stockHomeEventViewDivProvider?.getIndex == 0 && !_beforeOpening && (double.tryParse(_commonChartPreClosePrice) ?? 0) > (double.tryParse(_findMaxTpCommonItem.tp) ?? 0) ? '${(double.tryParse(_commonChartPreClosePrice) ?? 0)}' : 'null'};  
+                          return ${_stockHomeEventViewDivProvider.getIndex == 0 && !_beforeOpening && (double.tryParse(_commonChartPreClosePrice) ?? 0) > (double.tryParse(_findMaxTpCommonItem.tp) ?? 0) ? '${(double.tryParse(_commonChartPreClosePrice) ?? 0)}' : 'null'};  
                       },
                       triggerEvent: true, 
                       show: true,
@@ -1529,10 +1474,8 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
         <String, String>{
           'userId': _userId,
           'stockCode': _stockCode,
-          'selectDiv':
-              _listChartDateDivModel[_stockHomeEventViewDivProvider.getIndex]
-                  .divCode,
-          if (_stockHomeEventViewDivProvider?.getIndex == 2)
+          'selectDiv': _listChartDateDivModel[_stockHomeEventViewDivProvider.getIndex].divCode,
+          if (_stockHomeEventViewDivProvider.getIndex == 2)
             'menuDiv': _listEventChartDivModel[_eventDivSelectedIndex].divCode,
         },
       ),
@@ -1544,17 +1487,17 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

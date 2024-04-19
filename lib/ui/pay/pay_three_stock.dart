@@ -18,7 +18,7 @@ import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/custom_firebase_class.dart';

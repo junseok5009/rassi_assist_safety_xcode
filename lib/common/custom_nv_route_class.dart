@@ -27,9 +27,9 @@ class CustomNvRouteClass {
   }
 
   //아래에서 위로 올라오는 페이지 네임이용
-  static Route createRouteName({required Widget instance, required String routeName,}) {
+  static Route createRouteName({required Widget instance, required String routeName, Object? arguments}) {
     return PageRouteBuilder(
-      settings: RouteSettings(name: routeName,),
+      settings: RouteSettings(name: routeName, arguments: arguments),
       pageBuilder: (context, animation, secondaryAnimation) => instance,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(0.0, 1.0);

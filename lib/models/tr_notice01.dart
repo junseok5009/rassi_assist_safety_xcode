@@ -15,14 +15,11 @@ class TrNotice01 {
   TrNotice01({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrNotice01.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Notice01>? rtList;
-    list == null ? rtList = null : rtList = list.map((i) => Notice01.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrNotice01(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      listData: list.map((i) => Notice01.fromJson(i)).toList(),
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => Notice01.fromJson(i)).toList(),
     );
   }
 }
@@ -44,11 +41,11 @@ class Notice01 {
 
   factory Notice01.fromJson(Map<String, dynamic> json) {
     return Notice01(
-        noticeSn: json['noticeSn'],
-        title: json['title'],
-        linkType: json['linkType'],
-        linkPage: json['linkPage'],
-        regDttm: json['regDttm']);
+        noticeSn: json['noticeSn'] ?? '',
+        title: json['title'] ?? '',
+        linkType: json['linkType'] ?? '',
+        linkPage: json['linkPage'] ?? '',
+        regDttm: json['regDttm'] ?? '');
   }
 }
 
@@ -76,26 +73,29 @@ class TileNotice01 extends StatelessWidget {
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
         child: Container(
           width: double.infinity,
-          height: 60,
+          height: 53,
           padding: const EdgeInsets.all(15.0),
-          child: Stack(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  item.title,
-                  style: TStyle.content16,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: FittedBox(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    item.title,
+                    style: TStyle.content16,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
-              const Align(
-                alignment: Alignment.centerRight,
-                child: ImageIcon(
-                  AssetImage('images/main_my_icon_arrow.png'),
-                  size: 20,
-                  // color: Colors.grey,
-                ),
+              const SizedBox(
+                width: 5,
+              ),
+              const ImageIcon(
+                AssetImage('images/main_my_icon_arrow.png'),
+                size: 20,
+                // color: Colors.grey,
               ),
             ],
           ),

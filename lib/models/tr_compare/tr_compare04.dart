@@ -32,14 +32,11 @@ class Compare04 {
   });
 
   factory Compare04.fromJson(Map<String, dynamic> json) {
-    var jsonStockList = json['list_Stock'] as List;
-    List<StockSalesInfo> vStockList;
-    if(jsonStockList != null) vStockList = jsonStockList.map((i) => StockSalesInfo.fromJson(i)).toList();
-
+    var jsonList = json['list_Stock'];
     return Compare04(
-      baseDate: json['baseDate'],
+      baseDate: json['baseDate'] ?? '',
       quarter: json['quarter'] ?? '',
-      listStock: jsonStockList.map((i) => StockSalesInfo.fromJson(i)).toList(),
+      listStock: jsonList == null ? [] : (jsonList as List).map((i) => StockSalesInfo.fromJson(i)).toList(),
     );
   }
 }

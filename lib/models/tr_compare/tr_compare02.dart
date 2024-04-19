@@ -60,21 +60,15 @@ class Compare02 {
   // }
 
   factory Compare02.fromJson(Map<String, dynamic> json) {
-    var list1 = json['list_StockGroup'] as List;
-    List<StockGroup>? stockGroupList;
-    if (list1 != null) stockGroupList = list1.map((i) => StockGroup.fromJson(i)).toList();
-
-    var list2 = json['list_Stock'] as List;
-    List<StockCompare02>? stockList;
-    if (list2 != null) stockList = list2.map((i) => StockCompare02.fromJson(i)).toList();
-
+    var jsonList1 = json['list_StockGroup'];
+    var jsonList2 = json['list_Stock'];
     return Compare02(
-      selectDiv: json['selectDiv'],
-      stockCode: json['stockCode'],
-      stockGrpCd: json['stockGrpCd'],
-      stockGrpNm: json['stockGrpNm'],
-      listStockGroup: list1.map((i) => StockGroup.fromJson(i)).toList(),
-      listStock: list2.map((i) => StockCompare02.fromJson(i)).toList(),
+      selectDiv: json['selectDiv'] ?? '',
+      stockCode: json['stockCode'] ?? '',
+      stockGrpCd: json['stockGrpCd'] ?? '',
+      stockGrpNm: json['stockGrpNm'] ?? '',
+      listStockGroup: jsonList1 == null ? [] : (jsonList1 as List).map((i) => StockGroup.fromJson(i)).toList(),
+      listStock: jsonList2 == null ? [] : (jsonList2 as List).map((i) => StockCompare02.fromJson(i)).toList(),
       baseDate: json['baseDate'] ?? '',
       year: json['year'] ?? '',
       quarter: json['quarter'] ?? '',

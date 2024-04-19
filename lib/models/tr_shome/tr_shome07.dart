@@ -25,12 +25,6 @@ class Shome07 {
     this.listStockContent=const[],
   });
 
-  Shome07.empty() {
-    stockCode = '';
-    stockName = '';
-    listStockContent = [];
-  }
-
   factory Shome07.fromJson(Map<String, dynamic> json) {
     return Shome07(
       stockCode: json['stockCode'] ?? '',
@@ -48,20 +42,17 @@ class Shome07StockContent {
   String title='';
   String content='';
   String updateDate='';
+  String linkUrl='';
+  String refMonth='';
 
   Shome07StockContent({
     this.contentDiv='',
     this.title='',
     this.content='',
     this.updateDate='',
+    this.linkUrl='',
+    this.refMonth=''
   });
-
-  Shome07StockContent.empty() {
-    contentDiv = '';
-    title = '';
-    content = '';
-    updateDate = '';
-  }
 
   factory Shome07StockContent.fromJson(Map<String, dynamic> json) {
     return Shome07StockContent(
@@ -69,6 +60,8 @@ class Shome07StockContent {
       title: json['title'] ?? '',
       content: json['content'] ?? '',
       updateDate: json['updateDate'] ?? '',
+      linkUrl: json['linkUrl'] ?? '',
+      refMonth: json['refMonth'] ?? '',
     );
   }
 }

@@ -13,8 +13,8 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_sns03.dart';
 import 'package:rassi_assist/models/tr_sns04.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
-import 'package:rassi_assist/ui/common/only_web_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/web/only_web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2021.02.15 - JY
@@ -23,6 +23,8 @@ class SocialListPage extends StatefulWidget {
   static const routeName = '/page_social_list';
   static const String TAG = "[SocialListPage]";
   static const String TAG_NAME = '오늘의_소셜지수_핫_종목';
+
+  const SocialListPage({super.key});
 
   @override
   State<StatefulWidget> createState() => SocialListPageState();
@@ -270,8 +272,8 @@ class SocialListPageState extends State<SocialListPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     Text(
                       '   현재 ',
                       style: TStyle.content15,
@@ -345,8 +347,8 @@ class SocialListPageState extends State<SocialListPage> {
         ),
         Visibility(
           visible: _snsEmpty,
-          child: Column(
-            children: const [
+          child: const Column(
+            children: [
               Text(
                 '현재 발생된 소셜지수 폭발\n종목이 없습니다.',
                 style: TStyle.defaultContent,
@@ -475,25 +477,5 @@ class SocialListPageState extends State<SocialListPage> {
         setState(() {});
       }
     }
-  }
-
-  //페이지 전환 에니메이션 (데이터 전달)
-  Route _createRouteData(Widget instance, RouteSettings settings) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      settings: settings,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween = Tween(begin: begin, end: end)
-            .chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    );
   }
 }

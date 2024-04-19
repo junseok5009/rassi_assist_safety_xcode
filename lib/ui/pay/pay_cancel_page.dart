@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -15,38 +14,22 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_order05.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/pay/pay_web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2021.12.15
 /// 결제 해지/환불 정보
-class PayCancelPage extends StatelessWidget {
+class PayCancelPage extends StatefulWidget {
   static const routeName = '/page_pay_cancel';
   static const String TAG = "[PayCancelPage]";
   static const String TAG_NAME = '결제해지환불';
 
   @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepStat,
-          elevation: 0,
-        ),
-        body: PayCancelWidget(),
-      ),
-    );
-  }
+  State<StatefulWidget> createState() => PayCancelPageState();
 }
 
-class PayCancelWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => PayCancelState();
-}
-
-class PayCancelState extends State<PayCancelWidget> {
+class PayCancelPageState extends State<PayCancelPage> {
   var appGlobal = AppGlobal();
 
   late SharedPreferences _prefs;
@@ -73,29 +56,25 @@ class PayCancelState extends State<PayCancelWidget> {
   @override
   void initState() {
     super.initState();
-
     _loadPrefData().then((_) {
-      DLog.d(PayCancelPage.TAG, "delayed user id : $_userId");
-      DLog.d(PayCancelPage.TAG, "delayed orderSn : $_orderSn");
-
-      if (_userId != '') {
-        _fetchPosts(
-            TR.ORDER05,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-              'orderSn': _orderSn,
-            }));
-      }
+      Future.delayed(Duration.zero, () async {
+        args = ModalRoute.of(context)!.settings.arguments as PgData;
+        _orderSn = args.pgSn;
+        if (_userId != '') {
+          _fetchPosts(
+              TR.ORDER05,
+              jsonEncode(<String, String>{
+                'userId': _userId,
+                'orderSn': _orderSn,
+              }));
+        }
+      });
     });
   }
 
-  //저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    _orderSn = args.pgSn;
-    setState(() {});
   }
 
   @override
@@ -108,7 +87,8 @@ class PayCancelState extends State<PayCancelWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _setAppBar(),
+      backgroundColor: RColor.bgBasic_fdfdfd,
+      appBar: CommonAppbar.simpleWithExit(context, '해지하기', Colors.black, RColor.bgBasic_fdfdfd, Colors.black,),
       body: SafeArea(
         child: ListView(
           children: [
@@ -130,28 +110,6 @@ class PayCancelState extends State<PayCancelWidget> {
           ],
         ),
       ),
-    );
-  }
-
-  PreferredSizeWidget _setAppBar() {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: Colors.white,
-      shadowColor: Colors.white,
-      elevation: 0,
-      title: const Text(
-        '해지하기',
-        style: TStyle.title17,
-      ),
-      actions: [
-        IconButton(
-            icon: const Icon(Icons.close),
-            color: Colors.black,
-            onPressed: () {
-              Navigator.of(context).pop('cancel');
-            }),
-        const SizedBox(width: 10),
-      ],
     );
   }
 

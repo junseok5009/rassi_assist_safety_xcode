@@ -771,6 +771,16 @@ class TStyle {
     return '';
   }
 
+  //날짜 형식 표시 (2024년 03월)
+  static String getDateLongYmKorFormat(String date) {
+    String rtStr = '';
+    if (date.length >= 6) {
+      rtStr = '${date.substring(0, 4)}년 ${date.substring(5)}월';
+      return rtStr;
+    }
+    return '';
+  }
+
   //날짜 형식 표시 (05월 05일)
   static String getDateMdKorFormat(String date) {
     String rtStr = '';

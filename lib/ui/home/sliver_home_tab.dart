@@ -68,6 +68,7 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
         child: DefaultTabController(
           initialIndex: initIndex,
           length: _tabs.length,
+
           child: _setNestedScrollView(),
         ),
       ),
@@ -345,6 +346,7 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
   //하단 탭뷰
   Widget _setTabView() {
     return TabBarView(
+
       children: [
         RefreshIndicator(
           //key: refreshKey,

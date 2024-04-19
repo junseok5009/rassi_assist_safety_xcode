@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rassi_assist/models/tr_shome/tr_shome07.dart';
 import 'package:rassi_assist/ui/home/sliver_home_tab.dart';
 import 'package:rassi_assist/ui/login/agent/agent_sign_up_page.dart';
 import 'package:rassi_assist/ui/login/agent/agent_welcome_page.dart';
@@ -38,6 +39,7 @@ import 'package:rassi_assist/ui/signal/signal_today_page.dart';
 import 'package:rassi_assist/ui/signal/signal_top_m_page.dart';
 import 'package:rassi_assist/ui/signal/signal_top_page.dart';
 import 'package:rassi_assist/ui/signal/signal_wait_stock.dart';
+import 'package:rassi_assist/ui/stock_home/page/stock_company_overview_page.dart';
 import 'package:rassi_assist/ui/stock_home/stock_home_tab.dart';
 import 'package:rassi_assist/ui/sub/ai_version_page.dart';
 import 'package:rassi_assist/ui/sub/condition_page.dart';
@@ -49,8 +51,7 @@ import 'package:rassi_assist/ui/sub/stk_catch_big.dart';
 import 'package:rassi_assist/ui/sub/stk_catch_top.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/sub/theme_search.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
-import 'package:rassi_assist/ui/sub/web_viewer.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:rassi_assist/ui/test/notification_setting.dart';
 import 'package:rassi_assist/ui/test/test_page.dart';
 import 'package:rassi_assist/ui/test/theme_list_page.dart';
@@ -61,10 +62,13 @@ import 'package:rassi_assist/ui/user/terms_page.dart';
 import 'package:rassi_assist/ui/user/user_center_page.dart';
 import 'package:rassi_assist/ui/user/user_info_page.dart';
 import 'package:rassi_assist/ui/user/write_qna_page.dart';
+import 'package:rassi_assist/ui/web/web_viewer.dart';
 
 import '../ui/sub/trade_intro_page.dart';
 
 final routes = {
+
+  BasePage.routeName: (BuildContext context) => const BasePage(),
 
   IntroPage.routeName: (BuildContext context) => const IntroPage(),
   IntroStartPage.routeName: (BuildContext context) => const IntroStartPage(),
@@ -74,8 +78,6 @@ final routes = {
   AgentSignUpPage.routeName: (BuildContext context) => const AgentSignUpPage(),
   // 에이전트 웰컴
   AgentWelcomePage.routeName: (BuildContext context) => const AgentWelcomePage(),
-
-  BasePage.routeName: (BuildContext context) => const BasePage(),
 
   // 메인_홈
   '/main_home': (BuildContext context) => const SliverHomeTabWidget(),
@@ -87,6 +89,9 @@ final routes = {
 
   // 메인_MY
   '/main_my': (BuildContext context) => MyPage(),
+
+  // 종목홈_챗GPT기업개요
+  StockCompanyOverviewPage.routeName: (BuildContext context,) => const StockCompanyOverviewPage(),
 
   TradeAssistPage.routeName: (BuildContext context) => const TradeAssistPage(),
   MyPage.routeName: (BuildContext context) => MyPage(),
@@ -109,22 +114,22 @@ final routes = {
   ConditionPage.routeName: (BuildContext context) => const ConditionPage(),
   StkCatchBigPage.routeName: (BuildContext context) => const StkCatchBigPage(),
   StkCatchTopPage.routeName: (BuildContext context) => const StkCatchTopPage(),
-  ThemeListPage.routeName: (BuildContext context) => ThemeListPage(),
-  ThemeViewer.routeName: (BuildContext context) => ThemeViewer(),
+  ThemeListPage.routeName: (BuildContext context) => const ThemeListPage(),
+  ThemeViewer.routeName: (BuildContext context) => const ThemeViewer(),
   ThemeSearch.routeName: (BuildContext context) => ThemeSearch(),
   ThemeHotPage.routeName: (BuildContext context) => const ThemeHotPage(),
 
 
-  IntroSearchPage.routeName: (BuildContext context) => IntroSearchPage(),
+  IntroSearchPage.routeName: (BuildContext context) => const IntroSearchPage(),
   //LoginDivisionPage.routeName: (BuildContext context) => LoginDivisionPage(),
   RassiLoginPage.routeName: (BuildContext context) => const RassiLoginPage(),
-  RassiJoinPage.routeName: (BuildContext context) => RassiJoinPage(),
+  RassiJoinPage.routeName: (BuildContext context) => const RassiJoinPage(),
   //SsgJoinPage.routeName: (BuildContext context) => SsgJoinPage(),
   //JoinNaverPage.routeName: (BuildContext context) => JoinNaverPage(),
   //JoinKakaoPage.routeName: (BuildContext context) => JoinKakaoPage(),
   JoinPhonePage.routeName: (BuildContext context) => const JoinPhonePage(),
-  JoinCertPage.routeName: (BuildContext context) => JoinCertPage(),
-  JoinPreUserPage.routeName: (BuildContext context) => JoinPreUserPage(),
+  JoinCertPage.routeName: (BuildContext context) => const JoinCertPage(),
+  JoinPreUserPage.routeName: (BuildContext context) => const JoinPreUserPage(),
 
   SignalTopPage.routeName: (BuildContext context) => SignalTopPage(),
   SignalTodayPage.routeName: (BuildContext context) => const SignalTodayPage(),
@@ -139,7 +144,7 @@ final routes = {
   // 23.04.18 종목 홈 개편
   StockHomeTab.routeName: (BuildContext context) => StockHomeTab(),
 
-  SocialListPage.routeName: (BuildContext context) => SocialListPage(),
+  SocialListPage.routeName: (BuildContext context) => const SocialListPage(),
   CatchListPage.routeName: (BuildContext context) => const CatchListPage(),
   NewsListPage.routeName: (BuildContext context) => const NewsListPage(),
   NewsViewer.routeName: (BuildContext context) => const NewsViewer(),

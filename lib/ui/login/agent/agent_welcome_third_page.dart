@@ -18,7 +18,7 @@ class AgentWelcomeThirdPage extends StatelessWidget {
           const SizedBox(
             height: 30,
           ),
-          Align(
+          const Align(
             alignment: Alignment.topCenter,
             child: Text(
               '확인하세요!',
@@ -47,8 +47,10 @@ class AgentWelcomeThirdPage extends StatelessWidget {
                   const SizedBox(
                     height: 5,
                   ),
-                  setContentTextWidget('주식시장에서 100%는 없습니다. 그렇기 때문에 라씨 매매비서도 수익률을 보장하지는 않습니다. '
-                      '그러나 라씨 매매비서는 백데스트 기간 5년, 실전매매 기간 3년 동안 시장대비 종목별로 평균 +**%의 수익률을 달성하였습니다.'),
+                  setContentTextWidget('라씨 매매비서의 수익률이 미래의 수익률을 보장하지 않습니다. '
+                      '그러나 라씨 매매비서가 개발 운영 되었던 2015년 이후로 종목당 평균 수익률은 103% 같은 기간 코스피지수 35%에 3배이며, '
+                      '같은 기간 단 한해도 마이너스 수익률을 기록한 적은 없습니다. '
+                      '지수가 25% 빠졌던 2022년도에도 라씨 매매비서는 플러스 수익률을 기록하였습니다. (수익률 산정 기간 2015.01 ~ 2024.03)'),
                   const SizedBox(
                     height: 15,
                   ),
@@ -65,8 +67,8 @@ class AgentWelcomeThirdPage extends StatelessWidget {
                   const SizedBox(
                     height: 5,
                   ),
-                  setContentTextWidget('앱 내 모든 정보는 무단 복사 및 전재를 하실 수 없으며, '
-                      '또한 모든 정보는 오류 및 지연이 있을 수 있습니다.'),
+                  setContentTextWidget('앱 내 모든 정보는 무단 복사 및 전재를 하실 수 없으며 '
+                      '라씨 매매비서는 정보 제공에 최선을 다하나 모든 정보에는 오류 및 지연이 있을 수 있습니다.'),
                 ],
               ),
             ),
@@ -79,7 +81,7 @@ class AgentWelcomeThirdPage extends StatelessWidget {
   Widget setTitleTextWidget(String title) {
     return Text(
       title,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
       ),
@@ -89,7 +91,7 @@ class AgentWelcomeThirdPage extends StatelessWidget {
   Widget setContentTextWidget(String content) {
     return Text(
       content,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 16,
       ),
     );

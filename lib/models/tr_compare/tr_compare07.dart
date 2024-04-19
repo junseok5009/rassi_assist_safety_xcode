@@ -18,33 +18,6 @@ class TrCompare07 {
   }
 }
 
-/*class StockGroupFluct {
-  final String stockGrpCd;
-  final String stockGrpNm;
-  final String groupfluctRate;
-  final List<StockData> listStock;
-
-  StockGroupFluct({this.stockGrpCd, this.stockGrpNm, this.groupfluctRate, this.listStock});
-
-  factory StockGroupFluct.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Stock'] as List;
-    List<StockData> rtList;
-    if(list != null) rtList = list.map((i) => StockData.fromJson(i)).toList();
-
-    return StockGroupFluct(
-      stockGrpCd: json['stockGrpCd'] ?? '',
-      stockGrpNm: json['stockGrpNm'] ?? '',
-      groupfluctRate: json['groupfluctRate'] ?? '',
-      listStock: rtList,
-    );
-  }
-
-  @override
-  String toString() {
-    return '$stockGrpCd|$stockGrpNm|$groupfluctRate|${listStock.toString()}}';
-  }
-}*/
-
 const defCompare07 = Compare07();
 
 class Compare07 {
@@ -60,8 +33,6 @@ class Compare07 {
 
   factory Compare07.fromJson(Map<String, dynamic> json) {
     var list = json['list_StockGroup'] as List;
-    List<StockGroup>? rtList;
-    if(list != null) rtList = list.map((i) => StockGroup.fromJson(i)).toList();
 
     return Compare07(
       stockCode: json['stockCode'],

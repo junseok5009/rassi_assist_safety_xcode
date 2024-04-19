@@ -226,6 +226,69 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                         children: [
                           Expanded(
                             child: InkWell(
+                              onTap: () async {
+                                var result = await CommonLayer.instance.showLayerMyPocket(
+                                  context,
+                                  _pocket.pktSn,
+                                );
+                                if (context.mounted) {
+                                  if (result == CustomNvRouteResult.landPremiumPopup) {
+                                    String result = await CommonPopup.instance.showDialogPremium(context);
+                                    if (result == CustomNvRouteResult.landPremiumPage) {
+                                      basePageState.navigateAndGetResultPayPremiumPage();
+                                    }
+                                  } else if (result == CustomNvRouteResult.landing) {
+                                    Future.delayed(const Duration(milliseconds: 300), () async {
+                                      // 포켓 설정
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const PocketSettingPage(),
+                                        ),
+                                      );
+                                    });
+                                  } else if (result == CustomNvRouteResult.cancel) {
+                                    reload();
+                                  } else {
+                                    int resultPktIndex =
+                                    _pocketProvider.getPocketListIndexByPocketSn(result);
+                                    if (resultPktIndex != -1) {
+                                      _pocket = _pocketProvider.getPocketList[resultPktIndex];
+                                      reload(changePocketSn: _pocket.pktSn);
+                                    } else {
+                                      reload();
+                                    }
+                                  }
+                                }
+                              },
+                              child: Container(
+                                decoration: UIStyle.boxRoundLine6bgColor(
+                                  RColor.bgBasic_fdfdfd,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'images/icon_up_dn_black.png',
+                                      height: 16,
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    const Text('이동'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: InkWell(
                               onTap: () {
                                 // 포켓 설정
                                 Navigator.push(
@@ -253,14 +316,14 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                     const SizedBox(
                                       width: 10,
                                     ),
-                                    const Text('포켓설정'),
+                                    const Text('설정'),
                                   ],
                                 ),
                               ),
                             ),
                           ),
                           const SizedBox(
-                            width: 15,
+                            width: 10,
                           ),
                           Expanded(
                             child: InkWell(
@@ -292,7 +355,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                       width: 10,
                                     ),
                                     const Text(
-                                      '종목추가',
+                                      '추가',
                                       style: TextStyle(
                                           //fontSize: 14,
                                           ),

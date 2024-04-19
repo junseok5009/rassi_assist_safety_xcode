@@ -42,25 +42,21 @@ class SignalProvider with ChangeNotifier {
 
     // 23.12.08 나만의 신호 리스트 / retrun [list / [] / null]
     Pocket13 getPocket13 = await SignalProviderNetwork.instance.getPocket13();
-    if (getPocket13 == null) {
-      return false;
-    } else {
-      _pocket13.tradeDate = getPocket13.tradeDate;
-      _pocket13.timeDivTxt = getPocket13.timeDivTxt;
-      _pocket13.tradeTime = getPocket13.tradeTime;
-      _pocket13.stkList.clear();
-      _pocket13.stkList.addAll(getPocket13.stkList);
-      notifyListeners();
-      return true;
+    _pocket13.tradeDate = getPocket13.tradeDate;
+    _pocket13.timeDivTxt = getPocket13.timeDivTxt;
+    _pocket13.tradeTime = getPocket13.tradeTime;
+    _pocket13.stkList.clear();
+    _pocket13.stkList.addAll(getPocket13.stkList);
+    notifyListeners();
+    return true;
     }
-  }
 
   // 23.12.08 나만의 신호 등록 / return [refresh / fail / retMsg]
   Future<String> addSignal(Stock newStock, String buyPrice) async {
     //return [refresh / fail / retMsg]
     String result =
         await SignalProviderNetwork.instance.addSignal(newStock.stockCode, buyPrice);
-    if (result != null && result == CustomNvRouteResult.refresh) {
+    if (result == CustomNvRouteResult.refresh) {
       await CustomFirebaseClass.logEvtMySignalAdd(newStock.stockName, newStock.stockCode);
       bool result = await setList();
       if (result) {
@@ -79,7 +75,7 @@ class SignalProvider with ChangeNotifier {
     //return [refresh / fail / retMsg]
     String result = await SignalProviderNetwork.instance
         .changeSignalS(pocketSn, stockCode, buyPrice);
-    if (result != null && result == CustomNvRouteResult.refresh) {
+    if (result == CustomNvRouteResult.refresh) {
       bool result = await setList();
       if (result) {
         return CustomNvRouteResult.refresh;
@@ -96,7 +92,7 @@ class SignalProvider with ChangeNotifier {
       String pocketSn, String stockCode, String buyPrice) async {
     String result = await SignalProviderNetwork.instance
         .changeSignalP(pocketSn, stockCode, buyPrice);
-    if (result != null && result == CustomNvRouteResult.refresh) {
+    if (result == CustomNvRouteResult.refresh) {
       bool result = await setList();
       if (result) {
         return CustomNvRouteResult.refresh;
@@ -112,7 +108,7 @@ class SignalProvider with ChangeNotifier {
   Future<String> delSignalS(String pocketSn, String stockCode) async {
     String result =
         await SignalProviderNetwork.instance.delSignalS(pocketSn, stockCode);
-    if (result != null && result == CustomNvRouteResult.refresh) {
+    if (result == CustomNvRouteResult.refresh) {
       bool result = await setList();
       if (result) {
         return CustomNvRouteResult.refresh;
@@ -128,7 +124,7 @@ class SignalProvider with ChangeNotifier {
   Future<String> delSignalP(String pocketSn, String stockCode) async {
     String result =
         await SignalProviderNetwork.instance.delSignalP(pocketSn, stockCode);
-    if (result != null && result == CustomNvRouteResult.refresh) {
+    if (result == CustomNvRouteResult.refresh) {
       bool result = await setList();
       if (result) {
         return CustomNvRouteResult.refresh;

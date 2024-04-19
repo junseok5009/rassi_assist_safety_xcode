@@ -17,16 +17,11 @@ class TrFind01 extends TrAtom {
       : super(retCode: retCode, retMsg: retMsg);
 
   factory TrFind01.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Find01>? rtList;
-    list != null
-        ? rtList = list.map((i) => Find01.fromJson(i)).toList()
-        : rtList = null;
-
+    var jsonList = json['retData'];
     return TrFind01(
         retCode: json['retCode'],
         retMsg: json['retMsg'],
-        listData: list.map((i) => Find01.fromJson(i)).toList()
+        listData: jsonList == null ? [] : (jsonList as List).map((i) => Find01.fromJson(i)).toList()
     );
   }
 }
@@ -141,7 +136,7 @@ class TileFind01 extends StatelessWidget {
 class TileFindV01 extends StatelessWidget {
   final Find01 item;
 
-  TileFindV01(this.item);
+  const TileFindV01(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +153,7 @@ class TileFindV01 extends StatelessWidget {
       ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

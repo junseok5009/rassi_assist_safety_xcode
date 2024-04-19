@@ -42,8 +42,9 @@ class InappWebviewPage extends StatefulWidget {
       thirdPartyCookiesEnabled: true,
       allowFileAccess: true,
       supportMultipleWindows: true,
-      builtInZoomControls: false,
+      builtInZoomControls: true,
       useWideViewPort: true,
+
     ),
     ios: IOSInAppWebViewOptions(
       allowsInlineMediaPlayback: true,
@@ -73,9 +74,15 @@ class _InappWebviewPageState extends State<InappWebviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        return _onBackKeyAos();
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        DLog.e('didPop : $didPop');
+        if (didPop) {
+          return;
+        } else {
+          Navigator.of(context).pop();
+        }
       },
       child: Scaffold(
         appBar: PreferredSize(
@@ -93,7 +100,7 @@ class _InappWebviewPageState extends State<InappWebviewPage> {
                   if (Platform.isAndroid) {
                     await _onBackKeyAos();
                   }
-                  if (mounted) {
+                  if (context.mounted) {
                     Navigator.pop(context);
                   }
               },

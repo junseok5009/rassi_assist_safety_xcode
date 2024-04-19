@@ -4,9 +4,9 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tag_info.dart';
-import 'package:rassi_assist/ui/common/only_web_view.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
 import 'package:rassi_assist/ui/news/news_viewer.dart';
+import 'package:rassi_assist/ui/web/only_web_view.dart';
 
 import '../common/custom_nv_route_class.dart';
 
@@ -23,24 +23,23 @@ class Rassiro {
   final String imageUrl;
 
   // TR_RASSIRO06 땡정보 + 실시간 특징주 추가
-  final String
-      linkUrl; // TR_RASSIRO06 땡정보 (태그별 AI속보 리스트 > 실시간 특징주) : 랜딩페이지 링크 주소
+  final String linkUrl; // TR_RASSIRO06 땡정보 (태그별 AI속보 리스트 > 실시간 특징주) : 랜딩페이지 링크 주소
   final String currentPrice; // 관련 종목 현재 가격
-  final fluctuationRate; // 관련 종목 등락
+  final String fluctuationRate; // 관련 종목 등락
 
   Rassiro({
     this.newsDiv = '',
-      this.newsSn = '',
-      this.newsCrtDate = '',
-      this.issueDttm = '',
-      this.title = '',
-      this.viewLinkYn = '',
-      this.stockCode = '',
-      this.stockName = '',
-      this.imageUrl = '',
-      this.linkUrl = '',
-      this.currentPrice = '',
-      this.fluctuationRate = '',
+    this.newsSn = '',
+    this.newsCrtDate = '',
+    this.issueDttm = '',
+    this.title = '',
+    this.viewLinkYn = '',
+    this.stockCode = '',
+    this.stockName = '',
+    this.imageUrl = '',
+    this.linkUrl = '',
+    this.currentPrice = '',
+    this.fluctuationRate = '',
   });
 
   bool isEmpty() {
@@ -93,7 +92,9 @@ class TileRassiroList extends StatelessWidget {
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 10,),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+          ),
           child: Row(
             children: [
               Expanded(
@@ -138,8 +139,7 @@ class TileRassiroList extends StatelessWidget {
           );
           if (context.mounted) {
             if (result is Tag) {
-              NewsTagPageState? parent =
-                  context.findAncestorStateOfType<NewsTagPageState>();
+              NewsTagPageState? parent = context.findAncestorStateOfType<NewsTagPageState>();
               Tag item = result;
               parent?.tagName = item.tagName;
               parent?.tagCode = item.tagCode;
@@ -152,37 +152,6 @@ class TileRassiroList extends StatelessWidget {
           }
         },
       ),
-    );
-  }
-
-  Widget _setNetImage(String sUrl) {
-    if (sUrl == null) {
-      return const Visibility(visible: false, child: Text(''));
-    } else {
-      return Image.network(
-        sUrl,
-        width: 45,
-      );
-    }
-  }
-
-  //페이지 전환 에니메이션 (데이터 전달)
-  Route _createRouteData(Widget instance, RouteSettings settings) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      settings: settings,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
     );
   }
 }
@@ -241,8 +210,7 @@ class TileRassiroFeatureList extends StatelessWidget {
                         ),
                         Visibility(
                           visible: int.parse(DateTime.now()
-                                  .difference(DateTime.parse(
-                                      item.issueDttm.substring(0, 8)))
+                                  .difference(DateTime.parse(item.issueDttm.substring(0, 8)))
                                   .inDays
                                   .toString()) ==
                               0,
@@ -300,45 +268,13 @@ class TileRassiroFeatureList extends StatelessWidget {
           width: 6,
         ),
         Visibility(
-          visible: rassiro.currentPrice.isNotEmpty &&
-              rassiro.fluctuationRate.isNotEmpty,
+          visible: rassiro.currentPrice.isNotEmpty && rassiro.fluctuationRate.isNotEmpty,
           child: Text(
             TStyle.getPercentString(rassiro.fluctuationRate),
             style: TStyle.purpleThinStyle(),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _setNetImage(String sUrl) {
-    if (sUrl == null) {
-      return const Visibility(visible: false, child: Text(''));
-    } else {
-      return Image.network(
-        sUrl,
-        width: 45,
-      );
-    }
-  }
-
-  //페이지 전환 에니메이션 (데이터 전달)
-  Route _createRouteData(Widget instance, RouteSettings settings) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      settings: settings,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
     );
   }
 }

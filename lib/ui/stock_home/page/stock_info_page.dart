@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -10,6 +9,9 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_shome/tr_shome04.dart';
+import 'package:rassi_assist/models/tr_shome/tr_shome07.dart';
+import 'package:rassi_assist/ui/stock_home/page/stock_company_overview_page.dart';
+import 'package:rassi_assist/ui/web/only_web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../common/custom_firebase_class.dart';
@@ -17,7 +19,6 @@ import '../../../../common/net.dart';
 import '../../../../common/tstyle.dart';
 import '../../../models/tr_shome/tr_shome06.dart';
 import '../../common/common_popup.dart';
-import '../../common/only_web_view.dart';
 
 /// 2023.02.22_HJS
 /// 종목정보 페이지
@@ -95,19 +96,16 @@ class _StockInfoPageState extends State<StockInfoPage> {
     CustomFirebaseClass.logEvtScreenView(
       StockInfoPage.TAG_NAME,
     );
-    _loadPrefData().then((_) =>
-    {
-      Future.delayed(Duration.zero, () {
-        PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
-        if (_userId != '' &&
-            pgData.stockCode != null &&
-            pgData.stockCode.isNotEmpty) {
-          _stkName = pgData.stockName;
-          _stkCode = pgData.stockCode;
-          _requestTrAll();
-        }
-      }),
-    });
+    _loadPrefData().then((_) => {
+          Future.delayed(Duration.zero, () {
+            PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
+            if (_userId != '' && pgData.stockCode.isNotEmpty) {
+              _stkName = pgData.stockName;
+              _stkCode = pgData.stockCode;
+              _requestTrAll();
+            }
+          }),
+        });
   }
 
   @override
@@ -128,21 +126,18 @@ class _StockInfoPageState extends State<StockInfoPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        toolbarHeight:
-        _shome04stock.bizOverview.isNotEmpty && _shome06.content.isNotEmpty
+        toolbarHeight: _shome04stock.bizOverview.isNotEmpty && _shome06.content.isNotEmpty
             ? 130
             : _shome06.content.isNotEmpty
-            ? 110
-            : _shome04stock.bizOverview.isNotEmpty
-            ? 80
-            : 50,
+                ? 110
+                : _shome04stock.bizOverview.isNotEmpty
+                    ? 80
+                    : 50,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              _stkName.length > 8
-                  ? '${_stkName.substring(0, 8)} 종목정보'
-                  : '$_stkName 종목정보',
+              _stkName.length > 8 ? '${_stkName.substring(0, 8)} 종목정보' : '$_stkName 종목정보',
               style: TStyle.title20,
             ),
             IconButton(
@@ -217,8 +212,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
                         Row(
                           children: [
                             Visibility(
-                              visible: _shome04stock.tradingHaltYn != null &&
-                                  _shome04stock.tradingHaltYn == 'Y',
+                              visible: _shome04stock.tradingHaltYn == 'Y',
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 4,
@@ -235,15 +229,13 @@ class _StockInfoPageState extends State<StockInfoPage> {
                               ),
                             ),
                             Visibility(
-                              visible: _shome04stock.investStatus != null &&
-                                  _shome04stock.investStatus.isNotEmpty,
+                              visible: _shome04stock.investStatus.isNotEmpty,
                               child: const SizedBox(
                                 width: 5,
                               ),
                             ),
                             Visibility(
-                              visible: _shome04stock.investStatus != null &&
-                                  _shome04stock.investStatus.isNotEmpty,
+                              visible: _shome04stock.investStatus.isNotEmpty,
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 4,
@@ -282,43 +274,37 @@ class _StockInfoPageState extends State<StockInfoPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
-                                'images/icon_chat_gpt_logo.jpg',
+                                'images/icon_shome07_1.png',
                                 width: 18,
                                 height: 18,
                               ),
+                              const SizedBox(width: 4,),
                               const Text(
-                                ' 챗GPT가 요약한',
+                                ' 챗GPT가 요약한 사업 개요',
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                 ),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  ' $_stkName',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: RColor.mainColor,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const Text(
-                                '의 사업 개요',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ),
                         onTap: () {
-                          _showChatGptShome06Dialog();
+                          Navigator.push(
+                            context,
+                            CustomNvRouteClass.createRouteName(
+                              instance: const StockCompanyOverviewPage(),
+                              routeName: StockCompanyOverviewPage.routeName,
+                              arguments: Shome07StockContent(
+                                title: _shome06.title,
+                                content: _shome06.content,
+                                updateDate: _shome06.updateDate,
+                                contentDiv: '',
+                                linkUrl: _shome06.linkUrl,
+                                refMonth: _shome06.refMonth,
+                              ),
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -366,7 +352,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
                     ),*/
         children: List.generate(
           _marketPriceTitle.length,
-              (index) => _setMarketConditionTableRows(index),
+          (index) => _setMarketConditionTableRows(index),
         ),
       ),
     );
@@ -377,7 +363,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
     return TableRow(
       children: List.generate(
         2,
-            (index) => _setMarketConditionTableViews(row, index),
+        (index) => _setMarketConditionTableViews(row, index),
       ),
     );
   }
@@ -448,8 +434,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
           if (column == 0) {
             //전일대비(원)
             textView = Text(
-              TStyle.getTriangleStringWithMoneyPoint(
-                  _shome04price.fluctuationAmt),
+              TStyle.getTriangleStringWithMoneyPoint(_shome04price.fluctuationAmt),
               style: TextStyle(
                 color: TStyle.getMinusPlusColor(_shome04price.fluctuationAmt),
               ),
@@ -567,9 +552,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
           if (column == 0) {
             //시총순위
             textView = Text(
-              _shome04price.marketType == '1'
-                  ? '코스피 ${_shome04price.marketRank}위'
-                  : '코스닥 ${_shome04price.marketRank}위',
+              _shome04price.marketType == '1' ? '코스피 ${_shome04price.marketRank}위' : '코스닥 ${_shome04price.marketRank}위',
             );
           } else {
             //액면가
@@ -585,9 +568,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
           if (column == 0) {
             //결산월
             textView = Text(
-              _shome04price.closingMMDD.length > 2
-                  ? '${_shome04price.closingMMDD.substring(0, 2)}월'
-                  : '월',
+              _shome04price.closingMMDD.length > 2 ? '${_shome04price.closingMMDD.substring(0, 2)}월' : '월',
             );
           } else {
             //자본금
@@ -660,14 +641,15 @@ class _StockInfoPageState extends State<StockInfoPage> {
                     trackHeight: 7,
                   ),
                   child: Slider(
-                    value: double.tryParse(_shome04price.currentPrice) != null
-                        && double.tryParse(_shome04price.top52Price) != null
+                    value: double.tryParse(_shome04price.currentPrice) != null &&
+                            double.tryParse(_shome04price.top52Price) != null
                         ? double.parse(_shome04price.currentPrice) > double.parse(_shome04price.top52Price)
                             ? double.parse(_shome04price.top52Price)
                             : double.parse(_shome04price.currentPrice)
                         : 0,
                     min: double.tryParse(_shome04price.low52Price) != null &&
-                            (double.parse(_shome04price.low52Price) > (double.tryParse(_shome04price.currentPrice) ?? 0))
+                            (double.parse(_shome04price.low52Price) >
+                                (double.tryParse(_shome04price.currentPrice) ?? 0))
                         ? (double.tryParse(_shome04price.currentPrice) ?? 0)
                         : (double.tryParse(_shome04price.low52Price) ?? 0),
 
@@ -731,12 +713,12 @@ class _StockInfoPageState extends State<StockInfoPage> {
               _divIndex == 0
                   ? 'https://webchart.thinkpool.com/2022Mobile/Stock1Day/A$_stkCode.png'
                   : _divIndex == 1
-                  ? 'https://webchart.thinkpool.com/2022Mobile/Stock1Week/A$_stkCode.png'
-                  : _divIndex == 2
-                  ? 'https://webchart.thinkpool.com/2022Mobile/StockMonth/A$_stkCode.png'
-                  : _divIndex == 3
-                  ? 'https://webchart.thinkpool.com/2022Mobile/Stock5Min/A$_stkCode.png'
-                  : 'https://webchart.thinkpool.com/2022Mobile/Stock1Day/A$_stkCode.png',
+                      ? 'https://webchart.thinkpool.com/2022Mobile/Stock1Week/A$_stkCode.png'
+                      : _divIndex == 2
+                          ? 'https://webchart.thinkpool.com/2022Mobile/StockMonth/A$_stkCode.png'
+                          : _divIndex == 3
+                              ? 'https://webchart.thinkpool.com/2022Mobile/Stock5Min/A$_stkCode.png'
+                              : 'https://webchart.thinkpool.com/2022Mobile/Stock1Day/A$_stkCode.png',
             ),
           ),
           const SizedBox(
@@ -748,9 +730,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
               Navigator.push(
                 context,
                 CustomNvRouteClass.createRoute(
-                  OnlyWebViewPage(
-                      title: '',
-                      url: 'https://m.thinkpool.com/item/$_stkCode/chart'),
+                  OnlyWebViewPage(title: '', url: 'https://m.thinkpool.com/item/$_stkCode/chart'),
                 ),
               );
             },
@@ -779,16 +759,14 @@ class _StockInfoPageState extends State<StockInfoPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: List.generate(
         4,
-            (index) {
+        (index) {
           return Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 15,
               vertical: 4,
             ),
             margin: EdgeInsets.only(right: index == 3 ? 0 : 5),
-            decoration: _divIndex == index
-                ? UIStyle.boxNewSelectBtn1()
-                : UIStyle.boxNewUnSelectBtn1(),
+            decoration: _divIndex == index ? UIStyle.boxNewSelectBtn1() : UIStyle.boxNewUnSelectBtn1(),
             child: Center(
               child: InkWell(
                 child: Text(
@@ -811,121 +789,6 @@ class _StockInfoPageState extends State<StockInfoPage> {
           );
         },
       ),
-    );
-  }
-
-  // 챗GPT 오늘의 요약 기업 개요 레이어
-  _showChatGptShome06Dialog() {
-    // auto height 레이어
-    showModalBottomSheet<dynamic>(
-      isScrollControlled: true,
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext bc) {
-        return Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: 20,
-            horizontal: 15,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
-            ),
-          ),
-          height: MediaQuery
-              .of(context)
-              .size
-              .height * 3 / 4,
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  padding: EdgeInsets.zero,
-                  alignment: Alignment.topRight,
-                  color: Colors.black,
-                  constraints: const BoxConstraints(),
-                  iconSize: 26,
-                  onPressed: () => Navigator.of(context).pop(null),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Expanded(
-                child: ListView(
-                  shrinkWrap: true,
-                  //physics: NeverScrollableScrollPhysics(),
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset(
-                          'images/icon_chat_gpt_logo.jpg',
-                          width: 24,
-                          height: 24,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: Text(
-                            '챗GPT가 요약한 $_stkName의 사업 개요',
-                            style: TStyle.title17,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '${TStyle.getDateSlashFormat3(
-                            _shome06.updateDate)} 업데이트',
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      _shome06.content,
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 1,
-                      color: RColor.new_basic_line_grey,
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 10,
-                      ),
-                    ),
-                    const Text(
-                      '※ ChatGPT를 이용한 사업개요 요약은 DART 자료를 바탕으로 수집되며, 기술적 방법에 따라 일부 내용에 오류가 있을 수 있습니다.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: RColor.bgTableTextGrey,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      '※ $_stkName의 공시자료를 GPT-3.5 Turbo로 구동되는 씽크풀의 컨텐츠 생성 및 검수 시스템을 통해 요약한 정보 입니다. 본 컨텐츠는 AI를 이용한 컨텐츠로, AI기술이 가진 구조적 한계를 가지고 있습니다.',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: RColor.bgTableTextGrey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -975,9 +838,7 @@ class _StockInfoPageState extends State<StockInfoPage> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

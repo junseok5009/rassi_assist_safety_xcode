@@ -72,14 +72,14 @@ class _HomeTileTradingStockState extends State<HomeTileTradingStock> {
                 )
               : SizedBox(
                   width: double.infinity,
-                  height: widget.listToday01Model.length < 2 ? 160 : 186,
+                  height: widget.listToday01Model.length < 2 ? 130 : 156,
                   child: Swiper(
                     controller: SwiperController(),
                     pagination: widget.listToday01Model.length < 2
                         ? null
                         : CommonSwiperPagenation.getNormalSpWithMargin(
                             8.0,
-                            145,
+                            140,
                             Colors.black,
                           ),
                     loop: false,

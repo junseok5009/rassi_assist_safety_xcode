@@ -6,7 +6,7 @@ import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 
 ///약관 페이지
 //

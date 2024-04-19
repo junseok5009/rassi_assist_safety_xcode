@@ -29,12 +29,9 @@ class Compare01 {
   const Compare01({this.listData = const []});
 
   factory Compare01.fromJson(Map<String, dynamic> json) {
-    var list = json['list_StockGroup'] as List;
-    List<StockGroup>? rtList;
-    if (list != null) rtList = list.map((i) => StockGroup.fromJson(i)).toList();
-
+    var jsonList = json['list_StockGroup'];
     return Compare01(
-      listData: list.map((i) => StockGroup.fromJson(i)).toList(),
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => StockGroup.fromJson(i)).toList(),
     );
   }
 }

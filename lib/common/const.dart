@@ -10,8 +10,8 @@ class Const {
   static const bool isSkeletonLoader = true;
 
   /// android set
-  static const APP_VER_AOS = '1.2.4'; //안드로이드 버전
-  static const VER_CODE_AOS = 114;
+  static const APP_VER_AOS = '1.2.5'; //안드로이드 버전
+  static const VER_CODE_AOS = 118;
   static const METHOD_CHANNEL_NAME = 'thinkpool.flutter.dev/channel_method';
   static const METHOD_CHANNEL_PUSH =
       'thinkpool.flutter.dev/channel_method_push';
@@ -124,6 +124,7 @@ class RColor {
   static const new_basic_grey = Color(0xffF9F9F9);
   static const new_basic_box_grey = Color(0xfff1f1f1);
   static const new_basic_line_grey = Color(0xffdadada);
+  static const new_basic_text_color_light_grey = Color(0xffb6b6b6);
   static const new_basic_text_color_grey = Color(0xff8C8C8C);
   static const new_basic_text_color_strong_grey = Color(0xff606569);
   static const btnUnSelectGreyBg = Color(0xffF5F5F5);

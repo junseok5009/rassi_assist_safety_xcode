@@ -281,7 +281,17 @@ class UserInfoState extends State<UserInfoPage> {
                     //나의 추천인
                     _setSubTitle("나의 추천인"),
                     const SizedBox(height: 10),
-                    _setGreyBoxWidget(
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(
+                        _isDoingRec || _userInfoProvider.isAgentUser ? 5 : 0,
+                      ),
+                      constraints: BoxConstraints(
+                        minHeight: _isDoingRec || _userInfoProvider.isAgentUser ? 40 : 0,
+                      ),
+                      decoration: UIStyle.boxRoundFullColor8c(
+                        _isDoingRec || _userInfoProvider.isAgentUser ? RColor.greyBox_f5f5f5 : Colors.transparent,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -334,7 +344,7 @@ class UserInfoState extends State<UserInfoPage> {
                                     // 에이전트 유저가 아님
                                     : const Text(
                                         '추천을 받아 라씨 매매비서에 가입한 경우 추천인이 표시됩니다.',
-                                        style: TStyle.textMGrey,
+                                        style: TStyle.textGrey14S,
                                       ),
                           ),
                           const SizedBox(
@@ -685,6 +695,7 @@ class UserInfoState extends State<UserInfoPage> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -1266,7 +1277,8 @@ class UserInfoState extends State<UserInfoPage> {
 
   //에이전트 (joinRoute 변경)
   _requestUserEditJoinRoute() async {
-    DLog.e('_clickRecItemIndex : $_clickRecItemIndex / _listRec[_clickRecItemIndex].agentCode : ${_listRec[_clickRecItemIndex].agentCode}');
+    DLog.e(
+        '_clickRecItemIndex : $_clickRecItemIndex / _listRec[_clickRecItemIndex].agentCode : ${_listRec[_clickRecItemIndex].agentCode}');
     // 1. 매매비서 DB에도 에이전트 추천인 등록 + 웰컴페이지 띄워서 확인하세요는 여기서 안해도 됩니다.
     if (_clickRecItemIndex >= _listRec.length) {
       _showRecCancelPopup();
@@ -1304,10 +1316,15 @@ class UserInfoState extends State<UserInfoPage> {
             '추천인이 등록되었습니다.',
           );
         }
-      } /*else {
-      씽크풀에서 실패한다면..? 모르겠
-        _showRecCancelPopup();
-      }*/
+      } else {
+        if (mounted) {
+          CommonPopup.instance.showDialogBasicConfirm(
+            context,
+            '알림',
+            '추천인이 등록되었습니다.',
+          );
+        }
+      }
     } else if (int.parse(resData.retCode) > 1000) {
       if (mounted) CommonPopup.instance.showDialogBasicConfirm(context, '알림', resData.retMsg);
     } else {

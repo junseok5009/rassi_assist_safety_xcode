@@ -240,8 +240,8 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           InkWell(
-            child: Row(
-              children: const [
+            child: const Row(
+              children: [
                 Text(
                   '기업의 안정성 지표',
                   style: TStyle.title18T,
@@ -270,9 +270,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
           _listPerPbrData.isNotEmpty
               ? Column(
                   children: [
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children: [
                         Text(
                           '최근1년',
                           style: TextStyle(
@@ -322,22 +322,22 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                               AxisLabelIntersectAction.multipleRows,
                           //desiredIntervals: 4,
                         ),
-                        primaryYAxis: NumericAxis(
+                        primaryYAxis: const NumericAxis(
                           rangePadding: ChartRangePadding.round,
                           isVisible: false,
-                          axisLine: const AxisLine(
+                          axisLine: AxisLine(
                             width: 0,
                           ),
-                          majorGridLines: const MajorGridLines(
+                          majorGridLines: MajorGridLines(
                             width: 0,
                           ),
-                          majorTickLines: const MajorTickLines(
+                          majorTickLines: MajorTickLines(
                             width: 0,
                           ),
                         ),
                         trackballBehavior: _trackballBehavior,
                         axes: <ChartAxis>[
-                          CategoryAxis(
+                          const CategoryAxis(
                             name: 'xAxis',
                             isVisible: false,
                             opposedPosition: true,

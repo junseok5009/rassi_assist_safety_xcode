@@ -18,7 +18,7 @@ import 'package:rassi_assist/models/pg_notifier.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
-import 'package:rassi_assist/ui/common/inapp_webview_page.dart';
+import 'package:rassi_assist/ui/web/inapp_webview_page.dart';
 import 'package:rassi_assist/ui/login/agent/agent_welcome_page.dart';
 import 'package:rassi_assist/ui/main/my_page.dart';
 import 'package:rassi_assist/ui/main/notification_page.dart';
@@ -234,6 +234,8 @@ class BasePageState extends State<BasePage> {
     return Scaffold(
       body: _widgetOptions[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        //selectedFontSize: 0,
+        //unselectedFontSize: 0,
         showSelectedLabels: false,
         showUnselectedLabels: false,
         selectedItemColor: RColor.mainColor,
@@ -626,8 +628,7 @@ class BasePageState extends State<BasePage> {
         _selectedIndex = 1;
       });
     } else {
-      //TODO @@@@@
-      // SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(tabIndex, changePocketSn: pktSn,);
+      SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(moveTabIndex: tabIndex, changePocketSn: pktSn,);
     }
   }
 

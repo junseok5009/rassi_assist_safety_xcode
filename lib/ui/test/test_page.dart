@@ -24,6 +24,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
+import 'package:rassi_assist/ui/login/agent/agent_welcome_page.dart';
 import 'package:rassi_assist/ui/login/intro_search_page.dart';
 import 'package:rassi_assist/ui/login/join_phone_page.dart';
 import 'package:rassi_assist/ui/login/join_pre_user_page.dart';
@@ -433,6 +434,27 @@ class TestState extends State<TestWidget> {
             ),
             onTap: () {
               commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=LzmMZsWM7MK6Kvo1%2BiCqXQ%3D%3D');
+            },
+          ),
+        ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.redAccent[100],
+              child: const Text(
+                '에이전트\n확인하세요',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                CustomNvRouteClass.createRouteName(
+                  instance: const AgentWelcomePage(),
+                  routeName: AgentWelcomePage.routeName,
+                ),
+              );
             },
           ),
         ),

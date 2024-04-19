@@ -28,20 +28,13 @@ import '../../common/common_popup.dart';
 
 /// [홈_홈 라씨데스크/땡정보] - 2023.09.13 HJS
 class HomeTileDdinfo extends StatelessWidget {
-  HomeTileDdinfo(this.today05, {Key? key}) : super(key: key);
+  HomeTileDdinfo({required this.today05, Key? key}) : super(key: key);
   final Today05 today05;
   final SwiperController _swiperController = SwiperController();
-  int _startIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    if (today05 != null && today05.listRassiroNewsDdInfo.isNotEmpty) {
-      today05.listRassiroNewsDdInfo.asMap().forEach((key, value) {
-        if (value.representYn == 'Y') {
-          _startIndex = key;
-        }
-      });
-    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -75,20 +68,24 @@ class HomeTileDdinfo extends StatelessWidget {
           const SizedBox(
             height: 20.0,
           ),
-          if (today05 == null)
-            const SizedBox(
-              height: 100,
-            )
-          else if (today05.isEmpty())
-            CommonView.setNoDataTextView(150, '오늘의 라씨데스크가 없습니다.')
-          else
-            _dataView(),
+          if (today05.isEmpty())
+          CommonView.setNoDataTextView(150, '오늘의 라씨데스크가 없습니다.')
+        else
+          _dataView(),
         ],
       ),
     );
   }
 
   Widget _dataView() {
+    int swipeInitIndex = 0;
+    if (today05.listRassiroNewsDdInfo.isNotEmpty) {
+      today05.listRassiroNewsDdInfo.asMap().forEach((key, value) {
+        if (value.representYn == 'Y') {
+          swipeInitIndex = key;
+        }
+      });
+    }
     return SizedBox(
       width: double.infinity,
       height: 101,
@@ -97,7 +94,7 @@ class HomeTileDdinfo extends StatelessWidget {
         controller: _swiperController,
         loop: false,
         scale: 0.8,
-        index: _startIndex,
+        index: swipeInitIndex,
         itemCount: today05.listRassiroNewsDdInfo.length,
         itemBuilder: (context, index) => _itemView(
           context,

@@ -27,13 +27,10 @@ class Compare06 {
   const Compare06({this.baseDate = '', this.listStock52 = const []});
 
   factory Compare06.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Stock'] as List;
-    List<Stock52>? rtList;
-    if(list != null) rtList = list.map((i) => Stock52.fromJson(i)).toList();
-
+    var jsonList = json['list_Stock'];
     return Compare06(
       baseDate: json['baseDate'],
-      listStock52: list.map((i) => Stock52.fromJson(i)).toList(),
+      listStock52: jsonList == null ? [] : (jsonList as List).map((i) => Stock52.fromJson(i)).toList(),
     );
   }
 }

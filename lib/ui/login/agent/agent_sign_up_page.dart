@@ -23,7 +23,7 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/login/intro_start_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/sub/web_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2024.03.14
