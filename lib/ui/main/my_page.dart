@@ -346,7 +346,7 @@ class MyPageState extends State<MyPage> {
                         child: AutoSizeText(
                           _strUpgrade,
                           maxLines: 3,
-                          style: TextStyle(
+                          style: const TextStyle(
                             //좀 더 작은(리스트) 소항목 타이틀 (bold)
                             fontWeight: FontWeight.w500,
                           ),
@@ -414,7 +414,7 @@ class MyPageState extends State<MyPage> {
                       Image.asset(
                         'images/main_my_icon_pocket.png',
                         height: 35,
-                        color: _isPremium ? RColor.mainColor : Colors.black,
+                        color: _isPremium ? RColor.mainColor : const Color(0XFF949BA3),
                       ),
                       const SizedBox(height: 15),
                       Text(
@@ -451,7 +451,7 @@ class MyPageState extends State<MyPage> {
                       Image.asset(
                         'images/main_my_icon_sig_bell.png',
                         height: 35,
-                        color: _isPremium ? RColor.mainColor : Colors.black,
+                        color: _isPremium ? RColor.mainColor : const Color(0XFF949BA3),
                       ),
                       const SizedBox(height: 15),
                       Text(

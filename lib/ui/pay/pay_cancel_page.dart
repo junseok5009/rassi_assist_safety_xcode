@@ -85,6 +85,14 @@ class PayCancelPageState extends State<PayCancelPage> {
   }
 
   @override
+  void dispose() {
+    _bankNameController.dispose();
+    _accountNumController.dispose();
+    _accountHolderController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: RColor.bgBasic_fdfdfd,
