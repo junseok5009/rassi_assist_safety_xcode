@@ -76,6 +76,7 @@ class MyPageState extends State<MyPage> {
   bool _isPushOn = false; //PUSH 수신동의
   String _stockCnt = ''; //열람 가능 종목수
   String _pocketCnt = ''; //이용 가능 포켓수
+  String _imgUpgradable = 'images/main_my_icon_upgradable.png';
   String _strUpgrade = ''; //결제 업그레이드
   String _strPromotionText = ''; //텍스트 프로모션
   bool _isPremium = false;
@@ -310,6 +311,7 @@ class MyPageState extends State<MyPage> {
       margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
       padding: const EdgeInsets.only(bottom: 15),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: double.infinity,
@@ -331,37 +333,26 @@ class MyPageState extends State<MyPage> {
                 //프리미엄 업그레이드 버튼
                 Visibility(
                   visible: !_isPremium || _isUpgradeable,
-                  child: Expanded(
-                    child: InkWell(
-                      child: Container(
-                        decoration: UIStyle.boxRoundLine6bgColor(
-                          RColor.bgBasic_fdfdfd,
-                        ),
-                        //margin: EdgeInsets.only(left: 10,),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 10,
-                        ),
-                        alignment: Alignment.center,
-                        child: AutoSizeText(
-                          _strUpgrade,
-                          maxLines: 3,
-                          style: const TextStyle(
-                            //좀 더 작은(리스트) 소항목 타이틀 (bold)
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      onTap: () async {
-                        _showPayDialogAndNavigate();
-                      },
-                    ),
+                  child: InkWell(
+                    child: Image.asset(_imgUpgradable, height: 35),
+                    onTap: () async {
+                      _showPayDialogAndNavigate();
+                    },
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
+          const Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text(
+              '서비스 이용 범위',
+              textAlign: TextAlign.start,
+              style: TStyle.title19Grey,
+            ),
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -455,7 +446,7 @@ class MyPageState extends State<MyPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        _isPushOn ? 'ON' : 'OFF',
+                        _isPremium ? '제공' : '미제공',
                         style: TStyle.content17T,
                       ),
                     ],
@@ -502,7 +493,7 @@ class MyPageState extends State<MyPage> {
         Visibility(
           visible: _isPremium,
           child: Container(
-            margin: EdgeInsets.only(right: 7,),
+            margin: const EdgeInsets.only(right: 7,),
             child: InkWell(
               child: Image.asset(
                 'images/icon_kakao_talk.png',
@@ -1307,6 +1298,7 @@ class MyPageState extends State<MyPage> {
           _stockCnt = '무제한';
           _pocketCnt = '10개';
           _strUpgrade = '';
+          _isUpgradeable = false;
           _strPromotionText = '';
           _isPremium = true;
           if (Platform.isAndroid) {
@@ -1321,6 +1313,7 @@ class MyPageState extends State<MyPage> {
             } else if (payMethod == 'PM50') {
               // 업그레이드 결제 가능
               _strUpgrade = '기간 업그레이드';
+              _imgUpgradable = 'images/main_my_icon_upgradable_period.png';
               _isUpgradeable = true;
               _strPromotionText = '프리미엄 계정의 기간을 업그레이드 해보세요!';
             }
@@ -1337,6 +1330,7 @@ class MyPageState extends State<MyPage> {
           if (Platform.isAndroid) {
             if (payMethod == 'PM50') {
               _strUpgrade = '프리미엄 업그레이드';
+              _imgUpgradable = 'images/main_my_icon_upgradable.png';
               _isUpgradeable = true;
             }
           }
@@ -1348,6 +1342,7 @@ class MyPageState extends State<MyPage> {
           _stockCnt = '매일 5종목';
           _pocketCnt = '1개';
           _strUpgrade = '프리미엄 업그레이드'; //일반 결제 화면으로 이동
+          _imgUpgradable = 'images/main_my_icon_upgradable.png';
           _strPromotionText = '회원님, 라씨 매매비서 프리미엄을 이용해 보세요!';
           _isPremium = false;
           if (Platform.isAndroid) inAppBilling.requestPurchaseAsync();

@@ -121,6 +121,13 @@ class TStyle {
     color: Color(0xff111111),
   );
 
+  static const title19Grey = TextStyle(
+    //공통 중간 타이틀
+    fontWeight: FontWeight.w500,
+    fontSize: 19,
+    color: Color(0xdd555555),
+  );
+
   static const title19T = TextStyle(
     //공통 중간 타이틀
     fontWeight: FontWeight.w600,
