@@ -75,16 +75,19 @@ class SocialListPageState extends State<SocialListPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: _setLayout(),
-    );
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
-  Widget _setLayout() {
-    return Scaffold(
+  @override
+  Widget build(BuildContext context) {
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
+      child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CommonAppbar.basic(
           buildContext: context,
@@ -98,32 +101,13 @@ class SocialListPageState extends State<SocialListPage> {
               if (index == 0) {
                 return _setHeaderView();
               } else {
-                return _buildOneItem(_dataList[index - 1].issueTime,
-                    _dataList[index - 1].listData);
+                return _buildOneItem(_dataList[index - 1].issueTime, _dataList[index - 1].listData);
               }
             },
           ),
-        )
-
-        // body: SafeArea(
-        //   child: ListView(
-        //     children: [
-        //       _setHeaderView(),
-        //       const SizedBox(height: 15,),
-        //
-        //       ListView.builder(
-        //         physics: ScrollPhysics(),
-        //         shrinkWrap: true,
-        //         itemCount: _dataList.length,
-        //         itemBuilder: (context, index){
-        //           return TileSns03(_dataList[index]);
-        //         },
-        //       ),
-        //       const SizedBox(height: 15,),
-        //     ],
-        //   ),
-        // ),
-        );
+        ),
+      ),
+    );
   }
 
   //타임라인 리스트
@@ -148,8 +132,7 @@ class SocialListPageState extends State<SocialListPage> {
               ),
               Text(
                 TStyle.getTimeFormat(strTime),
-                style: const TextStyle(
-                    fontSize: 14, color: Colors.deepOrangeAccent),
+                style: const TextStyle(fontSize: 14, color: Colors.deepOrangeAccent),
               ),
             ],
           ),
@@ -164,8 +147,7 @@ class SocialListPageState extends State<SocialListPage> {
               itemBuilder: (context, index) {
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 5.0),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                   decoration: UIStyle.boxRoundLine6(),
                   child: InkWell(
                     child: Row(
@@ -200,8 +182,7 @@ class SocialListPageState extends State<SocialListPage> {
                                 ],
                               ),
                               Visibility(
-                                visible: subList[index].title.isNotEmpty &&
-                                    subList[index].linkUrl.isNotEmpty,
+                                visible: subList[index].title.isNotEmpty && subList[index].linkUrl.isNotEmpty,
                                 child: Column(
                                   children: [
                                     const SizedBox(
@@ -416,7 +397,6 @@ class SocialListPageState extends State<SocialListPage> {
                   const Text(
                     '소셜지수란?',
                     style: TStyle.commonTitle,
-                    
                   ),
                   const SizedBox(
                     height: 15.0,
@@ -424,7 +404,6 @@ class SocialListPageState extends State<SocialListPage> {
                   const Text(
                     RString.desc_social_index,
                     style: TStyle.content15,
-                    
                   ),
                 ],
               ),

@@ -72,6 +72,13 @@ class NewsListState extends State<NewsListPage> {
     super.dispose();
   }
 
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   //리스트뷰 하단 리스너
   void _scrollListener() {
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&

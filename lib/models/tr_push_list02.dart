@@ -4,7 +4,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
-/// 2020.10.26 - JY
+/// 2020.10.26
 /// 알림 분류별 조회
 class TrPushList02 {
   final String retCode;
@@ -17,8 +17,7 @@ class TrPushList02 {
     return TrPushList02(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData:
-          json['retData'] == null ? null : PushList02.fromJson(json['retData']),
+      retData: json['retData'] == null ? null : PushList02.fromJson(json['retData']),
     );
   }
 }
@@ -38,8 +37,7 @@ class PushList02 {
 
   factory PushList02.fromJson(Map<String, dynamic> json) {
     var list = json['list_Push'] as List;
-    List<PushInfoDv>? rtList =
-        list == null ? null : list.map((i) => PushInfoDv.fromJson(i)).toList();
+    List<PushInfoDv>? rtList = list == null ? null : list.map((i) => PushInfoDv.fromJson(i)).toList();
 
     return PushList02(
       displayYn: json['displayYn'],
@@ -73,37 +71,37 @@ class PushInfoDv {
 
   PushInfoDv({
     this.pushDiv1 = '',
-      this.pushDiv1Name = '',
-      this.pushDiv2 = '',
-      this.pushDiv2Name = '',
-      this.pushDiv3 = '',
-      this.prodCode = '',
-      this.prodName = '',
-      this.pocketCode = '',
-      this.pocketName = '',
-      this.stockCode = '',
-      this.stockName = '',
-      this.pushTitle = '',
-      this.pushContent = '',
-      this.regDttm = ''
+    this.pushDiv1Name = '',
+    this.pushDiv2 = '',
+    this.pushDiv2Name = '',
+    this.pushDiv3 = '',
+    this.prodCode = '',
+    this.prodName = '',
+    this.pocketCode = '',
+    this.pocketName = '',
+    this.stockCode = '',
+    this.stockName = '',
+    this.pushTitle = '',
+    this.pushContent = '',
+    this.regDttm = '',
   });
 
   factory PushInfoDv.fromJson(Map<String, dynamic> json) {
     return PushInfoDv(
-      pushDiv1: json['pushDiv1'],
-      pushDiv1Name: json['pushDiv1Name'],
-      pushDiv2: json['pushDiv2'],
-      pushDiv2Name: json['pushDiv2Name'],
-      pushDiv3: json['pushDiv3'],
-      prodCode: json['prodCode'],
-      prodName: json['prodName'],
-      pocketCode: json['pocketCode'],
-      pocketName: json['pocketName'],
-      stockCode: json['stockCode'],
-      stockName: json['stockName'],
-      pushTitle: json['pushTitle'],
-      pushContent: json['pushContent'],
-      regDttm: json['regDttm'],
+      pushDiv1: json['pushDiv1'] ?? '',
+      pushDiv1Name: json['pushDiv1Name'] ?? '',
+      pushDiv2: json['pushDiv2'] ?? '',
+      pushDiv2Name: json['pushDiv2Name'] ?? '',
+      pushDiv3: json['pushDiv3'] ?? '',
+      prodCode: json['prodCode'] ?? '',
+      prodName: json['prodName'] ?? '',
+      pocketCode: json['pocketCode'] ?? '',
+      pocketName: json['pocketName'] ?? '',
+      stockCode: json['stockCode'] ?? '',
+      stockName: json['stockName'] ?? '',
+      pushTitle: json['pushTitle'] ?? '',
+      pushContent: json['pushContent'] ?? '',
+      regDttm: json['regDttm'] ?? '',
     );
   }
 
@@ -131,8 +129,7 @@ class TilePushListDv extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      margin:
-          const EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0, bottom: 12),
+      margin: const EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0, bottom: 12),
       alignment: Alignment.centerLeft,
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),

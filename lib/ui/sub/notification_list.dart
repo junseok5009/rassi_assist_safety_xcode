@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
@@ -14,7 +13,6 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_push_list02.dart';
-import 'package:rassi_assist/ui/sub/custom_app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -51,8 +49,9 @@ class NotiListPage extends StatelessWidget {
     }
 
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 0,
@@ -95,6 +94,9 @@ class NotiListState extends State<NotiListWidget> {
 
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 400), () {
+      args = ModalRoute.of(context)!.settings.arguments as PgData;
+      if (args != null && !_bInit) _divType = args.pgData;
+
       _bInit = true; //초기화 완료
       _setDivTitle();
 
@@ -119,6 +121,13 @@ class NotiListState extends State<NotiListWidget> {
     super.dispose();
   }
 
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   //리스트뷰 하단 리스너
   void _scrollListener() {
     if (_scrollController.offset >=
@@ -132,18 +141,8 @@ class NotiListState extends State<NotiListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    if (args != null && !_bInit) _divType = args.pgData;
-
     return Scaffold(
-      // appBar: CustomAppBar(
-      //   height: 60,
-      //   child: Column(
-      //     children: [
-      //       _setAppBar(),
-      //     ],
-      //   ),
-      // ),
+      appBar: _setAppBar(),
       body: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.vertical,
@@ -155,44 +154,47 @@ class NotiListState extends State<NotiListWidget> {
     );
   }
 
-  Widget _setAppBar() {
-    return Container(
-      height: 50,
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: RColor.lineGrey, width: 1),
+  PreferredSizeWidget _setAppBar() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(60),
+      child: Container(
+        height: 50,
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: RColor.lineGrey, width: 1),
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
-            iconSize: 20,
-            onPressed: () => Navigator.of(context).pop(null),
-          ),
-          InkWell(
-            child: Row(
-              children: [
-                Text(
-                  _divTitle,
-                  style: TStyle.title17,
-                ),
-                const Icon(
-                  Icons.keyboard_arrow_down_outlined,
-                  color: Colors.grey,
-                  size: 35,
-                ),
-              ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              iconSize: 20,
+              onPressed: () => Navigator.of(context).pop(null),
             ),
-            onTap: () {
-              _showScrollableSheet();
-            },
-          ),
-          const SizedBox(
-            width: 15,
-          )
-        ],
+            InkWell(
+              child: Row(
+                children: [
+                  Text(
+                    _divTitle,
+                    style: TStyle.title17,
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down_outlined,
+                    color: Colors.grey,
+                    size: 35,
+                  ),
+                ],
+              ),
+              onTap: () {
+                _showScrollableSheet();
+              },
+            ),
+            const SizedBox(
+              width: 15,
+            )
+          ],
+        ),
       ),
     );
   }
