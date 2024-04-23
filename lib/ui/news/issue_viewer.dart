@@ -78,6 +78,14 @@ class IssueDetailState extends State<IssueDetailWidget> {
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 400), () {
       DLog.d(IssueViewer.TAG, "delayed user id : $_userId");
+      args = ModalRoute.of(context)!.settings.arguments as PgData;
+      if (newsSn.isEmpty) {
+        stkName = args.stockName;
+        stkCode = args.stockCode;
+        newsSn = args.pgSn;
+        _issueSn = args.pgData;
+      }
+
       if (_userId != '') {
         _fetchPosts(
             TR.ISSUE04,
@@ -99,17 +107,10 @@ class IssueDetailState extends State<IssueDetailWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // final textTheme = Theme.of(context).textTheme;
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    if (newsSn.isEmpty) {
-      stkName = args.stockName;
-      stkCode = args.stockCode;
-      newsSn = args.pgSn;
-      _issueSn = args.pgData;
-    }
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: _setLayout(),
     );
   }
@@ -195,7 +196,8 @@ class IssueDetailState extends State<IssueDetailWidget> {
                   const SizedBox(
                     width: 4,
                   ),
-                  Text(TStyle.getDateFormat(_issueDate),
+                  Text(
+                    TStyle.getDateFormat(_issueDate),
                     style: const TextStyle(
                       //작은 그레이 텍스트
                       fontWeight: FontWeight.w500,
@@ -256,9 +258,7 @@ class IssueDetailState extends State<IssueDetailWidget> {
 
         ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: _stkList.length ~/ (10 * _stkListPageNum) > 0
-              ? 10 * _stkListPageNum
-              : _stkList.length,
+          itemCount: _stkList.length ~/ (10 * _stkListPageNum) > 0 ? 10 * _stkListPageNum : _stkList.length,
           shrinkWrap: true,
           itemBuilder: (context, index) {
             return TileStockStatus(_stkList[index]);
@@ -467,7 +467,6 @@ class IssueDetailState extends State<IssueDetailWidget> {
                     style: TStyle.defaultTitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    
                   ),
                   const SizedBox(
                     height: 25.0,
@@ -606,7 +605,7 @@ class IssueDetailState extends State<IssueDetailWidget> {
       final TrIssue04 resData = TrIssue04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Issue04? item = resData.retData;
-        if(item != null) {
+        if (item != null) {
           DLog.d(IssueViewer.TAG, item.issueInfo.toString());
           keyword = item.issueInfo!.keyword;
           _issueTitle = item.issueInfo!.title;

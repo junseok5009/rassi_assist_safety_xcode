@@ -18,7 +18,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2020.12.24
 /// 라씨로 태그 리스트
-
 class NewsTagPage extends StatefulWidget {
   static const routeName = '/page_news_tag';
   static const String TAG = "[NewsTagPage]";
@@ -61,6 +60,10 @@ class NewsTagPageState extends State<NewsTagPage> {
       if (deviceModel!.contains('iPad')) {
         pageSize = '20';
       }
+      args = ModalRoute.of(context)!.settings.arguments as PgNews;
+      tagCode = args.tagCode;
+      tagName = args.tagName;
+
       requestData();
     });
   }
@@ -74,8 +77,7 @@ class NewsTagPageState extends State<NewsTagPage> {
 
   //리스트뷰 하단 리스너
   _scrollListener() {
-    if (_scrollController.offset >=
-            _scrollController.position.maxScrollExtent &&
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
@@ -95,13 +97,10 @@ class NewsTagPageState extends State<NewsTagPage> {
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgNews;
-    tagCode = args.tagCode;
-    tagName = args.tagName;
-
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: _setLayout(),
     );
   }

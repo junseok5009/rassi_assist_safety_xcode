@@ -14,19 +14,25 @@ class NaverCommunityPage extends StatelessWidget {
   static const String TAG = "[NaverCommunityPage] ";
   static const String TAG_NAME = "네이버_종목토론";
 
+  const NaverCommunityPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: Scaffold(
         appBar: AppBar(toolbarHeight: 0,
           backgroundColor: RColor.deepStat, elevation: 0,),
-        body: NaverCommunityPageState(),
+        body: const NaverCommunityPageState(),
       ),);
   }
 }
 
 class NaverCommunityPageState extends StatefulWidget {
+  const NaverCommunityPageState({super.key});
+
   @override
   State<StatefulWidget> createState() => CommunityState();
 }
@@ -134,7 +140,7 @@ class CommunityState extends State<NaverCommunityPageState> {
                 const SizedBox(width: 7,),
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios, ),
-                  onPressed: () => _webViewController?.goBack(),
+                  onPressed: () => _webViewController.goBack(),
                 ),
                 // IconButton(
                 //   icon: Icon(Icons.arrow_forward_ios, ),

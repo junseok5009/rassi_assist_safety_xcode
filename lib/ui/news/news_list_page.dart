@@ -22,7 +22,7 @@ class NewsListPage extends StatefulWidget {
   static const String TAG = "[NewsListPage]";
   static const String TAG_NAME = '이시간_AI속보_더보기';
 
-  const NewsListPage({Key? key}) : super(key: key);
+  const NewsListPage({super.key});
 
   @override
   State<StatefulWidget> createState() => NewsListState();
@@ -31,7 +31,6 @@ class NewsListPage extends StatefulWidget {
 class NewsListState extends State<NewsListPage> {
   late SharedPreferences _prefs;
   String _userId = "";
-  late PgNews args;
   String stkName = "";
   String stkCode = "";
   Color statColor = Colors.grey;
@@ -57,6 +56,12 @@ class NewsListState extends State<NewsListPage> {
         pageSize = '20';
       }
 
+      PgNews? args = ModalRoute.of(context)!.settings.arguments as PgNews?;
+      if (args != null) {
+        stkName = args.stockName;
+        stkCode = args.stockCode;
+      }
+
       _requestData();
     });
   }
@@ -69,8 +74,7 @@ class NewsListState extends State<NewsListPage> {
 
   //리스트뷰 하단 리스너
   void _scrollListener() {
-    if (_scrollController.offset >=
-            _scrollController.position.maxScrollExtent &&
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
@@ -80,8 +84,8 @@ class NewsListState extends State<NewsListPage> {
 
   void _requestData() {
     // 아이패드 같은 경우에는 10개 이상의 리스트는 볼수 없다.
-    print("stock code : " + stkCode);
-    if (stkCode != null && stkCode != '') {
+    debugPrint("stock code : $stkCode");
+    if (stkCode.isNotEmpty) {
       _fetchPosts(
           TR.RASSI02,
           jsonEncode(<String, String>{
@@ -103,34 +107,25 @@ class NewsListState extends State<NewsListPage> {
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgNews;
-    if (args != null) {
-      stkName = args.stockName;
-      stkCode = args.stockCode;
-    }
-
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: _setLayout(),
-    );
-  }
-
-  Widget _setLayout() {
-    return Scaffold(
-      appBar: CommonAppbar.basic(
-        buildContext: context,
-        title: 'AI속보 분석리포트',
-        elevation: 1,
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
       ),
-      body: SafeArea(
-        child: ListView.builder(
-            controller: _scrollController,
-            scrollDirection: Axis.vertical,
-            itemCount: _newsList.length,
-            itemBuilder: (context, index) {
-              return TileRassiroList(_newsList[index]);
-            }),
+      child: Scaffold(
+        appBar: CommonAppbar.basic(
+          buildContext: context,
+          title: 'AI속보 분석리포트',
+          elevation: 1,
+        ),
+        body: SafeArea(
+          child: ListView.builder(
+              controller: _scrollController,
+              scrollDirection: Axis.vertical,
+              itemCount: _newsList.length,
+              itemBuilder: (context, index) {
+                return TileRassiroList(_newsList[index]);
+              }),
+        ),
       ),
     );
   }
@@ -164,20 +159,16 @@ class NewsListState extends State<NewsListPage> {
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(NewsListPage.TAG, response.body);
 
-    if(trStr == TR.RASSI01) {
+    if (trStr == TR.RASSI01) {
       final TrRassi01 resData = TrRassi01.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         _newsList.addAll(resData.listData as Iterable<Rassiro>);
         // DLog.d(NewsListPage.TAG, _newsList.length);
         setState(() {});
       }
-    }
-    else if(trStr == TR.RASSI02) {
+    } else if (trStr == TR.RASSI02) {
       final TrRassi02 resData = TrRassi02.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
-
-      }
+      if (resData.retCode == RT.SUCCESS) {}
     }
   }
-
 }

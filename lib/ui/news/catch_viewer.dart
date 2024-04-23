@@ -64,6 +64,9 @@ class CatchDetailState extends State<CatchDetailWidget> {
 
     Future.delayed(const Duration(milliseconds: 300), () {
       DLog.d(CatchViewer.TAG, "delayed user id : $_userId");
+      args = ModalRoute.of(context)!.settings.arguments as PgData;
+      _catchSn = args.pgSn;
+
       if (_userId != '') {
         _fetchPosts(
             TR.CATCH02,
@@ -77,9 +80,6 @@ class CatchDetailState extends State<CatchDetailWidget> {
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    _catchSn = args.pgSn;
-
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
         textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),

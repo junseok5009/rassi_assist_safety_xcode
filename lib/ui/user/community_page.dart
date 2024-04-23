@@ -11,7 +11,6 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 /// 2021.02.02
 /// 커뮤니티 페이지
 /// ref: https://stackoverflow.com/questions/66396219/how-to-post-data-to-url-in-flutter-webview
@@ -20,19 +19,29 @@ class CommunityPage extends StatelessWidget {
   static const String TAG = "[CommunityPage] ";
   static const String TAG_NAME = "종목토론";
 
+  const CommunityPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: Scaffold(
-        appBar: AppBar(toolbarHeight: 0,
-          backgroundColor: RColor.deepStat, elevation: 0,),
-        body: CommunityWidget(),
-      ),);
+        appBar: AppBar(
+          toolbarHeight: 0,
+          backgroundColor: RColor.deepStat,
+          elevation: 0,
+        ),
+        body: const CommunityWidget(),
+      ),
+    );
   }
 }
 
 class CommunityWidget extends StatefulWidget {
+  const CommunityWidget({super.key});
+
   @override
   State<StatefulWidget> createState() => CommunityState();
 }
@@ -62,7 +71,6 @@ class CommunityState extends State<CommunityWidget> {
         allowsInlineMediaPlayback: true,
       ));
 
-
   @override
   void initState() {
     super.initState();
@@ -84,8 +92,8 @@ class CommunityState extends State<CommunityWidget> {
     _stockCode = args.stockCode;
 
     //리턴되는 페이지 형식
-    if(_stockCode != null && _stockCode.length > 1) {
-      _rtUrl =  Net.THINK_COMMUNITY_STK + _stockCode;
+    if (_stockCode != null && _stockCode.length > 1) {
+      _rtUrl = Net.THINK_COMMUNITY_STK + _stockCode;
     } else {
       _rtUrl = Net.THINK_COMMUNITY;
     }
@@ -108,14 +116,12 @@ class CommunityState extends State<CommunityWidget> {
                   url: Uri.parse(Net.THINK_COMMUNITY_AJAX),
                   method: 'POST',
                   body: Uint8List.fromList(utf8.encode(_postData)),
-                  headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                  },
+                  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 ),
                 onWebViewCreated: (controller) {
                   _webViewController = controller;
                 },
-                onProgressChanged: (controller, progress){
+                onProgressChanged: (controller, progress) {
                   setState(() {
                     _progress = progress / 100;
                   });
@@ -124,14 +130,12 @@ class CommunityState extends State<CommunityWidget> {
                   print(consoleMessage);
                 },
               ),
-              _progress < 1.0
-                  ? LinearProgressIndicator(value: _progress)
-                  : Container(),
+              _progress < 1.0 ? LinearProgressIndicator(value: _progress) : Container(),
             ],
           ),
         ),
       ),
-      onWillPop: (){
+      onWillPop: () {
         var future = _webViewController.canGoBack();
         future.then((canGoBack) {
           if (canGoBack) {
@@ -159,10 +163,14 @@ class CommunityState extends State<CommunityWidget> {
           children: [
             Row(
               children: [
-                const SizedBox(width: 7,),
+                const SizedBox(
+                  width: 7,
+                ),
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, ),
-                  onPressed: () => _webViewController?.goBack(),
+                  icon: const Icon(
+                    Icons.arrow_back_ios,
+                  ),
+                  onPressed: () => _webViewController.goBack(),
                 ),
                 // IconButton(
                 //   icon: Icon(Icons.arrow_forward_ios, ),
@@ -171,10 +179,15 @@ class CommunityState extends State<CommunityWidget> {
                 // ),
               ],
             ),
-            const Text('라씨 매매비서', style: TStyle.title20,),
+            const Text(
+              '라씨 매매비서',
+              style: TStyle.title20,
+            ),
             // const SizedBox(width: 7,),
             IconButton(
-              icon: const Icon(Icons.close, ),
+              icon: const Icon(
+                Icons.close,
+              ),
               onPressed: () => Navigator.of(context).pop(null),
             ),
           ],
