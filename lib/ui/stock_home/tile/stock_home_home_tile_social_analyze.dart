@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -19,8 +20,7 @@ import '../page/recent_social_list_page.dart';
 /// 종목홈(개편)_홈_소셜분석
 
 class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
-  StockHomeHomeTileSocialAnalyze({required this.sns06, Key? key})
-      : super(key: key);
+  StockHomeHomeTileSocialAnalyze({required this.sns06, Key? key}) : super(key: key);
   final AppGlobal appGlobal = AppGlobal();
   final Sns06 sns06;
   final List<SNS06ChartData> _listChartData = [];
@@ -28,8 +28,82 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
       '수집된 양을 이전기간과 비교하여 참여도의 증가와 감소를 수치화하여 참여 정도를 알려드립니다.\n'
       '커뮤니티 참여도가 높아지면 특별한 소식이 있을 수 있으니, 뉴스나 토론게시판을 꼭 확인해 보세요.';
 
-  late TrackballBehavior _trackballBehavior;
+  late final TrackballBehavior _trackballBehavior = TrackballBehavior(
+    enable: true,
+    lineDashArray: const [4, 3],
+    shouldAlwaysShow: false,
+    tooltipAlignment: ChartAlignment.near,
+    tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+    activationMode: ActivationMode.singleTap,
+    markerSettings: const TrackballMarkerSettings(
+      markerVisibility: TrackballVisibilityMode.visible,
+      borderWidth: 0,
+      width: 0,
+      height: 0,
+    ),
+    builder: (BuildContext context, TrackballDetails trackballDetails) {
+      int selectedIndex = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+      return Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 6,
+              offset: const Offset(0, 0),
+              blurStyle: BlurStyle.outer,
+            )
+          ],
+        ),
+        child: FittedBox(
+          child: Column(
+            //mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    TStyle.getDateSlashFormat1(_listChartData[selectedIndex].td),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: RColor.greyBasic_8c8c8c,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                    '${TStyle.getMoneyPoint(_listChartData[selectedIndex].tp)}원',
+                    style: const TextStyle(
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                _listChartData[selectedIndex].cg == '1'
+                    ? '조용조용'
+                    : _listChartData[selectedIndex].cg == '2'
+                        ? '수군수군'
+                        : _listChartData[selectedIndex].cg == '3'
+                            ? '왁자지껄'
+                            : '폭발',
+                style: const TextStyle(
+                  fontSize: 13,
+                  //color: Color(0xffFBD240),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
   final List<PlotBand> _listPlotBand = [];
+
   @override
   Widget build(BuildContext context) {
     _initListData();
@@ -54,7 +128,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                     InkWell(
                       onTap: () {
                         CommonPopup.instance.showDialogTitleMsg(
-                            context, '소셜지수란?', _socialPopupMsg,
+                          context,
+                          '소셜지수란?',
+                          _socialPopupMsg,
                         );
                       },
                       splashColor: Colors.transparent,
@@ -243,9 +319,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                             children: [
                               Text(
                                 'N ',
-                                style: TextStyle(
-                                    color: RColor.naver,
-                                    fontWeight: FontWeight.bold),
+                                style: TextStyle(color: RColor.naver, fontWeight: FontWeight.bold),
                               ),
                               Flexible(
                                 child: Text(
@@ -259,9 +333,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                         onTap: () {
                           basePageState.callPageRouteUpData(
                             NaverCommunityPage(),
-                            PgData(
-                                stockCode: AppGlobal().stkCode,
-                                stockName: AppGlobal().stkName),
+                            PgData(stockCode: AppGlobal().stkCode, stockName: AppGlobal().stkName),
                           );
                         },
                       ),
@@ -281,9 +353,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                             children: [
                               Text(
                                 'TP ',
-                                style: TextStyle(
-                                    color: RColor.mainColor,
-                                    fontWeight: FontWeight.bold),
+                                style: TextStyle(color: RColor.mainColor, fontWeight: FontWeight.bold),
                               ),
                               Flexible(
                                 child: Text(
@@ -362,12 +432,17 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
+        Container(
           width: double.infinity,
           height: 240,
+          margin: const EdgeInsets.only(
+            top: 5,
+          ),
+          //color: Colors.amber,
           child: SfCartesianChart(
             enableAxisAnimation: true,
-            plotAreaBorderWidth: 0,
+            plotAreaBorderWidth: 1,
+            margin: EdgeInsets.zero,
             primaryXAxis: CategoryAxis(
               plotBands: _listPlotBand,
               axisLine: const AxisLine(
@@ -408,7 +483,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                                   ? '왁자지껄'
                                   : '폭발',
                   const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: RColor.greyBasic_8c8c8c,
                   ),
                 );
@@ -444,11 +519,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                 axisLabelFormatter: (axisLabelRenderArgs) {
                   String value = axisLabelRenderArgs.text;
                   if (_findMinValue >= 100000) {
-                    value = TStyle.getMoneyPoint(
-                        (axisLabelRenderArgs.value / 10000).round().toString());
+                    value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 10000).round().toString());
                   } else {
-                    value = TStyle.getMoneyPoint(
-                        axisLabelRenderArgs.value.round().toString());
+                    value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
                   }
                   return ChartAxisLabel(
                     value,
@@ -503,83 +576,6 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
   }
 
   _initListData() {
-    _trackballBehavior = TrackballBehavior(
-      enable: true,
-      lineDashArray: const [4, 3],
-      shouldAlwaysShow: false,
-      tooltipAlignment: ChartAlignment.near,
-      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
-      activationMode: ActivationMode.singleTap,
-      markerSettings: const TrackballMarkerSettings(
-        markerVisibility: TrackballVisibilityMode.visible,
-        borderWidth: 0,
-        width: 0,
-        height: 0,
-      ),
-      builder: (BuildContext context, TrackballDetails trackballDetails) {
-        int selectedIndex =
-            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
-        return Container(
-          padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.4),
-            borderRadius: BorderRadius.circular(5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 2,
-                blurRadius: 6,
-                offset: const Offset(0, 0),
-                blurStyle: BlurStyle.outer,
-              )
-            ],
-          ),
-          child: FittedBox(
-            child: Column(
-              //mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      TStyle.getDateSlashFormat1(
-                          _listChartData[selectedIndex].td),
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: RColor.greyBasic_8c8c8c,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
-                      '${TStyle.getMoneyPoint(_listChartData[selectedIndex].tp)}원',
-                      style: const TextStyle(
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  _listChartData[selectedIndex].cg == '1'
-                      ? '조용조용'
-                      : _listChartData[selectedIndex].cg == '2'
-                          ? '수군수군'
-                          : _listChartData[selectedIndex].cg == '3'
-                              ? '왁자지껄'
-                              : '폭발',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    //color: Color(0xffFBD240),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
     _listChartData.clear();
     _listChartData.addAll(sns06.listPriceChart);
 
@@ -649,13 +645,17 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
     double minValue = _findMinValue;
     double maxValue = _findMaxValue;
     // 최솟값과 최댓값을 이용하여 적절한 간격 계산
+
+    if (_findMinValue == _findMaxValue) return _findMaxValue * 2;
+
+    DLog.e('minValue : $minValue / maxValue : $maxValue');
+
     double range = maxValue - minValue;
     double interval = range / 4; // 예시로 5개의 간격으로 나눔
-
     double roundedInterval =
-        pow(10, (log(interval) / log(10)).floor()).toDouble();
-    return (roundedInterval * ((range / 4) / roundedInterval).ceil())
-        .toDouble();
+        //pow(10, (log(interval) / log(10)).floor()).toDouble();
+        pow(10, (log(interval) / log(10))).toDouble();
+    return (roundedInterval * ((range / 4) / roundedInterval).ceil()).toDouble();
   }
 
   double get _findMinValue {

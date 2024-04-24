@@ -50,6 +50,7 @@ class HomeTileDdinfo extends StatelessWidget {
                 '라씨데스크',
                 style: TStyle.title18T,
               ),
+
               InkWell(
                 onTap: () async {
                   basePageState.callPageRoute(const RassiDeskTimeLinePage());

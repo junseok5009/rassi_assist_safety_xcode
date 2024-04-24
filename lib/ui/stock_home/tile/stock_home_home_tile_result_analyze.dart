@@ -69,7 +69,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
   TooltipBehavior? _tooltipBehavior;
   double _seriesAnimation = 1500;
   ChartSeriesController? _chartColumnController;
-  ChartSeriesController? _chartLineController;
+  //ChartSeriesController? _chartLineController;
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -190,6 +190,9 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
                                   color: RColor.new_basic_text_color_grey,
                                 ),
                               ),
+                            ),
+                            const SizedBox(
+                              height: 5,
                             ),
                             _setChartView(),
                             const SizedBox(
@@ -1213,36 +1216,20 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
                   //DLog.e('최고 index : $pointIndex');
                   //return '최고123';
                   //return '최고 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
-                  return Container(
-                    /*padding: const EdgeInsets.all(2,),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: const BorderRadius.all(Radius.circular(4)),
-                      border: Border.all(width: 1, color: RColor.greyBox_dcdfe2,),
-                    ),*/
-                    child: Text(
-                      '최고 ${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원',
-                      style: const TextStyle(
-                        fontSize: 10,
-                      ),
+                  return Text(
+                    '최고 ${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원',
+                    style: const TextStyle(
+                      fontSize: 10,
                     ),
                   );
                 } else if (pointIndex == _lowestIndex) {
                   //DLog.e('최저 index : $index');
                   //return '최저';
                   //return '최저 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
-                  return Container(
-                    /*padding: const EdgeInsets.all(2,),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: const BorderRadius.all(Radius.circular(4)),
-                      border: Border.all(width: 1, color: RColor.greyBox_dcdfe2,),
-                    ),*/
-                    child: Text(
-                      '최저 ${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원',
-                      style: const TextStyle(
-                        fontSize: 10,
-                      ),
+                  return Text(
+                    '최저 ${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원',
+                    style: const TextStyle(
+                      fontSize: 10,
                     ),
                   );
                 } else {
@@ -1254,7 +1241,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
               //overflowMode: OverflowMode.shift,
             ),
             onRendererCreated: (controller) {
-              _chartLineController = controller;
+              //_chartLineController = controller;
             },
           ),
         ],

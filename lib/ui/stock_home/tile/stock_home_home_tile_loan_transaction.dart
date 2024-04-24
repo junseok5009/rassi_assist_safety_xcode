@@ -23,18 +23,15 @@ import '../../main/base_page.dart';
 /// 종목홈(개편)_홈_대차거래와 공매
 
 class StockHomeHomeTileLoanTransaction extends StatefulWidget {
-  static final GlobalKey<StockHomeHomeTileLoanTransactionState> globalKey =
-      GlobalKey();
+  static final GlobalKey<StockHomeHomeTileLoanTransactionState> globalKey = GlobalKey();
 
   StockHomeHomeTileLoanTransaction() : super(key: globalKey);
 
   @override
-  State<StockHomeHomeTileLoanTransaction> createState() =>
-      StockHomeHomeTileLoanTransactionState();
+  State<StockHomeHomeTileLoanTransaction> createState() => StockHomeHomeTileLoanTransactionState();
 }
 
-class StockHomeHomeTileLoanTransactionState
-    extends State<StockHomeHomeTileLoanTransaction>
+class StockHomeHomeTileLoanTransactionState extends State<StockHomeHomeTileLoanTransaction>
     with AutomaticKeepAliveClientMixin<StockHomeHomeTileLoanTransaction> {
   final AppGlobal _appGlobal = AppGlobal();
 
@@ -91,8 +88,7 @@ class StockHomeHomeTileLoanTransactionState
         height: 0,
       ),
       builder: (BuildContext context, TrackballDetails trackballDetails) {
-        int selectedIndex =
-            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        int selectedIndex = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
         return Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
@@ -257,8 +253,7 @@ class StockHomeHomeTileLoanTransactionState
             child: const Center(
               child: Text(
                 '!',
-                style: TextStyle(
-                    fontSize: 18, color: RColor.new_basic_text_color_grey),
+                style: TextStyle(fontSize: 18, color: RColor.new_basic_text_color_grey),
               ),
             ),
           ),
@@ -608,11 +603,9 @@ class StockHomeHomeTileLoanTransactionState
             axisLabelFormatter: (axisLabelRenderArgs) {
               String value = axisLabelRenderArgs.text;
               if (_isRightYAxisUpUnit) {
-                value = TStyle.getMoneyPoint(
-                    (axisLabelRenderArgs.value / 1000).round().toString());
+                value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 1000).round().toString());
               } else {
-                value = TStyle.getMoneyPoint(
-                    axisLabelRenderArgs.value.round().toString());
+                value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
               }
               return ChartAxisLabel(
                 value,
@@ -868,8 +861,7 @@ class StockHomeHomeTileLoanTransactionState
     DLog.w(trStr + response.body);
     // NOTE 대차거래
     if (trStr == TR.INVEST21) {
-      final TrInvest21 resData =
-          TrInvest21.fromJsonWithIndex(jsonDecode(response.body));
+      final TrInvest21 resData = TrInvest21.fromJsonWithIndex(jsonDecode(response.body));
       _lendingListData.clear();
       if (resData.retCode == RT.SUCCESS) {
         Invest21 invest21 = resData.retData;
@@ -887,8 +879,7 @@ class StockHomeHomeTileLoanTransactionState
 
     // NOTE 공매도
     else if (trStr == TR.INVEST22) {
-      final TrInvest22 resData =
-          TrInvest22.fromJsonWithIndex(jsonDecode(response.body));
+      final TrInvest22 resData = TrInvest22.fromJsonWithIndex(jsonDecode(response.body));
       _sellingListData.clear();
       if (resData.retCode == RT.SUCCESS) {
         Invest22 invest22 = resData.retData;
@@ -906,8 +897,7 @@ class StockHomeHomeTileLoanTransactionState
 
     // NOTE 신용 융자
     else if (trStr == TR.INVEST23) {
-      final TrInvest23 resData =
-          TrInvest23.fromJsonWithIndex(jsonDecode(response.body));
+      final TrInvest23 resData = TrInvest23.fromJsonWithIndex(jsonDecode(response.body));
       _loanListData.clear();
       if (resData.retCode == RT.SUCCESS) {
         Invest23 invest23 = resData.retData;
@@ -930,10 +920,8 @@ class StockHomeHomeTileLoanTransactionState
       if (_lendingListData.length < 2) {
         return 0;
       }
-      var item = _lendingListData.reduce((curr, next) =>
-          double.parse(curr.bl).abs() > double.parse(next.bl).abs()
-              ? curr
-              : next);
+      var item = _lendingListData
+          .reduce((curr, next) => double.parse(curr.bl).abs() > double.parse(next.bl).abs() ? curr : next);
       return double.parse(item.bl).abs();
     }
 
@@ -942,10 +930,8 @@ class StockHomeHomeTileLoanTransactionState
       if (_sellingListData.length < 2) {
         return 0;
       }
-      var item = _sellingListData.reduce((curr, next) =>
-          double.parse(curr.asv).abs() > double.parse(next.asv).abs()
-              ? curr
-              : next);
+      var item = _sellingListData
+          .reduce((curr, next) => double.parse(curr.asv).abs() > double.parse(next.asv).abs() ? curr : next);
       return double.parse(item.asv).abs();
     }
 
@@ -955,10 +941,7 @@ class StockHomeHomeTileLoanTransactionState
         return 0;
       }
       var item = _loanListData.reduce((curr, next) =>
-          double.parse(curr.volumeBalance).abs() >
-                  double.parse(next.volumeBalance).abs()
-              ? curr
-              : next);
+          double.parse(curr.volumeBalance).abs() > double.parse(next.volumeBalance).abs() ? curr : next);
       return double.parse(item.volumeBalance).abs();
     }
 

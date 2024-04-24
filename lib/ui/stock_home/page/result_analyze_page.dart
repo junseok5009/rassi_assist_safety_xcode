@@ -69,15 +69,13 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         return Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withOpacity(0.8),
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 2,
+                color: Colors.black.withOpacity(0.15),
                 blurRadius: 6,
-                offset: const Offset(0, 0),
-                blurStyle: BlurStyle.outer,
+                offset: const Offset(2, 2),
               )
             ],
           ),

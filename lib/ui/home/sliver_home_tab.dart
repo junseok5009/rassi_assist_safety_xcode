@@ -346,7 +346,6 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
   //하단 탭뷰
   Widget _setTabView() {
     return TabBarView(
-
       children: [
         RefreshIndicator(
           //key: refreshKey,

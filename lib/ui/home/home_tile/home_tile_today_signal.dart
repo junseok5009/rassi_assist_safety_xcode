@@ -98,26 +98,15 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
           const SizedBox(
             height: 25,
           ),
-          _signal09 == null
+          _signal09.isEmpty()
               ? Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                  ),
                   decoration: UIStyle.boxShadowBasic(16),
                   child: CommonView.setNoDataTextView(
-                    150,
-                    '매매신호를 수신 중입니다.',
+                    120,
+                    '오늘 새로 발생된 매매신호가 없습니다.',
                   ),
                 )
-              : _signal09.isEmpty()
-                  ? Container(
-                      decoration: UIStyle.boxShadowBasic(16),
-                      child: CommonView.setNoDataTextView(
-                        120,
-                        '오늘 새로 발생된 매매신호가 없습니다.',
-                      ),
-                    )
-                  : _setDataView(),
+              : _setDataView(),
         ],
       ),
     );
@@ -384,13 +373,10 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                       scrollDirection: Axis.horizontal,
                       itemCount: _listSigStatus.length,
                       itemBuilder: (BuildContext context, int index) {
-                        if (_noticeCode == 'TIME_TERM' ||
-                            _noticeCode == 'TIME_WAIT') {
+                        if (_noticeCode == 'TIME_TERM' || _noticeCode == 'TIME_WAIT') {
                           return _setTileSigString(_listSigStatus[index]);
-                        } else if (_noticeCode == 'TIME_CLOSE' ||
-                            _noticeCode == 'TIME_DAWN') {
-                          return _setTileSigStringTimeClose(
-                              _listSigStatus[index]);
+                        } else if (_noticeCode == 'TIME_CLOSE' || _noticeCode == 'TIME_DAWN') {
+                          return _setTileSigStringTimeClose(_listSigStatus[index]);
                         } else {
                           return const SizedBox();
                         }
@@ -732,7 +718,6 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
       _listSigStatus.clear();
       if (resData.retCode == RT.SUCCESS) {
         _signal09 = resData.resData;
-
         if (!_signal09.isEmpty()) {
           _initData();
         } else {
@@ -774,8 +759,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

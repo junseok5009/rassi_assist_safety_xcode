@@ -75,7 +75,7 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
   String _priceSub = '';
   String _priceLongSub = '';
 
-  // Agent, 단건, 1개월 구독, 6개월 구독 순서 변수
+  // [Agent, 단건, 1개월 구독, 6개월 구독] 순서 변수
   final List _listDivPayment = [
     false,
     false,
@@ -426,32 +426,60 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
   //   DLog.d('#####','MS_Method 실행 시간: ${difference.inMilliseconds} ms');
   // }
 
-  //단건 결제 버튼
+  //에이전트 결제 버튼
   Widget _setButtonAgent() {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        if (!_listDivPayment[0]) {
-          setState(() {
-            _listDivPayment[0] = true;
-            _listDivPayment[1] = false;
-            _listDivPayment[2] = false;
-            _listDivPayment[3] = false;
-          });
-        }
-      },
-      child: InkWell(
-        onTap: () {
-          commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}');
-        },
-        child: Container(
-          child: Image.network(
-            'https://files.thinkpool.com/rassi_signal/fav01.png',
-            width: double.infinity,
+    return Column(
+      children: [
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            if (!_listDivPayment[0]) {
+              setState(() {
+                _listDivPayment[0] = true;
+                _listDivPayment[1] = false;
+                _listDivPayment[2] = false;
+                _listDivPayment[3] = false;
+              });
+            }
+          },
+          child: InkWell(
+            onTap: () {
+              commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M12');
+            },
+            child: Image.network(
+              'https://files.thinkpool.com/rassi_signal/fav01.png',
+              width: double.infinity,
+            ),
           ),
         ),
-      ),
+        const SizedBox(
+          height: 15,
+        ),
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            if (!_listDivPayment[0]) {
+              setState(() {
+                _listDivPayment[0] = true;
+                _listDivPayment[1] = false;
+                _listDivPayment[2] = false;
+                _listDivPayment[3] = false;
+              });
+            }
+          },
+          child: InkWell(
+            onTap: (){
+              commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M06');
+            },
+            child: SizedBox(
+              width: double.infinity,
+              child: Image.network('https://files.thinkpool.com/rassi_signal/fav02.png', width: double.infinity, fit: BoxFit.fitWidth,),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

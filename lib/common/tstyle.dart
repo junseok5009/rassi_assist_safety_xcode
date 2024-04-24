@@ -782,7 +782,7 @@ class TStyle {
   static String getDateLongYmKorFormat(String date) {
     String rtStr = '';
     if (date.length >= 6) {
-      rtStr = '${date.substring(0, 4)}년 ${date.substring(5)}월';
+      rtStr = '${date.substring(0, 4)}년 ${date.substring(4)}월';
       return rtStr;
     }
     return '';

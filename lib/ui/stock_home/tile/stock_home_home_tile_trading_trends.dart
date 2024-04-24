@@ -171,8 +171,6 @@ class StockHomeHomeTileTradingTrendsState
     _trendsTrackballBehavior = TrackballBehavior(
       enable: true,
       shouldAlwaysShow: false,
-      //tooltipDisplayMode: TrackballDisplayMode.floatAllPoints,
-      //enable: true,
       lineDashArray: const [4, 3],
       lineWidth: 1,
       tooltipAlignment: ChartAlignment.near,
@@ -180,7 +178,6 @@ class StockHomeHomeTileTradingTrendsState
       activationMode: ActivationMode.singleTap,
       markerSettings: const TrackballMarkerSettings(
         markerVisibility: TrackballVisibilityMode.visible,
-        //color: Colors.red.shade500.withOpacity(0.5),
         borderWidth: 0,
         width: 0,
         height: 0,

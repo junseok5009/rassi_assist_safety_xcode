@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
@@ -343,16 +342,7 @@ class MyPageState extends State<MyPage> {
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          const Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(
-              '서비스 이용 범위',
-              textAlign: TextAlign.start,
-              style: TStyle.title19Grey,
-            ),
-          ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -493,7 +483,9 @@ class MyPageState extends State<MyPage> {
         Visibility(
           visible: _isPremium,
           child: Container(
-            margin: const EdgeInsets.only(right: 7,),
+            margin: const EdgeInsets.only(
+              right: 7,
+            ),
             child: InkWell(
               child: Image.asset(
                 'images/icon_kakao_talk.png',
@@ -538,7 +530,7 @@ class MyPageState extends State<MyPage> {
     if (_isPremium) {
       if (Platform.isAndroid && _isUpgradeable) {
         // 6개월 상품으로 업그레이드
-        String result = await _showDialogPremiumUpgrade();
+        String result = await CommonPopup.instance.showDialogPremiumPeriodUpgrade(context);
         if (result == CustomNvRouteResult.landPremiumPage) {
           if (mounted) _navigateRefreshPay(context);
         }
@@ -546,7 +538,7 @@ class MyPageState extends State<MyPage> {
     } else {
       if (Platform.isAndroid && _isUpgradeable) {
         // 1개월 상품으로 업그레이드
-        String result = await _showDialogPremiumUpgrade();
+        String result = await CommonPopup.instance.showDialogPremiumUpgrade(context);
         if (result == CustomNvRouteResult.landPremiumPage) {
           if (mounted) _navigateRefreshPay(context);
         }
