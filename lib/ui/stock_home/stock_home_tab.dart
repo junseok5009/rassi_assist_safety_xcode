@@ -264,7 +264,8 @@ class StockHomeTabState extends State<StockHomeTab>
   //하단 탭뷰
   Widget _setTabView() {
     return TabBarView(
-      physics: Platform.isAndroid ? const NeverScrollableScrollPhysics() : null,
+      physics: //Platform.isAndroid ? const NeverScrollableScrollPhysics() : null,
+      const NeverScrollableScrollPhysics(),
       controller: _tabController,
       children: [
         RefreshIndicator(
