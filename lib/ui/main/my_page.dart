@@ -436,7 +436,7 @@ class MyPageState extends State<MyPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        _isPremium ? '제공' : '미제공',
+                        _isPremium ? '제공' : _isUpgradeable ? '3종목 제공' : '미제공',
                         style: TStyle.content17T,
                       ),
                     ],
