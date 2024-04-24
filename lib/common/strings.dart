@@ -55,7 +55,7 @@ class RString {
       '베이직 계정이 모든 권한 + 3종목에 대한 실시간 AI매매시호 알림을 이용하실수 있습니다.';
   static const String user_usage_desc_premium =
       '포켓 10개 + AI매매신호 무제한 보기 + AI매매신호 실시간 알림 + 나만의 매도신호, '
-      '종목캐치 등 프리미엄 만을 위한 콘텐프를 제한없이 모두 이용하실 수 있습니다.';
+      '종목캐치 등 프리미엄 만을 위한 콘텐츠를 제한없이 모두 이용하실 수 있습니다.';
   static const String user_usage_desc_basic1 = '';
   static const String user_usage_desc_basic2 = '';
   static const String user_premium_only_consultation_dese =
