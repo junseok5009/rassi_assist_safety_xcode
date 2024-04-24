@@ -7,6 +7,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
@@ -24,6 +25,7 @@ import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_push04.dart';
 import 'package:rassi_assist/models/tr_user/tr_user04.dart';
+import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
@@ -398,9 +400,39 @@ class MyPageState extends State<MyPage> {
                         color: _isPremium ? RColor.mainColor : const Color(0XFF949BA3),
                       ),
                       const SizedBox(height: 15),
-                      Text(
-                        _pocketCnt,
-                        style: TStyle.content17T,
+                      Consumer<PocketProvider>(
+                        builder: (_, provider, __) {
+                          //int pocketListLength = provider.getPocketList.length;
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Visibility(
+                                visible: _isPremium,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      '${provider.getPocketList.length}',
+                                      style: const TextStyle(
+                                        //본문 내용
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 17,
+                                        color: RColor.purpleBasic_6565ff,
+                                      ),
+                                    ),
+                                    const Text(
+                                      '/',
+                                      style: TStyle.content17T,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                _pocketCnt,
+                                style: TStyle.content17T,
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -437,6 +469,7 @@ class MyPageState extends State<MyPage> {
                       const SizedBox(height: 15),
                       Text(
                         _isPremium ? '제공' : _isUpgradeable ? '3종목 제공' : '미제공',
+                        _isPremium ? '전체제공' : '미제공',
                         style: TStyle.content17T,
                       ),
                     ],
@@ -1335,7 +1368,7 @@ class MyPageState extends State<MyPage> {
           _pocketCnt = '1개';
           _strUpgrade = '프리미엄 업그레이드'; //일반 결제 화면으로 이동
           _imgUpgradable = 'images/main_my_icon_upgradable.png';
-          _strPromotionText = '회원님, 라씨 매매비서 프리미엄을 이용해 보세요!';
+          _strPromotionText = '라씨 매매비서 프리미엄을 이용해 보세요!';
           _isPremium = false;
           if (Platform.isAndroid) inAppBilling.requestPurchaseAsync();
         }

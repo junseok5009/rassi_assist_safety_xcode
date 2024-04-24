@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
@@ -26,11 +27,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 class StockHomeHomeTileResultAnalyze extends StatefulWidget {
   static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey = GlobalKey();
-
-  const StockHomeHomeTileResultAnalyze({super.key});
-
-  //StockHomeHomeTileResultAnalyze() : super(key: globalKey);
-
+  StockHomeHomeTileResultAnalyze() : super(key: globalKey);
   @override
   State<StockHomeHomeTileResultAnalyze> createState() => StockHomeHomeTileResultAnalyzeState();
 }
@@ -1334,7 +1331,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
   }
 
   Future<void> _parseTrData(String trStr, final http.Response response) async {
-    // DLog.w(trStr + response.body);
+     DLog.w(trStr + response.body);
     if (trStr == TR.SEARCH10) {
       final TrSearch10 resData = TrSearch10.fromJson(jsonDecode(response.body));
       _confirmSearch10SalesIndexInListData = -1;

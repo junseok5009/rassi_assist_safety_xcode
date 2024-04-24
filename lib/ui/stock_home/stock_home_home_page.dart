@@ -268,7 +268,7 @@ class StockHomeHomePageState extends State<StockHomeHomePage> with AutomaticKeep
                     StockHomeHomeTileStockCompare(),
 
                     // 실적분석
-                    const StockHomeHomeTileResultAnalyze(),
+                    StockHomeHomeTileResultAnalyze(),
 
                     // 투자자별 매매동향 (외국인/기관 매매동향) + 일자별 매매동향 현황
                     StockHomeHomeTileTradingTrends(),

@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
@@ -36,6 +37,14 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
   late SignalProvider _signalProvider;
   bool _isFaVisible = true;
 
+  List<bool> _boolFilterList = [
+    true,
+    false,
+    false,
+    false,
+    false,
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -63,13 +72,11 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
   Widget build(BuildContext context) {
     return NotificationListener<UserScrollNotification>(
       onNotification: (notification) {
-        if (notification.direction == ScrollDirection.forward &&
-            !_isFaVisible) {
+        if (notification.direction == ScrollDirection.forward && !_isFaVisible) {
           setState(() {
             _isFaVisible = true;
           });
-        } else if (notification.direction == ScrollDirection.reverse &&
-            _isFaVisible) {
+        } else if (notification.direction == ScrollDirection.reverse && _isFaVisible) {
           setState(() {
             _isFaVisible = false;
           });
@@ -87,16 +94,14 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
               child: AppGlobal().isPremium
                   ? Consumer<SignalProvider>(
                       builder: (_, provider, __) {
-                        List<StockPktSignal> signalList =
-                            provider.getSignalList;
+                        List<StockPktSignal> signalList = provider.getSignalList;
                         if (signalList.isEmpty) {
                           return InkWell(
                               onTap: () async {
                                 Navigator.push(
                                   context,
                                   CustomNvRouteClass.createRoute(
-                                    SearchPage.goLayer(
-                                        SearchPage.landAddSignalLayer, ''),
+                                    SearchPage.goLayer(SearchPage.landAddSignalLayer, ''),
                                   ),
                                 );
                               },
@@ -104,17 +109,117 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                         } else {
                           return Stack(
                             children: [
+                              /* Container(
+                                width: double.infinity,
+                                height: 50,
+                                child: FittedBox(
+                                  child: Row(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Checkbox(
+                                            value: _boolFilterList[0],
+                                            onChanged: (value) {
+                                              if (value != _boolFilterList[0]) {
+                                                setState(() {
+                                                  _boolFilterList[0] = value!;
+                                                  _boolFilterList[1] = !value;
+                                                  _boolFilterList[2] = !value;
+                                                  _boolFilterList[3] = !value;
+                                                  _boolFilterList[4] = !value;
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          const Text('추가순'),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Checkbox(
+                                            value: _boolFilterList[1],
+                                            onChanged: (value) {
+                                              if (value != _boolFilterList[1]) {
+                                                setState(() {
+                                                  _boolFilterList[1] = value!;
+                                                  _boolFilterList[0] = !value;
+                                                  _boolFilterList[2] = !value;
+                                                  _boolFilterList[3] = !value;
+                                                  _boolFilterList[4] = !value;
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          const Text('수익률순'),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Checkbox(
+                                            value: _boolFilterList[2],
+                                            onChanged: (value) {
+                                              if (value != _boolFilterList[2]) {
+                                                setState(() {
+                                                  _boolFilterList[2] = value!;
+                                                  _boolFilterList[0] = !value;
+                                                  _boolFilterList[1] = !value;
+                                                  _boolFilterList[3] = !value;
+                                                  _boolFilterList[4] = !value;
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          const Text('신호발생순'),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Checkbox(
+                                            value: _boolFilterList[3],
+                                            onChanged: (value) {
+                                              if (value != _boolFilterList[3]) {
+                                                setState(() {
+                                                  _boolFilterList[3] = value!;
+                                                  _boolFilterList[0] = !value;
+                                                  _boolFilterList[1] = !value;
+                                                  _boolFilterList[2] = !value;
+                                                  _boolFilterList[4] = !value;
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          const Text('오늘등락률순'),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Checkbox(
+                                            value: _boolFilterList[4],
+                                            onChanged: (value) {
+                                              if (value != _boolFilterList[4]) {
+                                                setState(() {
+                                                  _boolFilterList[4] = value!;
+                                                  _boolFilterList[0] = !value;
+                                                  _boolFilterList[1] = !value;
+                                                  _boolFilterList[2] = !value;
+                                                  _boolFilterList[3] = !value;
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          const Text('종목명순'),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),*/
                               ListView.builder(
                                 itemCount: signalList.length,
-                                itemBuilder:
-                                    (BuildContext context, int index) {
+                                itemBuilder: (BuildContext context, int index) {
                                   bool isUserSig = false;
-                                  if (signalList[index]
-                                      .sellPrice
-                                      .isNotEmpty) {
-                                    signalList[index].myTradeFlag == 'S'
-                                        ? isUserSig = true
-                                        : isUserSig = false;
+                                  if (signalList[index].sellPrice.isNotEmpty) {
+                                    signalList[index].myTradeFlag == 'S' ? isUserSig = true : isUserSig = false;
                                   }
                                   return _setListItem(
                                     index == 0,
@@ -139,8 +244,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                       horizontal: 20,
                                     ),
                                     child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Image.asset(
                                           'images/icon_add_circle_black.png',
@@ -162,8 +266,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                     Navigator.push(
                                       context,
                                       CustomNvRouteClass.createRoute(
-                                        SearchPage.goLayer(
-                                            SearchPage.landAddSignalLayer, ''),
+                                        SearchPage.goLayer(SearchPage.landAddSignalLayer, ''),
                                       ),
                                     );
                                   },
@@ -176,8 +279,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                     )
                   : InkWell(
                       onTap: () async {
-                        String result = await CommonPopup.instance
-                            .showDialogPremium(context);
+                        String result = await CommonPopup.instance.showDialogPremium(context);
                         if (result == CustomNvRouteResult.landPremiumPage) {
                           basePageState.navigateAndGetResultPayPremiumPage();
                         }
@@ -190,8 +292,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
     );
   }
 
-  Widget _setListItem(
-      bool isFirst, bool isLast, StockPktSignal item, bool isUserSig) {
+  Widget _setListItem(bool isFirst, bool isLast, StockPktSignal item, bool isUserSig) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -529,11 +630,9 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                     ),
                   ),
                   onTap: () async {
-                    String result = await CommonPopup.instance
-                        .showDialogBasicConfirm(
-                            context, '알림', '나만의 매도신호를 삭제하시겠습니까?');
-                    if (context.mounted &&
-                        result == CustomNvRouteResult.landing) {
+                    String result =
+                        await CommonPopup.instance.showDialogBasicConfirm(context, '알림', '나만의 매도신호를 삭제하시겠습니까?');
+                    if (context.mounted && result == CustomNvRouteResult.landing) {
                       _delSignalAndResult(item);
                     }
                   },
@@ -599,8 +698,8 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
               child: AutoSizeText(
                 item.listTalk[0].achieveText,
                 style: const TextStyle(
-                  //fontSize: 13,
-                ),
+                    //fontSize: 13,
+                    ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
               ),
@@ -640,8 +739,7 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                 height: 25,
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: UIStyle.boxRoundLine25c(Colors.black54),
                 child: const Text(
                   '+ 나만의 매도신호 만들기',
@@ -664,14 +762,13 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
       stockPktSignal,
     );
 
-    if (context.mounted && result != null) {
+    if (context.mounted) {
       if (result == CustomNvRouteResult.refresh) {
         // reload();
       } else if (result == CustomNvRouteResult.cancel) {
         //
       } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(
-            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
       } else {
         CommonPopup.instance.showDialogBasic(context, '알림', result);
       }
@@ -707,7 +804,6 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                     '나만의 매도 신호 수정',
                     style: TStyle.title18T,
                     textAlign: TextAlign.center,
-                    
                   ),
                   const SizedBox(
                     height: 20.0,
@@ -728,7 +824,6 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                             style: TextStyle(
                               color: Colors.white,
                             ),
-                            
                           ),
                         ),
                       ),
@@ -753,18 +848,15 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                             style: TextStyle(
                               color: Colors.white,
                             ),
-                            
                           ),
                         ),
                       ),
                     ),
                     onPressed: () async {
                       Navigator.pop(popupContext);
-                      String result = await CommonPopup.instance
-                          .showDialogBasicConfirm(
-                              context, '알림', '나만의 매도신호를 삭제하시겠습니까?');
-                      if (context.mounted &&
-                          result == CustomNvRouteResult.landing) {
+                      String result =
+                          await CommonPopup.instance.showDialogBasicConfirm(context, '알림', '나만의 매도신호를 삭제하시겠습니까?');
+                      if (context.mounted && result == CustomNvRouteResult.landing) {
                         _delSignalAndResult(item);
                       }
                     },
@@ -782,25 +874,22 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
   _delSignalAndResult(StockPktSignal stockPktSignal) async {
     String result = CustomNvRouteResult.fail;
     if (stockPktSignal.resultDiv == 'S') {
-      result =
-          await Provider.of<SignalProvider>(context, listen: false).delSignalS(
+      result = await Provider.of<SignalProvider>(context, listen: false).delSignalS(
         stockPktSignal.pocketSn,
         stockPktSignal.stockCode,
       );
     } else if (stockPktSignal.resultDiv == 'P') {
-      result =
-          await Provider.of<SignalProvider>(context, listen: false).delSignalP(
+      result = await Provider.of<SignalProvider>(context, listen: false).delSignalP(
         stockPktSignal.pocketSn,
         stockPktSignal.stockCode,
       );
     }
 
-    if (context.mounted && result != null) {
+    if (context.mounted) {
       if (result == CustomNvRouteResult.refresh) {
         //reload();
       } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(
-            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
       } else {
         CommonPopup.instance.showDialogBasic(context, '안내', result);
       }

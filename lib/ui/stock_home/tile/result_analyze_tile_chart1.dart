@@ -1059,7 +1059,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
                   e.netProfit.isNotEmpty) {
                 _listData.add(e);
               }
-              if (_isQuart && e.confirmYn != null && e.confirmYn == 'N') {
+              if (_isQuart && e.confirmYn == 'N') {
                 _confirmSearch10Sales = e;
               }
             }
