@@ -5,13 +5,13 @@ class Const {
   static const bool isDebuggable = true; //상용버전[false] / 개발버전[true]
   //static const BASE = "rassiapp";           //상용 서버
   static const BASE = "rassiappdev"; //개발 서버
-  static const APP_VER = '1.2.4'; //빌드 번호 가져오는 방법
-  static const VER_CODE = 54;
+  static const APP_VER = '1.2.7'; //빌드 번호 가져오는 방법
+  static const VER_CODE = 57;
   static const bool isSkeletonLoader = true;
 
   /// android set
-  static const APP_VER_AOS = '1.2.5'; //안드로이드 버전
-  static const VER_CODE_AOS = 118;
+  static const APP_VER_AOS = '1.2.7'; //안드로이드 버전
+  static const VER_CODE_AOS = 120;
   static const METHOD_CHANNEL_NAME = 'thinkpool.flutter.dev/channel_method';
   static const METHOD_CHANNEL_PUSH =
       'thinkpool.flutter.dev/channel_method_push';
