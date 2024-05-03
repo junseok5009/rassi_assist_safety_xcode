@@ -44,7 +44,7 @@ class PocketProvider with ChangeNotifier {
   Future<bool> addPocket(String newPocketName) async {
     Pocket newPocket =
         (await PocketProviderNetwork.instance.addPocket(newPocketName)) as Pocket;
-    if (newPocket == null) {
+    if (newPocket.pktSn.isEmpty) {
       return false;
     } else {
       _pktList.add(newPocket);
@@ -117,50 +117,46 @@ class PocketProvider with ChangeNotifier {
   Future<String> addStock(Stock newStock, String pocketSn) async {
     String result =
         await PocketProviderNetwork.instance.addStock(newStock, pocketSn);
-    if (result == null) {
+    if (result == CustomNvRouteResult.refresh) {
+    await CustomFirebaseClass.logEvtMyPocketAdd(newStock.stockName, newStock.stockCode);
+    int pocketListIndex = getPocketListIndexByPocketSn(pocketSn);
+    if (pocketListIndex == -1) {
+      await setList();
       return CustomNvRouteResult.fail;
-    } else if (result == CustomNvRouteResult.refresh) {
-      await CustomFirebaseClass.logEvtMyPocketAdd(newStock.stockName, newStock.stockCode);
-      int pocketListIndex = getPocketListIndexByPocketSn(pocketSn);
-      if (pocketListIndex == -1) {
-        await setList();
-        return CustomNvRouteResult.fail;
-      } else {
-        _pktList[pocketListIndex].stkList.insert(0, newStock);
-        notifyListeners();
-        return CustomNvRouteResult.refresh;
-      }
     } else {
-      return result;
+      _pktList[pocketListIndex].stkList.insert(0, newStock);
+      notifyListeners();
+      return CustomNvRouteResult.refresh;
     }
+  } else {
+    return result;
+  }
   }
 
   // 23.11.23 포켓 안에 종목 삭제 / return [refresh / fail / retMsg]
   Future<String> deleteStock(Stock delStock, String pocketSn) async {
     String result =
         await PocketProviderNetwork.instance.deleteStock(delStock, pocketSn);
-    if (result == null) {
+    if (result == CustomNvRouteResult.refresh) {
+    int pocketListIndex = getPocketListIndexByPocketSn(pocketSn);
+    if (pocketListIndex == -1) {
+      await setList();
       return CustomNvRouteResult.fail;
-    } else if (result == CustomNvRouteResult.refresh) {
-      int pocketListIndex = getPocketListIndexByPocketSn(pocketSn);
-      if (pocketListIndex == -1) {
+    } else {
+      int stockListIndex =
+          _getStockListIndexByStockCode(pocketListIndex, delStock.stockCode);
+      if (stockListIndex == -1) {
         await setList();
         return CustomNvRouteResult.fail;
       } else {
-        int stockListIndex =
-            _getStockListIndexByStockCode(pocketListIndex, delStock.stockCode);
-        if (stockListIndex == -1) {
-          await setList();
-          return CustomNvRouteResult.fail;
-        } else {
-          _pktList[pocketListIndex].stkList.removeAt(stockListIndex);
-          notifyListeners();
-          return CustomNvRouteResult.refresh;
-        }
+        _pktList[pocketListIndex].stkList.removeAt(stockListIndex);
+        notifyListeners();
+        return CustomNvRouteResult.refresh;
       }
-    } else {
-      return result;
     }
+  } else {
+    return result;
+  }
   }
 
   // 23.11.29 포켓 안에 종목 순서 변경
@@ -188,37 +184,31 @@ class PocketProvider with ChangeNotifier {
     listStock.removeWhere((element) => element.isDelete == false);
     String result = await PocketProviderNetwork.instance
         .deleteListStock(pocketSn, listStock);
-    if (result == null) {
+    if (result == CustomNvRouteResult.refresh) {
+    try {
+      Pocket pocket =
+          _pktList.singleWhere((element) => element.pktSn == pocketSn);
+      pocket.stkList.removeWhere((element) {
+        return listStock
+            .any((deleteStock) => deleteStock.stockCode == element.stockCode);
+      });
+      notifyListeners();
+      return CustomNvRouteResult.refresh;
+    } on Exception catch (_, __) {
       return CustomNvRouteResult.fail;
-    } else if (result == CustomNvRouteResult.refresh) {
-      try {
-        Pocket pocket =
-            _pktList.singleWhere((element) => element.pktSn == pocketSn);
-        pocket.stkList.removeWhere((element) {
-          return listStock
-              .any((deleteStock) => deleteStock.stockCode == element.stockCode);
-        });
-        notifyListeners();
-        return CustomNvRouteResult.refresh;
-      } on Exception catch (_, __) {
-        return CustomNvRouteResult.fail;
-      }
-    } else {
-      return result;
     }
+  } else {
+    return result;
+  }
   }
 
   // 23.12.15 3종목 알림 설정 / return [refresh / fail / retMsg]
   Future<String> changeAlarmListStock(List<Stock> listStock) async {
     String result = await PocketProviderNetwork.instance
         .changeAlarmListStock(listStock);
-    if (result == null) {
-      return CustomNvRouteResult.fail;
-    } else {
-      notifyListeners();
-      return result;
+    notifyListeners();
+    return result;
     }
-  }
 
   Pocket getPocketByPocketSn(String pocketSn) {
     int listIndex = _pktList.indexWhere((element) => element.pktSn == pocketSn);

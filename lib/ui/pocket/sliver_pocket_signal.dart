@@ -2,7 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
@@ -37,13 +36,8 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
   late SignalProvider _signalProvider;
   bool _isFaVisible = true;
 
-  List<bool> _boolFilterList = [
-    true,
-    false,
-    false,
-    false,
-    false,
-  ];
+
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -97,19 +91,16 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                         List<StockPktSignal> signalList = provider.getSignalList;
                         if (signalList.isEmpty) {
                           return InkWell(
-                              onTap: () async {
-                                Navigator.push(
-                                  context,
-                                  CustomNvRouteClass.createRoute(
-                                    SearchPage.goLayer(SearchPage.landAddSignalLayer, ''),
-                                  ),
+                              onTap: () {
+                                basePageState.callPageRouteUP(
+                                  const SearchPage(landWhere: SearchPage.addSignalLayer, pocketSn: '',),
                                 );
                               },
                               child: _setEmptySignalView());
                         } else {
-                          return Stack(
+                          return Column(
                             children: [
-                              /* Container(
+                              /*Container(
                                 width: double.infinity,
                                 height: 50,
                                 child: FittedBox(
@@ -118,16 +109,11 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                       Row(
                                         children: [
                                           Checkbox(
-                                            value: _boolFilterList[0],
-                                            onChanged: (value) {
-                                              if (value != _boolFilterList[0]) {
-                                                setState(() {
-                                                  _boolFilterList[0] = value!;
-                                                  _boolFilterList[1] = !value;
-                                                  _boolFilterList[2] = !value;
-                                                  _boolFilterList[3] = !value;
-                                                  _boolFilterList[4] = !value;
-                                                });
+                                            value: _signalProvider.getSortIndex == 0,
+                                            onChanged: (value) async {
+                                              if (value != (_signalProvider.getSortIndex == 0)) {
+                                                bool result = await _signalProvider.filterListBuyRegDttm;
+                                                _scrollController.animateTo(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
                                               }
                                             },
                                           ),
@@ -137,16 +123,11 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                       Row(
                                         children: [
                                           Checkbox(
-                                            value: _boolFilterList[1],
-                                            onChanged: (value) {
-                                              if (value != _boolFilterList[1]) {
-                                                setState(() {
-                                                  _boolFilterList[1] = value!;
-                                                  _boolFilterList[0] = !value;
-                                                  _boolFilterList[2] = !value;
-                                                  _boolFilterList[3] = !value;
-                                                  _boolFilterList[4] = !value;
-                                                });
+                                            value: _signalProvider.getSortIndex == 1,
+                                            onChanged: (value) async {
+                                              if (value != (_signalProvider.getSortIndex == 1)) {
+                                                bool result = await _signalProvider.filterListProfitRate;
+                                                _scrollController.animateTo(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
                                               }
                                             },
                                           ),
@@ -156,16 +137,11 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                       Row(
                                         children: [
                                           Checkbox(
-                                            value: _boolFilterList[2],
-                                            onChanged: (value) {
-                                              if (value != _boolFilterList[2]) {
-                                                setState(() {
-                                                  _boolFilterList[2] = value!;
-                                                  _boolFilterList[0] = !value;
-                                                  _boolFilterList[1] = !value;
-                                                  _boolFilterList[3] = !value;
-                                                  _boolFilterList[4] = !value;
-                                                });
+                                            value: _signalProvider.getSortIndex == 2,
+                                            onChanged: (value) async {
+                                              if (value != (_signalProvider.getSortIndex == 2)) {
+                                                bool result = await _signalProvider.filterListSellDttm;
+                                                _scrollController.animateTo(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
                                               }
                                             },
                                           ),
@@ -175,35 +151,11 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                       Row(
                                         children: [
                                           Checkbox(
-                                            value: _boolFilterList[3],
-                                            onChanged: (value) {
-                                              if (value != _boolFilterList[3]) {
-                                                setState(() {
-                                                  _boolFilterList[3] = value!;
-                                                  _boolFilterList[0] = !value;
-                                                  _boolFilterList[1] = !value;
-                                                  _boolFilterList[2] = !value;
-                                                  _boolFilterList[4] = !value;
-                                                });
-                                              }
-                                            },
-                                          ),
-                                          const Text('오늘등락률순'),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Checkbox(
-                                            value: _boolFilterList[4],
-                                            onChanged: (value) {
-                                              if (value != _boolFilterList[4]) {
-                                                setState(() {
-                                                  _boolFilterList[4] = value!;
-                                                  _boolFilterList[0] = !value;
-                                                  _boolFilterList[1] = !value;
-                                                  _boolFilterList[2] = !value;
-                                                  _boolFilterList[3] = !value;
-                                                });
+                                            value: _signalProvider.getSortIndex == 3,
+                                            onChanged: (value) async {
+                                              if (value != (_signalProvider.getSortIndex == 3)) {
+                                                bool result = await _signalProvider.filterListStockName;
+                                                _scrollController.animateTo(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
                                               }
                                             },
                                           ),
@@ -214,62 +166,69 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                   ),
                                 ),
                               ),*/
-                              ListView.builder(
-                                itemCount: signalList.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  bool isUserSig = false;
-                                  if (signalList[index].sellPrice.isNotEmpty) {
-                                    signalList[index].myTradeFlag == 'S' ? isUserSig = true : isUserSig = false;
-                                  }
-                                  return _setListItem(
-                                    index == 0,
-                                    index == signalList.length - 1,
-                                    signalList[index],
-                                    isUserSig,
-                                  );
-                                },
-                              ),
-                              Align(
-                                alignment: Alignment.bottomCenter,
-                                child: InkWell(
-                                  child: AnimatedContainer(
-                                    width: double.infinity,
-                                    height: _isFaVisible ? 50 : 0,
-                                    duration: const Duration(milliseconds: 200),
-                                    decoration: UIStyle.boxRoundLine6bgColor(
-                                      RColor.bgBasic_fdfdfd,
+                              Expanded(
+                                child: Stack(
+                                  children: [
+                                    ListView.builder(
+                                      controller: _scrollController,
+                                      itemCount: signalList.length,
+                                      itemBuilder: (BuildContext context, int index) {
+                                        bool isUserSig = false;
+                                        if (signalList[index].sellPrice.isNotEmpty) {
+                                          signalList[index].myTradeFlag == 'S' ? isUserSig = true : isUserSig = false;
+                                        }
+                                        return Visibility(
+                                          visible: !(_signalProvider.getSortIndex == 2 && signalList[index].myTradeFlag == 'H'),
+                                          child: _setListItem(
+                                            index == 0,
+                                            index == signalList.length - 1,
+                                            signalList[index],
+                                            isUserSig,
+                                          ),
+                                        );
+                                      },
                                     ),
-                                    margin: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                      horizontal: 20,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Image.asset(
-                                          'images/icon_add_circle_black.png',
-                                          height: 16,
-                                        ),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        const Text(
-                                          '나만의 매도신호 만들기',
-                                          style: TextStyle(
-                                              //fontSize: 14,
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: InkWell(
+                                        child: AnimatedContainer(
+                                          width: double.infinity,
+                                          height: _isFaVisible ? 50 : 0,
+                                          duration: const Duration(milliseconds: 200),
+                                          decoration: UIStyle.boxRoundLine6bgColor(
+                                            RColor.bgBasic_fdfdfd,
+                                          ),
+                                          margin: const EdgeInsets.symmetric(
+                                            vertical: 10,
+                                            horizontal: 20,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                'images/icon_add_circle_black.png',
+                                                height: 16,
                                               ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              const Text(
+                                                '나만의 매도신호 만들기',
+                                                style: TextStyle(
+                                                    //fontSize: 14,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      CustomNvRouteClass.createRoute(
-                                        SearchPage.goLayer(SearchPage.landAddSignalLayer, ''),
+                                        onTap: () {
+                                          basePageState.callPageRouteUP(
+                                            const SearchPage(landWhere: SearchPage.addSignalLayer, pocketSn: '',),
+                                          );
+                                        },
                                       ),
-                                    );
-                                  },
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

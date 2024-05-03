@@ -1,15 +1,19 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tr_search/tr_search01.dart';
 import 'package:rassi_assist/provider/add_signal_layer_slider_provider.dart';
@@ -110,7 +114,6 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
   Widget build(BuildContext context) {
     if (!_isSelectPrice) {
       double keyBoardHeight = MediaQuery.of(context).viewInsets.bottom;
-
       if (181 + keyBoardHeight > _selectPriceViewHeight) {
         _directPriceEmptyBoxheight = 0;
         //DLog.d('','_directPriceKeyboardHeight : $_directPriceKeyboardHeight');
@@ -121,7 +124,6 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
           _directPriceEmptyBoxheight = _selectPriceViewHeight - 181 - keyBoardHeight;
         }
       }
-
       if (keyBoardHeight > _directPriceKeyboardHeight) {
         _directPriceKeyboardHeight = keyBoardHeight;
       } else if (keyBoardHeight < _directPriceKeyboardHeight) {
@@ -214,10 +216,15 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
               const SizedBox(
                 height: 10,
               ),
-              ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: _isSelectPrice ? _setSelectPriceViews : _setDirectPriceViews,
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: AppGlobal().deviceHeight < 580 ? 280 : 550,
+                ),
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: _isSelectPrice ? null : const NeverScrollableScrollPhysics(),
+                  children: _isSelectPrice ? _setSelectPriceViews : _setDirectPriceViews,
+                ),
               ),
             ],
           ),

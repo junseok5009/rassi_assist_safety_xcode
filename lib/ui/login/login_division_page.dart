@@ -605,7 +605,7 @@ class LoginDivisionPageState extends State<LoginDivisionPage> {
           context,
           MaterialPageRoute(
             builder: (context) => const BasePage(),
-            settings: const RouteSettings(name: '/base'),
+            settings: const RouteSettings(name: BasePage.routeName),
           ),
           (route) => false);
     } else {}

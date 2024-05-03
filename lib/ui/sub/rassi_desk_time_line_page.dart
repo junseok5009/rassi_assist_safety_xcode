@@ -257,6 +257,10 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
                   arguments: PgData(pgSn: ''));
             } else if (item.contentDiv == 'BRF2') {
               basePageState.callPageRoute(const RassiDeskPage());
+            } else if (item.contentDiv == 'SCH') {
+              basePageState.callPageRouteUP(
+                const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
+              );
             }
           }
         },
@@ -388,7 +392,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
                           } */
                           else if (item.contentDiv == 'SCH') {
                             basePageState.callPageRouteUP(
-                              SearchPage.goStockHome(),
+                              const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
                             );
                           } else {
                             // 종목홈으로

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -100,17 +101,14 @@ class TestState extends State<TestWidget> {
     super.initState();
 
     //Notification 알림 설정
-    var androidSetting =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
-    const DarwinInitializationSettings iosSetting =
-        DarwinInitializationSettings(
+    var androidSetting = const AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosSetting = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
 
-    var initializationSettings =
-        InitializationSettings(android: androidSetting, iOS: iosSetting);
+    var initializationSettings = InitializationSettings(android: androidSetting, iOS: iosSetting);
     _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
@@ -145,8 +143,7 @@ class TestState extends State<TestWidget> {
     //   displayColor: Colors.pink,
     // );
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: _setLayout(),
     );
   }
@@ -418,7 +415,14 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () {
-              Navigator.push(context, CustomNvRouteClass.createRoute(TestImageFullPage(imageUrl: 'https://files.thinkpool.com/rassi_signal/event_back_6.png',),),);
+              Navigator.push(
+                context,
+                CustomNvRouteClass.createRoute(
+                  TestImageFullPage(
+                    imageUrl: 'https://files.thinkpool.com/rassi_signal/event_back_6.png',
+                  ),
+                ),
+              );
             },
           ),
         ),
@@ -433,7 +437,8 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () {
-              commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=LzmMZsWM7MK6Kvo1%2BiCqXQ%3D%3D');
+              commonLaunchUrlAppOpen(
+                  'https://tradingpoint.co.kr/landing/bank.do?userId=LzmMZsWM7MK6Kvo1%2BiCqXQ%3D%3D');
             },
           ),
         ),
@@ -480,11 +485,9 @@ class TestState extends State<TestWidget> {
         _setAButton('가입SSG', JoinPhonePage.routeName, Colors.blueAccent[100]!),
         _setJoinButton('joinKakao', 'KAKAO', Colors.blueAccent[100]!),
         _setJoinButton('joinApple', 'APPLE', Colors.blueAccent[100]!),
-        _setAButton('Intro\nsearch', IntroSearchPage.routeName,
-            Colors.blueAccent[100]!),
+        _setAButton('Intro\nsearch', IntroSearchPage.routeName, Colors.blueAccent[100]!),
         _setJoinButton('가입경로', 'ROUTE', Colors.blueAccent[100]!),
-        _setAButton(
-            '라씨\n로그인', RassiLoginPage.routeName, Colors.blueAccent[100]!),
+        _setAButton('라씨\n로그인', RassiLoginPage.routeName, Colors.blueAccent[100]!),
         Builder(
           builder: (context) => InkWell(
             child: Container(
@@ -506,8 +509,7 @@ class TestState extends State<TestWidget> {
             },
           ),
         ),
-        _setAButton(
-            '알림설정N', NotificationSettingN.routeName, Colors.blueAccent[100]!),
+        _setAButton('알림설정N', NotificationSettingN.routeName, Colors.blueAccent[100]!),
         Builder(
           builder: (context) => InkWell(
             child: Container(
@@ -523,8 +525,7 @@ class TestState extends State<TestWidget> {
                 context,
                 WebChartPage.routeName,
                 arguments: PgData(
-                  pgData:
-                      'https://kiwoom.thinkpool.com?svcJoin=SS&customNo=999999905',
+                  pgData: 'https://kiwoom.thinkpool.com?svcJoin=SS&customNo=999999905',
                 ),
               );
             },
@@ -545,8 +546,7 @@ class TestState extends State<TestWidget> {
                 context,
                 WebChartPage.routeName,
                 arguments: PgData(
-                  pgData:
-                      'https://kiwoom.thinkpool.com/my-stock?svcJoin=SS&customNo=999999905',
+                  pgData: 'https://kiwoom.thinkpool.com/my-stock?svcJoin=SS&customNo=999999905',
                 ),
               );
             },
@@ -567,8 +567,7 @@ class TestState extends State<TestWidget> {
                 context,
                 WebChartPage.routeName,
                 arguments: PgData(
-                  pgData:
-                      'https://kiwoom.thinkpool.com/market-view?svcJoin=SS&customNo=999999905',
+                  pgData: 'https://kiwoom.thinkpool.com/market-view?svcJoin=SS&customNo=999999905',
                 ),
               );
             },
@@ -660,9 +659,7 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
               PgData(data: 'ad3'),
             ),
           ),
@@ -679,9 +676,7 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
               PgData(data: 'ad4'),
             ),
           ),
@@ -698,9 +693,7 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
               PgData(data: 'ad5'),
             ),
           ),
@@ -717,9 +710,7 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
               PgData(data: 'at1'),
             ),
           ),
@@ -736,9 +727,7 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
               PgData(data: 'at2'),
             ),
           ),
@@ -755,10 +744,8 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
-              PgData(data: 'new_6m'),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? PgData(data: 'am6d0') : PgData(data: 'new_6m'),
             ),
           ),
         ),
@@ -767,16 +754,15 @@ class TestState extends State<TestWidget> {
             child: Container(
               padding: const EdgeInsets.all(5),
               color: Colors.green[200],
-              child: const Text(
+              child: const AutoSizeText(
                 '6개월 정기구독(처음50%)',
                 style: TStyle.subTitle,
+                maxLines: 2,
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
-              PgData(data: 'new_6m_50'),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? PgData(data: 'am6d5') : PgData(data: 'new_6m_50'),
             ),
           ),
         ),
@@ -791,9 +777,7 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
               PgData(data: 'new_6m_70'),
             ),
           ),
@@ -809,9 +793,7 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () => basePageState.callPageRouteUpData(
-              Platform.isIOS
-                  ? const PayPremiumPromotionPage()
-                  : const PayPremiumPromotionAosPage(),
+              Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
               PgData(data: 'new_7d'),
             ),
           ),
@@ -829,9 +811,7 @@ class TestState extends State<TestWidget> {
               ),
               onTap: () {
                 basePageState.callPageRouteUpData(
-                  Platform.isIOS
-                      ? const PayPremiumPromotionPage()
-                      : const PayPremiumPromotionAosPage(),
+                  Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
                   PgData(data: 'at2'),
                 );
               }),
@@ -848,8 +828,7 @@ class TestState extends State<TestWidget> {
                 style: TStyle.subTitle,
               ),
             ),
-            onTap: () => commonLaunchURL(
-                'https://apps.apple.com/redeem?ctx=offercodes&id=1542866202&code=TEST202205'),
+            onTap: () => commonLaunchURL('https://apps.apple.com/redeem?ctx=offercodes&id=1542866202&code=TEST202205'),
           ),
         ),
         Builder(
@@ -862,8 +841,7 @@ class TestState extends State<TestWidget> {
                 style: TStyle.subTitle,
               ),
             ),
-            onTap: () => commonLaunchURL(
-                'https://apps.apple.com/redeem?ctx=offercodes&id=1542866202&code=CODETEST01'),
+            onTap: () => commonLaunchURL('https://apps.apple.com/redeem?ctx=offercodes&id=1542866202&code=CODETEST01'),
           ),
         ),
 
@@ -951,8 +929,7 @@ class TestState extends State<TestWidget> {
             ),
             onTap: () {
               // 시뮬레이터 에서는 onSelectNotification 안되는듯, plugin 초기화 실패
-              _showNotification(
-                  111, 'title', 'content', 'JsonEncoder().convert(message)');
+              _showNotification(111, 'title', 'content', 'JsonEncoder().convert(message)');
             },
           ),
         ),
@@ -1018,8 +995,7 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () {
-              DLog.i(
-                  'userid : $_userId / encodedUserId : ${Net.getEncrypt(_userId)}');
+              DLog.i('userid : $_userId / encodedUserId : ${Net.getEncrypt(_userId)}');
               //DLog.i(Net.getDecrypt('aef87372a85fc94f0a5056c1862dc05'));
             },
           ),
@@ -1227,8 +1203,7 @@ class TestState extends State<TestWidget> {
       builder: (BuildContext context) {
         //팝업에서 폰트 크기를 설정할 경우
         return MediaQuery(
-          data: MediaQuery.of(context)
-              .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+          data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
           child: AlertDialog(
             shape: UIStyle.borderRoundedDialog(),
             title: Row(
@@ -1259,8 +1234,7 @@ class TestState extends State<TestWidget> {
                         // const SizedBox(height: 7.0,),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 10.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                           decoration: UIStyle.boxRoundLine6(),
                           child: TextField(
                             controller: _idController,
@@ -1329,7 +1303,6 @@ class TestState extends State<TestWidget> {
       child: Text(
         subTitle,
         style: TStyle.commonTitle,
-        
       ),
     );
   }
@@ -1374,25 +1347,22 @@ class TestState extends State<TestWidget> {
   }
 
   static Future<String> getLocalIpAddress() async {
-    final interfaces = await NetworkInterface.list(
-        type: InternetAddressType.IPv4, includeLinkLocal: true);
+    final interfaces = await NetworkInterface.list(type: InternetAddressType.IPv4, includeLinkLocal: true);
 
     try {
       // Try VPN connection first
-      NetworkInterface vpnInterface =
-          interfaces.firstWhere((element) => element.name == "tun0");
+      NetworkInterface vpnInterface = interfaces.firstWhere((element) => element.name == "tun0");
       return vpnInterface.addresses.first.address;
     } on StateError {
       // Try wlan connection next
       try {
-        NetworkInterface interface =
-            interfaces.firstWhere((element) => element.name == "wlan0");
+        NetworkInterface interface = interfaces.firstWhere((element) => element.name == "wlan0");
         return interface.addresses.first.address;
       } catch (ex) {
         // Try any other connection next
         try {
-          NetworkInterface interface = interfaces.firstWhere((element) =>
-              !(element.name == "tun0" || element.name == "wlan0"));
+          NetworkInterface interface =
+              interfaces.firstWhere((element) => !(element.name == "tun0" || element.name == "wlan0"));
           return interface.addresses.first.address;
         } catch (ex) {
           return '';
@@ -1435,26 +1405,19 @@ class TestState extends State<TestWidget> {
   }
 
   //Foreground 상태에서 Notification 등록
-  Future<void> _showNotification(
-      int pushSn, String title, String body, String payload) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails('think_android', 'think_android',
-            channelDescription: 'think_android',
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: 'ticker');
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
+  Future<void> _showNotification(int pushSn, String title, String body, String payload) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'think_android', 'think_android',
+        channelDescription: 'think_android', importance: Importance.max, priority: Priority.high, ticker: 'ticker');
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
 
-    await _flutterLocalNotificationsPlugin
-        .show(pushSn, title, body, platformChannelSpecifics, payload: payload);
+    await _flutterLocalNotificationsPlugin.show(pushSn, title, body, platformChannelSpecifics, payload: payload);
   }
 
   //App Tracking Transparency (ATT 팝업 : 설치 후 한번만 노출됨)
   void _requestAppTracking() async {
     try {
-      if (await AppTrackingTransparency.trackingAuthorizationStatus ==
-          TrackingStatus.notDetermined) {
+      if (await AppTrackingTransparency.trackingAuthorizationStatus == TrackingStatus.notDetermined) {
         await AppTrackingTransparency.requestTrackingAuthorization();
       }
     } on PlatformException {
@@ -1464,8 +1427,7 @@ class TestState extends State<TestWidget> {
 
   void _requestIDFA() async {
     try {
-      if (await AppTrackingTransparency.trackingAuthorizationStatus ==
-          TrackingStatus.authorized) {
+      if (await AppTrackingTransparency.trackingAuthorizationStatus == TrackingStatus.authorized) {
         final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
         DLog.d(TestPage.TAG, 'IDFA => $uuid');
         // _showNotification(12347, 'IDFA', uuid, '');
@@ -1506,9 +1468,7 @@ class TestState extends State<TestWidget> {
                   const SizedBox(
                     height: 5.0,
                   ),
-                  const Text('업데이트 알림',
-                      style: TStyle.defaultTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                  const Text('업데이트 알림', style: TStyle.defaultTitle, textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 25.0,
                   ),
@@ -1526,9 +1486,7 @@ class TestState extends State<TestWidget> {
                         height: 40,
                         decoration: UIStyle.roundBtnStBox(),
                         child: const Center(
-                          child: Text('확인',
-                              style: TStyle.btnTextWht16,
-                              textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                          child: Text('확인', style: TStyle.btnTextWht16, textScaleFactor: Const.TEXT_SCALE_FACTOR),
                         ),
                       ),
                     ),

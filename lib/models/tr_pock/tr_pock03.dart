@@ -13,14 +13,11 @@ class TrPock03 {
   TrPock03({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrPock03.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Pock03> rtList;
-    list == null ? rtList = [] : rtList = list.map((i) => Pock03.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrPock03(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      listData: rtList,
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => Pock03.fromJson(i)).toList(),
     );
   }
 }

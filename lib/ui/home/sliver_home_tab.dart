@@ -2,7 +2,6 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -12,6 +11,7 @@ import 'package:rassi_assist/ui/home/sliver_home_page.dart';
 import 'package:rassi_assist/ui/home/sliver_market_page.dart';
 import 'package:rassi_assist/ui/home/sliver_signal_page.dart';
 import 'package:rassi_assist/ui/home/sliver_stock_catch.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
 
 /// 2022.04.20
@@ -25,8 +25,7 @@ class SliverHomeTabWidget extends StatefulWidget {
   State<StatefulWidget> createState() => SliverHomeTabWidgetState();
 }
 
-class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
-    with SingleTickerProviderStateMixin {
+class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> with SingleTickerProviderStateMixin {
   int initIndex = 0;
   final List<String> _tabs = ['홈', 'AI매매신호', '종목캐치', '마켓뷰'];
   final List<String> _dropdownItems = ['AI매매신호', '종목홈'];
@@ -68,7 +67,6 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
         child: DefaultTabController(
           initialIndex: initIndex,
           length: _tabs.length,
-
           child: _setNestedScrollView(),
         ),
       ),
@@ -238,12 +236,11 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        AppGlobal().tabIndex =
-                            _dropdownSelectIndex == 0 ? 1 : 0;
-                        Navigator.push(
-                          context,
-                          CustomNvRouteClass.createRoute(
-                            SearchPage.goStockHome(),
+                        AppGlobal().tabIndex = _dropdownSelectIndex == 0 ? 1 : 0;
+                        basePageState.callPageRouteUP(
+                          const SearchPage(
+                            landWhere: SearchPage.goStockHome,
+                            pocketSn: '',
                           ),
                         );
                       },
@@ -385,8 +382,7 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget>
           displacement: 120,
           onRefresh: () async {
             if (SliverStockCatchWidget.globalKey.currentState != null) {
-              var childCurrentState =
-                  SliverStockCatchWidget.globalKey.currentState;
+              var childCurrentState = SliverStockCatchWidget.globalKey.currentState;
               childCurrentState?.reload();
               await Future.delayed(const Duration(milliseconds: 1000));
             }

@@ -62,36 +62,15 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   late SharedPreferences _prefs;
   String _userId = '';
   String _curProd = '';
-
-  String _emptyString = '매매신호를 수신중 입니다.';
-  String _strBuy = '';
-  String _strSell = '';
   String _strTime = '';
-  bool _bIsTrading = false;
   String _catchTitle = '';
   String _catchSn = '';
 
   bool _isFreeVisible = true;
   List<HonorData> honorList = [];
 
-  //인공지능 시그널 발생 현황
-  bool _isReqComplete = false;
-  String _engineStr1 = '';
-  String _engineStr2 = '';
-  String _engineStatus = '';
-  String _strLottie = 'assets/41561-machine-learning.json';
-  bool _isBeforeTime = false;
-  bool _isVisibleTimer = false;
-  final List<String> _preStartStr = [
-    '학습 정보 Update',
-    'Today 시세마스터 생성',
-    '미거래/매매금지 종목 Filtering',
-    '신규 종목 Confirm',
-    '거래 종목 fixed',
-    '종목 정보/분석 Update',
-    'Dashboard Reset',
-    'Start Trading Standby',
-  ];
+  // 24.04.30 오늘의 AI매매신호 현황 + 신호 분석중 프로세스 화면 전문으로 값 받아오기 작업 [Signal09]
+  Signal09 _signal09 = const Signal09();
   Timer? countTimer;
   int minute = 0;
   int second = 0;
@@ -162,27 +141,22 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                     height: 125,
                     color: RColor.bgbora,
                   ),
-                  _setStatus(),
+                  _signal09.isEmpty() ? _setEmptySignal09Widget() : _setSignal09Widget(),
                 ],
               ),
 
               // AI 는 현재 ...
-              Visibility(
-                visible: _isReqComplete,
-                child: _setAnalStatus(),
-              ),
-              Visibility(
-                visible: !_isReqComplete,
-                child: Container(
-                  height: 85.0,
-                  padding: const EdgeInsets.all(15),
-                  decoration: const BoxDecoration(
-                    color: RColor.bgWeakGrey,
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  child: const Text(''),
-                ),
-              ),
+              _signal09.isEmpty()
+                  ? Container(
+                      height: 85.0,
+                      padding: const EdgeInsets.all(15),
+                      decoration: const BoxDecoration(
+                        color: RColor.bgWeakGrey,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      child: const Text(''),
+                    )
+                  : _setAnalStatus(),
 
               _setPrTop(),
 
@@ -431,7 +405,47 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   }
 
   //오늘의 AI 매매신호 현황
-  Widget _setStatus() {
+  Widget _setEmptySignal09Widget() {
+    return Container(
+      margin: const EdgeInsets.only(left: 20, right: 20, top: 30, bottom: 20),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+      width: double.infinity,
+      height: 200,
+      decoration: UIStyle.boxRoundLine6bgColor(Colors.white),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '오늘의 AI매매신호 현황',
+                style: TStyle.commonTitle,
+              ),
+              Row(
+                children: [
+                  Text(
+                    _strTime,
+                    style: TStyle.textSGrey,
+                  ),
+                  const SizedBox(
+                    width: 3,
+                  ),
+                  Image.asset(
+                    'images/rassi_icon_hold_wch.png',
+                    height: 12,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  //오늘의 AI 매매신호 현황
+  Widget _setSignal09Widget() {
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 30, bottom: 20),
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -468,7 +482,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
             height: 10,
           ),
           Visibility(
-            visible: _bIsTrading,
+            visible: _signal09.noticeCode.isNotEmpty && _signal09.noticeCode != 'TIME_BEFORE',
             child: _setSignalStatus(),
           ),
           const SizedBox(
@@ -490,14 +504,16 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                   }),
             ),
           ),
-
           Visibility(
-            visible: !_bIsTrading,
+            visible: _signal09.noticeCode.isNotEmpty &&
+                _signal09.noticeCode != 'TIME_OPEN' &&
+                _signal09.buyCount == '0' &&
+                _signal09.sellCount == '0',
             child: SizedBox(
               height: 105,
               child: Center(
                 child: Text(
-                  _emptyString,
+                  _signal09.noticeCode == 'TIME_BEFORE' ? '장 시작 전 입니다.' : '오늘 새로 발생된 매매신호가 없습니다.',
                   style: TStyle.textGrey15,
                 ),
               ),
@@ -519,8 +535,8 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
               '매수',
               style: TStyle.subTitle,
             ),
-            _setCircleText(_strBuy, RColor.sigBuy, 'B'),
-            _setCircleText(_strSell, RColor.sigSell, 'S'),
+            _setCircleText(_signal09.buyCount, RColor.sigBuy, 'B'),
+            _setCircleText(_signal09.sellCount, RColor.sigSell, 'S'),
             const Text(
               '매도',
               style: TStyle.subTitle,
@@ -588,7 +604,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _engineStr1,
+                  _signal09.processText,
                   style: TStyle.title17,
                 ),
                 const SizedBox(
@@ -596,12 +612,12 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 ),
 
                 Visibility(
-                  visible: !_isBeforeTime,
+                  visible: _signal09.noticeCode.isNotEmpty && _signal09.noticeCode != 'TIME_BEFORE',
                   child: Row(
                     children: [
-                      Text(_engineStr2),
+                      Text(_signal09.listNotice.isEmpty ? '' : _signal09.listNotice.first),
                       Visibility(
-                        visible: _isVisibleTimer,
+                        visible: _signal09.noticeCode.isNotEmpty && _signal09.noticeCode == 'TIME_TERM',
                         child: Row(
                           children: [
                             const SizedBox(
@@ -632,7 +648,9 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
 
                 //장 시작전 대기... 필터중... 작업중
                 Visibility(
-                  visible: _isBeforeTime,
+                  visible: _signal09.noticeCode.isNotEmpty &&
+                      _signal09.noticeCode == 'TIME_BEFORE' &&
+                      _signal09.listNotice.isNotEmpty,
                   child: SizedBox(
                     width: 220,
                     height: 40,
@@ -640,20 +658,20 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                         loop: true,
                         autoplay: true,
                         autoplayDelay: 4000,
-                        itemCount: _preStartStr.length,
+                        itemCount: _signal09.listNotice.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return Text(_preStartStr[index]);
+                          return Text(_signal09.listNotice[index]);
                         }),
                   ),
                 ),
               ],
             ),
-            Lottie.asset(_strLottie, height: 57),
+            Lottie.asset(_signal09.lottiePath, height: 57),
           ],
         ),
       ),
       onTap: () {
-        _showDialogProcess(_engineStatus);
+        _showDialogProcess(_signal09.noticeCode);
       },
     );
   }
@@ -1398,8 +1416,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         final Signal05 data = resData.retData;
 
         honorList.clear();
-        _strBuy = data.buyCount;
-        _strSell = data.sellCount;
+
         _strTime =
             "${data.updateDttm.substring(4, 6)}/${data.updateDttm.substring(6, 8)}  ${data.updateDttm.substring(8, 10)}:${data.updateDttm.substring(10, 12)}";
         honorList.addAll(data.listHonor);
@@ -1418,11 +1435,21 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     else if (trStr == TR.SIGNAL09) {
       final TrSignal09 resData = TrSignal09.fromJson(jsonDecode(response.body));
       countTimer?.cancel();
-      _bIsTrading = false;
       if (resData.retCode == RT.SUCCESS) {
-        Signal09 item = resData.resData;
-        _setParseSigStatus(item);
+        _signal09 = resData.resData;
+        //장시작 대기, 전일 미거래 종목 필터링중(08시 ~ 개장전)
+        //9시 20분 첫 신호 발생부터 다음 신호 발생 정각까지 20분 단위 카운트 다운
+        if (_signal09.noticeCode == 'TIME_TERM') {
+          startTimer(_signal09.remainTime);
+        }
+        //9시 40분 2번째 신호 발생부터 20분/40분/60분 해당 신호대 신호 발생까지 노출
+        else if (_signal09.noticeCode == 'TIME_WAIT') {
+          startTimerWait();
+        }
+      } else {
+        _signal09 = const Signal09();
       }
+      setState(() {});
 
       _fetchPosts(
           TR.SEARCH04,
@@ -1548,65 +1575,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     }
   }
 
-  //매매신호 현황
-  _setParseSigStatus(Signal09 item) {
-    _isReqComplete = true; //기본값 노출방지
-    _isVisibleTimer = false;
-    _bIsTrading = (item.noticeCode != 'TIME_BEFORE' && item.noticeCode.isNotEmpty);
-
-    //장시작 대기, 전일 미거래 종목 필터링중(08시 ~ 개장전)
-    if (item.noticeCode == 'TIME_BEFORE') {
-      _isBeforeTime = true;
-      _engineStr1 = 'AI는 현재 데이터 처리 중';
-      _engineStr2 = '';
-      _strLottie = 'assets/9678-colorfull-loading.json';
-    }
-    //장시작 후 첫 신호 발생전까지
-    else if (item.noticeCode == 'TIME_OPEN') {
-      _engineStr1 = 'AI는 현재 신호 발생 중';
-      _engineStr2 = '새로운 AI매매신호가 발생중입니다.';
-      _strLottie = 'assets/8796-dashboard-motion.json';
-    }
-    //9시 20분 첫 신호 발생부터 다음 신호 발생 정각까지 20분 단위 카운트 다운
-    else if (item.noticeCode == 'TIME_TERM') {
-      _engineStr1 = 'AI는 현재 실시간 분석 중';
-      _engineStr2 = '다음 신호 발생까지';
-      _strLottie = 'assets/985-phonological.json';
-      _isBeforeTime = false;
-      _isVisibleTimer = true;
-
-      startTimer(item.remainTime);
-    }
-    //9시 40분 2번째 신호 발생부터 20분/40분/60분 해당 신호대 신호 발생까지 노출
-    else if (item.noticeCode == 'TIME_WAIT') {
-      _engineStr1 = 'AI는 현재 신호 발생 중';
-      _engineStr2 = '새로운 AI매매신호가 발생중입니다.';
-      _strLottie = 'assets/9925-check-purple.json';
-
-      startTimerWait();
-    }
-    //비영업일, 영업일 장종료후
-    else {
-      _engineStr1 = 'AI는 현재 학습 업데이트 중';
-      _engineStr2 = '데이터를 수집하여 학습에 반영중입니다.';
-      _strLottie = 'assets/41561-machine-learning.json';
-    }
-
-    _engineStatus = item.noticeCode;
-    _strBuy = item.buyCount;
-    _strSell = item.sellCount;
-    if (_strBuy == '0' && _strSell == '0') {
-      if (item.noticeCode == 'TIME_BEFORE') {
-        _emptyString = '장 시작 전 입니다.';
-      } else if (item.noticeCode != 'TIME_OPEN') {
-        _emptyString = '오늘 새로 발생된 매매신호가 없습니다.';
-      }
-    }
-    // _processTxt = item.processText;
-
-    setState(() {});
-  }
-
   void startTimer(String sTime) {
     countTimer?.cancel();
     DLog.d(SliverSignalWidget.TAG, 'Timer cancel');
@@ -1614,7 +1582,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     if (sTime.length > 3) {
       minute = int.parse(sTime.substring(0, 2));
       second = int.parse(sTime.substring(2, 4));
-
       countTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           if (second > 0) {
@@ -1643,7 +1610,6 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   void startTimerWait() {
     countTimer?.cancel();
     DLog.d(SliverSignalWidget.TAG, 'Timer cancel');
-
     DLog.d(SliverSignalWidget.TAG, 'Timer Wait : 70sec');
     countTimer = Timer.periodic(const Duration(seconds: 70), (timer) {
       DLog.d(SliverSignalWidget.TAG, '# _fetchPosts(TimerWait)');

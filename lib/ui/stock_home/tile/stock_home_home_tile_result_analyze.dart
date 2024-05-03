@@ -1803,7 +1803,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
 }
 
 class InfoProvider extends ChangeNotifier {
-  Search10Sales _search10Sales = Search10Sales.empty();
+  Search10Sales _search10Sales = Search10Sales();
 
   Search10Sales get getSearch10Sales => _search10Sales;
 

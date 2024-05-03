@@ -74,8 +74,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
   }
 
   _handleTabSelection() {
-    if (_tabController.indexIsChanging &&
-        _tabController.index != _tabController.previousIndex) {
+    if (_tabController.indexIsChanging && _tabController.index != _tabController.previousIndex) {
       setState(() {
         _currentTabIndex = _tabController.index;
         _isLoading = true;
@@ -91,8 +90,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
   void initState() {
     super.initState();
     _isLoading = true;
-    _tabController =
-        TabController(length: 5, vsync: this, initialIndex: _currentTabIndex);
+    _tabController = TabController(length: 5, vsync: this, initialIndex: _currentTabIndex);
     _tabController.addListener(_handleTabSelection);
     _loadPrefData().then((_) {
       initPage();
@@ -114,7 +112,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
 
   @override
   Widget build(BuildContext context) {
-   super.build(context);
+    super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -134,7 +132,10 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
               InkWell(
                 onTap: () async {
                   // [포켓 > TODAY > 같은 상승, 하락 ... 탭으로 이동]
-                  basePageState.goPocketPage(Const.PKT_INDEX_TODAY, todayIndex: 0,);
+                  basePageState.goPocketPage(
+                    Const.PKT_INDEX_TODAY,
+                    todayIndex: 0,
+                  );
                 },
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -174,34 +175,27 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
                   return _loadingView();
                 }
               } else {
-                if (_pock09 == null) {
-                  return _itemBaseContainer(
-                    CommonView.setNoDataTextView(
-                      80,
-                      '데이터가 없습니다.',
-                    ),
-                  );
-                } else if (_pock09.beforeOpening == 'Y') {
-                  return _itemBaseContainer(
-                    CommonView.setNoDataTextView(
-                      80,
-                      '장 시작 전 입니다.',
-                    ),
-                  );
-                } else if (_pock09.isEmpty()) {
-                  if (_stockCount == 0) {
-                    return _setAddStockView();
-                  } else {
-                    return _itemBaseContainer(
-                      CommonView.setNoDataTextView(
-                        80,
-                        _pock09.getEmptyTitle(),
-                      ),
-                    );
-                  }
+                if (_pock09.beforeOpening == 'Y') {
+                return _itemBaseContainer(
+                  CommonView.setNoDataTextView(
+                    80,
+                    '장 시작 전 입니다.',
+                  ),
+                );
+              } else if (_pock09.isEmpty()) {
+                if (_stockCount == 0) {
+                  return _setAddStockView();
                 } else {
-                  return _setPocketStatusList();
+                  return _itemBaseContainer(
+                    CommonView.setNoDataTextView(
+                      80,
+                      _pock09.getEmptyTitle(),
+                    ),
+                  );
                 }
+              } else {
+                return _setPocketStatusList();
+              }
               }
             })(),
           ),
@@ -306,8 +300,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
         _tabSelectDiv[_currentTabIndex] == 'DN' ||
         _tabSelectDiv[_currentTabIndex] == 'TS') {
       itemCnt = _pock09.stockList.length;
-    } else if (_tabSelectDiv[_currentTabIndex] == 'SB' ||
-        _tabSelectDiv[_currentTabIndex] == 'RN') {
+    } else if (_tabSelectDiv[_currentTabIndex] == 'SB' || _tabSelectDiv[_currentTabIndex] == 'RN') {
       itemCnt = _pock09.pushList.length;
     }
     return SingleChildScrollView(
@@ -374,34 +367,37 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
   }
 
   Widget _selectMyPocketTile(int idx) {
-    if (_tabSelectDiv[_currentTabIndex] == 'UP' ||
-        _tabSelectDiv[_currentTabIndex] == 'DN') {
+    if (_tabSelectDiv[_currentTabIndex] == 'UP' || _tabSelectDiv[_currentTabIndex] == 'DN') {
       return InkWell(
         child: TileUpAndDown(
           _pock09.stockList[idx],
           _setChartItem(_pock09.stockList[idx]),
         ),
         onTap: () async {
-          if (_pock09.stockList[idx] != null) {
-            // [포켓 > TODAY > 같은 상승, 하락 ... 탭으로 이동]
-            // > 종목홈으로 이동
-            StockPktChart item = _pock09.stockList[idx];
-            basePageState.goStockHomePage(item.stockCode, item.stockName,  Const.STK_INDEX_HOME,);
-          }
-        },
+          // [포켓 > TODAY > 같은 상승, 하락 ... 탭으로 이동]
+          // > 종목홈으로 이동
+          StockPktChart item = _pock09.stockList[idx];
+          basePageState.goStockHomePage(
+            item.stockCode,
+            item.stockName,
+            Const.STK_INDEX_HOME,
+          );
+                },
       );
     } else if (_tabSelectDiv[_currentTabIndex] == 'TS') {
       return InkWell(
         child: TilePocketSig(_pock09.stockList[idx]),
         onTap: () async {
           //포켓상세로 이동
-          if (_pock09.stockList[idx] != null) {
-            // [포켓 > TODAY > 같은 상승, 하락 ... 탭으로 이동]
-            // > 종목홈으로 이동
-            StockPktChart item = _pock09.stockList[idx];
-            basePageState.goStockHomePage(item.stockCode, item.stockName,  Const.STK_INDEX_SIGNAL,);
-          }
-        },
+          // [포켓 > TODAY > 같은 상승, 하락 ... 탭으로 이동]
+          // > 종목홈으로 이동
+          StockPktChart item = _pock09.stockList[idx];
+          basePageState.goStockHomePage(
+            item.stockCode,
+            item.stockName,
+            Const.STK_INDEX_SIGNAL,
+          );
+                },
       );
     } else if (_tabSelectDiv[_currentTabIndex] == 'SB') {
       return InkWell(
@@ -420,7 +416,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
         onTap: () {
           var item = _pock09.pushList[idx];
           basePageState.callPageRouteNews(
-            NewsViewer(),
+            const NewsViewer(),
             PgNews(
               stockCode: item.stockCode,
               stockName: item.stockName,
@@ -444,8 +440,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
       var chartItem = item.listChart;
       chartMarkLineYAxis = double.parse(chartItem[0].tradePrc);
       for (int i = 0; i < chartItem.length; i++) {
-        listChartData
-            .add(FlSpot(i.toDouble(), double.parse(chartItem[i].tradePrc)));
+        listChartData.add(FlSpot(i.toDouble(), double.parse(chartItem[i].tradePrc)));
         if (i == 0) {
           chartYAxisMin = double.parse(chartItem[0].tradePrc);
         } else {
@@ -454,8 +449,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
           }
         }
       }
-      if (chartMarkLineYAxis >
-          double.parse(chartItem[chartItem.length - 1].tradePrc)) {
+      if (chartMarkLineYAxis > double.parse(chartItem[chartItem.length - 1].tradePrc)) {
         chartLineColor = RColor.bgSell;
       } else {
         chartLineColor = RColor.bgBuy;
@@ -474,13 +468,16 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
   Widget _setAddStockBtn() {
     return InkWell(
       onTap: () async {
-        _navigatorResultCheck(
-          await Navigator.push(
-            context,
-            CustomNvRouteClass.createRoute(
-                SearchPage.goLayer(SearchPage.landAddPocketLayer, _pocketSn)),
+        await Navigator.push(
+          context,
+          CustomNvRouteClass.createRoute(
+            SearchPage(
+              landWhere: SearchPage.addPocketLayer,
+              pocketSn: _pocketSn,
+            ),
           ),
         );
+        _requestTrPock09();
       },
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -555,11 +552,11 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
+              const Flexible(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       '내 종목 소식과 AI매매신호',
                       style: TextStyle(
@@ -590,8 +587,7 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
           ),
         ),
         onTap: () {
-          SliverHomeWidgetState? parent =
-              context.findAncestorStateOfType<SliverHomeWidgetState>();
+          SliverHomeWidgetState? parent = context.findAncestorStateOfType<SliverHomeWidgetState>();
           parent?.showDialogPremium();
         },
       ),
@@ -610,28 +606,21 @@ class HomeTileMystockStatusState extends State<HomeTileMystockStatus>
     );
   }
 
-  void _navigatorResultCheck(dynamic result) {
-    if (result == 'cancel') {
-      DLog.w('*** navigete cancel ***');
-    } else {
-      DLog.w('*** navigateRefresh');
-      _requestTrPock09();
-    }
-  }
-
   Future<void> _fetchPosts(String trStr, String json) async {
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      if(mounted)CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     } on SocketException catch (_) {
-      if(mounted)CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

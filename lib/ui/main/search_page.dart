@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +16,7 @@ import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_search/tr_search02.dart';
 import 'package:rassi_assist/models/tr_search/tr_search05.dart';
+import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_layer.dart';
@@ -33,20 +33,20 @@ class SearchPage extends StatefulWidget {
   static const String TAG = "[SearchPage]";
   static const String TAG_NAME = '종목검색';
 
-  static const String landAddPocketLayer = 'landAddPocketLayer';
-  static const String landAddSignalLayer = 'landAddSignalLayer';
+  // [종목 검색 이후 리스트 클릭 시 무슨 행동해야할 지 결정해주는 스트링 값 입니다.]
+  static const String addPocketLayer = 'add_pocket_layer'; // 종목 검색 > [포켓에 종목 추가 레이어] 띄울 때 이거 호출해 주세요.
+  static const String addSignalLayer = 'add_signal_layer'; // 종목 검색 > [나만의 매도신호에 종목 추가 레이어] 띄울 때 이거 호출해 주세요.
+  static const String goStockHome =
+      'go_stock_home'; // 종목 검색 > 종목홈으로 이동할때 호출해 주세요. (pocketSn은 SearchPage.goStockHome 으로 호출해 주세요)
+  static const String popAndResult =
+      'pop_and_result'; // 종목 검색 후, 창 닫으면서 result로 클릭한 종목 (검색한 종목) Stock 넘겨줄 때 이거 호출해 주세요. (pocketSn은 SearchPage.popAndResult 으로 호출해 주세요)
 
-  String landWhere = '';
-  String pocketSn = '';
+  final String landWhere;
+  final String pocketSn;  // add_pocket_layer 에서만 필요합니다.
 
-  // 종목 검색 > 레이어 띄울 때 이거 호출 해주세요.
-  SearchPage.goLayer(this.landWhere, this.pocketSn, {Key? key})
-      : super(key: key);
-
-  // 종목 검색 > 종목홈으로 이동할때 호출해주세요.
-  SearchPage.goStockHome({Key? key}) : super(key: key);
-
-  //const SearchPage({Key key}) : super(key: key);
+  // 종목 검색 클래스 24.05.03 정의 by HJS
+  // landWhere = 위에 네개 String / pocketSn = [add_pocket_layer : 포켓SN, add_signal_layer/go_stock_home/pop_and_result : 빈 값 '']
+  const SearchPage({required this.landWhere, required this.pocketSn, Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SearchPageState();
@@ -78,6 +78,7 @@ class SearchPageState extends State<SearchPage> {
     CustomFirebaseClass.logEvtScreenView(
       SearchPage.TAG_NAME,
     );
+    DLog.e('widget.landWhere  : ${widget.landWhere}');
     _userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
     _userInfoProvider.addListener(_outPage);
     _loadPrefData().then(
@@ -151,8 +152,7 @@ class SearchPageState extends State<SearchPage> {
                           ),
                           shrinkWrap: true,
                           itemCount: _listData.length,
-                          itemBuilder: (BuildContext context, index) =>
-                              _tileSearch(_listData[index]),
+                          itemBuilder: (BuildContext context, index) => _tileSearch(_listData[index]),
                         )
                       : SizedBox(
                           width: double.infinity,
@@ -187,25 +187,7 @@ class SearchPageState extends State<SearchPage> {
                                                 _recentMyList[index].stockName,
                                                 style: TStyle.content15,
                                               ),
-                                              onTap: () {
-                                                if (widget.landWhere.isEmpty) {
-                                                  Navigator.pop(context);
-                                                  basePageState.goStockHomePage(
-                                                    _recentMyList[index]
-                                                        .stockCode,
-                                                    _recentMyList[index]
-                                                        .stockName,
-                                                    AppGlobal().tabIndex,
-                                                  );
-                                                } else {
-                                                  _checkAddStockKeyboardVisibility(
-                                                    _recentMyList[index]
-                                                        .stockCode,
-                                                    _recentMyList[index]
-                                                        .stockName,
-                                                  );
-                                                }
-                                              },
+                                              onTap: () => _clickSearchListWidget(_recentMyList[index]),
                                             );
                                           },
                                         ),
@@ -216,35 +198,18 @@ class SearchPageState extends State<SearchPage> {
                               ),
                               _setSubTitle('다른 투자자들의 인기 검색 종목'),
                               Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10.0),
+                                margin: const EdgeInsets.symmetric(vertical: 10.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 10.0),
                                 child: Wrap(
                                   spacing: 30.0,
                                   runSpacing: 14.0,
-                                  children: List.generate(_recentPopList.length,
-                                      (index) {
+                                  children: List.generate(_recentPopList.length, (index) {
                                     return InkWell(
                                       child: Text(
                                         _recentPopList[index].stockName,
                                         style: TStyle.content15,
                                       ),
-                                      onTap: () {
-                                        if (widget.landWhere.isEmpty) {
-                                          Navigator.pop(context);
-                                          basePageState.goStockHomePage(
-                                            _recentPopList[index].stockCode,
-                                            _recentPopList[index].stockName,
-                                            AppGlobal().tabIndex,
-                                          );
-                                        } else {
-                                          _checkAddStockKeyboardVisibility(
-                                            _recentPopList[index].stockCode,
-                                            _recentPopList[index].stockName,
-                                          );
-                                        }
-                                      },
+                                      onTap: () => _clickSearchListWidget(_recentPopList[index]),
                                     );
                                   }),
                                 ),
@@ -270,8 +235,7 @@ class SearchPageState extends State<SearchPage> {
       child: Stack(
         children: [
           TextField(
-            decoration: const InputDecoration.collapsed(
-                hintText: '종목명(초성, 중간어 지원) / 종목코드 검색'),
+            decoration: const InputDecoration.collapsed(hintText: '종목명(초성, 중간어 지원) / 종목코드 검색'),
             controller: null,
             onChanged: (text) {
               if (text.length > 1) {
@@ -364,61 +328,23 @@ class SearchPageState extends State<SearchPage> {
           ],
         ),
       ),
-      onTap: () async {
-        if (widget.landWhere.isEmpty) {
-          CustomFirebaseClass.logEvtSearchStock(item.stockName);
-          if (_userId != null && _userId.isNotEmpty) {
-            Navigator.pop(context);
-            basePageState.goStockHomePage(
-              item.stockCode,
-              item.stockName,
-              AppGlobal().tabIndex,
-            );
-          } else {
-            //로그인 전 인트로 검색화면
-            Navigator.pushNamed(
-              context,
-              TradeIntroPage.routeName,
-              arguments: PgData(
-                userId: '',
-                stockCode: item.stockCode,
-                stockName: item.stockName,
-              ),
-            );
-          }
-        } else {
-          _checkAddStockKeyboardVisibility(
-            item.stockCode,
-            item.stockName,
-          );
-        }
-
-        if (_userId.isNotEmpty) {
-          _fetchPosts(
-              TR.SEARCH06,
-              jsonEncode(<String, String>{
-                'userId': _userId,
-                'stockCode': item.stockCode,
-              }));
-        }
-      },
+      onTap: () => _clickSearchListWidget(item),
     );
   }
 
-  Future<void> _checkAddStockKeyboardVisibility(
-      String stkCode, String stkName) async {
+  Future<void> _checkAddStockKeyboardVisibility(String stkCode, String stkName) async {
     if (MediaQuery.of(context).viewInsets.bottom == 0) {
-      if (widget.landWhere == SearchPage.landAddPocketLayer) {
+      if (widget.landWhere == SearchPage.addPocketLayer) {
         _showAddStockLayerAndResult(stkCode, stkName);
-      } else if (widget.landWhere == SearchPage.landAddSignalLayer) {
+      } else if (widget.landWhere == SearchPage.addSignalLayer) {
         _showAddSignalLayerAndResult(stkCode, stkName);
       }
     } else {
       FocusScope.of(context).unfocus(); //키보드 닫기
       Future.delayed(const Duration(milliseconds: 530), () {
-        if (widget.landWhere == SearchPage.landAddPocketLayer) {
+        if (widget.landWhere == SearchPage.addPocketLayer) {
           _showAddStockLayerAndResult(stkCode, stkName);
-        } else if (widget.landWhere == SearchPage.landAddSignalLayer) {
+        } else if (widget.landWhere == SearchPage.addSignalLayer) {
           _showAddSignalLayerAndResult(stkCode, stkName);
         }
       });
@@ -434,7 +360,7 @@ class SearchPageState extends State<SearchPage> {
         ),
         widget.pocketSn);
 
-    if (context.mounted && result != null) {
+    if (mounted) {
       if (result == CustomNvRouteResult.refresh) {
         Navigator.pop(
           context,
@@ -443,8 +369,7 @@ class SearchPageState extends State<SearchPage> {
       } else if (result == CustomNvRouteResult.cancel) {
         //
       } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(
-            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
       } else if (result == CustomNvRouteResult.landPremiumPopup) {
         String result = await CommonPopup.instance.showDialogPremium(context);
         if (result == CustomNvRouteResult.landPremiumPage) {
@@ -466,8 +391,7 @@ class SearchPageState extends State<SearchPage> {
         stockCode: stkCode,
       ),
     );
-
-    if (context.mounted && result != null) {
+    if (mounted) {
       if (result == CustomNvRouteResult.refresh) {
         Navigator.pop(
           context,
@@ -476,8 +400,7 @@ class SearchPageState extends State<SearchPage> {
       } else if (result == CustomNvRouteResult.cancel) {
         //
       } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(
-            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
       } else {
         CommonPopup.instance.showDialogBasic(context, '알림', result);
       }
@@ -497,9 +420,53 @@ class SearchPageState extends State<SearchPage> {
           fontSize: 16,
           color: RColor.mainColor,
         ),
-        
       ),
     );
+  }
+
+  Future<void> _clickSearchListWidget(Stock stock) async {
+    // SearchPage.popAndResult 인 경우
+    if (widget.landWhere == SearchPage.popAndResult) {
+      Navigator.pop(context, stock);
+    }
+    // SearchPage.goStockHome 인 경우
+    else if (widget.landWhere == SearchPage.goStockHome) {
+      CustomFirebaseClass.logEvtSearchStock(stock.stockName);
+      if (_userId.isNotEmpty) {
+        await _fetchPosts(
+            TR.SEARCH06,
+            jsonEncode(<String, String>{
+              'userId': _userId,
+              'stockCode': stock.stockCode,
+            }));
+      }
+      if(mounted){
+        Navigator.pop(context);
+      }
+      basePageState.goStockHomePage(
+        stock.stockCode,
+        stock.stockName,
+        AppGlobal().tabIndex,
+      );
+
+    }
+    // SearchPage. 레이어 인 경우
+    else if (widget.landWhere == SearchPage.addSignalLayer) {
+      _checkAddStockKeyboardVisibility(
+        stock.stockCode,
+        stock.stockName,
+      );
+    }
+    else if (widget.landWhere == SearchPage.addPocketLayer && widget.pocketSn.isNotEmpty && Provider.of<PocketProvider>(context, listen: false).getPocketListIndexByPocketSn(widget.pocketSn) != -1) {
+      _checkAddStockKeyboardVisibility(
+        stock.stockCode,
+        stock.stockName,
+      );
+    }
+    // 오류
+    else {
+      Navigator.pop(context);
+    }
   }
 
   //인기 검색 종목
@@ -513,8 +480,7 @@ class SearchPageState extends State<SearchPage> {
         }));
   }
 
-  //convert 패키지의 jsonDecode 사용
-  void _fetchPosts(String trStr, String json) async {
+  Future<void> _fetchPosts(String trStr, String json) async {
     DLog.d(SearchPage.TAG, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);
@@ -530,10 +496,7 @@ class SearchPageState extends State<SearchPage> {
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(SearchPage.TAG, 'ERR : TimeoutException (12 seconds)');
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      DLog.d(SearchPage.TAG, 'ERR : SocketException');
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

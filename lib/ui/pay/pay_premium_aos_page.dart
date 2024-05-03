@@ -20,6 +20,7 @@ import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
 import 'package:rassi_assist/ui/pay/premium_care_page.dart';
 import 'package:rassi_assist/ui/web/web_page.dart';
@@ -230,24 +231,24 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
       } else if (status == 'pay_success') {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
-        if (userInfoProvider.isPremiumUser() && context.mounted) {
+        if (userInfoProvider.isPremiumUser() && mounted) {
           Navigator.popUntil(
             context,
-            ModalRoute.withName('/base'),
+            ModalRoute.withName(BasePage.routeName),
           );
           Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         } else {
           Navigator.popUntil(
             context,
-            ModalRoute.withName('/base'),
+            ModalRoute.withName(BasePage.routeName),
           );
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         }
       } else {
         Navigator.popUntil(
           context,
-          ModalRoute.withName('/base'),
+          ModalRoute.withName(BasePage.routeName),
         );
       }
     };

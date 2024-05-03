@@ -65,10 +65,13 @@ class _AgentWelcomePageState extends State<AgentWelcomePage> {
                       ? const AgentWelcomeFirstPage()
                       : _pageIndex == 1
                           ? const AgentWelcomeSecondPage()
-                          : const AgentWelcomeThirdPage()),
+                          : const AgentWelcomeThirdPage(),
+              ),
             ),
 
             InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
               onTap: () {
                 if (_pageIndex >= 2) {
                   _fetchPostsWithParse();

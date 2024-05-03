@@ -84,22 +84,6 @@ class Search10Sales {
     this.issueDate='',
   });
 
-  Search10Sales.empty(){
-    tradeDate = '';
-    tradePrice = '';
-    year = '';
-    quarter = '';
-    sales = '';
-    salesProfit = '';
-    netProfit = '';
-    profitRate = '0';
-    salesIncRateYoY = '';
-    profitIncRateYoY = '';
-    netIncRateYoY = '';
-    confirmYn = '';
-    issueDate = '';
-  }
-
   factory Search10Sales.fromJson(Map<String, dynamic> json) {
     return Search10Sales(
       tradeDate: json['tradeDate'] ?? '',

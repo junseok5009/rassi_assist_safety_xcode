@@ -48,8 +48,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
 
   late Pocket _pocket; // 현재 선택된 포켓
   late PocketProvider _pocketProvider;
-  int _pocketListLength =
-      0; // 포켓 수정,삭제 등 모든 변화에 noti로 받는데, 새로 포켓설정으로 새로 만들었을 경우 새로 만든 포켓으로 셋팅
+  int _pocketListLength = 0; // 포켓 수정,삭제 등 모든 변화에 noti로 받는데, 새로 포켓설정으로 새로 만들었을 경우 새로 만든 포켓으로 셋팅
 
   final List<PocketSignalStock> _stkList = []; //종목리스트
 
@@ -67,8 +66,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
     _pocketProvider = Provider.of<PocketProvider>(context, listen: false);
     _pocketProvider.addListener(reload);
     if (_appGlobal.pocketSn.isNotEmpty) {
-      int tmpIdx =
-          _pocketProvider.getPocketListIndexByPocketSn(_appGlobal.pocketSn);
+      int tmpIdx = _pocketProvider.getPocketListIndexByPocketSn(_appGlobal.pocketSn);
       _pocket = _pocketProvider.getPocketList[tmpIdx];
       _appGlobal.pocketSn = '';
     } else {
@@ -97,13 +95,11 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
   Widget build(BuildContext context) {
     return NotificationListener<UserScrollNotification>(
       onNotification: (notification) {
-        if (notification.direction == ScrollDirection.forward &&
-            !_isFaVisible) {
+        if (notification.direction == ScrollDirection.forward && !_isFaVisible) {
           setState(() {
             _isFaVisible = true;
           });
-        } else if (notification.direction == ScrollDirection.reverse &&
-            _isFaVisible) {
+        } else if (notification.direction == ScrollDirection.reverse && _isFaVisible) {
           setState(() {
             _isFaVisible = false;
           });
@@ -166,8 +162,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
-                                            color:
-                                                RColor.greyBasicStrong_666666,
+                                            color: RColor.greyBasicStrong_666666,
                                           ),
                                         ),
                                       ],
@@ -183,8 +178,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
-                                            color:
-                                                RColor.greyBasicStrong_666666,
+                                            color: RColor.greyBasicStrong_666666,
                                           ),
                                         ),
                                       ],
@@ -206,8 +200,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             SliverFillRemaining(
               child: Stack(
                 children: [
-                  Provider.of<UserInfoProvider>(context, listen: false)
-                          .is3StockUser()
+                  Provider.of<UserInfoProvider>(context, listen: false).is3StockUser()
                       ? _set3StockUserListWidget()
                       : _setStockListWidget(),
                   Align(
@@ -250,8 +243,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                   } else if (result == CustomNvRouteResult.cancel) {
                                     reload();
                                   } else {
-                                    int resultPktIndex =
-                                    _pocketProvider.getPocketListIndexByPocketSn(result);
+                                    int resultPktIndex = _pocketProvider.getPocketListIndexByPocketSn(result);
                                     if (resultPktIndex != -1) {
                                       _pocket = _pocketProvider.getPocketList[resultPktIndex];
                                       reload(changePocketSn: _pocket.pktSn);
@@ -272,8 +264,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Image.asset(
-                                      'images/icon_up_dn_black.png',
-                                      height: 16,
+                                      'images/icon_arrow_down.png',
+                                      height: 8,
                                     ),
                                     const SizedBox(
                                       width: 10,
@@ -294,8 +286,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        const PocketSettingPage(),
+                                    builder: (context) => const PocketSettingPage(),
                                   ),
                                 );
                               },
@@ -328,13 +319,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                           Expanded(
                             child: InkWell(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  CustomNvRouteClass.createRoute(
-                                    SearchPage.goLayer(
-                                        SearchPage.landAddPocketLayer,
-                                        _pocket.pktSn),
-                                  ),
+                                basePageState.callPageRouteUP(
+                                  SearchPage(landWhere: SearchPage.addPocketLayer, pocketSn: _pocket.pktSn,),
                                 );
                               },
                               child: Container(
@@ -446,8 +432,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
       itemCount: _stkList.length,
       itemBuilder: (BuildContext context, int index) {
         return Container(
-          margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20,
-              index == _stkList.length - 1 ? 75 : 0),
+          margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20, index == _stkList.length - 1 ? 75 : 0),
           child: Ink(
             width: double.infinity,
             decoration: UIStyle.boxShadowBasic(16),
@@ -459,8 +444,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               ),
               child: Container(
                 height: 86,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -495,12 +479,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     ),
 
                     if (_isSignalInfo)
-                      if (Provider.of<UserInfoProvider>(context, listen: false)
-                          .isPremiumUser())
+                      if (Provider.of<UserInfoProvider>(context, listen: false).isPremiumUser())
                         _setRateCircleText(_stkList[index])
-                      else if (Provider.of<UserInfoProvider>(context,
-                                  listen: false)
-                              .is3StockUser() &&
+                      else if (Provider.of<UserInfoProvider>(context, listen: false).is3StockUser() &&
                           _stkList[index].signalYn == 'Y')
                         _setRateCircleText(_stkList[index])
                       else
@@ -519,22 +500,16 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   basePageState.goStockHomePage(
                     _stkList[index].stockCode,
                     _stkList[index].stockName,
-                    _isSignalInfo
-                        ? Const.STK_INDEX_SIGNAL
-                        : Const.STK_INDEX_HOME,
+                    _isSignalInfo ? Const.STK_INDEX_SIGNAL : Const.STK_INDEX_HOME,
                   );
                 }
               },
               onLongPress: () async {
                 if (!_isSignalInfo) {
-                  String result = await CommonPopup.instance
-                      .showDialogCustomConfirm(
-                          context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
-                  if (result == CustomNvRouteResult.landing &&
-                      context.mounted) {
-                    String result = await Provider.of<PocketProvider>(context,
-                            listen: false)
-                        .deleteStock(
+                  String result =
+                      await CommonPopup.instance.showDialogCustomConfirm(context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
+                  if (result == CustomNvRouteResult.landing && context.mounted) {
+                    String result = await Provider.of<PocketProvider>(context, listen: false).deleteStock(
                       Stock(
                         stockName: _stkList[index].stockName,
                         stockCode: _stkList[index].stockCode,
@@ -546,11 +521,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                         /*Provider.of<StockInfoProvider>(context, listen: false)
                             .postRequest(stkCode);*/
                       } else if (result == CustomNvRouteResult.fail) {
-                        CommonPopup.instance.showDialogBasic(
-                            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+                        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
                       } else {
-                        CommonPopup.instance
-                            .showDialogBasic(context, '안내', result);
+                        CommonPopup.instance.showDialogBasic(context, '안내', result);
                       }
                     }
                   }
@@ -606,9 +579,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                             : '▲ ',
                     style: TextStyle(
                       color: TStyle.getMinusPlusColor(item.fluctuationAmt),
-                      fontSize: (double.tryParse(item.fluctuationAmt) ?? 0) == 0
-                          ? 16
-                          : 10,
+                      fontSize: (double.tryParse(item.fluctuationAmt) ?? 0) == 0 ? 16 : 10,
                       //fontFamily: 'NotoSansKR',
                     ),
                   ),
@@ -877,8 +848,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               ),
               InkWell(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: UIStyle.boxRoundLine25c(Colors.black54),
                   child: const Text(
                     '+ 종목추가',
@@ -888,14 +858,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   ),
                 ),
                 onTap: () async {
-                  Navigator.push(
-                    context,
-                    CustomNvRouteClass.createRoute(
-                      SearchPage.goLayer(
-                        SearchPage.landAddPocketLayer,
-                        _pocket.pktSn,
-                      ),
-                    ),
+                  basePageState.callPageRouteUP(
+                    SearchPage(landWhere: SearchPage.addPocketLayer,pocketSn: _pocket.pktSn,),
                   );
                 },
               ),
@@ -998,8 +962,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
           );
           if (mounted) {
             if (result == CustomNvRouteResult.landPremiumPopup) {
-              String result =
-                  await CommonPopup.instance.showDialogPremium(context);
+              String result = await CommonPopup.instance.showDialogPremium(context);
               if (result == CustomNvRouteResult.landPremiumPage) {
                 basePageState.navigateAndGetResultPayPremiumPage();
               }
@@ -1016,8 +979,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             } else if (result == CustomNvRouteResult.cancel) {
               reload();
             } else {
-              int resultPktIndex =
-                  _pocketProvider.getPocketListIndexByPocketSn(result);
+              int resultPktIndex = _pocketProvider.getPocketListIndexByPocketSn(result);
               if (resultPktIndex != -1) {
                 _pocket = _pocketProvider.getPocketList[resultPktIndex];
                 reload(changePocketSn: _pocket.pktSn);
@@ -1040,7 +1002,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                 child: Text(
                   _pocket.pktName,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 15,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1059,8 +1021,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
   Future<bool> reload({String changePocketSn = ''}) async {
     if (changePocketSn.isNotEmpty) {
       _pocket = _pocketProvider.getPocketByPocketSn(changePocketSn);
-    } else if (_pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn) ==
-        -1) {
+    } else if (_pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn) == -1) {
       _pocket = _pocketProvider.getPocketList[0];
     } else if (_pocketListLength < _pocketProvider.getPocketList.length) {
       // 포켓을 새로 만든 경우

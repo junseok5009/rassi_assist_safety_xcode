@@ -93,16 +93,12 @@ class IntroWidget extends StatefulWidget {
   State<StatefulWidget> createState() => IntroState();
 }
 
-class IntroState extends State<IntroWidget>
-    with SingleTickerProviderStateMixin {
+class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin {
   final _appGlobal = AppGlobal();
-  static const _androidChannel =
-      MethodChannel(Const.METHOD_CHANNEL_NAME); //추후 삭제예정
-  final MethodChannel _iosMethodChannel =
-      const MethodChannel(Const.METHOD_CHANNEL_LINK_IOS);
+  static const _androidChannel = MethodChannel(Const.METHOD_CHANNEL_NAME); //추후 삭제예정
+  final MethodChannel _iosMethodChannel = const MethodChannel(Const.METHOD_CHANNEL_LINK_IOS);
 
-  final String _appEnv =
-      Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
+  final String _appEnv = Platform.isIOS ? "EN20" : "EN10"; // android: EN10, ios: EN20
   final int _appVer = Platform.isIOS ? Const.VER_CODE : Const.VER_CODE_AOS;
 
   late SharedPreferences _prefs;
@@ -111,6 +107,7 @@ class IntroState extends State<IntroWidget>
   @override
   void initState() {
     super.initState();
+
     _loadPrefData().then((_) {
       Future.delayed(Duration.zero, () async {
         if (Platform.isIOS) {
@@ -128,8 +125,7 @@ class IntroState extends State<IntroWidget>
           _appGlobal.isTablet = shortestSide > 600;
         } else if (Platform.isIOS) {
           IosDeviceInfo info = await deviceInfo.iosInfo;
-          if (info.model != null &&
-              info.model!.toLowerCase().contains("ipad")) {
+          if (info.model != null && info.model!.toLowerCase().contains("ipad")) {
             _appGlobal.isTablet = true;
           } else {
             _appGlobal.isTablet = false;
@@ -148,13 +144,12 @@ class IntroState extends State<IntroWidget>
 
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-
+    // 카카오 로그인 - 디벨로퍼스 DLog.e(await KakaoSdk.origin);
     if (Platform.isAndroid) {
       DLog.d(IntroPage.TAG, '##### Platform Android');
       //Android Native 사용자를 위한 코드
       try {
-        final String result =
-            await _androidChannel.invokeMethod('getPrefUserId');
+        final String result = await _androidChannel.invokeMethod('getPrefUserId');
         if (result.isNotEmpty) {
           _prefs.setString(Const.PREFS_USER_ID, result);
           _userId = result;
@@ -175,36 +170,28 @@ class IntroState extends State<IntroWidget>
     _iosMethodChannel.setMethodCallHandler((call) async {
       /// ios에서 앱 이미 설치 된 상태에서 Back/fore ground 상태, 혹은 꺼져있는 상태에서 오픈되면 여기서 링크 받아짐.
       String content = call.method;
-      FirebaseDynamicLinks.instance
-          .getDynamicLink(Uri.parse(content))
-          .then((value) async {
+      FirebaseDynamicLinks.instance.getDynamicLink(Uri.parse(content)).then((value) async {
         // 여기에 들어오는 링크가 항상 앱 실행 딥링크라는 보장은 없음.
-        commonShowToast('_iosMethodChannel / ${value.toString()}');
         Uri? linkUri = value?.link;
         if (linkUri != null) {
           _appGlobal.pendingDynamicLinkData = value;
           if (CommonFunctionClass.instance.isAgentLink(linkUri.toString())) {
-            await _prefs.setString(
-                Const.PREFS_DEEPLINK_URI, linkUri.toString());
+            await _prefs.setString(Const.PREFS_DEEPLINK_URI, linkUri.toString());
           }
         }
-        DLog.e(
-            'value.link : ${value != null ? value.link.toString() : 'null'} / value : ${value.toString()}');
+        DLog.e('value.link : ${value != null ? value.link.toString() : 'null'} / value : ${value.toString()}');
       });
     });
   }
 
   initAosDynamicLinks() async {
-    final PendingDynamicLinkData? initialLink =
-        await FirebaseDynamicLinks.instance.getInitialLink();
+    final PendingDynamicLinkData? initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
 
     /// aos에서 앱 설치된 상태, 링크로 앱 실행시 여기서 링크 값 받아짐.
     if (initialLink != null) {
       _appGlobal.pendingDynamicLinkData = initialLink;
-      if (CommonFunctionClass.instance
-          .isAgentLink(initialLink.link.toString())) {
-        await _prefs.setString(
-            Const.PREFS_DEEPLINK_URI, initialLink.link.toString());
+      if (CommonFunctionClass.instance.isAgentLink(initialLink.link.toString())) {
+        await _prefs.setString(Const.PREFS_DEEPLINK_URI, initialLink.link.toString());
       }
     }
   }
@@ -213,28 +200,17 @@ class IntroState extends State<IntroWidget>
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) async {
       /// ios에서 앱 설치안된 상태에서, 링크로 앱스토어에서 최초 설치 이후 링크 값은 여기서 받아짐.
       /// aos에서 앱 이미 설치 된 상태에서 Back/fore ground 상태에서 링크 받아짐. (꺼져있는 상태에서 오픈되면 안받아짐)
-      commonShowToast(
-          'dynamicLinks.onLink.listen / ${dynamicLinkData.toString()}');
 
-      DLog.d(
-          IntroPage.TAG, '@@@ dynamicLinkData.link : ${dynamicLinkData.link}');
-      DLog.d(IntroPage.TAG,
-          '@@@ dynamicLinkData.link.host : ${dynamicLinkData.link.host}');
-      DLog.d(IntroPage.TAG,
-          '@@@ dynamicLinkData.link.port : ${dynamicLinkData.link.port}');
-      DLog.d(IntroPage.TAG,
-          '@@@ dynamicLinkData.link.path : ${dynamicLinkData.link.path}');
-      DLog.d(IntroPage.TAG,
-          '@@@ dynamicLinkData.link.query : ${dynamicLinkData.link.query}');
-      DLog.d(IntroPage.TAG,
-          '@@@ dynamicLinkData.link.fragment : ${dynamicLinkData.link.fragment}');
-      DLog.d(IntroPage.TAG,
-          '@@@ dynamicLinkData.utmParameters : ${dynamicLinkData.utmParameters.toString()}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link : ${dynamicLinkData.link}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.host : ${dynamicLinkData.link.host}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.port : ${dynamicLinkData.link.port}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.path : ${dynamicLinkData.link.path}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.query : ${dynamicLinkData.link.query}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.link.fragment : ${dynamicLinkData.link.fragment}');
+      DLog.d(IntroPage.TAG, '@@@ dynamicLinkData.utmParameters : ${dynamicLinkData.utmParameters.toString()}');
       _appGlobal.pendingDynamicLinkData = dynamicLinkData;
-      if (CommonFunctionClass.instance
-          .isAgentLink(dynamicLinkData.link.toString())) {
-        await _prefs.setString(
-            Const.PREFS_DEEPLINK_URI, dynamicLinkData.link.toString());
+      if (CommonFunctionClass.instance.isAgentLink(dynamicLinkData.link.toString())) {
+        await _prefs.setString(Const.PREFS_DEEPLINK_URI, dynamicLinkData.link.toString());
       }
     });
   }
@@ -359,24 +335,19 @@ class IntroState extends State<IntroWidget>
       await FlutterInappPurchase.instance.initialize();
 
       try {
-        List<PurchasedItem>? purchasedHistoryItemList =
-            await FlutterInappPurchase.instance.getPurchaseHistory();
+        List<PurchasedItem>? purchasedHistoryItemList = await FlutterInappPurchase.instance.getPurchaseHistory();
 
-        List<IAPItem> getProductItemList =
-            await FlutterInappPurchase.instance.getProducts([]);
+        List<IAPItem> getProductItemList = await FlutterInappPurchase.instance.getProducts([]);
         List<IAPItem> promotionProductList = [];
 
         for (var item in getProductItemList) {
-          if (item.introductoryPrice != null &&
-              item.introductoryPrice!.isNotEmpty) {
+          if (item.introductoryPrice != null && item.introductoryPrice!.isNotEmpty) {
             promotionProductList.add(item);
           }
         }
-        AppGlobal().isAlreadyPromotionProductPayUser = purchasedHistoryItemList!
-            .any((purchasedHistoryItem) => promotionProductList.any(
-                (promotionProduct) =>
-                    promotionProduct.productId ==
-                    purchasedHistoryItem.productId));
+        AppGlobal().isAlreadyPromotionProductPayUser = purchasedHistoryItemList!.any((purchasedHistoryItem) =>
+            promotionProductList
+                .any((promotionProduct) => promotionProduct.productId == purchasedHistoryItem.productId));
       } catch (err) {
         DLog.e('err1 : ${err.toString()}');
       }
@@ -404,7 +375,7 @@ class IntroState extends State<IntroWidget>
     }
     if (mounted) {
       if (userId != '') {
-        Navigator.pushReplacementNamed(context, '/base',
+        Navigator.pushReplacementNamed(context, BasePage.routeName,
             result: MaterialPageRoute(builder: (context) => const BasePage()));
       } else {
         Navigator.pushReplacementNamed(
@@ -459,8 +430,7 @@ class IntroState extends State<IntroWidget>
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            textScaler:
-                                TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+                            textScaler: TextScaler.linear(Const.TEXT_SCALE_FACTOR),
                           ),
                         ),
                       ),

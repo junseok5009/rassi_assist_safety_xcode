@@ -30,6 +30,11 @@ class SignalProvider with ChangeNotifier {
 
   List<StockPktSignal> get getSignalList => _pocket13.stkList;
 
+  // 나만의 신호 필터 0 : 추가순 / 1 : 수익률순 / 2 : 신호발생순 / 3:종목명순
+  int _sortIndex = 0;
+
+  int get getSortIndex => _sortIndex;
+
   void loggingSignalInfo() {
     _pocket13.stkList.asMap().forEach((key1, value1) {
       DLog.d('[$key1]', ' : ${value1.stockName}');
@@ -45,6 +50,7 @@ class SignalProvider with ChangeNotifier {
     _pocket13.tradeTime = getPocket13.tradeTime;
     _pocket13.stkList.clear();
     _pocket13.stkList.addAll(getPocket13.stkList);
+    _sortIndex = 0;
     notifyListeners();
     return true;
   }
@@ -101,11 +107,18 @@ class SignalProvider with ChangeNotifier {
   Future<String> delSignalS(String pocketSn, String stockCode) async {
     String result = await SignalProviderNetwork.instance.delSignalS(pocketSn, stockCode);
     if (result == CustomNvRouteResult.refresh) {
-      bool result = await setList();
-      if (result) {
+      int deleteListIndex = _pocket13.stkList.indexWhere((element) => element.pocketSn == pocketSn);
+      if(deleteListIndex != -1){
+        _pocket13.stkList.removeAt(deleteListIndex);
+        notifyListeners();
         return CustomNvRouteResult.refresh;
-      } else {
-        return CustomNvRouteResult.fail;
+      }else{
+        bool result = await setList();
+        if (result) {
+          return CustomNvRouteResult.refresh;
+        } else {
+          return CustomNvRouteResult.fail;
+        }
       }
     } else {
       return result;
@@ -116,31 +129,99 @@ class SignalProvider with ChangeNotifier {
   Future<String> delSignalP(String pocketSn, String stockCode) async {
     String result = await SignalProviderNetwork.instance.delSignalP(pocketSn, stockCode);
     if (result == CustomNvRouteResult.refresh) {
-      bool result = await setList();
-      if (result) {
+      int deleteListIndex = _pocket13.stkList.indexWhere((element) => element.pocketSn == pocketSn);
+      if(deleteListIndex != -1){
+        _pocket13.stkList.removeAt(deleteListIndex);
+        notifyListeners();
         return CustomNvRouteResult.refresh;
-      } else {
-        return CustomNvRouteResult.fail;
+      }else{
+        bool result = await setList();
+        if (result) {
+          return CustomNvRouteResult.refresh;
+        } else {
+          return CustomNvRouteResult.fail;
+        }
       }
     } else {
       return result;
     }
   }
 
-  /*// 24.04.25 나만의 신호 리스트 정렬 [수익률순(보유>매도완료)]
-  Future<bool> setList() async {
-    // 23.12.08 나만의 신호 리스트 / retrun [list / [] / null]
-    Pocket13 getPocket13 = await SignalProviderNetwork.instance.getPocket13();
-    _pocket13.tradeDate = getPocket13.tradeDate;
-    _pocket13.timeDivTxt = getPocket13.timeDivTxt;
-    _pocket13.tradeTime = getPocket13.tradeTime;
-    _pocket13.stkList.clear();
-    _pocket13.stkList.addAll(getPocket13.stkList);
+
+  /// 24.04.25 나만의 신호 리스트 정렬(필터)
+  // 24.04.25 sortIndex = 0 / 나만의 신호 리스트 정렬 [최근 등록순 butRegDttm(매도신호발생시 이 값은 없음)]
+  Future<bool> get filterListBuyRegDttm async {
+    if(_pocket13.isEmpty){
+      await setList();
+    }
+    _pocket13.stkList.sort(
+          (a, b) {
+        return (int.tryParse(b.buyRegDttm) ?? 0)
+            .compareTo((int.tryParse(a.buyRegDttm) ?? 0));
+      },
+    );
+    _sortIndex = 0;
     notifyListeners();
     return true;
-  }*/
+  }
 
+  // 24.04.25 sortIndex = 1 / 나만의 신호 리스트 정렬 [수익률순(보유>매도완료)]
+  Future<bool> get filterListProfitRate async {
+    if(_pocket13.isEmpty){
+        await setList();
+    }
+    _pocket13.stkList.sort(
+          (a, b) {
+            if (a.myTradeFlag == 'S' && b.myTradeFlag == 'S') {
+              return double.parse(b.profitRate).compareTo(double.parse(a.profitRate));
+            } else if (a.myTradeFlag == 'H' && b.myTradeFlag == 'H') {
+              return double.parse(b.profitRate).compareTo(double.parse(a.profitRate));
+            } else {
+              // 's'와 'h'가 아닌 경우, 'H'를 우선시
+              return a.myTradeFlag == 'H' ? -1 : 1;
+            }
+      },
+    );
+    _sortIndex = 1;
+    notifyListeners();
+    return true;
+  }
 
+  // 24.04.26 sortIndex = 2 / 나만의 신호 리스트 정렬 [신호발생순(보유 노출X)]
+  Future<bool> get filterListSellDttm async {
+    if(_pocket13.isEmpty){
+      await setList();
+    }
+    _pocket13.stkList.sort(
+          (a, b) {
+        if (a.myTradeFlag == 'S' && b.myTradeFlag == 'S') {
+          return int.parse(b.sellDttm).compareTo(int.parse(a.sellDttm));
+        } else {
+          // 's'와 'h'가 아닌 경우, 's'를 우선시
+          return a.myTradeFlag == 'S' ? -1 : 1;
+        }
+      },
+    );
+    _sortIndex = 2;
+    notifyListeners();
+    return true;
+  }
+
+  // 24.04.26 sortIndex = 3 / 나만의 신호 리스트 정렬 [종목명(영어A~한글ㄱ)]
+  Future<bool> get filterListStockName async {
+    if(_pocket13.isEmpty){
+      await setList();
+    }
+    _pocket13.stkList.sort(
+          (a, b) {
+        return a.stockName
+            .compareTo(b.stockName);
+      },
+    );
+    notifyListeners();
+    _sortIndex = 3;
+    return true;
+  }
 /*int getStockPktSignalByStockPktSignalSn(String pocketSn) {
     return _pocket13.stkList
         .indexWhere((element) => element.pktSn == pocketSn);

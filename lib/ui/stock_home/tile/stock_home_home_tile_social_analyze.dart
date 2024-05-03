@@ -6,6 +6,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/custom/CustomBoxShadow.dart';
 import 'package:rassi_assist/ui/user/naver_community_page.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -30,8 +31,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
 
   late final TrackballBehavior _trackballBehavior = TrackballBehavior(
     enable: true,
-    lineDashArray: const [4, 3],
     shouldAlwaysShow: false,
+    lineDashArray: const [4, 3],
+    lineWidth: 1,
     tooltipAlignment: ChartAlignment.near,
     tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
     activationMode: ActivationMode.singleTap,
@@ -46,16 +48,14 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.4),
+          color: Colors.white.withOpacity(0.8),
           borderRadius: BorderRadius.circular(5),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 2,
+            CustomBoxShadow(
+              color: Colors.black.withOpacity(0.15),
               blurRadius: 6,
-              offset: const Offset(0, 0),
-              blurStyle: BlurStyle.outer,
-            )
+              offset: const Offset(2, 2),
+            ),
           ],
         ),
         child: FittedBox(

@@ -142,8 +142,8 @@ class HomeTileDdinfo extends StatelessWidget {
               ),
             );
           } else if (item.contentDiv == 'SCH' || item.contentDiv == 'SCH2') {
-            basePageState.callPageRoute(
-              SearchPage.goStockHome(),
+            basePageState.callPageRouteUP(
+              const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
             );
           }
         }
@@ -235,7 +235,7 @@ class HomeTileDdinfo extends StatelessWidget {
                           } */
                         else if (item.contentDiv == 'SCH') {
                           basePageState.callPageRouteUP(
-                            SearchPage.goStockHome(),
+                            const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
                           );
                         } else {
                           // 종목홈으로

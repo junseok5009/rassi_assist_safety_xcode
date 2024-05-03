@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -1747,14 +1748,22 @@ class StockHomeHomePageState extends State<StockHomeHomePage> with AutomaticKeep
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    /*AutoSizeText(
+                      '$stkName의 AI매매신호를 확인해 보세요',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        height: 1.2,
+                      ),
+                    ),*/
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        AutoSizeText(
                           '$stkName의',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 17,
+                            //fontSize: 17,
                             height: 1.2,
                           ),
                         ),

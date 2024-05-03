@@ -33,7 +33,7 @@ class PocketProviderNetwork {
   }
 
   // 23.11.23 포켓 추가
-  Future<Pock03?> addPocket(String newPocketName) async {
+  Future<Pock03> addPocket(String newPocketName) async {
     bool result = await _fetchPosts(
         TR.POCK01,
         jsonEncode(<String, String>{
@@ -59,7 +59,7 @@ class PocketProviderNetwork {
       }
       return newPocket;
     } else {
-      return null;
+      return Pock03();
     }
   }
 

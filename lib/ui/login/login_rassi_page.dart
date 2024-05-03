@@ -341,7 +341,7 @@ class RassiLoginPageState extends State<RassiLoginPage> {
           context,
           MaterialPageRoute(
               builder: (context) => const BasePage(),
-              settings: const RouteSettings(name: '/base')),
+              settings: const RouteSettings(name: BasePage.routeName),),
           (route) => false);
     } else {}
   }

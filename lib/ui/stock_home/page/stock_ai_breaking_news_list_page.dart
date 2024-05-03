@@ -365,7 +365,7 @@ class StockAiBreakingNewsListPageState
     final result = await Navigator.push(
       context,
       CustomNvRouteClass.createRoute(
-        SearchPage.goStockHome(),
+        const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
       ),
     );
     if (result != null &&

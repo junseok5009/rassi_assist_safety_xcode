@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +17,8 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../models/pg_data.dart';
 import '../../../models/none_tr/stock/stock.dart';
+import '../../../models/pg_data.dart';
 
 /// 23.02.10 HJS
 /// 공시 리스트 화면
@@ -78,9 +77,7 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
             },
           Future.delayed(Duration.zero, () {
             PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
-            if (_userId != '' &&
-                pgData.stockCode != null &&
-                pgData.stockCode.isNotEmpty) {
+            if (_userId != '' && pgData.stockCode.isNotEmpty) {
               _stkName = pgData.stockName;
               _stkCode = pgData.stockCode;
               _requestTrDisclos01();
@@ -94,7 +91,7 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
   // 저장된 데이터를 가져오는 것에 시간이 필요함
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    //IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
     // deviceModel = iosInfo.model;
   }
@@ -299,8 +296,7 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
     return Expanded(
       child: Column(
         children: [
-          if (((_isDivStock && _stockDisclosList.length < 1) ||
-                  (!_isDivStock && _allDisclostList.length < 1)) &&
+          if (((_isDivStock && _stockDisclosList.isEmpty) || (!_isDivStock && _allDisclostList.isEmpty)) &&
               _isNoData == 'Y')
             const Expanded(
               child: Center(
@@ -311,13 +307,9 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                itemCount: _isDivStock
-                    ? _stockDisclosList.length
-                    : _allDisclostList.length,
-                itemBuilder: (context, index) => TileDisclos01ListItemView(
-                    _isDivStock
-                        ? _stockDisclosList[index]
-                        : _allDisclostList[index]),
+                itemCount: _isDivStock ? _stockDisclosList.length : _allDisclostList.length,
+                itemBuilder: (context, index) =>
+                    TileDisclos01ListItemView(_isDivStock ? _stockDisclosList[index] : _allDisclostList[index]),
               ),
             ),
         ],
@@ -327,18 +319,17 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
 
   // SearchStockPage 띄우고 navigator.pop으로부터 결과를 기다리는 메서드
   _navigateAndWaitReturn(BuildContext context) async {
-    // Navigator.push는 Future를 반환합니다. Future는 선택 창에서
-    // Navigator.pop이 호출된 이후 완료될 것입니다.
-    final result = await Navigator.push(
+    // Navigator.push는 Future를 반환합니다. Future는 선택 창에서 Navigator.pop이 호출된 이후 완료될 것입니다.
+    final Stock result = await Navigator.push(
       context,
       CustomNvRouteClass.createRoute(
-        SearchPage.goStockHome(),
+        const SearchPage(
+          landWhere: SearchPage.popAndResult,
+          pocketSn: '',
+        ),
       ),
     );
-    if (result != null &&
-        result is Stock &&
-        result.stockName.isNotEmpty &&
-        result.stockCode.isNotEmpty) {
+    if (result.stockName.isNotEmpty && result.stockCode.isNotEmpty) {
       _stkName = result.stockName;
       _stkCode = result.stockCode;
       _isDivStock = true;
@@ -384,9 +375,7 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
       ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -394,14 +383,13 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
   void _parseTrData(String trStr, final http.Response response) {
     DLog.w(trStr + response.body);
     if (trStr == TR.DISCLOS01) {
-      final TrDisclos01 resData =
-          TrDisclos01.fromJson(jsonDecode(response.body));
+      final TrDisclos01 resData = TrDisclos01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Disclos01 disclos01 = resData.retData;
         if (_isDivStock) {
           _stockPageNo++;
           _stockTotalPageSize = int.parse(disclos01.totalPageSize);
-          if (disclos01.listDisclos.length > 0) {
+          if (disclos01.listDisclos.isNotEmpty) {
             _isNoData = 'N';
             _stockDisclosList.addAll(
               disclos01.listDisclos,
@@ -414,7 +402,7 @@ class _StockDisclosListPageState extends State<StockDisclosListPage> {
           _allPageNo++;
           _allTotalPageSize = int.parse(disclos01.totalPageSize);
           //if(_allPageNo == 0) _allPageNo++;
-          if (disclos01.listDisclos.length > 0) {
+          if (disclos01.listDisclos.isNotEmpty) {
             _isNoData = 'N';
             _allDisclostList.addAll(
               disclos01.listDisclos,

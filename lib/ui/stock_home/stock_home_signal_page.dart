@@ -213,7 +213,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                               .getPockSn);
                       Navigator.popUntil(
                         context,
-                        ModalRoute.withName('/base'),
+                        ModalRoute.withName(BasePage.routeName),
                       );
                     },
                     child: Container(
@@ -1424,7 +1424,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       .getPockSn);
               Navigator.popUntil(
                 context,
-                ModalRoute.withName('/base'),
+                ModalRoute.withName(BasePage.routeName),
               );
             },
             child: Container(

@@ -4,18 +4,18 @@ import 'package:rassi_assist/models/tr_pock/tr_pock04.dart';
 class StockPktSignal {
   final String stockCode;
   final String stockName;
-  final String myTradeFlag;
+  String myTradeFlag;
   final String buyPrice;
   final String buyRegDttm;
-  final String sellPrice;
-  final String sellDttm;
+  String sellPrice;
+  String sellDttm;
   final String profitRate;
   final String currentPrice;
   final String fluctuationAmt;
   final String fluctuationRate;
   final String tradingHaltYn;
   final String pocketSn;
-  final String resultDiv;
+  String resultDiv;
   final List<ListTalk> listTalk;
 
   StockPktSignal({

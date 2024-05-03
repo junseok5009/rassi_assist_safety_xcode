@@ -160,8 +160,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
 
   @override
   Widget build(BuildContext context) {
-    _initChart1IsQuart =
-        ((ModalRoute.of(context)!.settings.arguments) as PgData).booleanData;
+    _initChart1IsQuart = ((ModalRoute.of(context)!.settings.arguments) as PgData).booleanData;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

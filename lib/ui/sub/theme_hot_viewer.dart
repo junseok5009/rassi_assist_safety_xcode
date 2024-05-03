@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
@@ -77,7 +76,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
       Future.delayed(Duration.zero, () {
         PgData args = ModalRoute.of(context)!.settings.arguments as PgData;
         _themeCode = args.pgSn;
-        if (_themeCode == null || _themeCode.isEmpty) {
+        if (_themeCode.isEmpty) {
           Navigator.pop(context);
         }
         if (_userId != '') {
@@ -98,8 +97,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     if (mounted) {
       super.setState(fn);
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        double getWidgetHeight =
-            CommonFunctionClass.instance.getSize(_containerKey).height;
+        double getWidgetHeight = CommonFunctionClass.instance.getSize(_containerKey).height;
         if (getWidgetHeight != _themeInfoTextWidgetHeight) {
           _themeInfoTextWidgetHeight = getWidgetHeight;
           super.setState(() {});
@@ -165,6 +163,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                 height: 250,
                 child: _setEChartView(),
               ),
+
               _setSelectTabChart(),
               const SizedBox(
                 height: 10.0,
@@ -206,9 +205,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
               _setSubTitle(
                 '테마주도주 히스토리',
               ),
-              _tcList.isEmpty
-                  ? const SizedBox()
-                  : _setCardHistory(),
+              _tcList.isEmpty ? const SizedBox() : _setCardHistory(),
 
               const SizedBox(
                 height: 15,
@@ -247,8 +244,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     if (_increseRate.contains('-')) {
       rText = _increseRate;
       rColor = RColor.sigSell;
-    }
-    else {
+    } else {
       rText = '+$_increseRate';
       rColor = RColor.sigBuy;
     }
@@ -315,8 +311,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
           child: Container(
             key: _containerKey,
             //margin: const EdgeInsets.symmetric(horizontal: 10,),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
             decoration: const BoxDecoration(
               //color: RColor.mainColor,
               //color: Color(0xffe9e9ec),
@@ -356,8 +351,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
         ),
         child: CachedNetworkImage(
           fit: BoxFit.fill,
-          imageUrl:
-              'http://files.thinkpool.com/rassi_signal/theme_images/$tCode.jpg',
+          imageUrl: 'http://files.thinkpool.com/rassi_signal/theme_images/$tCode.jpg',
           errorWidget: (context, url, error) => CachedNetworkImage(
             fit: BoxFit.fill,
             imageUrl: RString.themeDefaultUrl,
@@ -511,15 +505,11 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                     height: 38,
                     margin: const EdgeInsets.only(left: 10),
                     padding: const EdgeInsets.all(5),
-                    decoration: _bSelectA
-                        ? UIStyle.boxBtnSelectedSell()
-                        : UIStyle.boxRoundLine20(),
+                    decoration: _bSelectA ? UIStyle.boxBtnSelectedSell() : UIStyle.boxRoundLine20(),
                     child: Center(
                       child: Text(
                         '단기 강세 TOP 3',
-                        style: _bSelectA
-                            ? TStyle.btnTextWht15
-                            : TStyle.commonTitle15,
+                        style: _bSelectA ? TStyle.btnTextWht15 : TStyle.commonTitle15,
                       ),
                     ),
                   ),
@@ -543,15 +533,11 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                     height: 38,
                     margin: const EdgeInsets.only(left: 10),
                     padding: const EdgeInsets.all(5),
-                    decoration: _bSelectB
-                        ? UIStyle.boxBtnSelectedSell()
-                        : UIStyle.boxRoundLine20(),
+                    decoration: _bSelectB ? UIStyle.boxBtnSelectedSell() : UIStyle.boxRoundLine20(),
                     child: Center(
                       child: Text(
                         '추세주도주',
-                        style: _bSelectB
-                            ? TStyle.btnTextWht15
-                            : TStyle.commonTitle15,
+                        style: _bSelectB ? TStyle.btnTextWht15 : TStyle.commonTitle15,
                       ),
                     ),
                   ),
@@ -609,8 +595,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
       height: 210,
       child: Swiper(
         controller: SwiperController(),
-        pagination:
-            _tcList.length < 2 ? null : CommonSwiperPagenation.getNormalSP(9.0),
+        pagination: _tcList.length < 2 ? null : CommonSwiperPagenation.getNormalSP(9.0),
         itemCount: _tcList.length,
         itemBuilder: (BuildContext context, int index) {
           return TileTheme06(_tcList[index]);
@@ -716,9 +701,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                     height: 38,
                     margin: const EdgeInsets.symmetric(horizontal: 15),
                     padding: const EdgeInsets.all(5),
-                    decoration: _bSelect1M
-                        ? UIStyle.boxBtnSelectedTab()
-                        : const BoxDecoration(),
+                    decoration: _bSelect1M ? UIStyle.boxBtnSelectedTab() : const BoxDecoration(),
                     child: const Center(
                       child: Text(
                         '1개월',
@@ -744,9 +727,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                     height: 38,
                     margin: const EdgeInsets.symmetric(horizontal: 15),
                     padding: const EdgeInsets.all(5),
-                    decoration: _bSelect6M
-                        ? UIStyle.boxBtnSelectedTab()
-                        : const BoxDecoration(),
+                    decoration: _bSelect6M ? UIStyle.boxBtnSelectedTab() : const BoxDecoration(),
                     child: const Center(
                       child: Text(
                         '6개월',
@@ -772,9 +753,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                     height: 38,
                     margin: const EdgeInsets.symmetric(horizontal: 15),
                     padding: const EdgeInsets.all(5),
-                    decoration: _bSelect12M
-                        ? UIStyle.boxBtnSelectedTab()
-                        : const BoxDecoration(),
+                    decoration: _bSelect12M ? UIStyle.boxBtnSelectedTab() : const BoxDecoration(),
                     child: const Center(
                       child: Text(
                         '1년',
@@ -819,38 +798,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     );
   }
 
-  //페이지 전환 에니메이션
-  Route _createRoute(Widget instance) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => instance,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = const Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    );
-  }
-
-  _navigateRefreshPay(BuildContext context, Widget instance) async {
-    final result = await Navigator.push(context, _createRoute(instance));
-    if (result == 'cancel') {
-      DLog.d(ThemeHotViewer.TAG, '*** navigete cancel ***');
-    } else {
-      DLog.d(ThemeHotViewer.TAG, '*** navigateRefresh');
-      // _fetchPosts(TR.USER04,
-      //     jsonEncode(<String, String>{
-      //       'userId': _userId,
-      //     }));
-    }
-  }
-
   //안내 다이얼로그
   void _showDialogDesc(String desc) {
     showDialog(
@@ -888,7 +835,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                   '안내',
                   style: TStyle.title20,
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -897,7 +843,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                   desc,
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -930,84 +875,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
         }));
   }
 
-  //네트워크 에러 알림
-  void _showDialogNetErr() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text(
-                      '안내',
-                      style: TStyle.commonTitle,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  const Text(
-                    RString.err_network,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        decoration: UIStyle.roundBtnStBox(),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  //convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
     DLog.d(ThemeHotViewer.TAG, '$trStr $json');
 
@@ -1024,10 +891,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(ThemeHotViewer.TAG, 'ERR : TimeoutException (12 seconds)');
-      _showDialogNetErr();
-    } on SocketException catch (_) {
-      DLog.d(ThemeHotViewer.TAG, 'ERR : SocketException');
-      _showDialogNetErr();
+      //_showDialogNetErr();
     }
   }
 

@@ -38,8 +38,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
   // 기업의 실적 성적
   bool _isQuart = true;
   bool _isSalesPerformance = true;
-  Search10Sales _confirmSearch10Sales =
-      Search10Sales.empty(); // empty 아니면 잠정실적 있는거
+  Search10Sales _confirmSearch10Sales = Search10Sales(); // empty 아니면 잠정실적 있는거
   final List<Search10Sales> _listData = [];
   final List<Search10Sales> _listDataTable = [];
   bool _chart1LeftYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 억, true 이면 천억
@@ -1053,6 +1052,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData.listSales.isNotEmpty) {
           //_listData.addAll(resData.retData.listSales);
+          _confirmSearch10Sales = Search10Sales();
           for (var e in resData.retData.listSales) {
               if (e.sales.isNotEmpty ||
                   e.salesProfit.isNotEmpty ||
@@ -1072,12 +1072,12 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
           _isSalesPerformance ? _initChart1Data() : _initChart2Data();
         } else {
           setState(() {
-            _confirmSearch10Sales = Search10Sales.empty();
+            _confirmSearch10Sales = Search10Sales();
           });
         }
       } else {
         setState(() {
-          _confirmSearch10Sales = Search10Sales.empty();
+          _confirmSearch10Sales = Search10Sales();
         });
       }
     }

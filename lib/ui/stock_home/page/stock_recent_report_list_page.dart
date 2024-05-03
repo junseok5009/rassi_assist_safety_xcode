@@ -390,11 +390,10 @@ class _StockRecentReportListPageState extends State<StockRecentReportListPage> {
   _navigateAndWaitReturn(BuildContext context) async {
     // Navigator.push는 Future를 반환합니다. Future는 선택 창에서
     // Navigator.pop이 호출된 이후 완료될 것입니다.
-
     final result = await Navigator.push(
       context,
       CustomNvRouteClass.createRoute(
-        SearchPage.goStockHome(),
+        const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
       ),
     );
 

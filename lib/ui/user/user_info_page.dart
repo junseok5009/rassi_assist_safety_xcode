@@ -8,6 +8,7 @@ import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:http/http.dart' as http;
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:provider/provider.dart';
+import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
@@ -152,24 +153,35 @@ class UserInfoState extends State<UserInfoPage> {
                     _setSubTitle("아이디"),
                     const SizedBox(height: 10),
                     _setGreyBoxWidget(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              _userId,
-                              style: TStyle.textGrey15,
+                      child: InkWell(
+                        onTap: () => _copyUserId(),
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Text(
+                                    _userId,
+                                    style: TStyle.textGrey15,
+                                  ),
+                                  const SizedBox(width: 4,),
+                                  Image.asset('images/icon_copy_black.png', width: 24,),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          _pressedBtn(
-                            false,
-                            '로그아웃',
-                            _showDialogLogout,
-                          ),
-                        ],
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            _pressedBtn(
+                              false,
+                              '로그아웃',
+                              _showDialogLogout,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 5),
@@ -317,7 +329,7 @@ class UserInfoState extends State<UserInfoPage> {
                                     onChanged: (_) async {
                                       _clickRecItemIndex = -1;
                                       await Future.delayed(const Duration(milliseconds: 10));
-                                      if (_recommendController.text.length > 1) {
+                                      if (_recommendController.text.isNotEmpty) {
                                         if (!_isSearh02Processing) {
                                           _isSearh02Processing = true;
                                           _recSearchText = _recommendController.text.toUpperCase().trim();
@@ -851,6 +863,12 @@ class UserInfoState extends State<UserInfoPage> {
     );
   }
 
+  void _copyUserId(){
+    Clipboard.setData(ClipboardData(text: _userId)).then((value){
+      commonShowToast('아이디가 복사되었습니다.');
+    });
+  }
+
   //로그아웃 다이얼로그
   void _showDialogLogout() {
     showDialog(
@@ -1040,7 +1058,6 @@ class UserInfoState extends State<UserInfoPage> {
         });
   }
 
-  // convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
     DLog.d(UserInfoPage.TAG, '$trStr $json');
 
@@ -1061,7 +1078,6 @@ class UserInfoState extends State<UserInfoPage> {
     _parseTrData(trStr, response);
   }
 
-  // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(UserInfoPage.TAG, response.body);
     if (_isLoading) {
@@ -1162,7 +1178,7 @@ class UserInfoState extends State<UserInfoPage> {
           _isSearchingRec = false;
         }
         if (_recSearchText != _recommendController.text.toUpperCase().trim()) {
-          if (_recommendController.text.length > 1) {
+          if (_recommendController.text.isNotEmpty) {
             _isSearh02Processing = true;
             _recSearchText = _recommendController.text.toUpperCase().trim();
             _requestTrMgrAgent02(_recSearchText);

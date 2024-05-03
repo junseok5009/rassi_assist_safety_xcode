@@ -20,6 +20,7 @@ import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/pay/payment_service.dart';
 import 'package:rassi_assist/ui/pay/premium_care_page.dart';
 import 'package:rassi_assist/ui/web/web_page.dart';
@@ -161,15 +162,30 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
       } else if (status == 'pay_success') {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
-        if(userInfoProvider.isPremiumUser() && context.mounted){
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
-          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+        if(userInfoProvider.isPremiumUser() && mounted){
+          Navigator.popUntil(
+            context,
+            ModalRoute.withName(BasePage.routeName),
+          );
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const PremiumCarePage()));
+          CommonPopup.instance
+              .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         }else{
-          Navigator.pop(context);
-          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          if (mounted) {
+            Navigator.popUntil(
+              context,
+              ModalRoute.withName(BasePage.routeName),
+            );
+            CommonPopup.instance
+                .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          }
         }
       }else{
-        Navigator.pop(context);
+        Navigator.popUntil(
+          context,
+          ModalRoute.withName(BasePage.routeName),
+        );
       }
     };
     inAppBilling.addToProStatusChangedListeners(statCallback);
@@ -177,7 +193,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
     //결제 에러 상태 리스너
     errCallback = (retStr) async {
       await CommonPopup.instance.showDialogBasicConfirm(context, '알림', retStr);
-      if(context.mounted){
+      if(mounted){
         Navigator.pop(context);
       }
     };
@@ -626,80 +642,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
     );
   }
 
-  //결제 완료시에만 사용 (결제 완료/실패 알림 -> 자동 페이지 종료)
-  void _showDialogMsg(String message, String btnText) {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext dialogContext) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(dialogContext);
-                    _goPreviousPage();
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  Text(
-                    message,
-                    
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        // margin: const EdgeInsets.only(top: 20.0),
-                        decoration: const BoxDecoration(
-                          color: RColor.mainColor,
-                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        ),
-                        child: Center(
-                          child: Text(
-                            btnText,
-                            style: TStyle.btnTextWht16,
-                            
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(dialogContext);
-                      _goPreviousPage();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
   //상품정보 가져오기
   Future _getProduct() async {
     DLog.d(PayPremiumPromotionPage.TAG, '# 상품정보 요청');
@@ -769,16 +711,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
     setState(() {
       _items = items;
     });
-  }
-
-  //완료, 실패 알림 후 페이지 자동 종료
-  void _goPreviousPage() {
-    // DEFINE 23.08.04 프리미엄 케어 서비스 추가
-    Navigator.pop(context);
-    //basePageState.callPageRoute(const PremiumCarePage());
-    /*Future.delayed(Duration(milliseconds: 500), () {
-      Navigator.of(context).pop('complete'); //null 자리에 데이터를 넘겨 이전 페이지 갱신???
-    });*/
   }
 
   // convert 패키지의 jsonDecode 사용

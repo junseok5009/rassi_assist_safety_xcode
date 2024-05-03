@@ -766,8 +766,8 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
           child: Text(
             _listChartDateDivModel[index].divName,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: RColor.greyBasic_8c8c8c,
+            style: TextStyle(
+              color: index == 2 ? RColor.purpleBasic_6565ff : RColor.greyBasic_8c8c8c,
             ),
           ),
         ),

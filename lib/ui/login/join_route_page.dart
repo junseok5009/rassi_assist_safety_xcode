@@ -18,6 +18,7 @@ import 'package:rassi_assist/models/none_tr/user_join_info.dart';
 import 'package:rassi_assist/models/think_login_sns.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/login/agent/agent_no_link_sign_up_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,6 +48,7 @@ class JoinRouteState extends State<JoinRoutePage> {
   String _reqType = '';
   String _reqParam = '';
   String _sJoinRoute = '';
+  final String _noLinkAgent = 'NoLinkAgent'; // 24.04.29 에이전트 사업 - 일반 회원 가입 단계(링크 없음)에서 추천인 입력으로 회원가입
 
   String _smsCheck = 'N'; //SMS 수신 동의 체크
   String _emailCheck = 'N'; //이메일 수신 동의 체크
@@ -126,6 +128,18 @@ class JoinRouteState extends State<JoinRoutePage> {
       13,
       4,
     ),
+    RouteInfo(
+      '기타  ',
+      '추천인',
+      '기타',
+      '',
+      '',
+      9,
+      10,
+      13,
+      13,
+      5,
+    ),
   ];
 
   bool _isNetworkDo = false;
@@ -164,17 +178,12 @@ class JoinRouteState extends State<JoinRoutePage> {
                     child: ListView.builder(
                       shrinkWrap: true,
                       controller: _scrollController,
-                      itemCount: itemList.length + 1,
+                      itemCount: itemList.length,
                       padding: const EdgeInsets.symmetric(
                         vertical: 20,
                       ),
                       itemBuilder: (context, i) {
-                        if (i == 5) {
-                          return _setFooterTile();
-                        } else {
-                          int idx = i;
-                          return _setDivTile(idx, expandList[idx]);
-                        }
+                        return _setDivTile(i, expandList[i]);
                       },
                     ),
                   ),
@@ -203,7 +212,7 @@ class JoinRouteState extends State<JoinRoutePage> {
         visible: _sJoinRoute.isNotEmpty,
         child: Container(
           width: double.infinity,
-          height: 75,
+          height: 80,
           color: RColor.bgWeakGrey,
           child: Container(
             width: double.infinity,
@@ -245,7 +254,7 @@ class JoinRouteState extends State<JoinRoutePage> {
     );
   }
 
-  Widget _setFooterTile() {
+/*  Widget _setFooterTile() {
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -255,17 +264,14 @@ class JoinRouteState extends State<JoinRoutePage> {
         ),
         width: double.infinity,
         height: 56,
-        decoration:
-            statList[10] ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
+        decoration: statList[10] ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               '기타',
               style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: statList[10] ? Colors.white : Colors.black),
+                  fontSize: 16.0, fontWeight: FontWeight.bold, color: statList[10] ? Colors.white : Colors.black),
             ),
           ],
         ),
@@ -276,7 +282,7 @@ class JoinRouteState extends State<JoinRoutePage> {
         _goBottomPage();
       },
     );
-  }
+  }*/
 
   //리스트 item 하나
   Widget _setDivTile(int idx, bool expStat) {
@@ -285,8 +291,7 @@ class JoinRouteState extends State<JoinRoutePage> {
         top: 15,
       ),
       width: double.infinity,
-      decoration:
-          expStat ? UIStyle.boxSelectedLine12() : UIStyle.boxRoundLine6(),
+      decoration: expStat ? UIStyle.boxSelectedLine12() : UIStyle.boxRoundLine6(),
       child: _setExpansionTile(idx),
     );
   }
@@ -361,8 +366,7 @@ class JoinRouteState extends State<JoinRoutePage> {
           margin: const EdgeInsets.symmetric(
             horizontal: 20,
           ),
-          decoration:
-              firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
+          decoration: firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
           child: Center(
             child: Text(
               itemList[idx].firstContent,
@@ -391,9 +395,7 @@ class JoinRouteState extends State<JoinRoutePage> {
             margin: const EdgeInsets.symmetric(
               horizontal: 20,
             ),
-            decoration: firstStat
-                ? UIStyle.boxSelectedPurple()
-                : UIStyle.boxWeakGrey25(),
+            decoration: firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
             child: Center(
               child: Text(
                 itemList[idx].firstContent,
@@ -421,9 +423,7 @@ class JoinRouteState extends State<JoinRoutePage> {
             margin: const EdgeInsets.symmetric(
               horizontal: 20,
             ),
-            decoration: secondStat
-                ? UIStyle.boxSelectedPurple()
-                : UIStyle.boxWeakGrey25(),
+            decoration: secondStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
             child: Center(
               child: Text(
                 itemList[idx].secondContent,
@@ -439,16 +439,14 @@ class JoinRouteState extends State<JoinRoutePage> {
     ];
   }
 
-  List<Widget> _setSubItem4(int idx, bool firstStat, bool secondStat,
-      bool thirdStat, bool fourthStat) {
+  List<Widget> _setSubItem4(int idx, bool firstStat, bool secondStat, bool thirdStat, bool fourthStat) {
     return [
       InkWell(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 10),
           width: double.infinity,
           height: 50,
-          decoration:
-              firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
+          decoration: firstStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
           child: Center(
             child: Text(
               itemList[idx].firstContent,
@@ -471,9 +469,7 @@ class JoinRouteState extends State<JoinRoutePage> {
           margin: const EdgeInsets.symmetric(horizontal: 10),
           width: double.infinity,
           height: 50,
-          decoration: secondStat
-              ? UIStyle.boxSelectedPurple()
-              : UIStyle.boxWeakGrey25(),
+          decoration: secondStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
           child: Center(
             child: Text(
               itemList[idx].secondContent,
@@ -496,8 +492,7 @@ class JoinRouteState extends State<JoinRoutePage> {
           margin: const EdgeInsets.symmetric(horizontal: 10),
           width: double.infinity,
           height: 50,
-          decoration:
-              thirdStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
+          decoration: thirdStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
           child: Center(
             child: Text(
               itemList[idx].thirdContent,
@@ -520,9 +515,7 @@ class JoinRouteState extends State<JoinRoutePage> {
           margin: const EdgeInsets.symmetric(horizontal: 10),
           width: double.infinity,
           height: 50,
-          decoration: fourthStat
-              ? UIStyle.boxSelectedPurple()
-              : UIStyle.boxWeakGrey25(),
+          decoration: fourthStat ? UIStyle.boxSelectedPurple() : UIStyle.boxWeakGrey25(),
           child: Center(
             child: Text(
               itemList[idx].fourthContent,
@@ -589,7 +582,9 @@ class JoinRouteState extends State<JoinRoutePage> {
     } else if (idx == 8) {
       _sJoinRoute = 'OLLAAD'; //페이스북 광고
     } else if (idx == 9) {
-      _sJoinRoute = 'OLLAETC'; //기타
+      _sJoinRoute = _noLinkAgent; // 추천인 - 에이전트
+    } else if (idx == 10) {
+      _sJoinRoute = 'OLLAETC'; // 기타
     } else {
       _sJoinRoute = 'OLLAETC';
     }
@@ -618,8 +613,9 @@ class JoinRouteState extends State<JoinRoutePage> {
   //회원가입 입력값 체크
   void _checkEditData() {
     if (_sJoinRoute.isEmpty) {
-      CommonPopup.instance
-          .showDialogBasicConfirm(context, '알림', '가입하시게 된 경로를 선택해 주세요.');
+      CommonPopup.instance.showDialogBasicConfirm(context, '알림', '가입하시게 된 경로를 선택해 주세요.');
+    } else if (_sJoinRoute == _noLinkAgent) {
+      Navigator.pushNamed(context, AgentNoLinkSignUpPage.routeName, arguments: widget.userJoinInfo);
     } else {
       //체크완료
       if (_isAgreeMarketing) {
@@ -629,8 +625,7 @@ class JoinRouteState extends State<JoinRoutePage> {
       }
       DLog.d(JoinRoutePage.TAG, '마케팅 수신동의 : $_isAgreeMarketing');
       DLog.d(JoinRoutePage.TAG, '### JoinRoute : $_sJoinRoute');
-      DLog.d(JoinRoutePage.TAG,
-          'widget.userJoinInfo.toString() : ${widget.userJoinInfo.toString()}');
+      DLog.d(JoinRoutePage.TAG, 'widget.userJoinInfo.toString() : ${widget.userJoinInfo.toString()}');
 
       //라씨 회원가입
       if (widget.userJoinInfo.pgType == 'RASSI') {
@@ -642,11 +637,7 @@ class JoinRouteState extends State<JoinRoutePage> {
       }
       //쓱가입
       else if (widget.userJoinInfo.pgType == 'SSGOLLA') {
-        DLog.d(
-            'SsgJoinPage.TAG',
-            '씽크풀 가입안됨 ' +
-                "SSGOLLA" +
-                utilsGetDeviceHpID(widget.userJoinInfo.phone));
+        DLog.d('SsgJoinPage.TAG', '씽크풀 가입안됨 ' + "SSGOLLA" + utilsGetDeviceHpID(widget.userJoinInfo.phone));
         _reqType = 'join_sns';
         _reqParam =
             "snsId=${Net.getEncrypt("SSGOLLA${utilsGetDeviceHpID(widget.userJoinInfo.phone)}")}&snsPos=SSGOLLA&nick=&userName=&sexGubun=&joinRoute=$_sJoinRoute&joinChannel=SM&email=&daily=N&infomailFlag=N&privacyFlag=N&tm_sms_f=N&encHpNo=${Net.getEncrypt(widget.userJoinInfo.phone)}&kt_provide_flag=N&hpEncFlag=Y";
@@ -676,8 +667,7 @@ class JoinRouteState extends State<JoinRoutePage> {
 
   // 다음 페이지로 이동
   Future<void> _goNextRoute() async {
-    CustomFirebaseClass.setUserProperty(
-        CustomFirebaseProperty.LOGIN_STATUS, 'complete');
+    CustomFirebaseClass.setUserProperty(CustomFirebaseProperty.LOGIN_STATUS, 'complete');
     switch (widget.userJoinInfo.pgType) {
       case 'SSGOLLA':
         {
@@ -724,11 +714,9 @@ class JoinRouteState extends State<JoinRoutePage> {
     if (prefsUserId.isEmpty) {
       if (globalUserId.isEmpty) {
         if (mounted) {
-          await CommonPopup.instance.showDialogBasicConfirm(
-              context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+          await CommonPopup.instance.showDialogBasicConfirm(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
           if (mounted) {
-            Navigator.pushNamedAndRemoveUntil(
-                context, IntroStartPage.routeName, (route) => false);
+            Navigator.pushNamedAndRemoveUntil(context, IntroStartPage.routeName, (route) => false);
           }
         }
       } else {
@@ -746,8 +734,7 @@ class JoinRouteState extends State<JoinRoutePage> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-            builder: (context) => const BasePage(),
-            settings: const RouteSettings(name: '/base')),
+            builder: (context) => const BasePage(), settings: const RouteSettings(name: BasePage.routeName)),
         (route) => false,
       );
     }
@@ -773,8 +760,7 @@ class JoinRouteState extends State<JoinRoutePage> {
       setState(() => _isNetworkDo = true);
     }
     var urls = Uri.parse(url);
-    final http.Response response =
-        await http.post(urls, headers: Net.think_headers, body: _reqParam);
+    final http.Response response = await http.post(urls, headers: Net.think_headers, body: _reqParam);
 
     // RESPONSE ---------------------------
     DLog.d(JoinRoutePage.TAG, '${response.statusCode}');
@@ -785,8 +771,7 @@ class JoinRouteState extends State<JoinRoutePage> {
     if (_reqType == 'join_sns') {
       //SNS 회원가입
       if (result.isNotEmpty) {
-        final ThinkLoginSns resData =
-            ThinkLoginSns.fromJson(jsonDecode(result));
+        final ThinkLoginSns resData = ThinkLoginSns.fromJson(jsonDecode(result));
         if (resData.resultCode.toString().trim() == '0') {
           commonShowToast("회원가입에 실패했습니다");
         } else {
@@ -812,8 +797,7 @@ class JoinRouteState extends State<JoinRoutePage> {
                 }
               default:
                 {
-                  CommonPopup.instance
-                      .showDialogMsg(context, value.appDialogMsg);
+                  CommonPopup.instance.showDialogMsg(context, value.appDialogMsg);
                 }
             }
           });
@@ -851,12 +835,10 @@ class JoinRouteState extends State<JoinRoutePage> {
         //씽크풀 회원가입 실패
         if (mounted) {
           if (result == 'PWERR') {
-            CommonPopup.instance
-                .showDialogBasicConfirm(context, '알림', '안전한 비밀번호로 다시 설정해 주세요.');
+            CommonPopup.instance.showDialogBasicConfirm(context, '알림', '안전한 비밀번호로 다시 설정해 주세요.');
           } else {
             CommonPopup.instance
-                .showDialogBasicConfirm(
-                    context, '알림', '회원 가입에 실패하였습니다. 고객센터로 문의해주세요.')
+                .showDialogBasicConfirm(context, '알림', '회원 가입에 실패하였습니다. 고객센터로 문의해주세요.')
                 .then((value) => Navigator.pop(context));
           }
         }
@@ -878,15 +860,6 @@ class RouteInfo {
   final int fourthStatus;
   final int expandStatus;
 
-  RouteInfo(
-      this.subItemTitle,
-      this.firstContent,
-      this.secondContent,
-      this.thirdContent,
-      this.fourthContent,
-      this.firstStatus,
-      this.secondStatus,
-      this.thirdStatus,
-      this.fourthStatus,
-      this.expandStatus);
+  RouteInfo(this.subItemTitle, this.firstContent, this.secondContent, this.thirdContent, this.fourthContent,
+      this.firstStatus, this.secondStatus, this.thirdStatus, this.fourthStatus, this.expandStatus);
 }

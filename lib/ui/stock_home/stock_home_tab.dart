@@ -523,7 +523,7 @@ class StockHomeTabState extends State<StockHomeTab>
     final result = await Navigator.push(
       context,
       CustomNvRouteClass.createRoute(
-        SearchPage.goStockHome(),
+        const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
       ),
     );
     if (result != null &&
@@ -826,7 +826,7 @@ class StockHomeTabState extends State<StockHomeTab>
                         pktSn: stockInfoProvider.getPockSn);
                     Navigator.popUntil(
                       context,
-                      ModalRoute.withName('/base'),
+                      ModalRoute.withName(BasePage.routeName),
                     );
                   },
                 ),

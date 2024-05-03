@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
@@ -404,6 +403,7 @@ class CommonPopup {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
@@ -433,7 +433,9 @@ class CommonPopup {
                             textAlign: TextAlign.start,
                             style: TStyle.content15,
                           ),
-                          const SizedBox(height: 10,),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           Container(
                             width: AppGlobal().deviceWidth / 2.5,
                             height: AppGlobal().deviceWidth / 2.5,
@@ -481,7 +483,9 @@ class CommonPopup {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 10,),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           const Text(
                             '모두 이용하실 수 있습니다.',
                             textAlign: TextAlign.center,
@@ -493,6 +497,9 @@ class CommonPopup {
                     InkWell(
                       child: Container(
                         height: 50,
+                        constraints: const BoxConstraints(
+                          minWidth: 100,
+                        ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 30,
                         ),
@@ -500,12 +507,15 @@ class CommonPopup {
                           RColor.mainColor,
                         ),
                         alignment: Alignment.center,
-                        child: const Text(
-                          '프리미엄 계정 가입하기',
-                          style: TextStyle(
-                            color: Colors.white,
+                        child: const FittedBox(
+                          child: Text(
+                            '프리미엄 계정 가입하기',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
                       onTap: () {
@@ -593,7 +603,9 @@ class CommonPopup {
                             textAlign: TextAlign.start,
                             style: TStyle.content15,
                           ),
-                          const SizedBox(height: 10,),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           Container(
                             width: AppGlobal().deviceWidth / 2.5,
                             height: AppGlobal().deviceWidth / 2.5,
@@ -641,7 +653,9 @@ class CommonPopup {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 10,),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           const Text(
                             '모두 이용하실 수 있습니다.',
                             textAlign: TextAlign.center,
@@ -682,7 +696,7 @@ class CommonPopup {
           );
         },
       ).then(
-            (value) {
+        (value) {
           if (value != null) {
             return value;
           } else {
@@ -773,7 +787,7 @@ class CommonPopup {
           );
         },
       ).then(
-            (value) {
+        (value) {
           if (value != null) {
             return value;
           } else {
@@ -787,7 +801,7 @@ class CommonPopup {
   }
 
   // index 0 : top / 1 : bottom / 2 : left / 3 : right
-  Widget _premiumCircleWidget(String title, int index){
+  Widget _premiumCircleWidget(String title, int index) {
     return Container(
       width: AppGlobal().deviceWidth / 7.5,
       height: AppGlobal().deviceWidth / 7.5,
@@ -795,7 +809,11 @@ class CommonPopup {
         shape: BoxShape.circle,
         color: Color(0xff353B6F),
       ),
-      padding: index == 2 ? const EdgeInsets.all(8) : index == 3 ? const EdgeInsets.all(10) : const EdgeInsets.all(4),
+      padding: index == 2
+          ? const EdgeInsets.all(8)
+          : index == 3
+              ? const EdgeInsets.all(10)
+              : const EdgeInsets.all(4),
       alignment: Alignment.center,
       child: FittedBox(
         child: Text(

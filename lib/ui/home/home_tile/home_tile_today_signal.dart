@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -30,27 +31,11 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
   late SharedPreferences _prefs;
   final AppGlobal _appGlobal = AppGlobal();
   String _userId = '';
-
-  Signal09 _signal09 = defSignal09;
-  String _noticeCode = '';
-  bool _bTodaySignal = false; //오늘 신호 발생 여부
-  final List<SignalCount> _listSigStatus = [];
   final List<double> _circlePadding = [18, 22, 11];
   final List<double> _circleFontSize = [14, 16, 12];
 
-  // 프로세스
-  String _engineStr1 = '';
-  String _engineStr2 = '';
-  final List<String> _preStartStr = [
-    '학습 정보 Update',
-    'Today 시세마스터 생성',
-    '미거래/매매금지 종목 Filtering',
-    '신규 종목 Confirm',
-    '거래 종목 fixed',
-    '종목 정보/분석 Update',
-    'Dashboard Reset',
-    'Start Trading Standby',
-  ];
+  // 24.04.30 오늘의 AI매매신호 현황 + 신호 분석중 프로세스 화면 전문으로 값 받아오기 작업 [Signal09]
+  Signal09 _signal09 = const Signal09();
   Timer? _countTimer;
   int _minute = 0;
   int _second = 0;
@@ -307,41 +292,6 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
     );
   }
 
-  _initData() async {
-    _listSigStatus.addAll(_signal09.listData);
-    _noticeCode = _signal09.noticeCode;
-    _bTodaySignal = (_noticeCode != 'TIME_BEFORE' && _noticeCode.isNotEmpty);
-
-    //장시작 대기, 전일 미거래 종목 필터링중(08시 ~ 개장전)
-    if (_noticeCode == 'TIME_BEFORE') {
-      _engineStr1 = 'AI는 현재 데이터 처리 중';
-      _engineStr2 = '';
-    }
-    //장시작 후 첫 신호 발생전까지
-    else if (_noticeCode == 'TIME_OPEN') {
-      _engineStr1 = 'AI는 현재 신호 발생 중';
-      _engineStr2 = 'AI는 현재 새로운\nAI매매신호를 발생 중입니다.';
-    }
-    //9시 20분 첫 신호 발생부터 다음 신호 발생 정각까지 20분 단위 카운트 다운
-    else if (_noticeCode == 'TIME_TERM') {
-      _engineStr1 = 'AI는 현재 실시간 분석 중';
-      _engineStr2 = 'AI의 다음 신호 발생까지';
-      _startTimer(_signal09.remainTime);
-    }
-    //9시 40분 2번째 신호 발생부터 20분/40분/60분 해당 신호대 신호 발생까지 노출
-    else if (_noticeCode == 'TIME_WAIT') {
-      _engineStr1 = 'AI는 현재 신호 발생 중';
-      _engineStr2 = 'AI는 현재 새로운\nAI매매신호를 발생 중입니다.';
-      _startTimerWait();
-    }
-    //비영업일, 영업일 장종료후
-    else {
-      _engineStr1 = 'AI는 현재 학습 업데이트 중';
-      _engineStr2 = 'AI는 현재 데이터를 수집,\n학습에 반영 중입니다.';
-    }
-    setState(() {});
-  }
-
   Widget _setDataView() {
     return Container(
       constraints: const BoxConstraints(
@@ -349,13 +299,13 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
       ),
       decoration: UIStyle.boxShadowBasic(16),
       padding: const EdgeInsets.all(15),
-      child: (_noticeCode == 'TIME_BEFORE')
+      child: (_signal09.noticeCode == 'TIME_BEFORE')
           ? _signalOnlyProcessView()
           : Column(
               children: [
                 _signalView(),
                 //롤링 현황 - 새로운 매매신호 발생(Signal09) / 장 종료 후 - 오늘 매수 / 매도 종목들 롤링
-                if (_listSigStatus.isNotEmpty)
+                if (_signal09.listSignal.isNotEmpty)
                   Container(
                     width: double.infinity,
                     height: 32,
@@ -368,15 +318,15 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                     ),
                     child: Swiper(
                       loop: true,
-                      autoplay: _listSigStatus.length > 1 ? true : false,
+                      autoplay: _signal09.listSignal.length > 1 ? true : false,
                       autoplayDelay: 4000,
                       scrollDirection: Axis.horizontal,
-                      itemCount: _listSigStatus.length,
+                      itemCount: _signal09.listSignal.length,
                       itemBuilder: (BuildContext context, int index) {
-                        if (_noticeCode == 'TIME_TERM' || _noticeCode == 'TIME_WAIT') {
-                          return _setTileSigString(_listSigStatus[index]);
-                        } else if (_noticeCode == 'TIME_CLOSE' || _noticeCode == 'TIME_DAWN') {
-                          return _setTileSigStringTimeClose(_listSigStatus[index]);
+                        if (_signal09.noticeCode == 'TIME_TERM' || _signal09.noticeCode == 'TIME_WAIT') {
+                          return _setTileSigString(_signal09.listSignal[index]);
+                        } else if (_signal09.noticeCode == 'TIME_CLOSE' || _signal09.noticeCode == 'TIME_DAWN') {
+                          return _setTileSigStringTimeClose(_signal09.listSignal[index]);
                         } else {
                           return const SizedBox();
                         }
@@ -397,7 +347,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
           child: _signalProcessView(),
         ),
         Visibility(
-          visible: _bTodaySignal,
+          visible: _signal09.noticeCode.isNotEmpty && _signal09.noticeCode != 'TIME_BEFORE',
           child: Row(
             children: [
               const SizedBox(
@@ -419,7 +369,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //장 시작전 대기... 필터중... 작업중
-            _noticeCode == 'TIME_BEFORE'
+            _signal09.noticeCode == 'TIME_BEFORE'
                 ? SizedBox(
                     //width: 220,
                     height: 40,
@@ -427,13 +377,13 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                         loop: true,
                         autoplay: true,
                         autoplayDelay: 4000,
-                        itemCount: _preStartStr.length,
+                        itemCount: _signal09.listNotice.length,
                         itemBuilder: (BuildContext context, int index) {
                           return Container(
                               color: Colors.red,
                               child: Center(
                                 child: Text(
-                                  _preStartStr[index],
+                                  _signal09.listNotice[index],
                                   textAlign: TextAlign.center,
                                 ),
                               ));
@@ -444,17 +394,15 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Center(
-                        child: FittedBox(
-                          child: Text(
-                            _engineStr2,
-                            overflow: TextOverflow.ellipsis,
-                            //maxLines: 2,
-                            textAlign: TextAlign.center,
-                          ),
+                        child: AutoSizeText(
+                          _signal09.listNotice.isEmpty ? '' : _signal09.listNotice.first,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                       Visibility(
-                        visible: _noticeCode == 'TIME_TERM',
+                        visible: _signal09.noticeCode == 'TIME_TERM',
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -508,11 +456,11 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              _engineStr1,
+              _signal09.processText,
               style: TStyle.commonTitle15,
             ),
             //장 시작전 대기... 필터중... 작업중
-            _noticeCode == 'TIME_BEFORE'
+            _signal09.noticeCode == 'TIME_BEFORE'
                 ? Container(
                     height: 50,
                     decoration: UIStyle.boxRoundFullColor6c(
@@ -525,11 +473,11 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                         loop: true,
                         autoplay: true,
                         autoplayDelay: 4000,
-                        itemCount: _preStartStr.length,
+                        itemCount: _signal09.listNotice.length,
                         itemBuilder: (BuildContext context, int index) {
                           return Center(
                             child: Text(
-                              _preStartStr[index],
+                              _signal09.listNotice[index],
                               textAlign: TextAlign.center,
                             ),
                           );
@@ -537,7 +485,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
                   )
                 : Center(
                     child: Text(
-                      _engineStr2,
+                      _signal09.listNotice.isEmpty ? '' : _signal09.listNotice.first,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                       textAlign: TextAlign.center,
@@ -681,6 +629,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
     });
   }
 
+  // 페이지 갱신 해주는 global 함수
   initPage() {
     _requestTrSignal09();
   }
@@ -711,44 +660,42 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
 
   void _parseTrData(String trStr, final http.Response response) {
     DLog.w(trStr + response.body);
-
     if (trStr == TR.SIGNAL09) {
       final TrSignal09 resData = TrSignal09.fromJson(jsonDecode(response.body));
       _countTimer?.cancel();
-      _listSigStatus.clear();
       if (resData.retCode == RT.SUCCESS) {
         _signal09 = resData.resData;
-        if (!_signal09.isEmpty()) {
-          _initData();
-        } else {
-          setState(() {
-            _signal09 = defSignal09;
-          });
+        //9시 20분 첫 신호 발생부터 다음 신호 발생 정각까지 20분 단위 카운트 다운
+        if (_signal09.noticeCode == 'TIME_TERM') {
+          _startTimer(_signal09.remainTime);
+        }
+        //9시 40분 2번째 신호 발생부터 20분/40분/60분 해당 신호대 신호 발생까지 노출
+        else if (_signal09.noticeCode == 'TIME_WAIT') {
+          _startTimerWait();
         }
       } else {
-        setState(() {
-          _signal09 = defSignal09;
-        });
+        _signal09 = defSignal09;
       }
+      setState(() {});
     }
   }
 
   //AI 처리 프로세스 다이얼로그
   void _showDialogProcess() {
     String imgPath = 'images/re_img_pop_001.png';
-    if (_noticeCode == 'TIME_BEFORE') {
+    if (_signal09.noticeCode == 'TIME_BEFORE') {
       imgPath = 'images/re_img_pop_003.png';
     }
     //장시작 후 첫 신호 발생전까지
-    else if (_noticeCode == 'TIME_OPEN') {
+    else if (_signal09.noticeCode == 'TIME_OPEN') {
       imgPath = 'images/re_img_pop_004.png';
     }
     //9시 20분 첫 신호 발생부투 다음 신호 발생 정각까지 20분 단위 카운트 다운
-    else if (_noticeCode == 'TIME_TERM') {
+    else if (_signal09.noticeCode == 'TIME_TERM') {
       imgPath = 'images/re_img_pop_004.png';
     }
     //9시 40분 2번째 신호 발생부터 20분/40분/60분 해당 신호대 신호 발생까지 노출
-    else if (_noticeCode == 'TIME_WAIT') {
+    else if (_signal09.noticeCode == 'TIME_WAIT') {
       imgPath = 'images/re_img_pop_001.png';
     } else {
       imgPath = 'images/re_img_pop_002.png';

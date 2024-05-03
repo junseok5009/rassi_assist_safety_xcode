@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rassi_assist/models/tr_shome/tr_shome07.dart';
 import 'package:rassi_assist/ui/home/sliver_home_tab.dart';
+import 'package:rassi_assist/ui/login/agent/agent_no_link_sign_up_page.dart';
 import 'package:rassi_assist/ui/login/agent/agent_sign_up_page.dart';
 import 'package:rassi_assist/ui/login/agent/agent_welcome_page.dart';
 import 'package:rassi_assist/ui/login/intro_page.dart';
@@ -16,7 +16,6 @@ import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/main/keyboard_page.dart';
 import 'package:rassi_assist/ui/main/my_page.dart';
 import 'package:rassi_assist/ui/main/notification_page.dart';
-import 'package:rassi_assist/ui/main/trade_assist_page.dart';
 import 'package:rassi_assist/ui/news/catch_list_page.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
@@ -51,7 +50,6 @@ import 'package:rassi_assist/ui/sub/stk_catch_big.dart';
 import 'package:rassi_assist/ui/sub/stk_catch_top.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/sub/theme_search.dart';
-import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:rassi_assist/ui/test/notification_setting.dart';
 import 'package:rassi_assist/ui/test/test_page.dart';
 import 'package:rassi_assist/ui/test/theme_list_page.dart';
@@ -62,17 +60,17 @@ import 'package:rassi_assist/ui/user/terms_page.dart';
 import 'package:rassi_assist/ui/user/user_center_page.dart';
 import 'package:rassi_assist/ui/user/user_info_page.dart';
 import 'package:rassi_assist/ui/user/write_qna_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:rassi_assist/ui/web/web_viewer.dart';
 
 import '../ui/sub/trade_intro_page.dart';
 
 final routes = {
-
   BasePage.routeName: (BuildContext context) => const BasePage(),
 
   IntroPage.routeName: (BuildContext context) => const IntroPage(),
   IntroStartPage.routeName: (BuildContext context) => const IntroStartPage(),
-  LoginDivisionPage.routeName : (BuildContext context) => LoginDivisionPage(),
+  LoginDivisionPage.routeName: (BuildContext context) => LoginDivisionPage(),
 
   // 에이전트 회원가입
   AgentSignUpPage.routeName: (BuildContext context) => const AgentSignUpPage(),
@@ -91,9 +89,17 @@ final routes = {
   '/main_my': (BuildContext context) => MyPage(),
 
   // 종목홈_챗GPT기업개요
-  StockCompanyOverviewPage.routeName: (BuildContext context,) => const StockCompanyOverviewPage(),
+  StockCompanyOverviewPage.routeName: (
+    BuildContext context,
+  ) =>
+      const StockCompanyOverviewPage(),
 
-  TradeAssistPage.routeName: (BuildContext context) => const TradeAssistPage(),
+  // 종목홈_챗GPT기업개요
+  AgentNoLinkSignUpPage.routeName: (
+      BuildContext context,
+      ) =>
+  const AgentNoLinkSignUpPage(),
+
   MyPage.routeName: (BuildContext context) => MyPage(),
   KeyboardPage.routeName: (BuildContext context) => const KeyboardPage(),
   //SearchPage.routeName: (BuildContext context) => SearchPage(),
@@ -108,8 +114,7 @@ final routes = {
   NotiListPage.routeName: (BuildContext context) => NotiListPage(),
 
   TradeIntroPage.routeName: (BuildContext context) => const TradeIntroPage(),
-  PocketSettingPage.routeName: (BuildContext context) =>
-      const PocketSettingPage(),
+  PocketSettingPage.routeName: (BuildContext context) => const PocketSettingPage(),
   ReportPage.routeName: (BuildContext context) => ReportPage(),
   ConditionPage.routeName: (BuildContext context) => const ConditionPage(),
   StkCatchBigPage.routeName: (BuildContext context) => const StkCatchBigPage(),
@@ -118,7 +123,6 @@ final routes = {
   ThemeViewer.routeName: (BuildContext context) => const ThemeViewer(),
   ThemeSearch.routeName: (BuildContext context) => ThemeSearch(),
   ThemeHotPage.routeName: (BuildContext context) => const ThemeHotPage(),
-
 
   IntroSearchPage.routeName: (BuildContext context) => const IntroSearchPage(),
   //LoginDivisionPage.routeName: (BuildContext context) => LoginDivisionPage(),
@@ -134,8 +138,7 @@ final routes = {
   SignalTopPage.routeName: (BuildContext context) => SignalTopPage(),
   SignalTodayPage.routeName: (BuildContext context) => const SignalTodayPage(),
   SignalBoardPage.routeName: (BuildContext context) => SignalBoardPage(),
-  SignalPopListPage.routeName: (BuildContext context) =>
-      const SignalPopListPage(),
+  SignalPopListPage.routeName: (BuildContext context) => const SignalPopListPage(),
   SignalAllPage.routeName: (BuildContext context) => const SignalAllPage(),
   SignalMTopPage.routeName: (BuildContext context) => const SignalMTopPage(),
   SignalHoldPage.routeName: (BuildContext context) => SignalHoldPage(),
@@ -200,8 +203,7 @@ class LD {
   static const String main_my = "LPE1"; //메인_MY켓
   static const String pocket_page = "LPE2"; //포켓 상세 > 23.12.26 포켓 개편 : 포켓으로 이동
   static const String pocket_add = "LPE4"; //포켓 종목 추가 > 23.12.26 포켓 개편 : 포켓으로 이동
-  static const String pocket_setting =
-      "LPE5"; //포켓 설정 > 23.12.26 포켓 개편 : 포켓으로 이동
+  static const String pocket_setting = "LPE5"; //포켓 설정 > 23.12.26 포켓 개편 : 포켓으로 이동
   static const String pocket_board = "LPEF"; //포켓 보드 > 23.12.26 포켓 개편 : 포켓으로 이동
   static const String main_my_service_center_11_inquiry = "LPEB";
   static const String main_my_service_center_user_private = "LPEC";

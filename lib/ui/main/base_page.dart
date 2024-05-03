@@ -481,11 +481,8 @@ class BasePageState extends State<BasePage> {
         }
       case LD.LPC2:
         {
-          Navigator.push(
-            context,
-            CustomNvRouteClass.createRoute(
-              SearchPage.goStockHome(),
-            ),
+          basePageState.callPageRouteUP(
+            const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
           );
           break;
         }

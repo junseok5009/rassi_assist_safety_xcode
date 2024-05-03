@@ -41,9 +41,17 @@ class Pocket13 {
     stkList = [];
   }
 
+  bool get isEmpty {
+    if(tradeTime.isEmpty && tradeDate.isEmpty && timeDivTxt.isEmpty && stkList.isEmpty){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
   factory Pocket13.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Stock'] as List;
-    List<StockPktSignal> listData = list == null ? [] : list.map((e) => StockPktSignal.fromJson(e)).toList();
+    var jsonList = json['list_Stock'];
+    List<StockPktSignal> listData = jsonList == null ? [] : (jsonList as List).map((e) => StockPktSignal.fromJson(e)).toList();
     return Pocket13(
       tradeTime: json['tradeTime'] ?? '',
       tradeDate: json['tradeDate'] ?? '',

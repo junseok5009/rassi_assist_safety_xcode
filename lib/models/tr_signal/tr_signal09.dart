@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/tstyle.dart';
-
 /// 2021.02.03
 /// 현재의 매매신호 현황
 class TrSignal09 {
@@ -13,11 +9,9 @@ class TrSignal09 {
 
   factory TrSignal09.fromJson(Map<String, dynamic> json) {
     return TrSignal09(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        resData: json['retData'] != null
-            ? Signal09.fromJson(json['retData'])
-            : defSignal09,
+      retCode: json['retCode'],
+      retMsg: json['retMsg'],
+      resData: json['retData'] != null ? Signal09.fromJson(json['retData']) : defSignal09,
     );
   }
 }
@@ -32,7 +26,9 @@ class Signal09 {
   final String updateDttm;
   final String buyCount;
   final String sellCount;
-  final List<SignalCount> listData;
+  final String lottiePath;
+  final List<String> listNotice;
+  final List<SignalCount> listSignal;
 
   const Signal09({
     this.noticeCode = '',
@@ -42,42 +38,48 @@ class Signal09 {
     this.updateDttm = '',
     this.buyCount = '',
     this.sellCount = '',
-    this.listData = const [],
+    this.lottiePath = 'assets/41561-machine-learning.json',
+    this.listNotice = const [],
+    this.listSignal = const [],
   });
 
   bool isEmpty() {
-    if (noticeCode.isEmpty && noticeText.isEmpty && listData.isEmpty) {
+    if (noticeCode.isEmpty && noticeText.isEmpty && listNotice.isEmpty && listSignal.isEmpty) {
       return true;
     } else {
       return false;
     }
   }
 
-/*  Signal09.empty() {
-    noticeCode = '';
-    noticeText = '';
-    processText = '';
-    remainTime = '';
-    updateDttm = '';
-    buyCount = '0';
-    sellCount = '0';
-    listData = [];
-  }*/
-
   factory Signal09.fromJson(Map<String, dynamic> json) {
+    String noticeCode = json['noticeCode'] ?? '';
+    String lottiePath = 'assets/41561-machine-learning.json';
+
+    if (noticeCode == 'TIME_BEFORE') {
+      lottiePath = 'assets/9678-colorfull-loading.json';
+    } else if (noticeCode == 'TIME_OPEN') {
+      lottiePath = 'assets/8796-dashboard-motion.json';
+    } else if (noticeCode == 'TIME_TERM') {
+      lottiePath = 'assets/985-phonological.json';
+    } else if (noticeCode == 'TIME_WAIT') {
+      lottiePath = 'assets/9925-check-purple.json';
+    } else {
+      lottiePath = 'assets/41561-machine-learning.json';
+    }
+
     return Signal09(
-      noticeCode: json['noticeCode'] ?? '',
+      noticeCode: noticeCode,
       noticeText: json['noticeText'] ?? '',
       processText: json['processText'] ?? '',
       remainTime: json['remainTime'] ?? '',
       updateDttm: json['updateDttm'] ?? '',
       buyCount: json['buyCount'] ?? '0',
       sellCount: json['sellCount'] ?? '0',
-      listData: (json['list_Signal'] == null)
+      lottiePath: lottiePath,
+      listNotice: (json['listNotice'] == null) ? [] : (json['listNotice'] as List).map((i) => i.toString()).toList(),
+      listSignal: (json['list_Signal'] == null)
           ? []
-          : (json['list_Signal'] as List)
-              .map((i) => SignalCount.fromJson(i))
-              .toList(),
+          : (json['list_Signal'] as List).map((i) => SignalCount.fromJson(i)).toList(),
     );
   }
 }
@@ -122,101 +124,5 @@ class SignalCount {
   @override
   String toString() {
     return '$tradeTime| $tradeFlag| $tradeCount';
-  }
-}
-
-//화면구성
-class TileSigString extends StatelessWidget {
-  final SignalCount item;
-
-  TileSigString(this.item);
-
-  @override
-  Widget build(BuildContext context) {
-    String _timeStr = getTimeFormat(item.tradeTime);
-    String honor;
-    String endStr;
-    String cnt = '';
-    if (item.tradeCount != null) cnt = item.tradeCount;
-
-    if (item.honorDiv.isNotEmpty) {
-      if (item.honorDiv == 'WIN_RATE') {
-        honor = '적중률 TOP 종목';
-      } else if (item.honorDiv == 'PROFIT_10P') {
-        honor = '수익난 매매 TOP 종목';
-      } else if (item.honorDiv == 'SUM_PROFIT') {
-        honor = '누적수익률 TOP 종목';
-      } else if (item.honorDiv == 'MAX_PROFIT') {
-        honor = '최대수익률 TOP 종목';
-      } else {
-        honor = '평균수익률 TOP 종목';
-      }
-
-      if (item.tradeFlag == 'B') {
-        endStr = '에서 새로운 매수 신호 발생';
-      } else {
-        endStr = '에서 새로운 매도 신호 발생';
-      }
-
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            _timeStr,
-            style: TStyle.textMGrey,
-          ),
-          const SizedBox(
-            width: 7,
-          ),
-          Text(
-            honor,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(endStr),
-        ],
-      );
-    } else {
-      String preStr = '';
-      Color stColor;
-      if (item.tradeFlag == 'B') {
-        preStr = '매수신호';
-        stColor = RColor.sigBuy;
-      } else {
-        preStr = '매도신호';
-        stColor = RColor.sigSell;
-      }
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            _timeStr,
-            style: TStyle.textMGrey,
-          ),
-          const SizedBox(
-            width: 7,
-          ),
-          const Text('새로운 '),
-          Text(
-            preStr,
-            style: TextStyle(color: stColor, fontWeight: FontWeight.bold),
-          ),
-          const Text('가 '),
-          Text(
-            '$cnt종목',
-            style: TStyle.subTitle,
-          ),
-          const Text('에서 발생')
-        ],
-      );
-    }
-  }
-
-  String getTimeFormat(String tm) {
-    String rtStr = '';
-    if (tm.length > 3) {
-      rtStr = '${tm.substring(0, 2)}:${tm.substring(2, 4)}';
-      return rtStr;
-    }
-    return '';
   }
 }

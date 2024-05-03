@@ -19,7 +19,7 @@ class PgData {
     this.pgData = '',
     this.pgSn = '',
     this.data = '',
-    this.booleanData = false, // TODO 이 내용이 어디서 쓰이는지 확인 필요
+    this.booleanData = true, // 종목 홈 - 실적분석 (분기-연간) 구분 할 때 사용 합니다. default true == '분기'
   });
 
   bool isStockDataExist() {

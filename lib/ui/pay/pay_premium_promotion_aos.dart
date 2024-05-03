@@ -20,6 +20,7 @@ import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/pay/payment_aos_service.dart';
 import 'package:rassi_assist/ui/pay/premium_care_page.dart';
 import 'package:rassi_assist/ui/web/web_page.dart';
@@ -209,24 +210,24 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
       } else if (status == 'pay_success') {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
-        if (userInfoProvider.isPremiumUser() && context.mounted) {
+        if (userInfoProvider.isPremiumUser() && mounted) {
           Navigator.popUntil(
             context,
-            ModalRoute.withName('/base'),
+            ModalRoute.withName(BasePage.routeName),
           );
           Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         } else {
           Navigator.popUntil(
             context,
-            ModalRoute.withName('/base'),
+            ModalRoute.withName(BasePage.routeName),
           );
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         }
       } else {
         Navigator.popUntil(
           context,
-          ModalRoute.withName('/base'),
+          ModalRoute.withName(BasePage.routeName),
         );
       }
     };
@@ -452,7 +453,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
               '★ 무료체험 기간 중 언제든 가입을 해지하실 수 있으며, 결제 전 계정을 해지하시면 요금이 부과되지 않습니다';
           break;
         }
-
       case 'new_6m':
         {
           _pageTitle = '프리미엄 계정 6개월 정기 구독';
