@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:http/http.dart' as http;
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_app/tr_app03.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
@@ -28,6 +30,7 @@ import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 
 /// 2020.12.17
 /// 3종목 알림 결제 (현재는 AOS만 가능한 상품)
+/// 프리미엄 결제 항목 추가
 class PayThreeStock extends StatefulWidget {
   static const routeName = '/page_pay_three';
   static const String TAG = "[PayThreeStock]";
@@ -44,22 +47,48 @@ class PayThreeState extends State<PayThreeStock> {
   var inAppBilling = PaymentAosService();
   static const channel = MethodChannel(Const.METHOD_CHANNEL_NAME);
 
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  List<ProductDetails> _products = <ProductDetails>[];
+  List<PurchaseDetails> _purchases = <PurchaseDetails>[];
+  bool _isAvailable = false;
+  bool _purchasePending = false;
+  bool _loading = true;
+  String? _queryProductError;
+
   late SharedPreferences _prefs;
   String _userId = "";
   String _curProd = ''; //현재 사용중인 상품은
+  String _payMethod = '';
 
   bool statusCon = false; //결제모듈 연결상태
 
   final List<String> _productLists = Platform.isAndroid
       ? [
           'ac_s3.a01',
+          'ac_pr.m01',
+          'ac_pr.a01',
+          'ac_pr.am6d0',
         ]
       : [
           'ios.ac_s3.a01',
         ];
 
-  late IAPItem _pdItemSub;
+  // [3종목, 단건, 1개월 구독, 6개월 구독] 순서 변수
+  final List _listDivPayment = [
+    false,
+    false,
+    false,
+    false,
+  ];
+
+  String _originalPriceA01 = '';
+  String _priceSingle = '';
   String _priceSub = '';
+  String _priceLongSub = '';
+  String _btnTextStart = '3종목 실시간 알림 받기 시작하기';
+
+  late IAPItem _pdItemSub;
+  String _priceSubThree = '';
   bool _isPaymentSub = true; //구독결제이면 true
   bool _isTryPayment = false; //결제버튼을 눌렀다면 화면이 닫히고 화면갱신 (true 일때 화면 갱신)
   bool _bProgress = false;
@@ -95,6 +124,27 @@ class PayThreeState extends State<PayThreeStock> {
             }));
       }
     });
+    _listDivPayment[0] = true;
+
+    _initStoreInfo().then((value) => {
+          for (ProductDetails tmp in _products)
+            {
+              DLog.d(
+                  'Inapp',
+                  '*****************\n'
+                      '${tmp.title}\n'
+                      '${tmp.id}\n'
+                      '${tmp.price}\n'
+                      '${tmp.rawPrice}\n'
+                      '${tmp.description}\n'
+                      '*****************'),
+              if (tmp.id == 'ac_s3.a01') {_priceSubThree = tmp.price},
+              if (tmp.id == 'ac_pr.a01') {_priceSub = tmp.price},
+              if (tmp.id == 'ac_pr.am6d0') {_priceLongSub = tmp.price},
+              if (tmp.id == 'ac_pr.m01') {_priceSingle = tmp.price}
+            },
+          setState(() {})
+        });
   }
 
   Future<void> _loadPrefData() async {
@@ -110,9 +160,6 @@ class PayThreeState extends State<PayThreeStock> {
 
   //결제 동작은 비동기적 구동 초기화 작업이 필요
   Future<void> _initBillingState() async {
-    //상품정보 요청
-    _getProduct();
-
     //결제 상태 리스너
     statCallback = (status) async {
       DLog.d(PayThreeStock.TAG, '# statusCallback == $status');
@@ -123,11 +170,11 @@ class PayThreeState extends State<PayThreeStock> {
       } else if (status == 'pay_success') {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
         await userInfoProvider.updatePayment();
-        if(mounted){
+        if (mounted) {
           Navigator.pop(context);
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
         }
-      }else{
+      } else {
         Navigator.pop(context);
       }
     };
@@ -136,11 +183,63 @@ class PayThreeState extends State<PayThreeStock> {
     //결제 에러 상태 리스너
     errCallback = (retStr) async {
       await CommonPopup.instance.showDialogBasicConfirm(context, '알림', retStr);
-      if(context.mounted){
+      if (context.mounted) {
         Navigator.pop(context);
       }
     };
     inAppBilling.addToErrorListeners(errCallback);
+  }
+
+  // in_app_purchase 모듈 초기화 & 상품정보 가져오기
+  Future<void> _initStoreInfo() async {
+    DLog.d('Inapp', '=> initStoreInfo');
+    final bool isAvailable = await _inAppPurchase.isAvailable();
+    DLog.d('Inapp', '#1 isAvailable $isAvailable');
+    if (!isAvailable) {
+      setState(() {
+        _isAvailable = isAvailable;
+        _products = <ProductDetails>[];
+        _purchases = <PurchaseDetails>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    final ProductDetailsResponse productDetailResponse =
+        await _inAppPurchase.queryProductDetails(_productLists.toSet());
+    if (productDetailResponse.error != null) {
+      DLog.d('Inapp', '#2 productDetailResponse.error');
+      setState(() {
+        _queryProductError = productDetailResponse.error!.message;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = <PurchaseDetails>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+    if (productDetailResponse.productDetails.isEmpty) {
+      DLog.d('Inapp', '#3 productDetails.isEmpty');
+      setState(() {
+        _queryProductError = null;
+        _isAvailable = isAvailable;
+        _products = productDetailResponse.productDetails;
+        _purchases = <PurchaseDetails>[];
+        _purchasePending = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    DLog.d('Inapp', '#4 product isAvailable');
+    setState(() {
+      _isAvailable = isAvailable;
+      _products = productDetailResponse.productDetails;
+      _purchasePending = false;
+      _loading = false;
+    });
   }
 
   @override
@@ -157,7 +256,7 @@ class PayThreeState extends State<PayThreeStock> {
       child: Scaffold(
         appBar: CommonAppbar.simpleWithExit(
           context,
-          '3종목 실시간 알림 결제',
+          '실시간 알림 결제',
           Colors.black,
           Colors.white,
           Colors.black,
@@ -173,14 +272,10 @@ class PayThreeState extends State<PayThreeStock> {
                       child: ListView(
                         children: [
                           _setTopDesc(),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 10),
 
                           _setBanner(),
-                          const SizedBox(
-                            height: 15,
-                          ),
+                          const SizedBox(height: 15),
 
                           const Padding(
                             padding: EdgeInsets.symmetric(
@@ -188,12 +283,30 @@ class PayThreeState extends State<PayThreeStock> {
                               horizontal: 10,
                             ),
                             child: Text(
-                              '결제 방식',
+                              '3종목 알림 결제',
                               style: TStyle.commonTitle,
                             ),
                           ),
-
                           _setButtonSub(),
+                          const SizedBox(height: 10),
+
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 10,
+                            ),
+                            child: Text(
+                              '완벽하게 모든 것을 이용하는 프리미엄 계정 결제',
+                              style: TStyle.commonTitle,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                            ),
+                            child: _setButtonSelect(),
+                          ),
+
                           const Padding(
                             padding: EdgeInsets.symmetric(
                               vertical: 6,
@@ -206,9 +319,7 @@ class PayThreeState extends State<PayThreeStock> {
                               ),
                             ),
                           ),
-                          const SizedBox(
-                            height: 15,
-                          ),
+                          const SizedBox(height: 15),
 
                           //구매안내
                           Platform.isIOS ? _setPayInfo() : _setPayInfoAOS(),
@@ -221,36 +332,30 @@ class PayThreeState extends State<PayThreeStock> {
                     Container(
                       color: RColor.mainColor,
                       height: 70,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                       child: InkWell(
                         onTap: () {
                           _isTryPayment = true;
                           if (_curProd.contains('ac_s3')) {
-                            commonShowToast(
-                                '이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+                            commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
                           } else {
                             DLog.d(PayThreeStock.TAG, '프리미엄 결제 요청');
                             setState(() {
                               _bProgress = true;
                             });
                             if (Platform.isIOS) {
-                              // if (_pdItemSub != null && _isPaymentSub) {
-                              //   inAppBilling.requestStorePurchase(_pdItemSub);
-                              // }
+                              // IOS
                             } else if (Platform.isAndroid) {
                               if (_isPaymentSub) {
-                                inAppBilling
-                                    .requestGStorePurchase(_productLists[0]);
-                                // inAppBilling.requestGStoreUpgrade(_productLists[0]);
+                                _requestPurchase();
                               }
                             }
                           }
                         },
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            '3종목 실시간 알림 받기 시작하기',
-                            style: TextStyle(
+                            _btnTextStart,
+                            style: const TextStyle(
                               fontSize: 17,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -269,8 +374,7 @@ class PayThreeState extends State<PayThreeStock> {
                     children: [
                       Opacity(
                         opacity: 0.3,
-                        child: ModalBarrier(
-                            dismissible: false, color: Colors.grey),
+                        child: ModalBarrier(dismissible: false, color: Colors.grey),
                       ),
                       Center(
                         child: CircularProgressIndicator(),
@@ -296,39 +400,434 @@ class PayThreeState extends State<PayThreeStock> {
     return Future.value(true);
   }
 
-  //정기 결제 버튼
-  Widget _setButtonSub() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-            color: _isPaymentSub ? RColor.mainColor : RColor.lineGrey,
-            width: 0.8),
-        borderRadius: const BorderRadius.all(Radius.circular(15)),
-      ),
-      margin: const EdgeInsets.symmetric(
-        vertical: 6,
-        horizontal: 10,
-      ),
-      padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
-      //EdgeInsets.symmetric(vertical: 20, horizontal: 10),
 
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '매월정기결제',
-            style: TextStyle(
-              fontSize: 15,
+  // # 이미 1개월 정기결제 사용자가 또 1개월 정기결제를 결제하는 경우
+  // # 구글 결제모듈에서 이미 사용중인 상품이라고 차단됨, 1개월 단건 사용자는 1개월 정기결제를 할 수 있는지 테스트 필요
+  // # ios 1개월 정기 결제 사용자가 aos 1개월 정기 결제를 요청하는 경우는 -> 업그레이드 요청으로 가서 결제모듈에서 차단됨
+  //프리미엄 구매 요청 시작하기
+  void _requestPurchase() {
+    DLog.d(PayThreeStock.TAG, '결제 요청시 사용중인 pdCode : $_curProd');
+
+    if (_curProd.contains('ac_pr') || _curProd.contains('AC_PR') || _curProd.contains('ac_s3')) {
+      //기존 결제가 AOS 일때만 업그레이드 결제 가능
+      if (_payMethod == 'PM50') {
+        if (_curProd == 'ac_pr.am6d0' ||
+            _curProd == 'ac_pr.am6d5' ||
+            _curProd == 'ac_pr.am6d7' ||
+            _curProd == 'ac_pr.mw1e1' ||
+            _curProd == 'ac_pr.m01' ||
+            _curProd == 'ac_s3.a01') {
+          commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+        } else {
+          DLog.d(PayThreeStock.TAG, '새로운 업그레이드 결제 요청');
+          setState(() {
+            _bProgress = true;
+          });
+          inAppBilling.requestGStoreUpgradeNew(_curProd, _productLists[1]);
+        }
+      } else {
+        commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+      }
+    }
+    //
+    else {
+      DLog.d(PayThreeStock.TAG, '프리미엄 결제 요청');
+      setState(() {
+        _bProgress = true;
+      });
+
+      if (_listDivPayment[0]) {
+        //ac_s3.a01
+        inAppBilling.requestGStorePurchase(_productLists[0]);
+      } else if (_listDivPayment[1]) {
+        //ac_pr.m01
+        inAppBilling.requestGStorePurchase(_productLists[1]);
+      } else if (_listDivPayment[2]) {
+        //ac_pr.a01
+        inAppBilling.requestGStorePurchase(_productLists[2]);
+      } else if (_listDivPayment[3]) {
+        //ac_pr.am6d0
+        inAppBilling.requestGStorePurchase(_productLists[3]);
+      }
+    }
+  }
+
+  //3종목알림 정기결제
+  Widget _setButtonSub() {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Container(
+        decoration: _listDivPayment[0] ? UIStyle.boxSelectedLineMainColor() : UIStyle.boxUnSelectedLineMainGrey(),
+        padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+        margin: const EdgeInsets.symmetric(
+          vertical: 6,
+          horizontal: 10,
+        ),
+        child: Row(
+          children: [
+            Row(
+              children: [
+                Visibility(
+                  visible: _listDivPayment[0],
+                  child: Image.asset(
+                    'images/icon_circle_check_y.png',
+                    height: 25,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                Visibility(
+                  visible: !_listDivPayment[0],
+                  child: Image.asset(
+                    'images/icon_circle_check_n.png',
+                    height: 25,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 15),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '매월정기결제',
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _priceSubThree,
+                  style: TStyle.title18T,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        setState(() {
+          _btnTextStart = '3종목 실시간 알림 받기 시작하기';
+          _listDivPayment[0] = true;
+          _listDivPayment[1] = false;
+          _listDivPayment[2] = false;
+          _listDivPayment[3] = false;
+        });
+      },
+    );
+
+    //
+    //   Container(
+    //   decoration: BoxDecoration(
+    //     border: Border.all(color: _isPaymentSub ? RColor.mainColor : RColor.lineGrey, width: 0.8),
+    //     borderRadius: const BorderRadius.all(Radius.circular(15)),
+    //   ),
+    //   margin: const EdgeInsets.symmetric(
+    //     vertical: 6,
+    //     horizontal: 10,
+    //   ),
+    //   padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+    //   //EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+    //
+    //   child: Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       const Text(
+    //         '매월정기결제',
+    //         style: TextStyle(
+    //           fontSize: 15,
+    //         ),
+    //       ),
+    //       const SizedBox(
+    //         height: 6
+    //       ),
+    //       Text(
+    //         _priceSub,
+    //         style: TStyle.title18T,
+    //       ),
+    //     ],
+    //   ),
+    // );
+  }
+
+  //프리미엄 결제 선택 버튼
+  Widget _setButtonSelect() {
+    return Column(
+      children: [
+        // 1개월 단건결제
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+            decoration: _listDivPayment[1] ? UIStyle.boxSelectedLineMainColor() : UIStyle.boxUnSelectedLineMainGrey(),
+            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+            margin: const EdgeInsets.only(
+              bottom: 15,
+            ),
+            child: Row(
+              children: [
+                Row(
+                  children: [
+                    Visibility(
+                      visible: _listDivPayment[1],
+                      child: Image.asset(
+                        'images/icon_circle_check_y.png',
+                        height: 25,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    Visibility(
+                      visible: !_listDivPayment[1],
+                      child: Image.asset(
+                        'images/icon_circle_check_n.png',
+                        height: 25,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 15),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '1개월 단건결제',
+                          style: TextStyle(
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      _priceSingle,
+                      style: TStyle.title18T,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          const SizedBox(
-            height: 6,
+          onTap: () {
+            setState(() {
+              _btnTextStart = '프리미엄 계정 시작하기';
+              _listDivPayment[1] = true;
+              _listDivPayment[0] = false;
+              _listDivPayment[2] = false;
+              _listDivPayment[3] = false;
+            });
+          },
+        ),
+
+        // 1개월 정기결제
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+            decoration: _listDivPayment[2] ? UIStyle.boxSelectedLineMainColor() : UIStyle.boxUnSelectedLineMainGrey(),
+            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+            margin: const EdgeInsets.only(
+              bottom: 15,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        Visibility(
+                          visible: _listDivPayment[2],
+                          child: Image.asset(
+                            'images/icon_circle_check_y.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        Visibility(
+                          visible: !_listDivPayment[2],
+                          child: Image.asset(
+                            'images/icon_circle_check_n.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 15),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '매월 정기결제',
+                          style: TextStyle(
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _setOrgPriceText(_originalPriceA01),
+                            const SizedBox(width: 7),
+                            Text(
+                              _priceSub,
+                              style: TStyle.title18T,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                _setPromotionText('22% 이상!'),
+              ],
+            ),
           ),
-          Text(
-            _priceSub,
-            style: TStyle.title18T,
+          onTap: () {
+            setState(() {
+              _btnTextStart = '프리미엄 계정 시작하기';
+              _listDivPayment[2] = true;
+              _listDivPayment[0] = false;
+              _listDivPayment[1] = false;
+              _listDivPayment[3] = false;
+            });
+          },
+        ),
+
+        // 6개월 정기결제
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: Container(
+            decoration: _listDivPayment[3] ? UIStyle.boxSelectedLineMainColor() : UIStyle.boxUnSelectedLineMainGrey(),
+            padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        Visibility(
+                          visible: _listDivPayment[3],
+                          child: Image.asset(
+                            'images/icon_circle_check_y.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        Visibility(
+                          visible: !_listDivPayment[3],
+                          child: Image.asset(
+                            'images/icon_circle_check_n.png',
+                            height: 25,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 15),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              '6개월씩 정기결제',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _setOrgPriceText('462000'),
+                            const SizedBox(width: 7),
+                            Text(
+                              _priceLongSub,
+                              style: TStyle.title18T,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                _setPromotionText('28% 이상!'),
+              ],
+            ),
           ),
-        ],
+          onTap: () {
+            setState(() {
+              _btnTextStart = '프리미엄 계정 시작하기';
+              _listDivPayment[3] = true;
+              _listDivPayment[0] = false;
+              _listDivPayment[1] = false;
+              _listDivPayment[2] = false;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  //기존가 표시
+  Widget _setOrgPriceText(String prc) {
+    return Text(
+      '￦${TStyle.getMoneyPoint(prc)}',
+      style: const TextStyle(
+        decoration: TextDecoration.lineThrough,
+        fontWeight: FontWeight.w600,
+        fontSize: 15,
+        color: Color(0xff96918e),
+      ),
+    );
+  }
+
+  //할인률 강조 문구
+  Widget _setPromotionText(String desc) {
+    return Flexible(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 2,
+                horizontal: 8,
+              ),
+              decoration: const BoxDecoration(
+                color: RColor.sigBuy,
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+              child: const Text(
+                '할인율',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            Text(
+              desc,
+              style: const TextStyle(
+                color: RColor.sigBuy,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
       ),
     );
   }
@@ -536,7 +1035,6 @@ class PayThreeState extends State<PayThreeStock> {
                   ),
                   Text(
                     message,
-                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -555,7 +1053,6 @@ class PayThreeState extends State<PayThreeStock> {
                           child: Text(
                             btnText,
                             style: TStyle.btnTextWht16,
-                            
                           ),
                         ),
                       ),
@@ -570,48 +1067,6 @@ class PayThreeState extends State<PayThreeStock> {
             ),
           );
         });
-  }
-
-  //상품정보 가져오기
-  Future _getProduct() async {
-    DLog.d(PayThreeStock.TAG, '# 상품정보 요청');
-
-    if (Platform.isAndroid) {
-      DLog.d(PayThreeStock.TAG, '##### Platform Android');
-
-      try {
-        final String result = await channel
-            .invokeMethod('getProductList', {'pd_code': _productLists[0]});
-        if (result.isNotEmpty) {
-          _priceSub = result;
-          DLog.d(PayThreeStock.TAG, '##### 요청 결과 $result');
-        }
-        setState(() {});
-      } on PlatformException catch (e) {}
-      // DLog.d(PayPremiumPage.TAG, '##### Platform Android');
-    }
-    // ios
-    else if (Platform.isIOS) {
-      /*     List<IAPItem> items =
-      await FlutterInappPurchase.instance.getProducts(_productLists);
-
-      for (var item in items) {
-        //print('${item.toString()}');
-        _items.add(item);
-        if (item.productId == 'ios.ac_pr.m01') {
-          _pdItemOnce = item;
-          _priceSingle = item.localizedPrice;
-        }
-        if (item.productId == 'ios.ac_pr.a01') {
-          _pdItemSub = item;
-          _priceSub = item.localizedPrice;
-        }
-      }
-
-      setState(() {
-        _items = items;
-      });*/
-    }
   }
 
   // 배너
@@ -647,8 +1102,15 @@ class PayThreeState extends State<PayThreeStock> {
     if (trStr == TR.USER04) {
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
+        User04 data = resData.retData;
+        DLog.d(PayThreeStock.TAG, data.accountData.toString());
+        final AccountData accountData = data.accountData;
+        accountData.initUserStatus();
+        _curProd = accountData.productId;
+        _payMethod = accountData.payMethod;
+
         if (resData.retData.accountData != null) {
-          final AccountData accountData = resData.retData.accountData;
+          // final AccountData accountData = resData.retData.accountData;
           accountData.initUserStatus();
         } else {
           AccountData().setFreeUserStatus();
@@ -659,13 +1121,16 @@ class PayThreeState extends State<PayThreeStock> {
               'userId': _userId,
             }));
       }
-    } else if (trStr == TR.APP03) {
+    }
+    //
+    else if (trStr == TR.APP03) {
       final TrApp03 resData = TrApp03.fromJson(jsonDecode(response.body));
+      _originalPriceA01 = resData.retData!.stdPrice;
       _listApp03.clear();
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData!.listPaymentGuide.isNotEmpty) {
           _listApp03.addAll(resData.retData!.listPaymentGuide);
-          setState(() { });
+          setState(() {});
         }
         _fetchPosts(
             TR.PROM02,
@@ -676,7 +1141,6 @@ class PayThreeState extends State<PayThreeStock> {
             }));
       }
     }
-
     //홍보
     else if (trStr == TR.PROM02) {
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
