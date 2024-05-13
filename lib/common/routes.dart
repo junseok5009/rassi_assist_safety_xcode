@@ -111,7 +111,7 @@ final routes = {
   NotificationPage.routeName: (BuildContext context) => const NotificationPage(),
   NotificationSetting.routeName: (BuildContext context) => NotificationSetting(),
   NotificationSettingN.routeName: (BuildContext context) => const NotificationSettingN(),
-  NotiListPage.routeName: (BuildContext context) => NotiListPage(),
+  NotiListPage.routeName: (BuildContext context) => const NotiListPage(),
 
   TradeIntroPage.routeName: (BuildContext context) => const TradeIntroPage(),
   PocketSettingPage.routeName: (BuildContext context) => const PocketSettingPage(),

@@ -50,7 +50,7 @@ class _HomeTileMystockStatus2State extends State<HomeTileMystockStatus2>
             children: [
               const Text(
                 '내 종목 TODAY',
-                style: TStyle.title18T,
+                style: TStyle.defaultTitle,
               ),
               InkWell(
                 onTap: () async {

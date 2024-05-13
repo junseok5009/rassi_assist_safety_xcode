@@ -341,6 +341,16 @@ class _CardProm02State extends State<CardProm02> {
                 ),
               ),
             );
+          }else if(Platform.isIOS) {
+            result = await Navigator.push(
+              buildContext,
+              CustomNvRouteClass.createRouteData(
+                const PayPremiumPromotionPage(),
+                RouteSettings(
+                  arguments: PgData(data: 'am6d5'),
+                ),
+              ),
+            );
           }
           break;
         }

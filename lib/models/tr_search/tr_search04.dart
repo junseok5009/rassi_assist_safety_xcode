@@ -62,9 +62,9 @@ class TileSearch04 extends StatelessWidget {
       width: double.infinity,
       height: 80,
       margin: const EdgeInsets.only(
-        left: 15.0,
-        right: 15.0,
-        top: 10.0,
+        left: 20.0,
+        right: 20.0,
+        top: 15.0,
       ),
       alignment: Alignment.centerLeft,
       decoration: UIStyle.boxRoundLine6(),

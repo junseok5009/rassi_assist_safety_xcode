@@ -65,54 +65,20 @@ class Find01 {
 
 //AI 시그널 메인 (Horizontal List)
 class TileFind01 extends StatelessWidget {
+  final int index;
   final Find01 item;
 
-  const TileFind01(this.item, {Key? key}) : super(key: key);
+  const TileFind01(this.index, this.item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10,),
+      width: 135,
+      margin: EdgeInsets.only(left: index == 0 ? 0 : 10,),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       decoration: UIStyle.boxRoundLine6bgColor(Colors.white,),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
-          width: 135,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              //종목정보
-              Column(
-                children: [
-                  Text(
-                    TStyle.getLimitString(item.stockName, 8),
-                    style: TStyle.subTitle,
-                  ),
-                  // const SizedBox(height: 5,),
-                  Text(
-                    item.stockCode,
-                    style: TStyle.textSGrey,
-                  ),
-                ],
-              ),
-
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    '수익률',
-                    style: TStyle.textSBuy,
-                  ),
-                  Text(
-                    '+${item.profitRate}%',
-                    style: TStyle.textBBuy,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
         onTap: () {
           basePageState.goStockHomePage(
             item.stockCode,
@@ -120,6 +86,39 @@ class TileFind01 extends StatelessWidget {
             Const.STK_INDEX_SIGNAL,
           );
         },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            //종목정보
+            Column(
+              children: [
+                Text(
+                  TStyle.getLimitString(item.stockName, 8),
+                  style: TStyle.subTitle,
+                ),
+                // const SizedBox(height: 5,),
+                Text(
+                  item.stockCode,
+                  style: TStyle.textSGrey,
+                ),
+              ],
+            ),
+
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  '수익률',
+                  style: TStyle.textSBuy,
+                ),
+                Text(
+                  '+${item.profitRate}%',
+                  style: TStyle.textBBuy,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

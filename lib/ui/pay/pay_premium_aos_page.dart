@@ -230,21 +230,16 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
         });
       } else if (status == 'pay_success') {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-        await userInfoProvider.updatePayment();
-        if (userInfoProvider.isPremiumUser() && mounted) {
-          Navigator.popUntil(
-            context,
-            ModalRoute.withName(BasePage.routeName),
-          );
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
-          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
-        } else {
+        await userInfoProvider.updatePayment().then((value) {
           Navigator.popUntil(
             context,
             ModalRoute.withName(BasePage.routeName),
           );
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
-        }
+          if (userInfoProvider.isPremiumUser()) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
+          }
+        });
       } else {
         Navigator.popUntil(
           context,
@@ -446,7 +441,8 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
           },
           child: InkWell(
             onTap: () {
-              commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M12');
+              commonLaunchUrlAppOpen(
+                  'https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M12');
             },
             child: Image.network(
               'https://files.thinkpool.com/rassi_signal/fav01.png',
@@ -471,12 +467,17 @@ class PayPremiumAosState extends State<PayPremiumAosPage> {
             }
           },
           child: InkWell(
-            onTap: (){
-              commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M06');
+            onTap: () {
+              commonLaunchUrlAppOpen(
+                  'https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M06');
             },
             child: SizedBox(
               width: double.infinity,
-              child: Image.network('https://files.thinkpool.com/rassi_signal/fav02.png', width: double.infinity, fit: BoxFit.fitWidth,),
+              child: Image.network(
+                'https://files.thinkpool.com/rassi_signal/fav02.png',
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
+              ),
             ),
           ),
         ),

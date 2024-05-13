@@ -5,7 +5,6 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_atom.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
-
 /// 2020.10.19
 /// 최근 매수한 승률 높은 종목
 class TrFind02 extends TrAtom {
@@ -19,15 +18,10 @@ class TrFind02 extends TrAtom {
   factory TrFind02.fromJson(Map<String, dynamic> json) {
     var list = json['retData'] as List;
     List<Find02>? rtList;
-    list != null
-        ? rtList = list.map((i) => Find02.fromJson(i)).toList()
-        : rtList = null;
+    list != null ? rtList = list.map((i) => Find02.fromJson(i)).toList() : rtList = null;
 
     return TrFind02(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        listData: list.map((i) => Find02.fromJson(i)).toList()
-    );
+        retCode: json['retCode'], retMsg: json['retMsg'], listData: list.map((i) => Find02.fromJson(i)).toList());
   }
 }
 
@@ -39,14 +33,13 @@ class Find02 {
   final String tradePrice;
   final String winningRate;
 
-  Find02({
-    this.stockCode = '',
+  Find02(
+      {this.stockCode = '',
       this.stockName = '',
       this.tradeFlag = '',
       this.tradeDttm = '',
       this.tradePrice = '',
-      this.winningRate = ''
-  });
+      this.winningRate = ''});
 
   factory Find02.fromJson(Map<String, dynamic> json) {
     return Find02(
@@ -67,55 +60,56 @@ class Find02 {
 
 //화면구성
 class TileFind02 extends StatelessWidget {
+  final int index;
   final Find02 item;
-
-  const TileFind02(this.item, {Key? key}) : super(key: key);
-
+  const TileFind02(this.index, this.item, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10,),
-      decoration: UIStyle.boxRoundLine6(),
+      width: 135,
+      margin: EdgeInsets.only(
+        left: index == 0 ? 0 : 10,
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      decoration: UIStyle.boxRoundLine6bgColor(
+        Colors.white,
+      ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
-          width: 135,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              //종목정보
-              Column(
-                children: [
-                  Text(
-                    TStyle.getLimitString(item.stockName, 8),
-                    style: TStyle.subTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  // const SizedBox(height: 5,),
-                  Text(
-                    item.stockCode,
-                    style: TStyle.textSGrey,
-                  ),
-                ],
-              ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            //종목정보
+            Column(
+              children: [
+                Text(
+                  TStyle.getLimitString(item.stockName, 8),
+                  style: TStyle.subTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                // const SizedBox(height: 5,),
+                Text(
+                  item.stockCode,
+                  style: TStyle.textSGrey,
+                ),
+              ],
+            ),
 
-              Column(
-                children: [
-                  const Text(
-                    '매수가',
-                    style: TStyle.textSBuy,
-                  ),
-                  // const SizedBox(height: 4,),
-                  Text(
-                    '${TStyle.getMoneyPoint(item.tradePrice)}원',
-                    style: TStyle.textBBuy,
-                  ),
-                ],
-              ),
-            ],
-          ),
+            Column(
+              children: [
+                const Text(
+                  '매수가',
+                  style: TStyle.textSBuy,
+                ),
+                // const SizedBox(height: 4,),
+                Text(
+                  '${TStyle.getMoneyPoint(item.tradePrice)}원',
+                  style: TStyle.textBBuy,
+                ),
+              ],
+            ),
+          ],
         ),
         onTap: () {
           basePageState.goStockHomePage(

@@ -145,6 +145,10 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 ],
               ),
 
+              const SizedBox(
+                height: 5,
+              ),
+
               // AI 는 현재 ...
               _signal09.isEmpty()
                   ? Container(
@@ -154,17 +158,19 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                         color: RColor.bgWeakGrey,
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                      child: const Text(''),
                     )
                   : _setAnalStatus(),
 
               _setPrTop(),
 
+              const SizedBox(height: 20),
+
               _setSubTitle("지금 인기 종목들은"),
+
               _setPopularList(context),
 
               const SizedBox(
-                height: 15.0,
+                height: 20.0,
               ),
 
               CommonView.setBasicMoreRoundBtnView(
@@ -187,40 +193,50 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 height: 10.0,
               ),
 
+              CommonView.setDivideLine,
+
               //라씨 매매비서의 주간토픽
               _setWeeklyTopic(),
 
               _setPrHigh(),
 
-              // -------------------------------------------------------
+              CommonView.setDivideLine,
+
               _setSubTitle("특정 조건 종목들은"),
               const SizedBox(
                 height: 10.0,
               ),
 
-              _setSubTitleMore("  최근 3일 매수 후 급등 종목", TStyle.commonTitle15, 'CUR_B'),
+              _setSubTitleMore("최근 3일 매수 후 급등 종목", TStyle.commonTitle15, 'CUR_B'),
+              const SizedBox(height: 10.0),
               _setTopRising(),
 
-              _setSubTitleMore("  적중률 TOP 중 최근 3일 매수 종목", TStyle.commonTitle15, 'HIT_H'),
+              _setSubTitleMore("적중률 TOP 중 최근 3일 매수 종목", TStyle.commonTitle15, 'HIT_H'),
+              const SizedBox(height: 10.0),
               _setTopHitHolding(),
 
-              _setSubTitleMore("  적중률 TOP 중 관망 종목", TStyle.commonTitle15, 'HIT_W'),
+              _setSubTitleMore("적중률 TOP 중 관망 종목", TStyle.commonTitle15, 'HIT_W'),
+              const SizedBox(height: 10.0),
               _setTopHitWatching(context),
 
-              _setSubTitleMore("  평균수익률 TOP 중 최근 3일 매수 종목", TStyle.commonTitle15, 'AVG_H'),
+              _setSubTitleMore("평균수익률 TOP 중 최근 3일 매수 종목", TStyle.commonTitle15, 'AVG_H'),
+              const SizedBox(height: 10.0),
               _setTopAvgHolding(context),
 
-              _setSubTitleMore("  평균수익률 TOP 중 관망 종목", TStyle.commonTitle15, 'AVG_W'),
+              _setSubTitleMore("평균수익률 TOP 중 관망 종목", TStyle.commonTitle15, 'AVG_W'),
+              const SizedBox(height: 10.0),
               _setTopAvgWatching(context),
 
               const SizedBox(
-                height: 10.0,
+                height: 20.0,
               ),
               _setPrMid(),
 
+              CommonView.setDivideLine,
+
               // -------------------------------------------------------
               Padding(
-                padding: const EdgeInsets.only(top: 15, left: 10, right: 10),
+                padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -244,7 +260,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 ),
               ),
               const SizedBox(
-                height: 7.0,
+                height: 10.0,
               ),
               _setBoxBtn('적중률', 'images/main_hnr_win_trade.png', 'HIT'),
               _setBoxBtn('수익난 매매', 'images/main_hnr_avg_ratio.png', 'PRF'),
@@ -344,7 +360,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   // 소항목 타이틀
   Widget _setSubTitle(String subTitle) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
+      padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
       child: Text(
         subTitle,
         style: TStyle.defaultTitle,
@@ -355,7 +371,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   // 소항목 타이틀 (+ 더보기)
   Widget _setSubTitleMore(String subTitle, TextStyle textStyle, String type) {
     return Padding(
-      padding: const EdgeInsets.only(top: 15, left: 10, right: 15),
+      padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -592,79 +608,93 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   Widget _setAnalStatus() {
     return InkWell(
       child: Container(
-        padding: const EdgeInsets.all(15),
+        width: double.infinity,
+        height: 85,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 15,
+        ),
         decoration: const BoxDecoration(
           color: RColor.bgWeakGrey,
-          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _signal09.processText,
-                  style: TStyle.title17,
-                ),
-                const SizedBox(
-                  height: 7.0,
-                ),
-
-                Visibility(
-                  visible: _signal09.noticeCode.isNotEmpty && _signal09.noticeCode != 'TIME_BEFORE',
-                  child: Row(
-                    children: [
-                      Text(_signal09.listNotice.isEmpty ? '' : _signal09.listNotice.first),
-                      Visibility(
-                        visible: _signal09.noticeCode.isNotEmpty && _signal09.noticeCode == 'TIME_TERM',
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              '$minute'.padLeft(2, '0'),
-                              style: TStyle.commonSTitle,
-                            ),
-                            const Text(
-                              '분',
-                              style: TStyle.commonSTitle,
-                            ),
-                            Text(
-                              '$second'.padLeft(2, '0'),
-                              style: TStyle.commonSTitle,
-                            ),
-                            const Text(
-                              '초전',
-                              style: TStyle.commonSTitle,
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _signal09.processText,
+                    style: TStyle.title17,
                   ),
-                ),
 
-                //장 시작전 대기... 필터중... 작업중
-                Visibility(
-                  visible: _signal09.noticeCode.isNotEmpty &&
-                      _signal09.noticeCode == 'TIME_BEFORE' &&
-                      _signal09.listNotice.isNotEmpty,
-                  child: SizedBox(
-                    width: 220,
-                    height: 40,
-                    child: Swiper(
-                        loop: true,
-                        autoplay: true,
-                        autoplayDelay: 4000,
-                        itemCount: _signal09.listNotice.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Text(_signal09.listNotice[index]);
-                        }),
+                  const SizedBox(
+                    height: 7.0,
                   ),
-                ),
-              ],
+
+                  Visibility(
+                    visible: _signal09.noticeCode.isNotEmpty && _signal09.noticeCode != 'TIME_BEFORE',
+                    child: Expanded(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _signal09.listNotice.isEmpty ? '' : _signal09.listNotice.first,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Visibility(
+                            visible: _signal09.noticeCode.isNotEmpty && _signal09.noticeCode == 'TIME_TERM',
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  '$minute'.padLeft(2, '0'),
+                                  style: TStyle.commonSTitle,
+                                ),
+                                const Text(
+                                  '분',
+                                  style: TStyle.commonSTitle,
+                                ),
+                                Text(
+                                  '$second'.padLeft(2, '0'),
+                                  style: TStyle.commonSTitle,
+                                ),
+                                const Text(
+                                  '초전',
+                                  style: TStyle.commonSTitle,
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  //장 시작전 대기... 필터중... 작업중
+                  Visibility(
+                    visible: _signal09.noticeCode.isNotEmpty &&
+                        _signal09.noticeCode == 'TIME_BEFORE' &&
+                        _signal09.listNotice.isNotEmpty,
+                    child: SizedBox(
+                      width: 220,
+                      height: 23,
+                      child: Swiper(
+                          loop: true,
+                          autoplay: true,
+                          autoplayDelay: 4000,
+                          itemCount: _signal09.listNotice.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Text(_signal09.listNotice[index]);
+                          }),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Lottie.asset(_signal09.lottiePath, height: 57),
           ],
@@ -678,18 +708,15 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
 
   //지금 인기 종목들은
   Widget _setPopularList(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 450,
-      child: ListView.builder(
-          scrollDirection: Axis.vertical,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          itemCount: _popularList.length,
-          itemBuilder: (context, index) {
-            return TileSearch04(_popularList[index]);
-          }),
-    );
+    return ListView.builder(
+        scrollDirection: Axis.vertical,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        itemCount: _popularList.length,
+        itemBuilder: (context, index) {
+          return TileSearch04(_popularList[index]);
+        });
   }
 
   //Catch - 매매비서의 주간토픽
@@ -697,7 +724,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 15, left: 10, right: 10),
+          padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -705,14 +732,16 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 "라씨 매매비서의 주간토픽",
                 style: TStyle.defaultTitle,
               ),
-              // Text("$_catchWeek", style: TStyle.contentMGrey,),
               _setMoreText('stock_catch'),
             ],
           ),
         ),
+        const SizedBox(
+          height: 10,
+        ),
         InkWell(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             decoration: UIStyle.boxWeakGrey6(),
             child: Column(
@@ -771,14 +800,9 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   //더보기
   Widget _setMoreText(String desType) {
     return InkWell(
-      child: const Padding(
-        padding: EdgeInsets.only(
-          right: 15,
-        ),
-        child: Text(
-          '+더보기',
-          style: TStyle.commonPurple14,
-        ),
+      child: const Text(
+        '+더보기',
+        style: TStyle.commonPurple14,
       ),
       onTap: () {
         if (desType == 'signal') {
@@ -795,23 +819,23 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
     return _listFind01.isEmpty
         ? Container(
             margin: const EdgeInsets.symmetric(
-              horizontal: 15.0,
+              horizontal: 20,
               vertical: 10,
             ),
             child: CommonView.setNoDataView(150, '최근 3일 매수 후 급등 종목이 없습니다.'),
           )
         : Container(
             width: double.infinity,
-            height: 150,
+            height: 130,
             padding: const EdgeInsets.symmetric(
-              horizontal: 10,
+              horizontal: 20,
             ),
             child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.zero,
                 itemCount: _listFind01.length,
                 itemBuilder: (context, index) {
-                  return TileFind01(_listFind01[index]);
+                  return TileFind01(index, _listFind01[index]);
                 }),
           );
   }
@@ -823,23 +847,23 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         : _listFind02.isEmpty
             ? Container(
                 margin: const EdgeInsets.symmetric(
-                  horizontal: 15.0,
+                  horizontal: 20.0,
                   vertical: 10,
                 ),
                 child: CommonView.setNoDataView(150, '적중률 TOP 중 최근 3일 매수 종목이 없습니다.'),
               )
             : Container(
                 width: double.infinity,
-                height: 150,
+                height: 130,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
+                  horizontal: 20,
                 ),
                 child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.zero,
                     itemCount: _listFind02.length,
                     itemBuilder: (context, index) {
-                      return TileFind02(_listFind02[index]);
+                      return TileFind02(index, _listFind02[index]);
                     }),
               );
   }
@@ -851,23 +875,23 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         : _listFind03.isEmpty
             ? Container(
                 margin: const EdgeInsets.symmetric(
-                  horizontal: 15.0,
+                  horizontal: 20.0,
                   vertical: 10,
                 ),
                 child: CommonView.setNoDataView(150, '적중률 TOP 중 관망 종목이 없습니다.'),
               )
             : Container(
                 width: double.infinity,
-                height: 150,
+                height: 130,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
+                  horizontal: 20,
                 ),
                 child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.zero,
                     itemCount: _listFind03.length,
                     itemBuilder: (context, index) {
-                      return TileFind03(_listFind03[index]);
+                      return TileFind03(index, _listFind03[index]);
                     }),
               );
   }
@@ -879,23 +903,23 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         : _listFind04.isEmpty
             ? Container(
                 margin: const EdgeInsets.symmetric(
-                  horizontal: 15.0,
+                  horizontal: 20,
                   vertical: 10,
                 ),
                 child: CommonView.setNoDataView(150, '평균수익률 TOP 중 최근 3일 매수 종목이 없습니다.'),
               )
             : Container(
                 width: double.infinity,
-                height: 150,
+                height: 130,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
+                  horizontal: 20,
                 ),
                 child: ListView.builder(
                     padding: EdgeInsets.zero,
                     scrollDirection: Axis.horizontal,
                     itemCount: _listFind04.length,
                     itemBuilder: (context, index) {
-                      return TileFind04(_listFind04[index]);
+                      return TileFind04(index, _listFind04[index]);
                     }),
               );
   }
@@ -907,23 +931,23 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         : _listFind05.isEmpty
             ? Container(
                 margin: const EdgeInsets.symmetric(
-                  horizontal: 15.0,
+                  horizontal: 20,
                   vertical: 10,
                 ),
                 child: CommonView.setNoDataView(150, '평균수익률 TOP 중 관망 종목이 없습니다.'),
               )
             : Container(
                 width: double.infinity,
-                height: 150,
+                height: 130,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
+                  horizontal: 20,
                 ),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.zero,
                   itemCount: _listFind05.length,
                   itemBuilder: (context, index) {
-                    return TileFind05(_listFind05[index]);
+                    return TileFind05(index, _listFind05[index]);
                   },
                 ),
               );
@@ -933,31 +957,32 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   Widget _setFreeCard() {
     return InkWell(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+        width: double.infinity,
+        height: 130.0,
+        padding: const EdgeInsets.symmetric(
+          vertical: 5,
+          horizontal: 10,
+        ),
         margin: const EdgeInsets.symmetric(
-          horizontal: 15,
+          horizontal: 20,
           vertical: 10,
         ),
         decoration: UIStyle.boxRoundLine6(),
-        child: SizedBox(
-          width: double.infinity,
-          height: 130.0,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'images/rassi_itemar_icon_ar_wch.png',
-                height: 40,
-              ),
-              const SizedBox(
-                height: 10.0,
-              ),
-              const Text(
-                '프리미엄으로 업그레이드 하시고\n지금 모든 종목을 확인해 보세요.',
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'images/rassi_itemar_icon_ar_wch.png',
+              height: 40,
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            const Text(
+              '프리미엄으로 업그레이드 하시고\n지금 모든 종목을 확인해 보세요.',
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
       onTap: () {
@@ -975,8 +1000,8 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
       width: double.infinity,
       height: 70,
       margin: const EdgeInsets.only(
-        left: 15.0,
-        right: 15.0,
+        left: 20.0,
+        right: 20.0,
         top: 10.0,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -1030,7 +1055,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         width: double.infinity,
         height: 110,
         margin: const EdgeInsets.only(
-          top: 20,
+          //top: 20,
         ),
         child: CardProm02(_listPrTop),
       ),
@@ -1389,6 +1414,18 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         _listPrHgh.clear();
         _listPrMid.clear();
         _listPrLow.clear();
+
+        /*//테스트를 위한 데이터 입니다.
+        resData.retData.add(Prom02(
+          title: 'dd',
+          viewPosition: 'TOP',
+          promoDiv: 'BANNER',
+          contentType: 'IMG',
+          linkType: 'APP',
+          linkPage: 'LPHE',
+          content: 'http://files.thinkpool.com/rassiPrm/tips_FFFAED.jpg',
+        ));*/
+
         if (resData.retData.isNotEmpty) {
           for (int i = 0; i < resData.retData.length; i++) {
             Prom02 item = resData.retData[i];

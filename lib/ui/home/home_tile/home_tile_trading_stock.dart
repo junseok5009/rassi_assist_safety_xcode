@@ -26,7 +26,6 @@ class _HomeTileTradingStockState extends State<HomeTileTradingStock> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -45,7 +44,7 @@ class _HomeTileTradingStockState extends State<HomeTileTradingStock> {
               children: [
                 const Text(
                   '라씨의 종목은?',
-                  style: TStyle.title18T,
+                  style: TStyle.defaultTitle,
                 ),
                 widget.listToday01Model.isEmpty
                     ? const SizedBox()
@@ -70,16 +69,17 @@ class _HomeTileTradingStockState extends State<HomeTileTradingStock> {
               ? const SizedBox(
                   height: 160,
                 )
-              : SizedBox(
+              : Container(
                   width: double.infinity,
-                  height: widget.listToday01Model.length < 2 ? 130 : 156,
+                  height: widget.listToday01Model.length < 2 ? 125 : 151,
+                  padding: const EdgeInsets.symmetric(horizontal: 10,),
                   child: Swiper(
                     controller: SwiperController(),
                     pagination: widget.listToday01Model.length < 2
                         ? null
                         : CommonSwiperPagenation.getNormalSpWithMargin(
                             8.0,
-                            140,
+                            135,
                             Colors.black,
                           ),
                     loop: false,

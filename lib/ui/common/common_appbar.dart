@@ -56,7 +56,7 @@ class CommonAppbar{
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: (){
-            if(buildContext != null && buildContext.mounted){
+            if(buildContext.mounted){
               Navigator.pop(buildContext);
             }
           },
@@ -104,7 +104,7 @@ class CommonAppbar{
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: (){
-            if(buildContext != null && buildContext.mounted){
+            if(buildContext.mounted){
               Navigator.pop(buildContext);
             }
           },
@@ -140,7 +140,7 @@ class CommonAppbar{
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: (){
-            if(buildContext != null && buildContext.mounted){
+            if(buildContext.mounted){
               Navigator.pop(buildContext);
             }
           },
@@ -191,7 +191,7 @@ class CommonAppbar{
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: (){
-            if(buildContext != null && buildContext.mounted){
+            if(buildContext.mounted){
               Navigator.pop(buildContext);
             }
           },
@@ -336,7 +336,7 @@ class CommonAppbar{
             icon: const Icon(Icons.close),
             color: iconColor,
             onPressed: (){
-              if(buildContext != null && buildContext.mounted){
+              if(buildContext.mounted){
                 Navigator.pop(buildContext);
               }
             },

@@ -130,7 +130,7 @@ class JoinRouteState extends State<JoinRoutePage> {
     ),
     RouteInfo(
       '기타  ',
-      '추천인',
+      '추천인 등록',
       '기타',
       '',
       '',

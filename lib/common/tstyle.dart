@@ -160,7 +160,7 @@ class TStyle {
 
   static const defaultTitle = TextStyle(
     //공통 타이틀 17 (bold) , 기준 크기
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     fontSize: 17,
     color: Color(0xff111111),
   );

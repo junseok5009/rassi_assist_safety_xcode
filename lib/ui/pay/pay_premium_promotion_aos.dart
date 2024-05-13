@@ -68,6 +68,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
 
   String _priceOnce = '';
   String _priceOriginal = '₩59,400';
+
   // late IAPItem _pdItem;
   String _vProductId = ''; //상품코드
 
@@ -209,21 +210,16 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         });
       } else if (status == 'pay_success') {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-        await userInfoProvider.updatePayment();
-        if (userInfoProvider.isPremiumUser() && mounted) {
-          Navigator.popUntil(
-            context,
-            ModalRoute.withName(BasePage.routeName),
-          );
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
-          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
-        } else {
+        await userInfoProvider.updatePayment().then((value) {
           Navigator.popUntil(
             context,
             ModalRoute.withName(BasePage.routeName),
           );
           CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
-        }
+          if (userInfoProvider.isPremiumUser()) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
+          }
+        });
       } else {
         Navigator.popUntil(
           context,
@@ -315,8 +311,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
                     Container(
                       color: RColor.mainColor,
                       height: 70,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                       child: InkWell(
                         child: Center(
                           child: Text(
@@ -343,8 +338,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
                     children: [
                       Opacity(
                         opacity: 0.3,
-                        child: ModalBarrier(
-                            dismissible: false, color: Colors.grey),
+                        child: ModalBarrier(dismissible: false, color: Colors.grey),
                       ),
                       Center(
                         child: CircularProgressIndicator(),
@@ -378,8 +372,8 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
       }
     }
     //3종목알림 업그레이드 요청
-    else if(_curProd.contains('ac_s3') || _curProd.contains('AC_S3')) {
-      if(_vProductId == 'ac_pr.a01') {
+    else if (_curProd.contains('ac_s3') || _curProd.contains('AC_S3')) {
+      if (_vProductId == 'ac_pr.a01') {
         // 1개월정기결제 기본 상품으로만 업그레이드 가능 (6개월상품 불가) , ac_pr.a01 상품만 가능 (할인상품은 할인 적용 불가)
         DLog.d(PayPremiumPromotionAosPage.TAG, '3종목알림 업그레이드 결제 요청');
         inAppBilling.requestGStoreUpgrade(_vProductId);
@@ -818,7 +812,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
                 ),
               ),
             ),
-
             Text(
               desc,
               style: const TextStyle(
@@ -828,9 +821,10 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
               ),
               textAlign: TextAlign.center,
             ),
-
             perText.isEmpty
-                ? const SizedBox(width: 1,)
+                ? const SizedBox(
+                    width: 1,
+                  )
                 : Text(
                     perText,
                     textAlign: TextAlign.center,
@@ -890,7 +884,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
                   ),
                   Text(
                     message,
-                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -909,7 +902,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
                           child: Text(
                             btnText,
                             style: TStyle.btnTextWht16,
-                            
                           ),
                         ),
                       ),
@@ -953,20 +945,16 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         }
       case 'at1':
         {
-          _productLists =
-              Platform.isAndroid ? ['ac_pr.at1'] : ['ios.ac_pr.at1'];
+          _productLists = Platform.isAndroid ? ['ac_pr.at1'] : ['ios.ac_pr.at1'];
           _vProductId = _productLists.first;
           break;
         }
       case 'at2':
         {
-          _productLists =
-              Platform.isAndroid ? ['ac_pr.at2'] : ['ios.ac_pr.at2'];
+          _productLists = Platform.isAndroid ? ['ac_pr.at2'] : ['ios.ac_pr.at2'];
           _vProductId = _productLists.first;
           break;
         }
-
-
 
       case 'new_6m':
         {
@@ -1007,9 +995,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         setState(() {});
       } on PlatformException catch (e) {}
       // DLog.d(PayPremiumPage.TAG, '##### Platform Android');
-    } else if (Platform.isIOS) {
-
-    }
+    } else if (Platform.isIOS) {}
   }
 
   //완료, 실패 알림 후 페이지 자동 종료

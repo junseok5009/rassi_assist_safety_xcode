@@ -938,7 +938,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
           scrollDirection: Axis.horizontal,
           itemCount: _listFind01.length,
           itemBuilder: (context, index) {
-            return TileFind01(_listFind01[index]);
+            return TileFind01(index, _listFind01[index]);
           }),
     );
   }

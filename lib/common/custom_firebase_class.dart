@@ -10,7 +10,7 @@ class CustomFirebaseClass{
   FirebaseAnalyticsObserver(analytics: analytics);
 
   // DEFINE screen_view 이벤트
-  static void logEvtScreenView(String screenName) async {
+  static Future<void> logEvtScreenView(String screenName) async {
     DLog.e('logEvtScreenView screenName : $screenName');
     await fInstance.logScreenView(
       screenName: screenName,

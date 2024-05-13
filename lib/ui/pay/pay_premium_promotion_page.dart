@@ -84,7 +84,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
       _userId = _prefs.getString(Const.PREFS_USER_ID) ?? appGlobal.userId ?? '';
       Future.delayed(Duration.zero, () {
         PgData args = ModalRoute.of(context)!.settings.arguments as PgData;
-        if (args == null || args.data == null || args.data.isEmpty) {
+        if (args.data.isEmpty) {
           commonShowToast('잘못된 오류 입니다.');
           Navigator.pop(context);
         } else {
@@ -95,30 +95,67 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
               {
                 TAG_NAME = '계정결제_30할인';
                 VIEW_PAGE_CODE = 'LPH9';
+                _pageTitle = '프리미엄 계정 가입 (30% 특별 할인)';
+                _buttonTitle = '30% 할인 받으면서 프리미엄 계정 시작하기';
+                _buyInfo =
+                    '★ 첫달 50% 할인혜택($_priceOnce)과 둘째달 부터는 23% 할인혜택($_priceOriginal)을 모두 드립니다.\n★ 정기결제는 언제든 구독을 취소하실 수 있어요.';
                 break;
               }
             case 'ad4':
               {
                 TAG_NAME = '계정결제_40할인';
                 VIEW_PAGE_CODE = 'LPH8';
+                _pageTitle = '프리미엄 계정 가입 (40% 특별 할인)';
+                _buttonTitle = '40% 할인 받으면서 프리미엄 계정 시작하기';
+                _buyInfo =
+                    '★ 첫달 50% 할인혜택($_priceOnce)과 둘째달 부터는 23% 할인혜택($_priceOriginal)을 모두 드립니다.\n★ 정기결제는 언제든 구독을 취소하실 수 있어요.';
                 break;
               }
             case 'ad5':
               {
                 TAG_NAME = '계정결제_50할인';
                 VIEW_PAGE_CODE = 'LPH7';
+                _pageTitle = '프리미엄 계정 가입 (50% 특별 할인)';
+                _buttonTitle = '50% 할인 받으면서 프리미엄 계정 시작하기';
+                _buyInfo =
+                    '★ 첫달 50% 할인혜택($_priceOnce)과 둘째달 부터는 23% 할인혜택($_priceOriginal)을 모두 드립니다.\n★ 정기결제는 언제든 구독을 취소하실 수 있어요.';
                 break;
               }
             case 'at1':
               {
                 TAG_NAME = '계정 결제 7일 무료 체험 포함';
                 VIEW_PAGE_CODE = 'LPHA';
+                _pageTitle = '프리미엄 계정 가입 (7일 무료체험 포함)';
+                _buttonTitle = '결제 부담 없이 무료체험 시작하기';
+                _buyInfo = '★ 결제 부담없이 무료체험으로 먼저 만나보세요.\n★ 무료체험 기간 중 언제든 가입을 해지하실 수 있으며, 결제 전 계정을 해지하시면 요금이 부과되지 않습니다';
                 break;
               }
             case 'at2':
               {
                 TAG_NAME = '계정 결제 14일 무료 체험 포함';
                 VIEW_PAGE_CODE = 'LPHB';
+                _pageTitle = '프리미엄 계정 가입 (14일 무료체험 포함)';
+                _buttonTitle = '결제 부담 없이 무료체험 시작하기';
+                _buyInfo = '★ 결제 부담없이 무료체험으로 먼저 만나보세요.\n★ 무료체험 기간 중 언제든 가입을 해지하실 수 있으며, 결제 전 계정을 해지하시면 요금이 부과되지 않습니다';
+                break;
+              }
+            case 'am6d0':
+              {
+                TAG_NAME = '계정 결제 6개월 정기 구독';
+                VIEW_PAGE_CODE = 'LPHD';
+                _pageTitle = '프리미엄 계정 6개월 정기 구독';
+                _buttonTitle = '프리미엄 6개월 정기 구독 시작하기';
+                _buyInfo = '★ 정기결제는 언제든 구독을 해지하실 수 있습니다.\n'
+                    '★ 계정 가입';
+                break;
+              }
+            case 'am6d5':
+              {
+                TAG_NAME = '계정 결제 6개월 50% 할인';
+                VIEW_PAGE_CODE = 'LPHE';
+                _pageTitle = '프리미엄 계정 (6개월 52% 특별 할인)';
+                _buttonTitle = '52%이상 할인된 금액으로 프리미엄 시작하기';
+                _buyInfo = '★ 첫 6개월간 50% 할인혜택(￦220,000)과 이후 6개월씩부터는 28% 할인혜택(￦330,000)을 모두 드립니다.';
                 break;
               }
             default:
@@ -161,27 +198,17 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
         });
       } else if (status == 'pay_success') {
         var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-        await userInfoProvider.updatePayment();
-        if(userInfoProvider.isPremiumUser() && mounted){
+        await userInfoProvider.updatePayment().then((value) {
           Navigator.popUntil(
             context,
             ModalRoute.withName(BasePage.routeName),
           );
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const PremiumCarePage()));
-          CommonPopup.instance
-              .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
-        }else{
-          if (mounted) {
-            Navigator.popUntil(
-              context,
-              ModalRoute.withName(BasePage.routeName),
-            );
-            CommonPopup.instance
-                .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          if (userInfoProvider.isPremiumUser()) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
           }
-        }
-      }else{
+        });
+      } else {
         Navigator.popUntil(
           context,
           ModalRoute.withName(BasePage.routeName),
@@ -193,7 +220,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
     //결제 에러 상태 리스너
     errCallback = (retStr) async {
       await CommonPopup.instance.showDialogBasicConfirm(context, '알림', retStr);
-      if(mounted){
+      if (mounted) {
         Navigator.pop(context);
       }
     };
@@ -216,51 +243,6 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
 
   @override
   Widget build(BuildContext context) {
-    DLog.d(PayPremiumPromotionPage.TAG, 'build()');
-
-    switch (pageCode) {
-      case 'ad3':
-        {
-          _pageTitle = '프리미엄 계정 가입 (30% 특별 할인)';
-          _buttonTitle = '30% 할인 받으면서 프리미엄 계정 시작하기';
-          _buyInfo =
-              '★ 첫달 50% 할인혜택($_priceOnce)과 둘째달 부터는 23% 할인혜택($_priceOriginal)을 모두 드립니다.\n★ 정기결제는 언제든 구독을 취소하실 수 있어요.';
-          break;
-        }
-      case 'ad4':
-        {
-          _pageTitle = '프리미엄 계정 가입 (40% 특별 할인)';
-          _buttonTitle = '40% 할인 받으면서 프리미엄 계정 시작하기';
-          _buyInfo =
-              '★ 첫달 50% 할인혜택($_priceOnce)과 둘째달 부터는 23% 할인혜택($_priceOriginal)을 모두 드립니다.\n★ 정기결제는 언제든 구독을 취소하실 수 있어요.';
-          break;
-        }
-      case 'ad5':
-        {
-          _pageTitle = '프리미엄 계정 가입 (50% 특별 할인)';
-          _buttonTitle = '50% 할인 받으면서 프리미엄 계정 시작하기';
-          _buyInfo =
-              '★ 첫달 50% 할인혜택($_priceOnce)과 둘째달 부터는 23% 할인혜택($_priceOriginal)을 모두 드립니다.\n★ 정기결제는 언제든 구독을 취소하실 수 있어요.';
-          break;
-        }
-      case 'at1':
-        {
-          _pageTitle = '프리미엄 계정 가입 (7일 무료체험 포함)';
-          _buttonTitle = '결제 부담 없이 무료체험 시작하기';
-          _buyInfo =
-              '★ 결제 부담없이 무료체험으로 먼저 만나보세요.\n★ 무료체험 기간 중 언제든 가입을 해지하실 수 있으며, 결제 전 계정을 해지하시면 요금이 부과되지 않습니다';
-          break;
-        }
-      case 'at2':
-        {
-          _pageTitle = '프리미엄 계정 가입 (14일 무료체험 포함)';
-          _buttonTitle = '결제 부담 없이 무료체험 시작하기';
-          _buyInfo =
-              '★ 결제 부담없이 무료체험으로 먼저 만나보세요.\n★ 무료체험 기간 중 언제든 가입을 해지하실 수 있으며, 결제 전 계정을 해지하시면 요금이 부과되지 않습니다';
-          break;
-        }
-    }
-
     return Scaffold(
       appBar: CommonAppbar.simpleWithExit(
         context,
@@ -327,20 +309,17 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
                   Container(
                     color: RColor.mainColor,
                     height: 70,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     child: InkWell(
                       onTap: () {
                         _isTryPayment = true;
                         if (_curProd.contains('ac_pr')) {
-                          commonShowToast(
-                              '이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+                          commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
                         } else {
                           setState(() {
                             _bProgress = true;
                           });
-                          if (_pdItem != null)
-                            inAppBilling.requestStorePurchase(_pdItem);
+                          inAppBilling.requestStorePurchase(_pdItem);
                         }
                       },
                       child: Center(
@@ -365,8 +344,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
                   children: [
                     Opacity(
                       opacity: 0.3,
-                      child:
-                          ModalBarrier(dismissible: false, color: Colors.grey),
+                      child: ModalBarrier(dismissible: false, color: Colors.grey),
                     ),
                     Center(
                       child: CircularProgressIndicator(),
@@ -523,9 +501,12 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
 
   //정기 결제 버튼
   Widget _setButtonSub() {
+    String priceType = '매월정기결제';
     String priceInfo1 = '';
     String priceInfo2 = '';
     bool isAt = false;
+    bool isShowDiscountRateBox = false;
+    String discountInfo1 = '';
 
     switch (pageCode) {
       case 'ad3':
@@ -563,14 +544,29 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
           isAt = true;
           break;
         }
+      case 'am6d0':
+        {
+          priceInfo1 = '(6개월 정기)';
+          priceInfo2 = '6개월 정기 구독';
+          isAt = false;
+          break;
+        }
+      case 'am6d5':
+        {
+          priceType = '6개월씩 정기결제';
+          priceInfo1 = '(6개월 이용)';
+          priceInfo2 = '52% 이상!';
+          discountInfo1 = '(1달 약 36,600)';
+          isShowDiscountRateBox = true;
+          isAt = false;
+          break;
+        }
     }
 
     return Container(
       decoration: BoxDecoration(
-        //border: Border.all(color: RColor.mainColor, width: 2.0),
-        //borderRadius: const BorderRadius.all(const Radius.circular(6)),
-        border: Border.all(color: RColor.lineGrey, width: 0.8),
-        borderRadius: const BorderRadius.all(const Radius.circular(15)),
+        border: Border.all(color: RColor.purpleBasic_6565ff, width: 2),
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
       ),
       margin: const EdgeInsets.symmetric(
         vertical: 6,
@@ -585,8 +581,8 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '매월정기결제',
+                  Text(
+                    priceType,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -602,12 +598,12 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
                         priceInfo1,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                          //fontSize: 14,
                           color: Colors.black,
                         ),
                       ),
                       const SizedBox(
-                        width: 4,
+                        width: 6,
                       ),
                       Text(
                         isAt ? _priceOriginal : _priceOnce,
@@ -619,12 +615,40 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
               ),
             ],
           ),
-          Text(
-            priceInfo2,
-            style: const TextStyle(
-                color: RColor.sigBuy,
-                fontSize: 17,
-                fontWeight: FontWeight.w600),
+          Column(
+            children: [
+              Visibility(
+                visible: isShowDiscountRateBox,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 2,
+                    horizontal: 8,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: RColor.sigBuy,
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                  ),
+                  child: const Text(
+                    '할인율',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                priceInfo2,
+                style: const TextStyle(color: RColor.sigBuy, fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+              Visibility(
+                visible: isShowDiscountRateBox,
+                child: Text(
+                  discountInfo1,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -640,6 +664,78 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
         style: TStyle.commonTitle,
       ),
     );
+  }
+
+  //결제 완료시에만 사용 (결제 완료/실패 알림 -> 자동 페이지 종료)
+  void _showDialogMsg(String message, String btnText) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  ),
+                  onTap: () {
+                    Navigator.pop(dialogContext);
+                    _goPreviousPage();
+                  },
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Image.asset(
+                    'images/rassibs_img_infomation.png',
+                    height: 60,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(
+                    height: 25.0,
+                  ),
+                  Text(
+                    message,
+                  ),
+                  const SizedBox(
+                    height: 30.0,
+                  ),
+                  MaterialButton(
+                    child: Center(
+                      child: Container(
+                        width: 180,
+                        height: 40,
+                        // margin: const EdgeInsets.only(top: 20.0),
+                        decoration: const BoxDecoration(
+                          color: RColor.mainColor,
+                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            btnText,
+                            style: TStyle.btnTextWht16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+                      _goPreviousPage();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   //상품정보 가져오기
@@ -680,6 +776,18 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
           vProductId = 'ios.ac_pr.at2';
           break;
         }
+      case 'am6d0':
+        {
+          productLists = ['ios.ac_pr.am6d0'];
+          vProductId = 'ios.ac_pr.am6d0';
+          break;
+        }
+      case 'am6d5':
+        {
+          productLists = ['ios.ac_pr.am6d5'];
+          vProductId = 'ios.ac_pr.am6d5';
+          break;
+        }
     }
 
     // Set literals require Dart 2.2. Alternatively, use
@@ -696,21 +804,32 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
       DLog.d(PayPremiumPromotionPage.TAG, 'id:${item.id} / price:${item.price} / rawPrice:${item.rawPrice} / currencyCode:${item.currencyCode} / title:${item.title} / description:${item.description}');
     }*/
 
-    List<IAPItem> items =
-        await FlutterInappPurchase.instance.getProducts(productLists);
+    List<IAPItem> items = await FlutterInappPurchase.instance.getProducts(productLists);
     for (var item in items) {
-      print('${item.toString()}');
+      //print('${item.toString()}');
       _items.add(item);
       if (item.productId == vProductId) {
         DLog.d(PayPremiumPromotionPage.TAG, '# item : ${item.toString()}');
         _pdItem = item;
-        _priceOnce = item.introductoryPrice!;
+        _priceOnce =
+            (item.introductoryPrice ?? '').isEmpty ? (item.localizedPrice ?? '') : (item.introductoryPrice ?? '');
+        // ?? item.localizedPrice ?? '';
         _priceOriginal = item.localizedPrice!;
       }
     }
     setState(() {
       _items = items;
     });
+  }
+
+  //완료, 실패 알림 후 페이지 자동 종료
+  void _goPreviousPage() {
+    // DEFINE 23.08.04 프리미엄 케어 서비스 추가
+    Navigator.pop(context);
+    //basePageState.callPageRoute(const PremiumCarePage());
+    /*Future.delayed(Duration(milliseconds: 500), () {
+      Navigator.of(context).pop('complete'); //null 자리에 데이터를 넘겨 이전 페이지 갱신???
+    });*/
   }
 
   // convert 패키지의 jsonDecode 사용
@@ -754,6 +873,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
         if (resData.retData!.listPaymentGuide.isNotEmpty) {
           _listApp03.addAll(resData.retData!.listPaymentGuide);
         }
+        setState(() {});
         _fetchPosts(
             TR.PROM02,
             jsonEncode(<String, String>{
@@ -783,7 +903,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
         }
 
         setState(() {
-          if (_listPrBanner.length > 0) prBanner = true;
+          if (_listPrBanner.isNotEmpty) prBanner = true;
           //if (_listPrHgh.length > 0) prHGH = true;
           //if (_listPrMid.length > 0) prMID = true;
           //if (_listPrLow.length > 0) prLOW = true;

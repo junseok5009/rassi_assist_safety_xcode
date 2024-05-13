@@ -31,6 +31,7 @@ import 'package:rassi_assist/models/tr_today/tr_today05.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
 import 'package:rassi_assist/models/tr_user/tr_user04.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_ddinfo.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_hot_theme.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_today_signal.dart';
@@ -164,8 +165,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
           SliverList(
-            delegate: SliverChildListDelegate(
-                addAutomaticKeepAlives: true, [
+            delegate: SliverChildListDelegate(addAutomaticKeepAlives: true, [
               const SizedBox(
                 height: 15,
               ),
@@ -192,42 +192,24 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               // 오늘의 AI매매신호는?
               HomeTileTodaySignal(),
 
-              Container(
-                margin: const EdgeInsets.only(
-                  top: 25,
-                  bottom: 20,
-                ),
-                color: const Color(
-                  0xffF5F5F5,
-                ),
-                height: 13,
-              ),
+              CommonView.setDivideLine,
 
               // 내 종목 현황
-              //const HomeTileMystockStatus(),
               HomeTileMystockStatus2(
                 _pock11,
               ),
 
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                color: const Color(
-                  0xffF5F5F5,
-                ),
-                height: 13,
-              ),
+              CommonView.setDivideLine,
 
               // 이 시간 핫 테마
               const HomeTileHotTheme(),
 
+              CommonView.setDivideLine,
+
               // 커뮤니티 활동 급상승
               const HomeTileSocial(),
 
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                color: const Color(0xffF5F5F5),
-                height: 13,
-              ),
+              CommonView.setDivideLine,
 
               // 라씨 매매비서가 캐치한 항목
               const HomeTileStockCatch(),
@@ -235,25 +217,20 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
               // 상단 프로모션
               _setPrHigh(),
 
+              CommonView.setDivideLine,
+
               // 비교해서 더 좋은 찾기
               HomeTileStockCompareList(_compare01),
+
+              CommonView.setDivideLine,
 
               // 지금, 마켓뷰는?
               // 이 시간 추천 태그
               _setIssueTag(),
 
-              const SizedBox(
-                height: 15.0,
-              ),
               _setPrMid(),
 
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                color: const Color(
-                  0xffF5F5F5,
-                ),
-                height: 13,
-              ),
+              CommonView.setDivideLine,
 
               // 오늘의 이슈
               if (_listIssue03.isNotEmpty) HomeTileIssue(listIssue03: _listIssue03),
@@ -273,29 +250,31 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   Widget _setIssueTag() {
     return Visibility(
       visible: _listTagN.isNotEmpty,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 30),
-            color: const Color(
-              0xffF5F5F5,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 15,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "이 시간 추천 태그",
+              style: TStyle.defaultTitle,
             ),
-            height: 13,
-          ),
-          _setSubTitle("이 시간 추천 태그"),
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 5),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            decoration: UIStyle.boxShadowBasic(16),
-            child: Wrap(
-              spacing: 7.0,
-              alignment: WrapAlignment.center,
-              children: List.generate(_listTagN.length, (index) => TileChipTag(_listTagN[index])),
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: 20, bottom: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              decoration: UIStyle.boxShadowBasic(16),
+              child: Wrap(
+                spacing: 7.0,
+                alignment: WrapAlignment.center,
+                children: List.generate(_listTagN.length, (index) => TileChipTag(_listTagN[index])),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -306,10 +285,10 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       visible: _listPrTop.isNotEmpty,
       child: Container(
         width: double.infinity,
+        height: appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
         margin: const EdgeInsets.only(
           top: 20,
         ),
-        height: appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
         child: CardProm02(_listPrTop),
       ),
     );
@@ -319,9 +298,12 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   Widget _setPrHigh() {
     return Visibility(
       visible: _listPrHgh.isNotEmpty,
-      child: SizedBox(
+      child: Container(
         width: double.infinity,
         height: appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
+        margin: const EdgeInsets.only(
+          top: 20,
+        ),
         child: CardProm02(_listPrHgh),
       ),
     );
@@ -331,9 +313,12 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   Widget _setPrMid() {
     return Visibility(
       visible: _listPrMid.isNotEmpty,
-      child: SizedBox(
+      child: Container(
         width: double.infinity,
         height: appGlobal.isTablet ? 120 : MediaQuery.of(context).size.width / 3.4,
+        margin: const EdgeInsets.only(
+          top: 20,
+        ),
         child: CardProm02(_listPrMid),
       ),
     );
@@ -343,21 +328,13 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   Widget _setPrLow() {
     return Visibility(
       visible: _listPrLow.isNotEmpty,
-      child: SizedBox(
+      child: Container(
         width: double.infinity,
         height: appGlobal.isTablet ? 260 : MediaQuery.of(context).size.width / 2,
+        margin: const EdgeInsets.only(
+          top: 20,
+        ),
         child: CardProm02(_listPrLow),
-      ),
-    );
-  }
-
-  //소항목 타이틀
-  Widget _setSubTitle(String subTitle) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
-      child: Text(
-        subTitle,
-        style: TStyle.title18T,
       ),
     );
   }
@@ -760,7 +737,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       } else if (prItem.linkPage == 'LPHE') {
         navigateRefreshPayPromotion(
           Platform.isIOS ? const PayPremiumPromotionPage() : const PayPremiumPromotionAosPage(),
-          PgData(data: 'new_6m_50'),
+          Platform.isIOS ? PgData(data: 'am6d5') : PgData(data: 'new_6m_50'),
         );
       } else if (prItem.linkPage == 'LPHG') {
         navigateRefreshPayPromotion(
@@ -788,190 +765,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       basePageState.goLandingPage(LD.linkTypeOutLink, prItem.linkPage, '', '', '');
     } else {}
   }
-
-  /* void _showMyBottomSheetOriginal(BuildContext context, Prom02 prItem, bool isImage) {
-    CustomFirebaseClass.logEvtScreenView('배너_마케팅_팝업_홈');
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      builder: (_) {
-        return DraggableScrollableSheet(
-          maxChildSize: 0.8,
-          expand: false,
-          builder: (_, controller) {
-            return Column(
-              children: [
-                //===== 하단 내용부
-                Expanded(
-                  child: ListView(
-                    children: [
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      Center(
-                        child: Text(
-                          prItem.title,
-                          style: TStyle.defaultTitle,
-
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-
-                      // TXT 형식
-                      Visibility(
-                        visible: !isImage,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 15),
-                          padding: const EdgeInsets.only(
-                              left: 15, right: 10, top: 10),
-                          decoration: const BoxDecoration(
-                            color: Color(0x55ccc9fe),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                          child: Html(
-                            data: prItem.content,
-                            style: {
-                              "html": Style(
-                                fontSize: FontSize(15.0),
-                                textAlign: TextAlign.center,
-                              ),
-                            },
-                          ),
-                        ),
-                      ),
-
-                      // IMG 형식
-                      Visibility(
-                        visible: isImage,
-                        child: Container(
-                          child: _setNetImage(prItem.content),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-
-                      Center(
-                        child: MaterialButton(
-                          child: Container(
-                            width: 185,
-                            height: 43,
-                            decoration: UIStyle.roundBtnBox25(),
-                            child: Center(
-                              child: Text(
-                                prItem.buttonTxt,
-                                style: TStyle.btnTextWht16,
-
-                              ),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                            _goLandingPage(prItem);
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 30.0,
-                      ),
-
-                      // 오늘 그만보기 | 닫기
-                      Container(
-                        height: 1.0,
-                        color: Colors.grey[300],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                    right: BorderSide(
-                                        color: Colors.grey[300], width: 1)),
-                              ),
-                              child: MaterialButton(
-                                child: const Text(
-                                  '오늘 그만보기',
-                                  style: TStyle.defaultContent,
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  _prefs.setString(
-                                      Const.PREFS_DAY_CHECK_AD_HOME,
-                                      _todayString);
-                                },
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: MaterialButton(
-                              child: const Text(
-                                '닫기',
-                                style: TStyle.defaultContent,
-                              ),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        height: 1.0,
-                        color: Colors.grey[300],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  //네트워크 이미지
-  Widget _setNetImage(String sUrl) {
-    if (sUrl != null || sUrl.isNotEmpty) {
-      var img = Image.network(
-        sUrl,
-        fit: BoxFit.contain,
-        errorBuilder:
-            (BuildContext context, Object exception, StackTrace stackTrace) {
-          return const Text(
-            'No Image',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-              color: Color(0x70444444),
-            ),
-          );
-        },
-      );
-      return img;
-    } else {
-      //이 부분은 사용안됨
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Text(
-            'No Image',
-            textAlign: TextAlign.center,
-            style: TStyle.contentMGrey,
-          )
-        ],
-      );
-    }
-  }*/
 
   //마케팅 팝업 (팝업 형식이 필요할때)
   void _showDialogMarketing(String title, String txtHtml, String btnText, String desUrl) {
@@ -1372,14 +1165,14 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
-        // 테스트를 위한 데이터 입니다.
-        /*resData.retData.add(Prom02(
+        /*//테스트를 위한 데이터 입니다.
+        resData.retData.add(Prom02(
           title: 'dd',
           viewPosition: 'TOP',
           promoDiv: 'BANNER',
           contentType: 'IMG',
           linkType: 'APP',
-          linkPage: 'LPQ1',
+          linkPage: 'LPHE',
           content: 'http://files.thinkpool.com/rassiPrm/tips_FFFAED.jpg',
         ));*/
 
@@ -1428,7 +1221,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         if (Platform.isAndroid) {
           if (appGlobal.isFreeUser) inAppBilling.requestPurchaseAsync();
         }
-            } else {
+      } else {
         const AccountData().setFreeUserStatus();
       }
       setState(() {});

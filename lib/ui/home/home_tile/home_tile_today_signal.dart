@@ -78,7 +78,7 @@ class HomeTileTodaySignalState extends State<HomeTileTodaySignal> {
         children: [
           const Text(
             '오늘의 AI매매신호는?',
-            style: TStyle.title18T,
+            style: TStyle.defaultTitle,
           ),
           const SizedBox(
             height: 25,

@@ -81,7 +81,7 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme>
             children: [
               const Text(
                 '이 시간 HOT 테마',
-                style: TStyle.title18T,
+                style: TStyle.defaultTitle,
               ),
               InkWell(
                 onTap: () async {

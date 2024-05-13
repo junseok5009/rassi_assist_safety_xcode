@@ -28,8 +28,7 @@ class HomeTileStockCatch extends StatefulWidget {
   State<StatefulWidget> createState() => HomeTileStockCatchState();
 }
 
-class HomeTileStockCatchState extends State<HomeTileStockCatch>
-  with AutomaticKeepAliveClientMixin<HomeTileStockCatch> {
+class HomeTileStockCatchState extends State<HomeTileStockCatch> with AutomaticKeepAliveClientMixin<HomeTileStockCatch> {
   late SharedPreferences _prefs;
   final AppGlobal _appGlobal = AppGlobal();
   String _userId = '';
@@ -47,7 +46,7 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -77,27 +76,25 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,
+        //horizontal: 20,
       ),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 const Text(
                   '라씨 매매비서가 캐치한 종목',
-                  style: TStyle.title18T,
+                  style: TStyle.defaultTitle,
                 ),
                 InkWell(
                   onTap: () async {
                     if (_isFirstBtn) {
                       _appGlobal.pageData = 'FRN';
-                      Navigator.pushNamed(context, StkCatchBigPage.routeName,
-                          arguments: PgData(pgSn: ''));
+                      Navigator.pushNamed(context, StkCatchBigPage.routeName, arguments: PgData(pgSn: ''));
                     } else {
                       switch (_catchTopCurrentSwiperIndex) {
                         case 0:
@@ -136,39 +133,39 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
           ),
 
           _setDivButtons(),
-          const SizedBox(
-            height: 20,
-          ),
-          //외국인, 기관 종목캐치
-          Visibility(
-            visible: _isFirstBtn,
-            child: _listCatch.isNotEmpty
-                ? TileStkCatch03N(_listCatch[0])
-                : Container(),
-          ),
 
-          //성과TOP 종목캐치
-          Visibility(
-            visible: !_isFirstBtn,
-            child: Container(
-              width: double.infinity,
-              height: 260,
-              margin: const EdgeInsets.only(
-                bottom: 10,
-              ),
-              child: Swiper(
-                controller: SwiperController(),
-                pagination: CommonSwiperPagenation.getNormalSP(8.0),
-                loop: false,
-                autoplay: false,
-                onIndexChanged: (value) => _catchTopCurrentSwiperIndex = value,
-                itemCount: _listCatchTop.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return TileStkCatch03N(_listCatchTop[index]);
-                },
-              ),
-            ),
-          ),
+          //외국인, 기관 종목캐치
+          _isFirstBtn
+              ? _listCatch.isNotEmpty
+                  ? Container(
+                      margin: EdgeInsets.symmetric(
+                        horizontal: 10,
+                      ),
+                      child: TileStkCatch03N(_listCatch[0]))
+                  : Container()
+              :
+              //성과TOP 종목캐치
+              Container(
+                  width: double.infinity,
+                  height: 250,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  //color: Colors.yellow,
+                  child: Swiper(
+                    controller: SwiperController(),
+                    pagination: CommonSwiperPagenation.getNormalSpWithMargin2(
+                      8.0,
+                      0,
+                      Colors.black,
+                    ),
+                    loop: false,
+                    autoplay: false,
+                    onIndexChanged: (value) => _catchTopCurrentSwiperIndex = value,
+                    itemCount: _listCatchTop.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return TileStkCatch03N(_listCatchTop[index]);
+                    },
+                  ),
+                ),
         ],
       ),
     );
@@ -177,9 +174,7 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
   //종목캐치 선택 버튼
   Widget _setDivButtons() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -201,11 +196,8 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
                   child: Text(
                     '외국인/기관 종목캐치',
                     style: TextStyle(
-                      color: _isFirstBtn
-                          ? Colors.black
-                          : RColor.new_basic_text_color_strong_grey,
-                      fontWeight:
-                          _isFirstBtn ? FontWeight.bold : FontWeight.w500,
+                      color: _isFirstBtn ? Colors.black : RColor.new_basic_text_color_strong_grey,
+                      fontWeight: _isFirstBtn ? FontWeight.bold : FontWeight.w500,
                       fontSize: 14,
                     ),
                   ),
@@ -243,11 +235,8 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
                   child: Text(
                     '성과 TOP 종목캐치',
                     style: TextStyle(
-                      color: _isFirstBtn
-                          ? RColor.new_basic_text_color_strong_grey
-                          : Colors.black,
-                      fontWeight:
-                          _isFirstBtn ? FontWeight.w500 : FontWeight.bold,
+                      color: _isFirstBtn ? RColor.new_basic_text_color_strong_grey : Colors.black,
+                      fontWeight: _isFirstBtn ? FontWeight.w500 : FontWeight.bold,
                       fontSize: 14,
                     ),
                   ),
@@ -294,8 +283,7 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
       _listCatch.clear();
       _listCatchTop.clear();
 
-      final TrStkCatch03 resData =
-          TrStkCatch03.fromJson(jsonDecode(response.body));
+      final TrStkCatch03 resData = TrStkCatch03.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         if (resData.retData.isNotEmpty) {
           List<StkCatch03> rtList = resData.retData;
@@ -324,7 +312,7 @@ class TileStkCatch03N extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 230,
-      padding: const EdgeInsets.symmetric(
+      margin: EdgeInsets.symmetric(
         horizontal: 10,
       ),
       child: _setThemeBox(
@@ -342,7 +330,7 @@ class TileStkCatch03N extends StatelessWidget {
   ) {
     return Column(
       children: [
-        if (item1 != null) _setInfoBox(context, item1, true),
+        _setInfoBox(context, item1, true),
         item2 != null ? _setInfoBox(context, item2, false) : _setEmptyBox(),
       ],
     );
@@ -370,7 +358,9 @@ class TileStkCatch03N extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 85,
-      margin: const EdgeInsets.only(left: 10, right: 10, top: 15, bottom: 5),
+      margin: const EdgeInsets.only(
+        top: 20,
+      ),
       padding: const EdgeInsets.symmetric(
         horizontal: 15,
       ),
@@ -391,8 +381,7 @@ class TileStkCatch03N extends StatelessWidget {
                   Flexible(
                     fit: FlexFit.tight,
                     child: Container(
-                      child: _setDivInfo(
-                          tItem.stockName, tItem.selectDiv, tItem.tradeFlag),
+                      child: _setDivInfo(tItem.stockName, tItem.selectDiv, tItem.tradeFlag),
                     ),
                   ),
                   const SizedBox(
@@ -410,8 +399,7 @@ class TileStkCatch03N extends StatelessWidget {
             case 'FRN':
             case 'ORG':
               {
-                Navigator.pushNamed(context, StkCatchBigPage.routeName,
-                    arguments: PgData(pgSn: ''));
+                Navigator.pushNamed(context, StkCatchBigPage.routeName, arguments: PgData(pgSn: ''));
                 break;
               }
             case 'AVG':
@@ -551,25 +539,19 @@ class TileStkCatch03N extends StatelessWidget {
       );
     } else if (div == 'AVG') {
       return Image.asset(
-        bImg
-            ? 'images/main_hnr_avg_ratio.png'
-            : 'images/main_hnr_win_ratio.png',
+        bImg ? 'images/main_hnr_avg_ratio.png' : 'images/main_hnr_win_ratio.png',
         fit: BoxFit.cover,
         scale: 6.5,
       );
     } else if (div == 'SUM') {
       return Image.asset(
-        bImg
-            ? 'images/main_hnr_acc_ratio.png'
-            : 'images/main_hnr_win_ratio.png',
+        bImg ? 'images/main_hnr_acc_ratio.png' : 'images/main_hnr_win_ratio.png',
         fit: BoxFit.cover,
         scale: 6.5,
       );
     } else if (div == 'WIN') {
       return Image.asset(
-        bImg
-            ? 'images/main_hnr_win_trade.png'
-            : 'images/main_hnr_win_ratio.png',
+        bImg ? 'images/main_hnr_win_trade.png' : 'images/main_hnr_win_ratio.png',
         fit: BoxFit.cover,
         scale: 6.5,
       );

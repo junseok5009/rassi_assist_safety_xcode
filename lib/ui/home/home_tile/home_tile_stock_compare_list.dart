@@ -16,37 +16,35 @@ class HomeTileStockCompareList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: const Color(
-            0xffF5F5F5,
-          ),
-          height: 13,
-        ),
-        Container(
-          margin: const EdgeInsets.fromLTRB(15, 30, 15, 10),
-          alignment: Alignment.centerLeft,
-          child: const Text(
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
             '비교해서 더 좋은 찾기',
-            style: TStyle.title18T,
+            style: TStyle.defaultTitle,
           ),
-        ),
-        Container(
-          margin: const EdgeInsets.fromLTRB(15, 15, 15, 10),
-          decoration: UIStyle.boxShadowBasic(16),
-          child: ListView.builder(
-            scrollDirection: Axis.vertical,
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: compare01.listData.length,
-            itemBuilder: (BuildContext context, int index) {
-              return TileCompareItem(compare01.listData[index],
-                  index + 1 == compare01.listData.length);
-            },
+          const SizedBox(height: 25,),
+          Container(
+            decoration: UIStyle.boxShadowBasic(16),
+            child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: compare01.listData.length,
+              itemBuilder: (BuildContext context, int index) {
+                return TileCompareItem(compare01.listData[index],
+                    index + 1 == compare01.listData.length);
+              },
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 10,),
+        ],
+      ),
     );
   }
 }

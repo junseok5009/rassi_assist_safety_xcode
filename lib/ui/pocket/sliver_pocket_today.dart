@@ -40,8 +40,7 @@ class SliverPocketTodayWidget extends StatefulWidget {
   State<StatefulWidget> createState() => SliverPocketTodayWidgetState();
 }
 
-class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
-    with TickerProviderStateMixin {
+class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with TickerProviderStateMixin {
   late PocketProvider _pocketProvider;
   late SharedPreferences _prefs;
   final AppGlobal _appGlobal = AppGlobal();
@@ -49,8 +48,8 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
   String _userId = '';
   bool _isLoading = true;
   Pock10 _pock10 = Pock10.emptyWithSelectDiv('');
-  Pock11 _pock11 = Pock11(upCnt: '', downCnt: '', issueCnt: '',
-      sigBuyCnt: '', sigSellCnt: '', supplyCnt: '', chartCnt: '');
+  Pock11 _pock11 =
+      Pock11(upCnt: '', downCnt: '', issueCnt: '', sigBuyCnt: '', sigSellCnt: '', supplyCnt: '', chartCnt: '');
   late ScrollController _scrollController;
   bool _showBottomBoard = false;
 
@@ -83,8 +82,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
   }
 
   _handleTabSelection() {
-    if (_tabController.indexIsChanging
-        && _tabController.index != _tabController.previousIndex) {
+    if (_tabController.indexIsChanging && _tabController.index != _tabController.previousIndex) {
       setState(() {
         _currentTabIndex = _tabController.index;
         _isLoading = true;
@@ -160,6 +158,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                 isScrollable: true,
                 indicatorColor: Colors.transparent,
                 controller: _tabController,
+                splashFactory: NoSplash.splashFactory,
                 tabs: _makeTabs(),
               ),
             ),
@@ -180,34 +179,27 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                         if (_isLoading) {
                           return _loadingView();
                         } else {
-                          if (_pock10 == null) {
-                            return _itemBaseContainer(
-                              CommonView.setNoDataTextView(
-                                80,
-                                '데이터가 없습니다.',
-                              ),
-                            );
-                          } else if (_pock10.beforeOpening == 'Y' && _pock10.selectDiv != 'IS') {
-                            return _itemBaseContainer(
-                              CommonView.setNoDataTextView(
-                                80,
-                                '장 시작 전 입니다.',
-                              ),
-                            );
-                          } else if (_pock10.isEmpty()) {
-                            // if (_stockCount == 0) {
-                            //   return _setAddStockView();
-                            // } else {
-                            return _itemBaseContainer(
-                              CommonView.setNoDataTextView(
-                                80,
-                                _pock10.getEmptyTitle(),
-                              ),
-                            );
-                            // }
-                          } else {
-                            return _setPocketStatusList();
-                          }
+                          if (_pock10.beforeOpening == 'Y' && _pock10.selectDiv != 'IS') {
+                          return _itemBaseContainer(
+                            CommonView.setNoDataTextView(
+                              80,
+                              '장 시작 전 입니다.',
+                            ),
+                          );
+                        } else if (_pock10.isEmpty()) {
+                          // if (_stockCount == 0) {
+                          //   return _setAddStockView();
+                          // } else {
+                          return _itemBaseContainer(
+                            CommonView.setNoDataTextView(
+                              80,
+                              _pock10.getEmptyTitle(),
+                            ),
+                          );
+                          // }
+                        } else {
+                          return _setPocketStatusList();
+                        }
                         }
                       })(),
                     ),
@@ -324,7 +316,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                 ),
               ],
             ),
-            onTap: (){
+            onTap: () {
               _tabController.animateTo(Const.PKT_TODAY_UP);
             },
           ),
@@ -343,7 +335,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                 ),
               ],
             ),
-            onTap: (){
+            onTap: () {
               _tabController.animateTo(Const.PKT_TODAY_DN);
             },
           ),
@@ -367,7 +359,9 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                         color: RColor.sigBuy,
                       ),
                     ),
-                    const SizedBox(width: 10,),
+                    const SizedBox(
+                      width: 10,
+                    ),
                     Text(
                       _pock11.sigSellCnt,
                       style: const TextStyle(
@@ -380,7 +374,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                 )
               ],
             ),
-            onTap: (){
+            onTap: () {
               _tabController.animateTo(Const.PKT_TODAY_TS);
             },
           ),
@@ -399,7 +393,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                 ),
               ],
             ),
-            onTap: (){
+            onTap: () {
               _tabController.animateTo(Const.PKT_TODAY_IS);
             },
           ),
@@ -418,8 +412,12 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
                 ),
               ],
             ),
-            onTap: (){
-              _tabController.animateTo(Const.PKT_TODAY_SP);
+            onTap: () {
+              if ((int.tryParse(_pock11.supplyCnt) ?? 0) == 0 && (int.tryParse(_pock11.chartCnt) ?? 0) != 0) {
+                _tabController.animateTo(Const.PKT_TODAY_CH);
+              } else {
+                _tabController.animateTo(Const.PKT_TODAY_SP);
+              }
             },
           ),
         ],
@@ -454,14 +452,13 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
   //마이 포켓 TODAY 리스트
   Widget _setPocketStatusList() {
     int itemCnt = 0;
-    if (_tabSelectDiv[_currentTabIndex] == 'UP'
-        || _tabSelectDiv[_currentTabIndex] == 'DN'
-        || _tabSelectDiv[_currentTabIndex] == 'TS') {
+    if (_tabSelectDiv[_currentTabIndex] == 'UP' ||
+        _tabSelectDiv[_currentTabIndex] == 'DN' ||
+        _tabSelectDiv[_currentTabIndex] == 'TS') {
       itemCnt = _pock10.stockList.length;
     } else if (_tabSelectDiv[_currentTabIndex] == 'IS') {
       itemCnt = _pock10.issueList.length;
-    } else if (_tabSelectDiv[_currentTabIndex] == 'SP'
-        || _tabSelectDiv[_currentTabIndex] == 'CH') {
+    } else if (_tabSelectDiv[_currentTabIndex] == 'SP' || _tabSelectDiv[_currentTabIndex] == 'CH') {
       itemCnt = _pock10.sdList.length;
     }
     return ListView.builder(
@@ -527,8 +524,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
 
   Widget _selectMyPocketTile(int idx) {
     //상승,하락
-    if (_tabSelectDiv[_currentTabIndex] == 'UP'
-        || _tabSelectDiv[_currentTabIndex] == 'DN') {
+    if (_tabSelectDiv[_currentTabIndex] == 'UP' || _tabSelectDiv[_currentTabIndex] == 'DN') {
       // 포켓명 : 나의 포켓, 나머지 : 종목홈_홈
       return InkWell(
         onTap: () {
@@ -688,10 +684,9 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
       setState(() {
         _isLoading = false;
       });
-    }
-    else if (trStr == TR.POCK11) {
+    } else if (trStr == TR.POCK11) {
       final TrPock11 resData = TrPock11.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         DLog.d('d', '$_showBottomBoard');
         _pock11 = resData.retData!;
         setState(() {
@@ -699,7 +694,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget>
             0.0,
             duration: const Duration(milliseconds: 10),
             curve: Curves.easeInOut,);*/
-          if(!_showBottomBoard) _showBottomBoard = true;
+          if (!_showBottomBoard) _showBottomBoard = true;
         });
       }
     }

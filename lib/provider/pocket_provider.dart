@@ -27,10 +27,12 @@ class PocketProvider with ChangeNotifier {
   }
 
   // 23.12.01 포켓리스트 + 각 포켓 당 안에 종목 Stock() 셋팅
+  // 24.05.08 UserInfoProvider에 유저 결제 시 사용하는 updatePayment 사용하는 곳에 포켓 새로 불러오는 setList 도 호출해야합니다.
+  // 결제 이후에 미리 포켓 상태가 달라질 수 있기 때문.
   Future<bool> setList() async {
-    _pktList.clear();
     List<Pocket> getPcoketList =
         await PocketProviderNetwork.instance.getList();
+    _pktList.clear();
     _pktList.addAll(getPcoketList);
     notifyListeners();
     if (_pktList.isNotEmpty) {

@@ -188,4 +188,12 @@ class CommonView {
     );
   }
 
+  static Widget get setDivideLine => Container(
+    margin: const EdgeInsets.symmetric(vertical: 20),
+    color: const Color(
+      0xffF5F5F5,
+    ),
+    height: 13,
+  );
+
 }

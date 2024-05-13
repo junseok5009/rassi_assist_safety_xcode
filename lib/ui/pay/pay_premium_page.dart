@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:core';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
@@ -47,25 +46,17 @@ class PayPremiumState extends State<PayPremiumPage> {
   String _userId = '';
   String _curProd = ''; //현재 사용중인 상품은
 
-  final List<String> _productLists = Platform.isAndroid
-      ? [
-          'ac_pr.a01',
-          'ac_pr.m01',
-        ]
-      : [
-          'ios.ac_pr.a01',
-          'ios.ac_pr.m01',
-        ];
+  final List<String> _productLists = [
+    'ios.ac_pr.m01',
+    'ios.ac_pr.a01',
+    'ios.ac_pr.am6d0',
+  ];
 
-  List<IAPItem> _items = [];
+  final List<IAPItem> _items = [];
 
-  late IAPItem _pdItemSub;
-  late IAPItem _pdItemOnce;
-  String _priceSub = '';
-  String _priceSingle = '';
-
-  // [Agent, 단건, 구독] 순서 변수
+  // [Agent, 단건, 1개월 구독, 6개월 구독] 순서 변수
   final List _listDivPayment = [
+    false,
     false,
     false,
     false,
@@ -96,11 +87,8 @@ class PayPremiumState extends State<PayPremiumPage> {
   @override
   void initState() {
     super.initState();
-    _isAgent = Provider.of<UserInfoProvider>(context, listen: false)
-            .getUser04
-            .agentData.agentCode.isNotEmpty;
-    CustomFirebaseClass.logEvtScreenView(
-        PayPremiumPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
+    _isAgent = Provider.of<UserInfoProvider>(context, listen: false).getUser04.agentData.agentCode.isNotEmpty;
+    CustomFirebaseClass.logEvtScreenView(PayPremiumPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
     if (_isAgent) {
       setState(() {
         _listDivPayment[0] = true;
@@ -150,28 +138,17 @@ class PayPremiumState extends State<PayPremiumPage> {
           _bProgress = false;
         });
       } else if (status == 'pay_success') {
-        var userInfoProvider =
-            Provider.of<UserInfoProvider>(context, listen: false);
-        await userInfoProvider.updatePayment();
-        if (userInfoProvider.isPremiumUser() && mounted) {
+        var userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+        await userInfoProvider.updatePayment().then((value) {
           Navigator.popUntil(
             context,
             ModalRoute.withName(BasePage.routeName),
           );
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const PremiumCarePage()));
-          CommonPopup.instance
-              .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
-        } else {
-          if (mounted) {
-            Navigator.popUntil(
-              context,
-              ModalRoute.withName(BasePage.routeName),
-            );
-            CommonPopup.instance
-                .showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          CommonPopup.instance.showDialogBasicConfirm(context, '알림', '결제가 완료 되었습니다.');
+          if (userInfoProvider.isPremiumUser()) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumCarePage()));
           }
-        }
+        });
       } else {
         Navigator.popUntil(
           context,
@@ -241,9 +218,7 @@ class PayPremiumState extends State<PayPremiumPage> {
                   ),
                 ),
                 Visibility(
-                  visible: _isAgent
-                      ? (_listDivPayment[1] == true || _listDivPayment[2])
-                      : true,
+                  visible: _isAgent ? (_listDivPayment[1] == true || _listDivPayment[2] || _listDivPayment[3]) : true,
                   child: Container(
                     color: RColor.mainColor,
                     height: 70,
@@ -255,20 +230,20 @@ class PayPremiumState extends State<PayPremiumPage> {
                       onTap: () async {
                         _isTryPayment = true;
                         if (_curProd.contains('ac_pr')) {
-                          commonShowToast(
-                              '이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
+                          commonShowToast('이미 사용중인 상품입니다. 상품이 보이지 않으시면 앱을 종료 후 다시 시작해 보세요.');
                         } else {
                           DLog.d(PayPremiumPage.TAG, '단건 결제 요청');
                           setState(() {
                             _bProgress = true;
                           });
                           if (_listDivPayment[1]) {
-                            dynamic result = await inAppBilling
-                                .requestStorePurchase(_pdItemOnce);
+                            dynamic result = await inAppBilling.requestStorePurchase(_items[0]);
                             DLog.e('result : ${result.toString()}');
                           } else if (_listDivPayment[2]) {
-                            dynamic result = await inAppBilling
-                                .requestStorePurchase(_pdItemSub);
+                            dynamic result = await inAppBilling.requestStorePurchase(_items[1]);
+                            DLog.e('result : ${result.toString()}');
+                          } else if (_listDivPayment[3]) {
+                            dynamic result = await inAppBilling.requestStorePurchase(_items[2]);
                             DLog.e('result : ${result.toString()}');
                           }
                         }
@@ -323,16 +298,22 @@ class PayPremiumState extends State<PayPremiumPage> {
                 _listDivPayment[0] = true;
                 _listDivPayment[1] = false;
                 _listDivPayment[2] = false;
+                _listDivPayment[3] = false;
               });
             }
           },
           child: InkWell(
-            onTap: (){
-              commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M12');
+            onTap: () {
+              commonLaunchUrlAppOpen(
+                  'https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M12');
             },
             child: SizedBox(
               width: double.infinity,
-              child: Image.network('https://files.thinkpool.com/rassi_signal/fav01.png', width: double.infinity, fit: BoxFit.fitWidth,),
+              child: Image.network(
+                'https://files.thinkpool.com/rassi_signal/fav01.png',
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
+              ),
             ),
           ),
         ),
@@ -352,12 +333,17 @@ class PayPremiumState extends State<PayPremiumPage> {
             }
           },
           child: InkWell(
-            onTap: (){
-              commonLaunchUrlAppOpen('https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M06');
+            onTap: () {
+              commonLaunchUrlAppOpen(
+                  'https://tradingpoint.co.kr/landing/bank.do?userId=${Net.getEncrypt(_userId)}&prodSubdiv=M06');
             },
             child: Container(
               width: double.infinity,
-              child: Image.network('https://files.thinkpool.com/rassi_signal/fav02.png', width: double.infinity, fit: BoxFit.fitWidth,),
+              child: Image.network(
+                'https://files.thinkpool.com/rassi_signal/fav02.png',
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
+              ),
             ),
           ),
         ),
@@ -365,8 +351,177 @@ class PayPremiumState extends State<PayPremiumPage> {
     );
   }
 
+  Widget _setButtonAppstoreProduct(IAPItem productItem) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        // 단건
+        if (productItem.productId == _productLists[0] && (!_listDivPayment[1])) {
+          setState(() {
+            _listDivPayment[1] = true;
+            _listDivPayment[0] = false;
+            _listDivPayment[2] = false;
+            _listDivPayment[3] = false;
+          });
+        }
+
+        // 1개월
+        else if (productItem.productId == _productLists[1] && (!_listDivPayment[2])) {
+          setState(() {
+            _listDivPayment[2] = true;
+            _listDivPayment[0] = false;
+            _listDivPayment[1] = false;
+            _listDivPayment[3] = false;
+          });
+        }
+
+        // 6개월
+        else if (productItem.productId == _productLists[2] && (!_listDivPayment[3])) {
+          setState(() {
+            _listDivPayment[3] = true;
+            _listDivPayment[0] = false;
+            _listDivPayment[1] = false;
+            _listDivPayment[2] = false;
+          });
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.only(
+          bottom: 15,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: (productItem.productId == _productLists[0] && _listDivPayment[1]) ||
+                    (productItem.productId == _productLists[1] && _listDivPayment[2]) ||
+                    (productItem.productId == _productLists[2] && _listDivPayment[3])
+                ? RColor.mainColor
+                : RColor.lineGrey,
+            width: 1.4,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(15)),
+        ),
+        padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      productItem.productId == _productLists[0]
+                          ? '1개월 단건결제'
+                          : productItem.productId == _productLists[1]
+                              ? '매월정기결제'
+                              : productItem.productId == _productLists[2]
+                                  ? '6개월씩 정기결제'
+                                  : '',
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                    Visibility(
+                      visible: !_isAgent && productItem.productId == _productLists[1],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 2,
+                          horizontal: 8,
+                        ),
+                        margin: const EdgeInsets.only(
+                          left: 14,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: RColor.mainColor,
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        child: const Text(
+                          '추천상품',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 6,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Visibility(
+                      visible: productItem.productId == _productLists[1] || productItem.productId == _productLists[2],
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 6),
+                        child: Text(
+                          productItem.productId == _productLists[1]
+                              ? '￦${TStyle.getMoneyPoint(_originalPriceA01)}'
+                              : productItem.productId == _productLists[2]
+                                  ? '￦${TStyle.getMoneyPoint('462000')}'
+                                  : '',
+                          style: const TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Color(0xff96918e),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      productItem.localizedPrice ?? '',
+                      style: TStyle.title18T,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Visibility(
+              visible: productItem.productId == _productLists[1] || productItem.productId == _productLists[2],
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 2,
+                      horizontal: 8,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: RColor.sigBuy,
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                    ),
+                    child: const Text(
+                      '할인율',
+                      style: TextStyle(
+                        color: Colors.white,
+                        //fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    productItem.productId == _productLists[1]
+                        ? '22% 이상!'
+                        : productItem.productId == _productLists[2]
+                            ? '28% 이상!'
+                            : '',
+                    style: TextStyle(color: RColor.sigBuy, fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+            //SizedBox(width: 1,),
+          ],
+        ),
+      ),
+    );
+  }
+
   //단건 결제 버튼
-  Widget _setButtonSingle() {
+  Widget _setButtonSingle(IAPItem productItem) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -376,14 +531,15 @@ class PayPremiumState extends State<PayPremiumPage> {
             _listDivPayment[1] = true;
             _listDivPayment[0] = false;
             _listDivPayment[2] = false;
+            _listDivPayment[3] = false;
           });
         }
       },
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-              color: _listDivPayment[1] ? RColor.mainColor : RColor.lineGrey,
-              width: 1,
+            color: _listDivPayment[1] ? RColor.mainColor : RColor.lineGrey,
+            width: 1,
           ),
           borderRadius: const BorderRadius.all(Radius.circular(14)),
         ),
@@ -403,7 +559,7 @@ class PayPremiumState extends State<PayPremiumPage> {
                   height: 6,
                 ),
                 Text(
-                  _priceSingle,
+                  productItem.localizedPrice ?? '',
                   style: TStyle.title17,
                 ),
               ],
@@ -414,8 +570,8 @@ class PayPremiumState extends State<PayPremiumPage> {
     );
   }
 
-  //정기 결제 버튼
-  Widget _setButtonSub() {
+  //1개월 정기 결제 버튼
+  /*Widget _setButtonSub(IAPItem productItem) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -425,14 +581,15 @@ class PayPremiumState extends State<PayPremiumPage> {
             _listDivPayment[2] = true;
             _listDivPayment[0] = false;
             _listDivPayment[1] = false;
+            _listDivPayment[3] = false;
           });
         }
       },
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-              color: _listDivPayment[2] ? RColor.mainColor : RColor.lineGrey,
-              width: 1,
+            color: _listDivPayment[2] ? RColor.mainColor : RColor.lineGrey,
+            width: 1,
           ),
           borderRadius: const BorderRadius.all(Radius.circular(15)),
         ),
@@ -442,92 +599,64 @@ class PayPremiumState extends State<PayPremiumPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Visibility(
-                      visible: _listDivPayment[2],
-                      child: Image.asset(
-                        'images/test_pay_icon_check_on.png',
-                        height: 16,
-                        fit: BoxFit.contain,
+                    const Text(
+                      '매월정기결제',
+                      style: TextStyle(
+                        fontSize: 15,
                       ),
                     ),
                     Visibility(
-                      visible: !_listDivPayment[2],
-                      child: Image.asset(
-                        'images/test_pay_icon_check_off.png',
-                        height: 16,
-                        fit: BoxFit.contain,
+                      visible: !_isAgent,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 2,
+                          horizontal: 8,
+                        ),
+                        margin: const EdgeInsets.only(
+                          left: 14,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: RColor.mainColor,
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        child: const Text(
+                          '추천상품',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
-                    ),
+                    )
                   ],
                 ),
                 const SizedBox(
-                  width: 10,
+                  height: 6,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          '매월정기결제',
-                          style: TextStyle(
-                            fontSize: 15,
-                          ),
-                        ),
-                        Visibility(
-                          visible: !_isAgent,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 2,
-                              horizontal: 8,
-                            ),
-                            margin: const EdgeInsets.only(
-                              left: 14,
-                            ),
-                            decoration: const BoxDecoration(
-                              color: RColor.mainColor,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                            ),
-                            child: const Text(
-                              '추천상품',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+                    Text(
+                      '￦${TStyle.getMoneyPoint(_originalPriceA01)}',
+                      style: const TextStyle(
+                        decoration: TextDecoration.lineThrough,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Color(0xff96918e),
+                      ),
                     ),
                     const SizedBox(
-                      height: 6,
+                      width: 4,
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '￦${TStyle.getMoneyPoint(_originalPriceA01)}',
-                          style: const TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Color(0xff96918e),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        Text(
-                          _priceSub,
-                          style: TStyle.title18T,
-                        ),
-                      ],
+                    Text(
+                      _priceSub,
+                      style: TStyle.title18T,
                     ),
                   ],
                 ),
@@ -535,17 +664,94 @@ class PayPremiumState extends State<PayPremiumPage> {
             ),
             const Text(
               '20% 이상 할인!',
-              style: TextStyle(
-                  color: RColor.sigBuy,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600),
+              style: TextStyle(color: RColor.sigBuy, fontSize: 17, fontWeight: FontWeight.w600),
             ),
             //SizedBox(width: 1,),
           ],
         ),
       ),
     );
-  }
+  }*/
+
+  //6개월 정기 결제 버튼
+  /*Widget _setButtonSub6(IAPItem productItem) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        if (!_listDivPayment[3]) {
+          setState(() {
+            _listDivPayment[3] = true;
+            _listDivPayment[0] = false;
+            _listDivPayment[1] = false;
+            _listDivPayment[2] = false;
+          });
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: _listDivPayment[2] ? RColor.mainColor : RColor.lineGrey,
+            width: 1,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(15)),
+        ),
+        padding: const EdgeInsets.fromLTRB(15, 20, 20, 20),
+        //EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      '6개월씩 정기결제',
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 6,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '￦${TStyle.getMoneyPoint(_originalPriceA01)}',
+                      style: const TextStyle(
+                        decoration: TextDecoration.lineThrough,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Color(0xff96918e),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 4,
+                    ),
+                    Text(
+                      _priceSub,
+                      style: TStyle.title18T,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const Text(
+              '20% 이상 할인!',
+              style: TextStyle(color: RColor.sigBuy, fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            //SizedBox(width: 1,),
+          ],
+        ),
+      ),
+    );
+  }*/
 
   //상품 소개
   Widget _setTopDesc() {
@@ -752,13 +958,19 @@ class PayPremiumState extends State<PayPremiumPage> {
                   }
                 },
                 children: [
-                  _setButtonSingle(),
+                  /*_setButtonSingle(),
                   const SizedBox(
                     height: 15,
                   ),
-                  _setButtonSub(),
-                  const SizedBox(
-                    height: 15,
+                  _setButtonSub(),*/
+                  ListView.builder(
+                    itemCount: _items.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) {
+                      return _setButtonAppstoreProduct(_items[index]);
+                    },
                   ),
                   const Align(
                     alignment: Alignment.topLeft,
@@ -794,13 +1006,14 @@ class PayPremiumState extends State<PayPremiumPage> {
           const SizedBox(
             height: 15,
           ),
-          _setButtonSingle(),
-          const SizedBox(
-            height: 15,
-          ),
-          _setButtonSub(),
-          const SizedBox(
-            height: 15,
+          ListView.builder(
+            itemCount: _items.length,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            scrollDirection: Axis.vertical,
+            itemBuilder: (context, index) {
+              return _setButtonAppstoreProduct(_items[index]);
+            },
           ),
           const Align(
             alignment: Alignment.topLeft,
@@ -845,25 +1058,33 @@ class PayPremiumState extends State<PayPremiumPage> {
 
     }*/
 
-    List<IAPItem> items =
-        await FlutterInappPurchase.instance.getProducts(_productLists);
+    List<IAPItem> items = await FlutterInappPurchase.instance.getProducts(_productLists);
 
     for (var item in items) {
-      //print('${item.toString()}');
-
-      _items.add(item);
-      if (item.productId == 'ios.ac_pr.m01') {
-        _pdItemOnce = item;
-        _priceSingle = item.localizedPrice!;
-      }
-      if (item.productId == 'ios.ac_pr.a01') {
-        _pdItemSub = item;
-        _priceSub = item.localizedPrice!;
+      if (item.productId == _productLists[0] ||
+          item.productId == _productLists[1] ||
+          item.productId == _productLists[2]) {
+        _items.add(item);
       }
     }
 
+    _items.sort(
+      (a, b) {
+        if (int.parse(a.subscriptionPeriodNumberIOS ?? '0').compareTo(int.parse(b.subscriptionPeriodNumberIOS ?? '0')) <
+            0) {
+          return -1;
+        } else {
+          return 1;
+        }
+      },
+    );
+
+    for (var item in _items) {
+      DLog.e(item.toString());
+    }
+
     setState(() {
-      _items = items;
+      // _items = items;
     });
   }
 
@@ -890,13 +1111,15 @@ class PayPremiumState extends State<PayPremiumPage> {
         final AccountData accountData = resData.retData.accountData;
         accountData.initUserStatus();
         _fetchPosts(
-            TR.APP03,
-            _isAgent ? jsonEncode(<String, String>{
-              'userId': _userId,
-              'payMethod' : 'PM20'
-            }) : jsonEncode(<String, String>{
-              'userId': _userId,
-            },),);
+          TR.APP03,
+          _isAgent
+              ? jsonEncode(<String, String>{'userId': _userId, 'payMethod': 'PM20'})
+              : jsonEncode(
+                  <String, String>{
+                    'userId': _userId,
+                  },
+                ),
+        );
       } else {
         Navigator.pop(context);
       }

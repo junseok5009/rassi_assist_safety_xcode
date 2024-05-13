@@ -64,7 +64,7 @@ class TileTodayS01 extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Container(
         width: double.infinity,
-        height: 125,
+        height: 120,
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
         child: Row(
           children: [

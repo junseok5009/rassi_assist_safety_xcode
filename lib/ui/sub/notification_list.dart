@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,74 +7,28 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_push_list02.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 /// 2021.02.17
 /// 알림 항목별 리스트
-class NotiListPage extends StatelessWidget {
-  static const routeName = '/page_notification_list';
+class NotiListPage extends StatefulWidget {
+  const NotiListPage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => NotiListPageState();
+  static const routeName = '/page_noti_list';
   static const String TAG = "[NotiListPage]";
-  static String TAG_NAME = '알림_';
-
-  @override
-  Widget build(BuildContext context) {
-    PgData args = ModalRoute.of(context)?.settings.arguments as PgData;
-
-    if (args.pgData != null) {
-      switch (args.pgData) {
-        case 'TS':
-        case 'RN':
-        case 'SN':
-        case 'SB':
-          TAG_NAME = '알림_내종목알림';
-          break;
-        case 'SC_BIG':
-        case 'SC_TOP':
-        case 'BS':
-          TAG_NAME = '알림_종목캐치';
-          break;
-        case 'NT':
-        case 'CB':
-        case 'IS':
-          TAG_NAME = '알림_소식';
-          break;
-      }
-    }
-
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(
-        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepStat,
-          elevation: 0,
-        ),
-        body: NotiListWidget(),
-      ),
-    );
-  }
 }
 
-class NotiListWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => NotiListState();
-}
-
-class NotiListState extends State<NotiListWidget> {
+class NotiListPageState extends State<NotiListPage> {
+  String tagName = '알림_';
   late SharedPreferences _prefs;
   String _userId = "";
-  late PgData args;
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
-
-  bool _bInit = false;
   String _divType = '';
   String _divTitle = '';
   String _div2Type = '';
@@ -83,40 +36,36 @@ class NotiListState extends State<NotiListWidget> {
   late ScrollController _scrollController;
   int _pageNum = 0;
   String deviceModel = '';
+  bool _isFirstNodata = false;
 
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(NotiListPage.TAG_NAME);
-
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
 
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), () {
-      args = ModalRoute.of(context)!.settings.arguments as PgData;
-      if (args != null && !_bInit) _divType = args.pgData;
-
-      _bInit = true; //초기화 완료
-      _setDivTitle();
-
-      if (_userId != '') {
-        _requestData(true);
-      }
+    _loadPrefData().then((_) {
+      Future.delayed(Duration.zero, () async {
+        var arguments = ModalRoute.of(context)?.settings.arguments;
+        if (arguments == null || arguments is! PgData) {
+          Navigator.pop(context);
+        }
+        PgData pgData = arguments as PgData;
+        _divType = pgData.pgData;
+        _setPage().then((value) => setState(() {
+              _requestData();
+            }));
+      });
     });
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
   }
 
   @override
   void dispose() {
-    _bYetDispose = false;
     _scrollController.dispose();
     super.dispose();
   }
@@ -130,77 +79,104 @@ class NotiListState extends State<NotiListWidget> {
 
   //리스트뷰 하단 리스너
   void _scrollListener() {
-    if (_scrollController.offset >=
-            _scrollController.position.maxScrollExtent &&
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       _pageNum = _pageNum + 1;
-      _requestData(false);
+      _requestData();
     } else {}
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _setAppBar(),
-      body: ListView.builder(
-        controller: _scrollController,
-        scrollDirection: Axis.vertical,
-        itemCount: _dataList.length,
-        itemBuilder: (context, index) {
-          return TilePushListDv(_dataList[index]);
-        },
-      ),
-    );
-  }
-
-  PreferredSizeWidget _setAppBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(60),
-      child: Container(
-        height: 50,
-        decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: RColor.lineGrey, width: 1),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(50),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          leading: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios_sharp,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios),
-              iconSize: 20,
-              onPressed: () => Navigator.of(context).pop(null),
-            ),
-            InkWell(
-              child: Row(
-                children: [
-                  Text(
-                    _divTitle,
-                    style: TStyle.title17,
-                  ),
-                  const Icon(
-                    Icons.keyboard_arrow_down_outlined,
-                    color: Colors.grey,
-                    size: 35,
-                  ),
-                ],
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _divTitle,
+                      style: TStyle.commonTitle,
+                    ),
+                    const Icon(
+                      Icons.keyboard_arrow_down_outlined,
+                      color: Colors.grey,
+                      size: 28,
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  _showScrollableSheet();
+                },
               ),
-              onTap: () {
-                _showScrollableSheet();
-              },
-            ),
-            const SizedBox(
-              width: 15,
-            )
-          ],
+            ],
+          ),
+          iconTheme: const IconThemeData(color: Colors.black),
+          elevation: 1,
+          centerTitle: true,
+          leadingWidth: 40,
+          titleSpacing: 5.0,
         ),
+      ),
+      body: SafeArea(
+        child: _isFirstNodata
+            ? Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: CommonView.setNoDataView(150, '$_divTitle 알림 내역이 없습니다.'),
+              )
+            : ListView.builder(
+                controller: _scrollController,
+                scrollDirection: Axis.vertical,
+                itemCount: _dataList.length,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                itemBuilder: (context, index) {
+                  return TilePushListDv(_dataList[index]);
+                },
+              ),
       ),
     );
   }
 
-  //항목별 타이틀 설정
-  void _setDivTitle() {
+  Future<void> _setPage() async {
+    switch (_divType) {
+      case 'TS':
+      case 'RN':
+      case 'SN':
+      case 'SB':
+        tagName = '알림_내종목알림';
+        break;
+      case 'SC_BIG':
+      case 'SC_TOP':
+      case 'BS':
+        tagName = '알림_종목캐치';
+        break;
+      case 'NT':
+      case 'CB':
+      case 'IS':
+        tagName = '알림_소식';
+        break;
+    }
+    await CustomFirebaseClass.logEvtScreenView(tagName);
     if (_divType == 'TS') {
       _divTitle = 'AI매매신호';
     } else if (_divType == 'RN') {
@@ -228,7 +204,7 @@ class NotiListState extends State<NotiListWidget> {
     }
   }
 
-  Widget? _showScrollableSheet() {
+  _showScrollableSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -243,7 +219,7 @@ class NotiListState extends State<NotiListWidget> {
           maxChildSize: 0.8,
           builder: (BuildContext context, ScrollController scrollController) {
             return Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(20),
               child: ListView(
                 controller: scrollController,
                 children: [
@@ -252,7 +228,7 @@ class NotiListState extends State<NotiListWidget> {
                     children: [
                       const Text(
                         '알림 항목',
-                        style: TStyle.title17,
+                        style: TStyle.title18T,
                       ),
                       InkWell(
                         child: const Icon(
@@ -269,7 +245,7 @@ class NotiListState extends State<NotiListWidget> {
                     height: 10,
                   ),
                   const Divider(
-                    height: 1,
+                    height: 2,
                   ),
                   const SizedBox(
                     height: 20,
@@ -277,7 +253,6 @@ class NotiListState extends State<NotiListWidget> {
                   const Text(
                     '나의 종목 알림',
                     style: TStyle.defaultTitle,
-                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -301,7 +276,6 @@ class NotiListState extends State<NotiListWidget> {
                   const Text(
                     '종목 캐치 알림',
                     style: TStyle.defaultTitle,
-                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -321,7 +295,6 @@ class NotiListState extends State<NotiListWidget> {
                   const Text(
                     '라씨 소식 알림',
                     style: TStyle.defaultTitle,
-                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -348,47 +321,25 @@ class NotiListState extends State<NotiListWidget> {
     return InkWell(
       child: Text(
         '    $menu',
-        style: TStyle.content15,
-        
+        style: TStyle.defaultContent,
       ),
       onTap: () {
-        setState(() {
-          _divType = toDiv;
-          switch (_divType) {
-            case 'TS':
-            case 'RN':
-            case 'SN':
-            case 'SB':
-              NotiListPage.TAG_NAME = '알림_내종목알림';
-              break;
-            case 'SC_BIG':
-            case 'SC_TOP':
-            case 'BS':
-              NotiListPage.TAG_NAME = '알림_종목캐치';
-              break;
-            case 'NT':
-            case 'CB':
-            case 'IS':
-              NotiListPage.TAG_NAME = '알림_소식';
-              break;
-          }
-          CustomFirebaseClass.logEvtScreenView(NotiListPage.TAG_NAME);
-        });
-        _setDivTitle();
-        _requestData(true);
-        Navigator.of(context).pop(null);
+        _divType = toDiv;
+        _setPage().then((value) => {
+              _pageNum = 0,
+              _dataList.clear(),
+              _div2Type = '',
+              setState(() {
+                _requestData();
+              }),
+              Navigator.of(context).pop(),
+            });
       },
     );
   }
 
-  void _requestData(bool init) {
+  void _requestData() {
     //TODO Test 아이패드 경우에는 10개 이상의 리스트는 볼 수 없는지 테스트
-    if (init) {
-      _pageNum = 0;
-      _dataList.clear();
-      _div2Type = '';
-    }
-
     if (_divType == 'SC_BIG') {
       _divType = 'SC';
       _div2Type = 'BIGHAND';
@@ -399,7 +350,6 @@ class NotiListState extends State<NotiListWidget> {
       _divType = 'SC';
       _div2Type = 'THEME';
     }
-
     _fetchPosts(
         TR.PUSH_LIST02,
         jsonEncode(<String, String>{
@@ -411,83 +361,6 @@ class NotiListState extends State<NotiListWidget> {
           'pageNo': _pageNum.toString(),
           'pushItemSize': '20',
         }));
-  }
-
-  //네트워크 에러 알림
-  void _showDialogNetErr() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text(
-                      '안내',
-                      style: TStyle.commonTitle,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  const Text(
-                    RString.err_network,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        decoration: UIStyle.roundBtnStBox(),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
   }
 
   //convert 패키지의 jsonDecode 사용
@@ -504,13 +377,9 @@ class NotiListState extends State<NotiListWidget> {
           )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      DLog.d(NotiListPage.TAG, 'ERR : TimeoutException (12 seconds)');
-      _showDialogNetErr();
-    } on SocketException catch (_) {
-      DLog.d(NotiListPage.TAG, 'ERR : SocketException');
-      _showDialogNetErr();
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -519,12 +388,16 @@ class NotiListState extends State<NotiListWidget> {
     DLog.d(NotiListPage.TAG, response.body);
 
     if (trStr == TR.PUSH_LIST02) {
-      final TrPushList02 resData =
-          TrPushList02.fromJson(jsonDecode(response.body));
+      final TrPushList02 resData = TrPushList02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _dataList.addAll(resData.retData?.pushList as Iterable<PushInfoDv>);
-        setState(() {});
-      } else if (resData.retCode == RT.NO_DATA) {}
+      }
+      if (_dataList.isEmpty && _pageNum == 0) {
+        _isFirstNodata = true;
+      } else {
+        _isFirstNodata = false;
+      }
+      setState(() {});
     }
   }
 }

@@ -768,6 +768,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
             textAlign: TextAlign.center,
             style: TextStyle(
               color: index == 2 ? RColor.purpleBasic_6565ff : RColor.greyBasic_8c8c8c,
+              fontWeight: index == 2 ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
         ),

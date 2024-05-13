@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -24,7 +23,6 @@ import 'package:rassi_assist/ui/sub/stk_catch_top.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/common_appbar.dart';
-
 
 /// 2020.10.26
 /// 알림내역 => 상단 Collapse bar 없이 다시 시작
@@ -104,8 +102,7 @@ class NotificationPageState extends State<NotificationPage> {
 
   //리스트뷰 하단 리스너
   _scrollListener() {
-    if (_scrollController.offset >=
-            _scrollController.position.maxScrollExtent &&
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       _requestListDate();
@@ -114,15 +111,13 @@ class NotificationPageState extends State<NotificationPage> {
 
   _requestListDate() {
     String endDay = _pushListA[_pushListA.length - 1].issueDate;
-    if (endDay != null) {
-      _fetchPosts(
-          TR.PUSH_LIST01,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-            'issueDate': _getPreDate(endDay),
-            'pageItemSize': '5',
-          }));
-    }
+    _fetchPosts(
+        TR.PUSH_LIST01,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'issueDate': _getPreDate(endDay),
+          'pageItemSize': '5',
+        }));
   }
 
   String _getPreDate(String strLast) {
@@ -164,8 +159,7 @@ class NotificationPageState extends State<NotificationPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const NotificationSettingN()),
+                MaterialPageRoute(builder: (context) => const NotificationSettingN()),
               );
             },
           ),
@@ -196,10 +190,8 @@ class NotificationPageState extends State<NotificationPage> {
 
   Widget _mainListTile(int index) {
     var blockWidgets = <Widget>[];
-    var blockList =
-        _pushListA[index].divList; //리스트에서 하루에 해당하는 데이터가 하나의 인덱스값에 해당
-    String dateStr =
-        '${TStyle.getDateKorFormat(_pushListA[index].issueDate)} (${_pushListA[index].weekday})';
+    var blockList = _pushListA[index].divList; //리스트에서 하루에 해당하는 데이터가 하나의 인덱스값에 해당
+    String dateStr = '${TStyle.getDateKorFormat(_pushListA[index].issueDate)} (${_pushListA[index].weekday})';
     blockWidgets.add(
       Container(
         margin: const EdgeInsets.only(left: 10, top: 20),
@@ -212,11 +204,9 @@ class NotificationPageState extends State<NotificationPage> {
 
     for (int i = 0; i < blockList.length; i++) {
       if (blockList[i].pushList.length == 1) {
-        blockWidgets.add(_buildOneItem(blockList[i].pushDiv1,
-            blockList[i].pushCount, blockList[i].pushList[0]));
+        blockWidgets.add(_buildOneItem(blockList[i].pushDiv1, blockList[i].pushCount, blockList[i].pushList[0]));
       } else {
-        blockWidgets.add(_buildListItem(
-            blockList[i].pushDiv1, blockList[i].pushCount, blockList[i]));
+        blockWidgets.add(_buildListItem(blockList[i].pushDiv1, blockList[i].pushCount, blockList[i]));
       }
     }
 
@@ -326,12 +316,7 @@ class NotificationPageState extends State<NotificationPage> {
   // 리스트 아이템
   Widget _setListItem(String div, PushInfo item) {
     //종목명/종목코드/분류 visible
-    if (div == 'BS' ||
-        div == 'CB' ||
-        div == 'IS' ||
-        div == 'HK' ||
-        div == 'CS' ||
-        div == 'NT') {
+    if (div == 'BS' || div == 'CB' || div == 'IS' || div == 'HK' || div == 'CS' || div == 'NT') {
       visibleDiv1 = false;
     } else {
       visibleDiv1 = true;
@@ -389,7 +374,9 @@ class NotificationPageState extends State<NotificationPage> {
           //나의종목-AI매매신호 -> 포켓SN 있으면 포켓으로 이동, 없으면 종목홈_시그널
           if (item.pushDiv2 == 'USER') {
             // [포켓 > 나만의 신호 탭]
-            basePageState.goPocketPage(Const.PKT_INDEX_SIGNAL,);
+            basePageState.goPocketPage(
+              Const.PKT_INDEX_SIGNAL,
+            );
           } else {
             basePageState.goStockHomePage(
               item.stockCode,
@@ -397,18 +384,16 @@ class NotificationPageState extends State<NotificationPage> {
               Const.STK_INDEX_SIGNAL,
             );
           }
-        }
-         else if(div == 'RN' || div == 'SN' || div == 'SB') {
-           //나의종목-AI속보 -> 종목홈 AI속보
-           //나의종목-소셜지수 -> 종목홈 소셜지수
-           //나의종목-종목소식 -> 종목홈 종목소식
+        } else if (div == 'RN' || div == 'SN' || div == 'SB') {
+          //나의종목-AI속보 -> 종목홈 AI속보
+          //나의종목-소셜지수 -> 종목홈 소셜지수
+          //나의종목-종목소식 -> 종목홈 종목소식
           basePageState.goStockHomePage(
             item.stockCode,
             item.stockName,
             Const.STK_INDEX_HOME,
           );
-        }
-        else if (div == 'IS') {
+        } else if (div == 'IS') {
           //종목캐치-이슈&이슈 -> 마켓뷰로 이동
           basePageState.goLandingPage(LD.market_page, '', '', '', '');
         } else if (div == 'CB') {
@@ -420,12 +405,10 @@ class NotificationPageState extends State<NotificationPage> {
         } else if (div == 'SC_BIG') {
           //종목캐치-큰손매매 ->
           appGlobal.pageData = 'FRN';
-          Navigator.pushNamed(context, StkCatchBigPage.routeName,
-              arguments: PgData(pgSn: ''));
+          Navigator.pushNamed(context, StkCatchBigPage.routeName, arguments: PgData(pgSn: ''));
         } else if (div == 'SC_TOP') {
           //종목캐치-성과TOP ->
-          Navigator.pushNamed(context, StkCatchTopPage.routeName,
-              arguments: PgData(pgSn: ''));
+          Navigator.pushNamed(context, StkCatchTopPage.routeName, arguments: PgData(pgSn: ''));
         } else if (div == 'SC_THEME') {
           //종목캐치-테마 ->
           // basePageState.goLandingPage(LD.main_signal, '', '', '', '');
@@ -441,15 +424,13 @@ class NotificationPageState extends State<NotificationPage> {
     String strFlag = '';
     Color colorFlag = Colors.grey;
     if (div == 'TS') {
-      if (item.tradeFlag != null) {
-        if (item.tradeFlag == 'B') {
-          strFlag = '매수\n신호';
-          colorFlag = RColor.bgBuy;
-        }
-        if (item.tradeFlag == 'S') {
-          strFlag = '매도\n신호';
-          colorFlag = RColor.bgSell;
-        }
+      if (item.tradeFlag == 'B') {
+        strFlag = '매수\n신호';
+        colorFlag = RColor.bgBuy;
+      }
+      if (item.tradeFlag == 'S') {
+        strFlag = '매도\n신호';
+        colorFlag = RColor.bgSell;
       }
     }
     // item.
@@ -462,11 +443,11 @@ class NotificationPageState extends State<NotificationPage> {
             Row(
               children: [
                 Text(
-                  '${TStyle.getLimitString(item.stockName, 8)}',
+                  TStyle.getLimitString(item.stockName, 8),
                   style: TStyle.commonSTitle,
                 ),
                 Text(
-                  '${item.stockCode}',
+                  item.stockCode,
                   style: TStyle.textSGrey,
                 ),
               ],
@@ -476,9 +457,7 @@ class NotificationPageState extends State<NotificationPage> {
             Stack(
               children: [
                 Visibility(
-                  visible: (div == 'RN' || div == 'SN' || div == 'SB')
-                      ? true
-                      : false,
+                  visible: (div == 'RN' || div == 'SN' || div == 'SB') ? true : false,
                   child: Chip(
                     label: Text(getTypeString(div)),
                     backgroundColor: getTypeColor(div),
@@ -511,110 +490,7 @@ class NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  //분류 메뉴 BottomSheet
-  void _setModalBottomSheet(context) {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      builder: (BuildContext bc) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 10.0,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    '알림 항목',
-                    style: TStyle.commonSTitle,
-                  ),
-                  InkWell(
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.black,
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Divider(
-                height: 1,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const Text(
-                '나의 종목 알림',
-                style: TStyle.commonTitle,
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              const InkWell(
-                child: Text('    라씨 매매비서의 AI매매신호'),
-              ),
-              const SizedBox(
-                height: 10.0,
-              ),
-              const InkWell(
-                child: Text('    AI속보'),
-              ),
-              const SizedBox(
-                height: 10.0,
-              ),
-              const InkWell(
-                child: Text('    소셜지수'),
-              ),
-              const SizedBox(
-                height: 10.0,
-              ),
-              const InkWell(
-                child: Text('    종목소식'),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const Text(
-                '종목 캐치 알림',
-                style: TStyle.commonTitle,
-              ),
-              const SizedBox(
-                height: 10.0,
-              ),
-              const InkWell(
-                child: Text('    신규 매수'),
-              ),
-              const SizedBox(
-                height: 10.0,
-              ),
-              const InkWell(
-                child: Text('    캐치브리핑(매도성과, 인기종목)'),
-              ),
-              const SizedBox(
-                height: 10.0,
-              ),
-              const InkWell(
-                child: Text('    이슈&이슈'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget? _showScrollableSheet() {
+  void _showScrollableSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -629,7 +505,7 @@ class NotificationPageState extends State<NotificationPage> {
           maxChildSize: 0.8,
           builder: (BuildContext context, ScrollController scrollController) {
             return Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(20),
               child: ListView(
                 controller: scrollController,
                 children: [
@@ -638,8 +514,7 @@ class NotificationPageState extends State<NotificationPage> {
                     children: [
                       const Text(
                         '알림 항목',
-                        style: TStyle.defaultTitle,
-                        
+                        style: TStyle.title18T,
                       ),
                       InkWell(
                         child: const Icon(
@@ -656,7 +531,7 @@ class NotificationPageState extends State<NotificationPage> {
                     height: 10,
                   ),
                   const Divider(
-                    height: 1,
+                    height: 2,
                   ),
                   const SizedBox(
                     height: 20,
@@ -664,7 +539,6 @@ class NotificationPageState extends State<NotificationPage> {
                   const Text(
                     '나의 종목 알림',
                     style: TStyle.defaultTitle,
-                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -688,7 +562,6 @@ class NotificationPageState extends State<NotificationPage> {
                   const Text(
                     '종목 캐치 알림',
                     style: TStyle.defaultTitle,
-                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -708,7 +581,6 @@ class NotificationPageState extends State<NotificationPage> {
                   const Text(
                     '라씨 소식 알림',
                     style: TStyle.defaultTitle,
-                    
                   ),
                   const SizedBox(
                     height: 10.0,
@@ -736,19 +608,10 @@ class NotificationPageState extends State<NotificationPage> {
       child: Text(
         '    $menu',
         style: TStyle.defaultContent,
-        
       ),
       onTap: () {
         Navigator.pop(sheetContext);
-        Navigator.push(
-          context,
-          _createPageRouteData(
-            NotiListPage(),
-            RouteSettings(
-              arguments: PgData(pgData: toDiv),
-            ),
-          ),
-        );
+        Navigator.pushNamed(context, NotiListPage.routeName, arguments: PgData(pgData: toDiv),);
       },
     );
   }
@@ -769,9 +632,7 @@ class NotificationPageState extends State<NotificationPage> {
 
       if (_bYetDispose) _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -780,16 +641,15 @@ class NotificationPageState extends State<NotificationPage> {
     DLog.d(NotificationPage.TAG, response.body);
 
     if (trStr == TR.PUSH_LIST01) {
-      final TrPushList01 resData =
-          TrPushList01.fromJson(jsonDecode(response.body));
+      final TrPushList01 resData = TrPushList01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        if (resData.listData != null && resData.listData.length > 0) {
+        if (resData.listData.isNotEmpty) {
           DLog.d(NotificationPage.TAG, _pushListA.toString());
           _pushListA.addAll(_setRecombineList(resData.listData));
           // _pushListA..addAll(resData.listData);
         }
       } else if (resData.retCode == RT.NO_DATA) {
-        if (_pushListA.length == 0) isNoData = true;
+        if (_pushListA.isEmpty) isNoData = true;
       }
       setState(() {});
     }
@@ -797,7 +657,7 @@ class NotificationPageState extends State<NotificationPage> {
 
   //종목캐치(큰손/TOP/THEME) 데이터 가공해서 처리
   List<PushList01> _setRecombineList(List<PushList01> resList) {
-    if (resList.length > 0) {
+    if (resList.isNotEmpty) {
       for (int i = 0; i < resList.length; i++) {
         for (int j = 0; j < resList[i].divList.length; j++) {
           if (resList[i].divList[j].pushDiv1 == 'SC') {
@@ -820,26 +680,17 @@ class NotificationPageState extends State<NotificationPage> {
             //SC 항목을 지우고
             var result = resList[i].divList.removeAt(j);
             //새로운 항목을 만들어 리스트 다시 추가 (리스트 끝에 추가)
-            if (bigList.length > 0) {
-              resList[i].divList.add(PushDiv(
-                  pushDiv1: 'SC_BIG',
-                  pushDiv1Name: '',
-                  pushCount: '${bigList.length}',
-                  pushList: bigList));
+            if (bigList.isNotEmpty) {
+              resList[i].divList.add(
+                  PushDiv(pushDiv1: 'SC_BIG', pushDiv1Name: '', pushCount: '${bigList.length}', pushList: bigList));
             }
-            if (topList.length > 0) {
-              resList[i].divList.add(PushDiv(
-                  pushDiv1: 'SC_TOP',
-                  pushDiv1Name: '',
-                  pushCount: '${topList.length}',
-                  pushList: topList));
+            if (topList.isNotEmpty) {
+              resList[i].divList.add(
+                  PushDiv(pushDiv1: 'SC_TOP', pushDiv1Name: '', pushCount: '${topList.length}', pushList: topList));
             }
-            if (themeList.length > 0) {
+            if (themeList.isNotEmpty) {
               resList[i].divList.add(PushDiv(
-                  pushDiv1: 'SC_THEME',
-                  pushDiv1Name: '',
-                  pushCount: '${themeList.length}',
-                  pushList: themeList));
+                  pushDiv1: 'SC_THEME', pushDiv1Name: '', pushCount: '${themeList.length}', pushList: themeList));
             }
           }
         }

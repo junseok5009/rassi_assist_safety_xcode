@@ -54,50 +54,53 @@ class Find05 {
 //화면구성
 class TileFind05 extends StatelessWidget {
   final Find05 item;
+  final int index;
 
-  const TileFind05(this.item, {Key? key}) : super(key: key);
+  const TileFind05(this.index, this.item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10,),
-      decoration: UIStyle.boxRoundLine6(),
+      width: 135,
+      margin: EdgeInsets.only(
+        left: index == 0 ? 0 : 10,
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      decoration: UIStyle.boxRoundLine6bgColor(
+        Colors.white,
+      ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
-          width: 135,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  Text(
-                    TStyle.getLimitString(item.stockName, 8),
-                    style: TStyle.subTitle,
-                  ),
-                  // const SizedBox(height: 5,),
-                  Text(
-                    item.stockCode,
-                    style: TStyle.textSGrey,
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  const Text(
-                    '평균수익률',
-                    style: TStyle.textSBuy,
-                  ),
-                  // const SizedBox(height: 4,),
-                  Text(
-                    '+${item.avgProfitRate}%',
-                    style: TStyle.textBBuy,
-                  ),
-                ],
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              children: [
+                Text(
+                  TStyle.getLimitString(item.stockName, 8),
+                  style: TStyle.subTitle,
+                ),
+                // const SizedBox(height: 5,),
+                Text(
+                  item.stockCode,
+                  style: TStyle.textSGrey,
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                const Text(
+                  '평균수익률',
+                  style: TStyle.textSBuy,
+                ),
+                // const SizedBox(height: 4,),
+                Text(
+                  '+${item.avgProfitRate}%',
+                  style: TStyle.textBBuy,
+                ),
+              ],
+            ),
+          ],
         ),
         onTap: () {
           basePageState.goStockHomePage(

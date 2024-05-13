@@ -16,15 +16,10 @@ class TrFind04 {
   factory TrFind04.fromJson(Map<String, dynamic> json) {
     var list = json['retData'] as List;
     List<Find04>? rtList;
-    list != null
-        ? rtList = list.map((i) => Find04.fromJson(i)).toList()
-        : rtList = null;
+    list != null ? rtList = list.map((i) => Find04.fromJson(i)).toList() : rtList = null;
 
     return TrFind04(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        listData: list.map((i) => Find04.fromJson(i)).toList()
-    );
+        retCode: json['retCode'], retMsg: json['retMsg'], listData: list.map((i) => Find04.fromJson(i)).toList());
   }
 }
 
@@ -36,14 +31,13 @@ class Find04 {
   final String tradePrice;
   final String avgProfitRate;
 
-  Find04({
-    this.stockCode = '',
+  Find04(
+      {this.stockCode = '',
       this.stockName = '',
       this.tradeFlag = '',
       this.tradeDttm = '',
       this.tradePrice = '',
-      this.avgProfitRate = ''
-  });
+      this.avgProfitRate = ''});
 
   factory Find04.fromJson(Map<String, dynamic> json) {
     return Find04(
@@ -65,50 +59,53 @@ class Find04 {
 //화면구성
 class TileFind04 extends StatelessWidget {
   final Find04 item;
+  final int index;
 
-  const TileFind04(this.item, {Key? key}) : super(key: key);
+  const TileFind04(this.index, this.item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10,),
-      decoration: UIStyle.boxRoundLine6(),
+      width: 135,
+      margin: EdgeInsets.only(
+        left: index == 0 ? 0 : 10,
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      decoration: UIStyle.boxRoundLine6bgColor(
+        Colors.white,
+      ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
-          width: 135,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  Text(
-                    TStyle.getLimitString(item.stockName, 8),
-                    style: TStyle.subTitle,
-                  ),
-                  // const SizedBox(height: 5,),
-                  Text(
-                    item.stockCode,
-                    style: TStyle.textSGrey,
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  const Text(
-                    '매수가',
-                    style: TStyle.textSBuy,
-                  ),
-                  // const SizedBox(height: 4,),
-                  Text(
-                    '${TStyle.getMoneyPoint(item.tradePrice)}원',
-                    style: TStyle.textBBuy,
-                  ),
-                ],
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              children: [
+                Text(
+                  TStyle.getLimitString(item.stockName, 8),
+                  style: TStyle.subTitle,
+                ),
+                // const SizedBox(height: 5,),
+                Text(
+                  item.stockCode,
+                  style: TStyle.textSGrey,
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                const Text(
+                  '매수가',
+                  style: TStyle.textSBuy,
+                ),
+                // const SizedBox(height: 4,),
+                Text(
+                  '${TStyle.getMoneyPoint(item.tradePrice)}원',
+                  style: TStyle.textBBuy,
+                ),
+              ],
+            ),
+          ],
         ),
         onTap: () {
           basePageState.goStockHomePage(

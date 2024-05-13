@@ -205,7 +205,7 @@ class StockHomeHomeTileTradingTrendsState
         return Container(
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withOpacity(0.8),
             borderRadius: BorderRadius.circular(5),
             boxShadow: [
               CustomBoxShadow(

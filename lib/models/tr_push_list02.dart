@@ -36,8 +36,9 @@ class PushList02 {
   });
 
   factory PushList02.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Push'] as List;
-    List<PushInfoDv>? rtList = list == null ? null : list.map((i) => PushInfoDv.fromJson(i)).toList();
+    var jsonListPush = json['list_Push'];
+    List<PushInfoDv>? rtList =
+        jsonListPush == null ? [] : (jsonListPush as List).map((i) => PushInfoDv.fromJson(i)).toList();
 
     return PushList02(
       displayYn: json['displayYn'],
@@ -116,24 +117,25 @@ class TilePushListDv extends StatelessWidget {
   final appGlobal = AppGlobal();
   final PushInfoDv item;
 
-  TilePushListDv(this.item);
+  TilePushListDv(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
     String content;
     if (item.pushDiv1 == 'TS' || item.pushDiv1 == 'SB') {
-      content = item.stockName + '   ' + item.stockCode;
+      content = '${item.stockName}   ${item.stockCode}';
     } else {
       content = item.pushContent;
     }
-
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0, bottom: 12),
+      margin: const EdgeInsets.only(
+        top: 20,
+      ),
       alignment: Alignment.centerLeft,
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

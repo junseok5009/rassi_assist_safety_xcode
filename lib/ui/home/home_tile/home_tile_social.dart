@@ -10,7 +10,6 @@ import '../../../common/const.dart';
 import '../../../common/d_log.dart';
 import '../../../common/net.dart';
 import '../../../common/tstyle.dart';
-import '../../../common/ui_style.dart';
 import '../../../models/none_tr/app_global.dart';
 import '../../../models/pg_data.dart';
 import '../../../models/tr_sns07.dart';
@@ -22,22 +21,19 @@ import '../../sub/social_list_page.dart';
 /// 커뮤니티 활동 급상승(소셜지수)
 class HomeTileSocial extends StatefulWidget {
   const HomeTileSocial({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => HomeTileSocialState();
 }
 
-class HomeTileSocialState extends State<HomeTileSocial>
-    with AutomaticKeepAliveClientMixin<HomeTileSocial> {
+class HomeTileSocialState extends State<HomeTileSocial> with AutomaticKeepAliveClientMixin<HomeTileSocial> {
   final AppGlobal _appGlobal = AppGlobal();
   late SharedPreferences _prefs;
   String _userId = '';
 
   final List<Sns07Elapsed> _timelineList = [];
   final List<SnsStock> _socialList = [];
-  var _agoText = '';
   var _currentSliderValue = 0.0;
-  var _alignVal = 0.0;
-  var _isGen = false;
 
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
@@ -57,7 +53,7 @@ class HomeTileSocialState extends State<HomeTileSocial>
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -73,25 +69,23 @@ class HomeTileSocialState extends State<HomeTileSocial>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.only(top: 20),
-          color: const Color(
-            0xffF5F5F5,
-          ),
-          height: 13,
-        ),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            _setSubTitle('커뮤니티 활동 급상승'),
-            Container(
-              margin: const EdgeInsets.only(right: 20),
-              child: InkWell(
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              const Text(
+                '커뮤니티 활동 급상승',
+                style: TStyle.defaultTitle,
+              ),
+              InkWell(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 child: const Text(
@@ -101,151 +95,79 @@ class HomeTileSocialState extends State<HomeTileSocial>
                   ),
                 ),
                 onTap: () async {
-                  Navigator.pushNamed(context, SocialListPage.routeName,
-                      arguments: PgData(pgSn: ''));
+                  Navigator.pushNamed(context, SocialListPage.routeName, arguments: PgData(pgSn: ''));
                 },
               ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 20,
-        ),
+            ],
+          ),
 
-        // 시간 전 슬라이더
-        Stack(
-          children: [
-            _setTimeAgoSlider(context, _timelineList),
-
-            /* IgnorePointer(
-          child: */
-            Align(
-              alignment: Alignment(_alignVal, 0.0),
-              child: Visibility(
-                visible: _isGen,
-                child: Container(
-                  width: 70,
-                  height: 35,
-                  margin: const EdgeInsets.only(
-                    top: 7,
-                    left: 20,
-                    right: 20,
+          Visibility(
+            visible: _socialList.isNotEmpty,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 20,
+              ),
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: RColor.yonbora,
+                  inactiveTrackColor: RColor.greySliderBar_ebebeb,
+                  inactiveTickMarkColor: Colors.transparent,
+                  trackHeight: 9.0,
+                  thumbShape: CustomSliderThumbCircle(
+                    thumbRadius: 20,
+                    min: 0,
+                    max: 3,
+                    listTitle: _timelineList.map((e) => e.elapsedTmTx).toList(),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  alignment: Alignment.center,
-                  decoration: UIStyle.boxRoundFullColor16c(
-                    RColor.mainColor,
-                  ),
-                  child: Text(
-                    _agoText,
-                    style: const TextStyle(
-                      // fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
+                  overlayColor: Colors.white.withOpacity(.4),
+                  //valueIndicatorColor: Colors.white,
+                  activeTickMarkColor: Colors.white,
+                  valueIndicatorShape: SliderComponentShape.noThumb,
+                ),
+                child: Slider(
+                  value: _currentSliderValue,
+                  min: 0.0,
+                  max: 3.0,
+                  divisions: 3,
+                  label: _currentSliderValue.round().toString(),
+                  onChanged: (double value) {
+                    DLog.e('_setSliderValue value : $value / _timelineList.length : ${_timelineList.length}');
+                    _setSliderValue(value);
+                  },
                 ),
               ),
             ),
-            // ),
-          ],
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-
-        // 종목 리스트
-        _socialList.isNotEmpty
-            ? SizedBox(
-                height: 90,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  padding: EdgeInsets.zero,
-                  itemCount: _socialList.length,
-                  itemBuilder: (context, index) {
-                    return TileSns03N(_socialList[index], index);
-                  },
-                ),
-              )
-            : CommonView.setNoDataTextView(
-                130, '현재 커뮤니티 활동이\n평소보다 급상승한 종목이 없습니다.'),
-        const SizedBox(
-          height: 20.0,
-        ),
-      ],
-    );
-  }
-
-  Widget _setTimeAgoSlider(BuildContext context, List<Sns07Elapsed> timelineList) {
-    return Stack(
-      children: [
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 9.0,
-            activeTrackColor: RColor.yonbora,
-            inactiveTrackColor: RColor.greySliderBar_ebebeb,
-            inactiveTickMarkColor: Colors.transparent,
-            // trackShape: const RoundedRectSliderTrackShape(),
-            // overlayShape: RoundSliderOverlayShape(overlayRadius: 32.0),
-            // valueIndicatorShape: PaddleSliderValueIndicatorShape(),
-            thumbColor: Colors.transparent,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0.0,),
           ),
-          child: Slider(
-            value: _currentSliderValue,
-            min: 0.0,
-            max: 3.0,
-            divisions: 3,
-            onChanged: (double value) {
-              _setSliderValue(value);
-            },
-          ),
-        ),
-      ],
+
+          // 종목 리스트
+          _socialList.isNotEmpty
+              ? SizedBox(
+                  height: 90,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    padding: EdgeInsets.zero,
+                    itemCount: _socialList.length,
+                    itemBuilder: (context, index) {
+                      return TileSns03N(_socialList[index], index);
+                    },
+                  ),
+                )
+              : CommonView.setNoDataTextView(130, '현재 커뮤니티 활동이\n평소보다 급상승한 종목이 없습니다.'),
+        ],
+      ),
     );
   }
 
   _setSliderValue(double value) {
-    // DLog.w('####Value:  $value | $_isGen | $_alignVal');
-    if(_timelineList.isNotEmpty) {
-      if(_timelineList.length <= value.round()){
-        return;
-      }
-
+    if (_timelineList.isNotEmpty && _timelineList.length > value.toInt()) {
       _currentSliderValue = value;
       _socialList.clear();
-      if(_timelineList[value.round()] != null) {
-        _socialList.addAll(_timelineList[value.round()].listData);
-        _agoText = _timelineList[value.round()].elapsedTmTx;
-      }
-      if (value == 0.0) {
-        _alignVal = -1.0;
-        _isGen = true;
-      } else if (value == 1.0) {
-        _alignVal = -0.33;
-        _isGen = true;
-      } else if (value == 2.0) {
-        _alignVal = 0.33;
-        _isGen = true;
-      } else if (value == 3.0) {
-        _alignVal = 1.0;
-        _isGen = true;
-      } else {
-      }
+      _socialList.addAll(_timelineList[value.toInt()].listData);
       setState(() {});
     }
-  }
-
-  //소항목 타이틀
-  Widget _setSubTitle(String subTitle) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
-      child: Text(
-        subTitle,
-        style: TStyle.title18T,
-      ),
-    );
   }
 
   Future<void> _fetchPosts(String trStr, String json) async {
@@ -253,11 +175,13 @@ class HomeTileSocialState extends State<HomeTileSocial>
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
@@ -273,19 +197,16 @@ class HomeTileSocialState extends State<HomeTileSocial>
       _timelineList.clear();
       final TrSns07 resData = TrSns07.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        if (resData.retData != null) {
-          var timeList = resData.retData.listTimeline;
-          if(timeList.isNotEmpty){
-            _timelineList.addAll(List.from(timeList.reversed));
-            _setSliderValue(timeList.length.toDouble() - 1.0);
-          }
-          setState(() {});
+        var timeList = resData.retData.listTimeline;
+        if (timeList.isNotEmpty) {
+          _timelineList.addAll(List.from(timeList.reversed));
+          _setSliderValue(timeList.length.toDouble() - 1.0);
         }
+        setState(() {});
       }
     }
   }
 }
-
 
 //화면구성
 class TileSns03N extends StatelessWidget {
@@ -301,8 +222,8 @@ class TileSns03N extends StatelessWidget {
       // height: 70,
       margin: EdgeInsets.only(
         top: index == 0 ? 0 : 10,
-        left: 20,
-        right: 20,
+        left: 0,
+        right: 0,
       ),
       alignment: Alignment.centerLeft,
       child: InkWell(
@@ -362,5 +283,77 @@ class TileSns03N extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class CustomSliderThumbCircle extends SliderComponentShape {
+  final double thumbRadius;
+  final int min;
+  final int max;
+  final List<String> listTitle;
+
+  CustomSliderThumbCircle({
+    required this.thumbRadius,
+    this.min = 0,
+    this.max = 10,
+    required this.listTitle,
+  });
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(thumbRadius);
+  }
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final Canvas canvas = context.canvas;
+
+    final paint = Paint()
+      ..color = RColor.purpleBasic_6565ff //Thumb Background Color
+      ..style = PaintingStyle.fill;
+
+    TextSpan span = TextSpan(
+      style: const TextStyle(
+        fontSize: 14,
+        //fontWeight: FontWeight.w500,
+        color: Colors.white, //Text Color of Value on Thumb
+      ),
+      text: listTitle[getValue(value)],
+    );
+
+    TextPainter tp = TextPainter(
+      text: span,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    tp.layout();
+    Offset textCenter =
+        //Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
+        Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
+
+    RRect fullRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: Offset(center.dx, center.dy), width: tp.width + 24, height: tp.height + 16),
+      Radius.circular(thumbRadius),
+    );
+    canvas.drawRRect(fullRect, paint);
+    //canvas.drawCircle(center, thumbRadius * .9, paint);
+    tp.paint(canvas, textCenter);
+  }
+
+  int getValue(double value) {
+    return (min + (max - min) * value).round();
   }
 }

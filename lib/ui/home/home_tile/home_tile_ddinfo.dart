@@ -48,7 +48,7 @@ class HomeTileDdinfo extends StatelessWidget {
             children: [
               const Text(
                 '라씨데스크',
-                style: TStyle.title18T,
+                style: TStyle.defaultTitle,
               ),
 
               InkWell(

@@ -54,52 +54,55 @@ class Find03 {
 //화면구성
 class TileFind03 extends StatelessWidget {
   final Find03 item;
-  const TileFind03(this.item, {Key? key}) : super(key: key);
+  final int index;
+  const TileFind03(this.index, this.item, {Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10,),
-      decoration: UIStyle.boxRoundLine6(),
+      width: 135,
+      margin: EdgeInsets.only(
+        left: index == 0 ? 0 : 10,
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      decoration: UIStyle.boxRoundLine6bgColor(
+        Colors.white,
+      ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
-          width: 135,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              //종목정보
-              Column(
-                children: [
-                  Text(
-                    TStyle.getLimitString(item.stockName, 8),
-                    style: TStyle.subTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.clip,
-                  ),
-                  // const SizedBox(height: 5,),
-                  Text(
-                    item.stockCode,
-                    style: TStyle.textSGrey,
-                  ),
-                ],
-              ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            //종목정보
+            Column(
+              children: [
+                Text(
+                  TStyle.getLimitString(item.stockName, 8),
+                  style: TStyle.subTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                ),
+                // const SizedBox(height: 5,),
+                Text(
+                  item.stockCode,
+                  style: TStyle.textSGrey,
+                ),
+              ],
+            ),
 
-              Column(
-                children: [
-                  const Text(
-                    '적중률',
-                    style: TStyle.textSBuy,
-                  ),
-                  // const SizedBox(height: 4,),
-                  Text(
-                    item.winningRate + '%',
-                    style: TStyle.textBBuy,
-                  ),
-                ],
-              ),
-            ],
-          ),
+            Column(
+              children: [
+                const Text(
+                  '적중률',
+                  style: TStyle.textSBuy,
+                ),
+                // const SizedBox(height: 4,),
+                Text(
+                  item.winningRate + '%',
+                  style: TStyle.textBBuy,
+                ),
+              ],
+            ),
+          ],
         ),
         onTap: () {
           basePageState.goStockHomePage(

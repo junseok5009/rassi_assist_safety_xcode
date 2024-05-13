@@ -137,6 +137,9 @@ class _PromotionPageState extends State<PromotionPage> {
                         if (Platform.isAndroid) {
                           _navigateRefreshPayPromotion(
                               PgData(data: 'new_6m_50'));
+                        } else if(Platform.isIOS) {
+                          _navigateRefreshPayPromotion(
+                              PgData(data: 'am6d5'));
                         }
                         break;
                       }
