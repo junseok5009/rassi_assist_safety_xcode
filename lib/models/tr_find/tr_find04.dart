@@ -14,12 +14,9 @@ class TrFind04 {
   TrFind04({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrFind04.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Find04>? rtList;
-    list != null ? rtList = list.map((i) => Find04.fromJson(i)).toList() : rtList = null;
-
+    var jsonList = json['retData'];
     return TrFind04(
-        retCode: json['retCode'], retMsg: json['retMsg'], listData: list.map((i) => Find04.fromJson(i)).toList());
+        retCode: json['retCode'], retMsg: json['retMsg'], listData: jsonList == null ? [] : (jsonList as List).map((i) => Find04.fromJson(i)).toList());
   }
 }
 

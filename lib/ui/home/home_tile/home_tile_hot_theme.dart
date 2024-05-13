@@ -120,8 +120,8 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme>
                 const SizedBox(
                   height: 20.0,
                 ),
-                _listTheme08[_themeDiv]?.themeStatus == 'BULL' ||
-                        _listTheme08[_themeDiv]?.themeStatus == 'Bullish' ||
+                _listTheme08[_themeDiv].themeStatus == 'BULL' ||
+                        _listTheme08[_themeDiv].themeStatus == 'Bullish' ||
                         _selectDiv == 0
                     ? _listView()
                     : _bearView(),

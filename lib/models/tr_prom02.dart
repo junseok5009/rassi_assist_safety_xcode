@@ -27,13 +27,11 @@ class TrProm02 {
   TrProm02({this.retCode = '', this.retMsg = '', this.retData = const []});
 
   factory TrProm02.fromJson(Map<String, dynamic> json) {
+    var jsonList = json['retData'];
     return TrProm02(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData: (json['retData'] == null)
-          ? []
-          : (json['retData'] as List).map((i) => Prom02.fromJson(i)).toList() ??
-              [],
+      retData: jsonList == null ? [] : (jsonList as List).map((i) => Prom02.fromJson(i)).toList(),
     );
   }
 }
@@ -160,8 +158,7 @@ class _CardProm02State extends State<CardProm02> {
       boxFit = BoxFit.contain;
       try {
         int endSubStringInt = item.content.lastIndexOf('.');
-        String linkColorCode =
-            '0xff${item.content.substring(endSubStringInt - 6, endSubStringInt)}';
+        String linkColorCode = '0xff${item.content.substring(endSubStringInt - 6, endSubStringInt)}';
         bgColorInteger = int.parse(linkColorCode);
         boxFit = BoxFit.contain;
       } on FormatException {
@@ -188,19 +185,16 @@ class _CardProm02State extends State<CardProm02> {
           // 앱 내 이동
           _navigateAndGetResultPayPremiumPage(context, item);
         } else if (item.linkType == LD.linkTypeUrl) {
-          basePageState.goLandingPage(
-              LD.linkTypeUrl, item.linkPage, item.title, '', '');
+          basePageState.goLandingPage(LD.linkTypeUrl, item.linkPage, item.title, '', '');
         } else if (item.linkType == LD.linkTypeOutLink) {
-          basePageState.goLandingPage(
-              LD.linkTypeOutLink, item.linkPage, '', '', '');
+          basePageState.goLandingPage(LD.linkTypeOutLink, item.linkPage, '', '', '');
         }
       },
     );
   }
 
   // Prom02 이용하는 화면들에서 결제연동 + 화면 갱신
-  _navigateAndGetResultPayPremiumPage(
-      BuildContext buildContext, Prom02 item) async {
+  _navigateAndGetResultPayPremiumPage(BuildContext buildContext, Prom02 item) async {
     var result;
 
     switch (item.linkPage) {
@@ -316,7 +310,7 @@ class _CardProm02State extends State<CardProm02> {
         }
       case 'LPHD':
         {
-          if(Platform.isAndroid) {
+          if (Platform.isAndroid) {
             result = await Navigator.push(
               buildContext,
               CustomNvRouteClass.createRouteData(
@@ -331,7 +325,7 @@ class _CardProm02State extends State<CardProm02> {
         }
       case 'LPHE':
         {
-          if(Platform.isAndroid) {
+          if (Platform.isAndroid) {
             result = await Navigator.push(
               buildContext,
               CustomNvRouteClass.createRouteData(
@@ -341,7 +335,7 @@ class _CardProm02State extends State<CardProm02> {
                 ),
               ),
             );
-          }else if(Platform.isIOS) {
+          } else if (Platform.isIOS) {
             result = await Navigator.push(
               buildContext,
               CustomNvRouteClass.createRouteData(
@@ -356,7 +350,7 @@ class _CardProm02State extends State<CardProm02> {
         }
       case 'LPHG':
         {
-          if(Platform.isAndroid) {
+          if (Platform.isAndroid) {
             result = await Navigator.push(
               buildContext,
               CustomNvRouteClass.createRouteData(
@@ -371,7 +365,7 @@ class _CardProm02State extends State<CardProm02> {
         }
       case 'LPHF':
         {
-          if(Platform.isAndroid) {
+          if (Platform.isAndroid) {
             result = await Navigator.push(
               buildContext,
               CustomNvRouteClass.createRouteData(

@@ -25,18 +25,15 @@ import '../../main/base_page.dart';
 
 class StockHomeHomeTileTradingTrends extends StatefulWidget {
   //const StockHomeHomeTileTradingTrends({Key? key}) : super(key: key);
-  static final GlobalKey<StockHomeHomeTileTradingTrendsState> globalKey =
-      GlobalKey();
+  static final GlobalKey<StockHomeHomeTileTradingTrendsState> globalKey = GlobalKey();
 
   StockHomeHomeTileTradingTrends() : super(key: globalKey);
 
   @override
-  State<StockHomeHomeTileTradingTrends> createState() =>
-      StockHomeHomeTileTradingTrendsState();
+  State<StockHomeHomeTileTradingTrends> createState() => StockHomeHomeTileTradingTrendsState();
 }
 
-class StockHomeHomeTileTradingTrendsState
-    extends State<StockHomeHomeTileTradingTrends> {
+class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTradingTrends> {
   final AppGlobal _appGlobal = AppGlobal();
 
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 주, true 이면 천주
@@ -49,7 +46,6 @@ class StockHomeHomeTileTradingTrendsState
   // 매매동향
   final List<Invest01ChartData> _trendsListData = [];
 
-
   // 누적매매
   final List<Invest02ChartData> _sumListData = [];
   int _sumDateClickIndex = 0;
@@ -57,7 +53,6 @@ class StockHomeHomeTileTradingTrendsState
 
   late TrackballBehavior _sumTrackballBehavior;
   late TrackballBehavior _trendsTrackballBehavior;
-
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -84,8 +79,7 @@ class StockHomeHomeTileTradingTrendsState
         height: 0,
       ),
       builder: (BuildContext context, TrackballDetails trackballDetails) {
-        int index =
-            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        int index = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
         var item = _sumListData[index];
         return Container(
           padding: const EdgeInsets.all(2),
@@ -191,8 +185,7 @@ class StockHomeHomeTileTradingTrendsState
             '\n trackballDetails.groupingModeInfo?.points.toString() : $trackballDetails.groupingModeInfo?.points.toString() / '
             '\n trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesIndices.toString()} / '
             '\n trackballDetails.groupingModeInfo?.visibleSeriesList.toString() : ${trackballDetails.groupingModeInfo?.visibleSeriesList.toString()}');
-        int index =
-            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        int index = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
         var item = _trendsListData[index];
         String title = '매도';
         if (_isTrendsDiv == 0 && int.parse(item.fv) > 0) {
@@ -365,9 +358,7 @@ class StockHomeHomeTileTradingTrendsState
               child: Center(
                 child: Text(
                   '누적매매',
-                  style: _isTrends
-                      ? const TextStyle(fontSize: 15, color: RColor.lineGrey)
-                      : TStyle.commonTitle15,
+                  style: _isTrends ? const TextStyle(fontSize: 15, color: RColor.lineGrey) : TStyle.commonTitle15,
                 ),
               ),
             ),
@@ -454,9 +445,7 @@ class StockHomeHomeTileTradingTrendsState
                           horizontal: 15,
                           vertical: 4,
                         ),
-                        decoration: _isTrendsDiv == 0
-                            ? UIStyle.boxNewSelectBtn1()
-                            : UIStyle.boxNewUnSelectBtn1(),
+                        decoration: _isTrendsDiv == 0 ? UIStyle.boxNewSelectBtn1() : UIStyle.boxNewUnSelectBtn1(),
                         child: Text(
                           '외국인',
                           style: _isTrendsDiv == 0
@@ -486,16 +475,12 @@ class StockHomeHomeTileTradingTrendsState
                           horizontal: 15,
                           vertical: 4,
                         ),
-                        decoration: _isTrendsDiv == 1
-                            ? UIStyle.boxNewSelectBtn1()
-                            : UIStyle.boxNewUnSelectBtn1(),
+                        decoration: _isTrendsDiv == 1 ? UIStyle.boxNewSelectBtn1() : UIStyle.boxNewUnSelectBtn1(),
                         child: Text(
                           '기관',
                           style: _isTrendsDiv == 1
                               ? TStyle.commonTitle15
-                              : const TextStyle(
-                                  fontSize: 15,
-                                  color: RColor.btnUnSelectGreyText),
+                              : const TextStyle(fontSize: 15, color: RColor.btnUnSelectGreyText),
                         ),
                       ),
                     ),
@@ -513,16 +498,12 @@ class StockHomeHomeTileTradingTrendsState
                           horizontal: 15,
                           vertical: 4,
                         ),
-                        decoration: _isTrendsDiv == 2
-                            ? UIStyle.boxNewSelectBtn1()
-                            : UIStyle.boxNewUnSelectBtn1(),
+                        decoration: _isTrendsDiv == 2 ? UIStyle.boxNewSelectBtn1() : UIStyle.boxNewUnSelectBtn1(),
                         child: Text(
                           '개인',
                           style: _isTrendsDiv == 2
                               ? TStyle.commonTitle15
-                              : const TextStyle(
-                                  fontSize: 15,
-                                  color: RColor.btnUnSelectGreyText),
+                              : const TextStyle(fontSize: 15, color: RColor.btnUnSelectGreyText),
                         ),
                       ),
                     ),
@@ -636,11 +617,9 @@ class StockHomeHomeTileTradingTrendsState
                 axisLabelFormatter: (axisLabelRenderArgs) {
                   String value = axisLabelRenderArgs.text;
                   if (_isRightYAxisUpUnit) {
-                    value = TStyle.getMoneyPoint(
-                        (axisLabelRenderArgs.value / 1000).round().toString());
+                    value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 1000).round().toString());
                   } else {
-                    value = TStyle.getMoneyPoint(
-                        axisLabelRenderArgs.value.round().toString());
+                    value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
                   }
                   return ChartAxisLabel(
                     value,
@@ -725,8 +704,7 @@ class StockHomeHomeTileTradingTrendsState
             ),
             const Text(
               '  매수',
-              style: TextStyle(
-                  fontSize: 11, color: RColor.new_basic_text_color_grey),
+              style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
             ),
             const SizedBox(
               width: 20,
@@ -741,8 +719,7 @@ class StockHomeHomeTileTradingTrendsState
             ),
             const Text(
               '  매도',
-              style: TextStyle(
-                  fontSize: 11, color: RColor.new_basic_text_color_grey),
+              style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
             ),
             const SizedBox(
               width: 20,
@@ -757,8 +734,7 @@ class StockHomeHomeTileTradingTrendsState
             ),
             const Text(
               '  주가',
-              style: TextStyle(
-                  fontSize: 11, color: RColor.new_basic_text_color_grey),
+              style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
             ),
           ],
         ),
@@ -833,7 +809,6 @@ class StockHomeHomeTileTradingTrendsState
           child: SfCartesianChart(
             plotAreaBorderWidth: 0,
             enableAxisAnimation: false,
-
             primaryXAxis: CategoryAxis(
               axisBorderType: AxisBorderType.withoutTopAndBottom,
               axisLine: const AxisLine(
@@ -880,11 +855,9 @@ class StockHomeHomeTileTradingTrendsState
                 axisLabelFormatter: (axisLabelRenderArgs) {
                   String value = axisLabelRenderArgs.text;
                   if (_isRightYAxisUpUnit) {
-                    value = TStyle.getMoneyPoint(
-                        (axisLabelRenderArgs.value / 1000).round().toString());
+                    value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 1000).round().toString());
                   } else {
-                    value = TStyle.getMoneyPoint(
-                        axisLabelRenderArgs.value.round().toString());
+                    value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
                   }
                   return ChartAxisLabel(
                     value,
@@ -1070,9 +1043,7 @@ class StockHomeHomeTileTradingTrendsState
   Widget _setSumDateInnerView(int index) {
     return Container(
       alignment: Alignment.center,
-      decoration: index == _sumDateClickIndex
-          ? UIStyle.boxNewSelectBtn2()
-          : UIStyle.boxNewUnSelectBtn2(),
+      decoration: index == _sumDateClickIndex ? UIStyle.boxNewSelectBtn2() : UIStyle.boxNewUnSelectBtn2(),
       margin: const EdgeInsets.symmetric(
         horizontal: 5,
       ),
@@ -1083,12 +1054,9 @@ class StockHomeHomeTileTradingTrendsState
       child: Text(
         sumDateDiveTitleList[index],
         style: TextStyle(
-          color: index == _sumDateClickIndex
-              ? Colors.black
-              : RColor.btnUnSelectGreyText,
+          color: index == _sumDateClickIndex ? Colors.black : RColor.btnUnSelectGreyText,
           fontSize: 14,
-          fontWeight:
-              index == _sumDateClickIndex ? FontWeight.w600 : FontWeight.w500,
+          fontWeight: index == _sumDateClickIndex ? FontWeight.w600 : FontWeight.w500,
         ),
       ),
     );
@@ -1165,8 +1133,7 @@ class StockHomeHomeTileTradingTrendsState
 
     // NOTE 누적매매
     else if (trStr == TR.INVEST02) {
-      final TrInvest02 resData =
-          TrInvest02.fromJsonWithIndex(jsonDecode(response.body));
+      final TrInvest02 resData = TrInvest02.fromJsonWithIndex(jsonDecode(response.body));
       _sumListData.clear();
       if (resData.retCode == RT.SUCCESS) {
         Invest02 invest02 = resData.retData;
@@ -1197,18 +1164,15 @@ class StockHomeHomeTileTradingTrendsState
 
       //외국인
       if (_isTrendsDiv == 0) {
-        var item = _trendsListData.reduce((curr, next) =>
-            double.parse(curr.fv) > double.parse(next.fv) ? curr : next);
+        var item = _trendsListData.reduce((curr, next) => double.parse(curr.fv) > double.parse(next.fv) ? curr : next);
         return double.parse(item.fv);
       }
       //기관
       else if (_isTrendsDiv == 1) {
-        var item = _trendsListData.reduce((curr, next) =>
-            double.parse(curr.ov) > double.parse(next.ov) ? curr : next);
+        var item = _trendsListData.reduce((curr, next) => double.parse(curr.ov) > double.parse(next.ov) ? curr : next);
         return double.parse(item.ov);
       } else {
-        var item = _trendsListData.reduce((curr, next) =>
-            double.parse(curr.pv) > double.parse(next.pv) ? curr : next);
+        var item = _trendsListData.reduce((curr, next) => double.parse(curr.pv) > double.parse(next.pv) ? curr : next);
         return double.parse(item.pv);
       }
     }
@@ -1218,10 +1182,8 @@ class StockHomeHomeTileTradingTrendsState
       if (_sumListData.length < 2) {
         return 0;
       }
-      var itemAfv = _sumListData.reduce((curr, next) =>
-          double.parse(curr.afv) > double.parse(next.afv) ? curr : next);
-      var itemAov = _sumListData.reduce((curr, next) =>
-          double.parse(curr.aov) > double.parse(next.aov) ? curr : next);
+      var itemAfv = _sumListData.reduce((curr, next) => double.parse(curr.afv) > double.parse(next.afv) ? curr : next);
+      var itemAov = _sumListData.reduce((curr, next) => double.parse(curr.aov) > double.parse(next.aov) ? curr : next);
 
       return double.parse(itemAfv.afv) > double.parse(itemAov.aov)
           ? double.parse(itemAfv.afv)
@@ -1238,24 +1200,18 @@ class StockHomeHomeTileTradingTrendsState
 
       //외국인
       if (_isTrendsDiv == 0) {
-        var item = _trendsListData.reduce((curr, next) =>
-            double.parse(curr.fv).abs() > double.parse(next.fv).abs()
-                ? curr
-                : next);
+        var item = _trendsListData
+            .reduce((curr, next) => double.parse(curr.fv).abs() > double.parse(next.fv).abs() ? curr : next);
         return double.parse(item.fv).abs();
       }
       //기관
       else if (_isTrendsDiv == 1) {
-        var item = _trendsListData.reduce((curr, next) =>
-            double.parse(curr.ov).abs() > double.parse(next.ov).abs()
-                ? curr
-                : next);
+        var item = _trendsListData
+            .reduce((curr, next) => double.parse(curr.ov).abs() > double.parse(next.ov).abs() ? curr : next);
         return double.parse(item.ov).abs();
       } else {
-        var item = _trendsListData.reduce((curr, next) =>
-            double.parse(curr.pv).abs() > double.parse(next.pv).abs()
-                ? curr
-                : next);
+        var item = _trendsListData
+            .reduce((curr, next) => double.parse(curr.pv).abs() > double.parse(next.pv).abs() ? curr : next);
         return double.parse(item.pv).abs();
       }
     }
@@ -1265,14 +1221,10 @@ class StockHomeHomeTileTradingTrendsState
       if (_sumListData.length < 2) {
         return 0;
       }
-      var itemAfv = _sumListData.reduce((curr, next) =>
-          double.parse(curr.afv).abs() > double.parse(next.afv).abs()
-              ? curr
-              : next);
-      var itemAov = _sumListData.reduce((curr, next) =>
-          double.parse(curr.aov).abs() > double.parse(next.aov).abs()
-              ? curr
-              : next);
+      var itemAfv = _sumListData
+          .reduce((curr, next) => double.parse(curr.afv).abs() > double.parse(next.afv).abs() ? curr : next);
+      var itemAov = _sumListData
+          .reduce((curr, next) => double.parse(curr.aov).abs() > double.parse(next.aov).abs() ? curr : next);
       return double.parse(itemAfv.afv).abs() > double.parse(itemAov.aov).abs()
           ? double.parse(itemAfv.afv).abs()
           : double.parse(itemAov.aov).abs();

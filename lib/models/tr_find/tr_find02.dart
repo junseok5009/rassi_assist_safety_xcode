@@ -16,12 +16,11 @@ class TrFind02 extends TrAtom {
       : super(retCode: retCode, retMsg: retMsg);
 
   factory TrFind02.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Find02>? rtList;
-    list != null ? rtList = list.map((i) => Find02.fromJson(i)).toList() : rtList = null;
-
+    var jsonList = json['retData'];
     return TrFind02(
-        retCode: json['retCode'], retMsg: json['retMsg'], listData: list.map((i) => Find02.fromJson(i)).toList());
+        retCode: json['retCode'],
+        retMsg: json['retMsg'],
+        listData: jsonList == null ? [] : (jsonList as List).map((i) => Find02.fromJson(i)).toList());
   }
 }
 
@@ -62,7 +61,9 @@ class Find02 {
 class TileFind02 extends StatelessWidget {
   final int index;
   final Find02 item;
+
   const TileFind02(this.index, this.item, {Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -134,7 +135,7 @@ class TileFind02 extends StatelessWidget {
 class TileFindV02 extends StatelessWidget {
   final Find02 item;
 
-  TileFindV02(this.item);
+  const TileFindV02(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +152,7 @@ class TileFindV02 extends StatelessWidget {
       ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
