@@ -42,7 +42,7 @@ class SearchPage extends StatefulWidget {
       'pop_and_result'; // 종목 검색 후, 창 닫으면서 result로 클릭한 종목 (검색한 종목) Stock 넘겨줄 때 이거 호출해 주세요. (pocketSn은 SearchPage.popAndResult 으로 호출해 주세요)
 
   final String landWhere;
-  final String pocketSn;  // add_pocket_layer 에서만 필요합니다.
+  final String pocketSn; // add_pocket_layer 에서만 필요합니다.
 
   // 종목 검색 클래스 24.05.03 정의 by HJS
   // landWhere = 위에 네개 String / pocketSn = [add_pocket_layer : 포켓SN, add_signal_layer/go_stock_home/pop_and_result : 빈 값 '']
@@ -57,6 +57,7 @@ class SearchPageState extends State<SearchPage> {
 
   late SharedPreferences _prefs;
   String _userId = "";
+  final FocusNode _focusNode = FocusNode();
 
   Timer? _timer;
   int savedTime = 0;
@@ -131,16 +132,11 @@ class SearchPageState extends State<SearchPage> {
           ),
           child: Column(
             children: [
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
 
               //검색 box
               _setSearchField(),
-
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
 
               Expanded(
                 child: SingleChildScrollView(
@@ -163,12 +159,19 @@ class SearchPageState extends State<SearchPage> {
                               _setSubTitle('나의 최근 검색 종목'),
                               _recentMyList.isEmpty
                                   ? Container(
+                                      height: 70,
                                       margin: const EdgeInsets.symmetric(
                                         vertical: 10,
                                       ),
-                                      child: CommonView.setNoDataView(
-                                        130,
-                                        '최근 검색 종목이 없습니다.',
+                                      child: const Center(
+                                        child: Text(
+                                          '최근 검색 종목이 없습니다.',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: RColor.new_basic_text_color_grey,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
                                       ),
                                     )
                                   : Container(
@@ -235,7 +238,14 @@ class SearchPageState extends State<SearchPage> {
       child: Stack(
         children: [
           TextField(
-            decoration: const InputDecoration.collapsed(hintText: '종목명(초성, 중간어 지원) / 종목코드 검색'),
+            decoration: const InputDecoration.collapsed(
+              hintText: '종목명(초성, 중간어 지원) / 종목코드 검색',
+              hintStyle: TextStyle(
+                color: RColor.new_basic_text_color_grey,
+                fontSize: 14,
+              ),
+            ),
+            focusNode: _focusNode,
             controller: null,
             onChanged: (text) {
               if (text.length > 1) {
@@ -440,7 +450,7 @@ class SearchPageState extends State<SearchPage> {
               'stockCode': stock.stockCode,
             }));
       }
-      if(mounted){
+      if (mounted) {
         Navigator.pop(context);
       }
       basePageState.goStockHomePage(
@@ -448,7 +458,6 @@ class SearchPageState extends State<SearchPage> {
         stock.stockName,
         AppGlobal().tabIndex,
       );
-
     }
     // SearchPage. 레이어 인 경우
     else if (widget.landWhere == SearchPage.addSignalLayer) {
@@ -456,8 +465,9 @@ class SearchPageState extends State<SearchPage> {
         stock.stockCode,
         stock.stockName,
       );
-    }
-    else if (widget.landWhere == SearchPage.addPocketLayer && widget.pocketSn.isNotEmpty && Provider.of<PocketProvider>(context, listen: false).getPocketListIndexByPocketSn(widget.pocketSn) != -1) {
+    } else if (widget.landWhere == SearchPage.addPocketLayer &&
+        widget.pocketSn.isNotEmpty &&
+        Provider.of<PocketProvider>(context, listen: false).getPocketListIndexByPocketSn(widget.pocketSn) != -1) {
       _checkAddStockKeyboardVisibility(
         stock.stockCode,
         stock.stockName,
@@ -523,6 +533,7 @@ class SearchPageState extends State<SearchPage> {
         }
       }
       setState(() {});
+      _focusNode.requestFocus();
     }
 
     //유저 직접 검색
