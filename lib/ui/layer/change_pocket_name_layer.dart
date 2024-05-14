@@ -54,8 +54,7 @@ class _ChangePocketNameLayerState extends State<ChangePocketNameLayer> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -68,7 +67,7 @@ class _ChangePocketNameLayerState extends State<ChangePocketNameLayer> {
                     constraints: const BoxConstraints(),
                     iconSize: 24,
                     onPressed: () {
-                      if (context != null && context.mounted) {
+                      if (context.mounted) {
                         Navigator.pop(
                           context,
                           CustomNvRouteResult.cancel,
@@ -157,10 +156,8 @@ class _ChangePocketNameLayerState extends State<ChangePocketNameLayer> {
                       } else if (_pocketName == widget.pocket!.pktName) {
                         commonShowToastCenter('현재 포켓 이름과 변경하려는 포켓 이름이 같습니다.');
                       } else {
-                        bool result = await Provider.of<PocketProvider>(context,
-                                listen: false)
-                            .changeNamePocket(
-                                Pocket(widget.pocket!.pktSn, _pocketName));
+                        bool result = await Provider.of<PocketProvider>(context, listen: false)
+                            .changeNamePocket(Pocket(widget.pocket!.pktSn, _pocketName));
 
                         if (context.mounted) {
                           if (result) {
@@ -170,8 +167,7 @@ class _ChangePocketNameLayerState extends State<ChangePocketNameLayer> {
                             );
                           } else {
                             Navigator.pop(context, CustomNvRouteResult.fail);
-                            CommonPopup.instance.showDialogBasic(context, '안내',
-                                CommonPopup.dbEtcErroruserCenterMsg);
+                            CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
                           }
                         }
                       }

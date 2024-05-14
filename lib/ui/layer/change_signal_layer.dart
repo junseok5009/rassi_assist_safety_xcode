@@ -26,13 +26,9 @@ class ChangeSignalLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CustomFirebaseClass.logEvtScreenView(
-      '나만의_매도_신호_수정하기_레이어',
-    );
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-            create: (context) => SignalLayerSliderProvider()),
+        ChangeNotifierProvider(create: (context) => SignalLayerSliderProvider()),
       ],
       child: SafeArea(
         child: Column(
@@ -47,9 +43,7 @@ class ChangeSignalLayer extends StatelessWidget {
                 constraints: const BoxConstraints(),
                 iconSize: 24,
                 onPressed: () {
-                  if (context != null && context.mounted) {
-                    Navigator.pop(context, CustomNvRouteResult.cancel);
-                  }
+                  Navigator.pop(context, CustomNvRouteResult.cancel);
                 },
               ),
             ),
@@ -99,6 +93,9 @@ class _ChangeSignalLayerViewState extends State<ChangeSignalLayerView> {
   @override
   void initState() {
     super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      '나만의_매도_신호_수정하기_레이어',
+    );
     _stockInfoProvider = Provider.of<StockInfoProvider>(context, listen: false);
     _signalLayerSliderProvider = Provider.of<SignalLayerSliderProvider>(context, listen: false);
     _stockInfoProvider.addListener(_stockInfoProviderListener);
@@ -572,7 +569,7 @@ class _ChangeSignalLayerViewState extends State<ChangeSignalLayerView> {
                 Provider.of<SignalLayerSliderProvider>(context, listen: false).getCurrentPrice.toStringAsFixed(0),
               );
             }
-            if (mounted && result != null) {
+            if (mounted) {
               Navigator.pop(context, result);
             }
           } else if (!_isSelectPrice) {
@@ -599,7 +596,7 @@ class _ChangeSignalLayerViewState extends State<ChangeSignalLayerView> {
                   _directEditPrice.toStringAsFixed(0),
                 );
               }
-              if (mounted && result != null) {
+              if (mounted) {
                 Navigator.pop(context, result);
               }
             }
@@ -683,8 +680,10 @@ class RoundSliderTrackShape extends SliderTrackShape {
 
     // Assign the track segment paints, which are left: active, right: inactive,
     // but reversed for right to left text.
-    final ColorTween activeTrackColorTween = ColorTween(begin: sliderTheme.disabledActiveTrackColor, end: sliderTheme.activeTrackColor);
-    final ColorTween inactiveTrackColorTween = ColorTween(begin: sliderTheme.disabledInactiveTrackColor, end: sliderTheme.inactiveTrackColor);
+    final ColorTween activeTrackColorTween =
+        ColorTween(begin: sliderTheme.disabledActiveTrackColor, end: sliderTheme.activeTrackColor);
+    final ColorTween inactiveTrackColorTween =
+        ColorTween(begin: sliderTheme.disabledInactiveTrackColor, end: sliderTheme.inactiveTrackColor);
     final Paint activePaint = Paint()..color = activeTrackColorTween.evaluate(enableAnimation)!;
     final Paint inactivePaint = Paint()..color = inactiveTrackColorTween.evaluate(enableAnimation)!;
     late Paint leftTrackPaint;
@@ -719,11 +718,14 @@ class RoundSliderTrackShape extends SliderTrackShape {
       isEnabled: isEnabled,
       isDiscrete: isDiscrete,
     );
-    final Rect leftTrackSegment = Rect.fromLTRB(trackRect.left, trackRect.top, thumbCenter.dx - horizontalAdjustment, trackRect.bottom);
+    final Rect leftTrackSegment =
+        Rect.fromLTRB(trackRect.left, trackRect.top, thumbCenter.dx - horizontalAdjustment, trackRect.bottom);
 
     // Left Arc
     context.canvas.drawArc(
-        Rect.fromCircle(center: Offset(trackRect.left, trackRect.top + sliderTheme.trackHeight! * 1 / 2), radius: sliderTheme.trackHeight! * 1 / 2),
+        Rect.fromCircle(
+            center: Offset(trackRect.left, trackRect.top + sliderTheme.trackHeight! * 1 / 2),
+            radius: sliderTheme.trackHeight! * 1 / 2),
         -180 * 3 / 2, // -270 degrees
         180, // 180 degrees
         false,
@@ -731,14 +733,17 @@ class RoundSliderTrackShape extends SliderTrackShape {
 
 // Right Arc
     context.canvas.drawArc(
-        Rect.fromCircle(center: Offset(trackRect.right, trackRect.top + sliderTheme.trackHeight! * 1 / 2), radius: sliderTheme.trackHeight! * 1 / 2),
+        Rect.fromCircle(
+            center: Offset(trackRect.right, trackRect.top + sliderTheme.trackHeight! * 1 / 2),
+            radius: sliderTheme.trackHeight! * 1 / 2),
         -180 / 2, // -90 degrees
         180, // 180 degrees
         false,
         trackRect.right - thumbCenter.dx == 0.0 ? leftTrackPaint : rightTrackPaint);
 
     context.canvas.drawRect(leftTrackSegment, leftTrackPaint);
-    final Rect rightTrackSegment = Rect.fromLTRB(thumbCenter.dx + horizontalAdjustment, trackRect.top, trackRect.right, trackRect.bottom);
+    final Rect rightTrackSegment =
+        Rect.fromLTRB(thumbCenter.dx + horizontalAdjustment, trackRect.top, trackRect.right, trackRect.bottom);
     context.canvas.drawRect(rightTrackSegment, rightTrackPaint);
   }
 }

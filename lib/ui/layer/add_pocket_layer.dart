@@ -67,7 +67,7 @@ class _AddPocketLayerState extends State<AddPocketLayer> {
                     constraints: const BoxConstraints(),
                     iconSize: 24,
                     onPressed: () {
-                      if (context != null && context.mounted) {
+                      if (mounted) {
                         Navigator.pop(
                           context,
                           CustomNvRouteResult.cancel,

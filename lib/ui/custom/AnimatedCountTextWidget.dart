@@ -4,14 +4,14 @@ import 'package:rassi_assist/common/tstyle.dart';
 class AnimatedCountTextWidget extends ImplicitlyAnimatedWidget {
   const AnimatedCountTextWidget({
     Key? key,
-    this.count = 0,
-    this.textStyle,
+    required this.count,
+    required this.textStyle,
     Duration duration = const Duration(milliseconds: 400),
     Curve curve = Curves.fastOutSlowIn,
   }) : super(duration: duration, curve: curve, key: key);
 
   final double count;
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   @override
   ImplicitlyAnimatedWidgetState<ImplicitlyAnimatedWidget> createState() {
@@ -19,14 +19,19 @@ class AnimatedCountTextWidget extends ImplicitlyAnimatedWidget {
   }
 }
 
-class _AnimatedCountState
-    extends AnimatedWidgetBaseState<AnimatedCountTextWidget> {
-  Tween<double> _doubleCount = Tween<double>(begin: 0.0, end: 0.0);
+class _AnimatedCountState extends AnimatedWidgetBaseState<AnimatedCountTextWidget> {
+  Tween<double> _doubleCount = Tween<double>(begin: 0.0, end: 1.0);
+
+  @override
+  void initState() {
+    super.initState();
+    _doubleCount = Tween<double>(begin: 0, end: widget.count.toDouble());
+    controller.forward();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Text(
-        _doubleCount.begin == null ? TStyle.getMoneyPoint(widget.count.toStringAsFixed(0)) :
       TStyle.getMoneyPoint(
         _doubleCount.evaluate(animation).toStringAsFixed(0),
       ),

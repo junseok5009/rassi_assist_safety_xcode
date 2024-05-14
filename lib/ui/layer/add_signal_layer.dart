@@ -1,16 +1,13 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -20,6 +17,20 @@ import 'package:rassi_assist/provider/add_signal_layer_slider_provider.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
 import 'package:rassi_assist/ui/custom/AnimatedCountTextWidget.dart';
+
+/*class AddSignalLayer extends StatefulWidget {
+  const AddSignalLayer({super.key});
+
+  @override
+  State<AddSignalLayer> createState() => _AddSignalLayerState();
+}
+
+class _AddSignalLayerState extends State<AddSignalLayer> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}*/
 
 class AddSignalLayer extends StatelessWidget {
   //const AddSignalLayer({super.key});
@@ -32,9 +43,6 @@ class AddSignalLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CustomFirebaseClass.logEvtScreenView(
-      '나만의_매도_신호_만들기_레이어',
-    );
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => SignalLayerSliderProvider()),
@@ -102,6 +110,9 @@ class _AddSignalLayerViewState extends State<AddSignalLayerView> {
   @override
   void initState() {
     super.initState();
+    CustomFirebaseClass.logEvtScreenView(
+      '나만의_매도_신호_만들기_레이어',
+    );
     _stockInfoProvider = Provider.of<StockInfoProvider>(context, listen: false);
     _signalLayerSliderProvider = Provider.of<SignalLayerSliderProvider>(context, listen: false);
     _stockInfoProvider.addListener(_stockInfoProviderListener);
