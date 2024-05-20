@@ -466,8 +466,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
     DLog.d(PayHistoryPage.TAG, response.body);
 
     if (trStr == TR.ORDER01) {
-      // final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(response.body));
-      final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(_resStr));
+      final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(response.body));
       _orderList.clear();
       if (resData.retCode == RT.SUCCESS && resData.listData.isNotEmpty) {
         _orderList.addAll(resData.listData);
