@@ -158,13 +158,21 @@ class PayHistoryPageState extends State<PayHistoryPage> {
       if (!hasRefund) isPossibleCancel = true;
     }
 
-    // if (item.orderChannel == 'CH32' || item.orderChannel == 'CH33') {
-    //   if (item.prodSubdiv.startsWith('M') && item.prodSubdiv != 'M01') {
-    //     //1개월 이상의 상품이면서 환불되지 않은 상품에 해지하기 표시
-    //     if (!hasRefund) isPossibleCancel = true;
-    //   }
-    //   csNumber = item.csPhoneNo;
-    // }
+    if (item.orderChannel == 'CH32' || item.orderChannel == 'CH33') {
+      if (item.payMethod == 'PM20') {
+        //무통장 입금 결제건은 해지하기 표시 -> 환불신청
+        if (!hasRefund) isPossibleCancel = true;
+      }
+      else if (item.subscriptStat == 'S') {
+        //구독 이용중 상품에 해지하기 표시
+        if (!hasRefund) isPossibleCancel = true;
+      }
+      else {
+        isPossibleCancel = false;
+      }
+
+      csNumber = item.csPhoneNo;
+    }
 
     if (item.chList.isNotEmpty) {
       pdName = item.chList[0].prodName;
@@ -458,8 +466,8 @@ class PayHistoryPageState extends State<PayHistoryPage> {
     DLog.d(PayHistoryPage.TAG, response.body);
 
     if (trStr == TR.ORDER01) {
-      final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(response.body));
-      // final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(_resStr));
+      // final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(response.body));
+      final TrOrder01 resData = TrOrder01.fromJson(jsonDecode(_resStr));
       _orderList.clear();
       if (resData.retCode == RT.SUCCESS && resData.listData.isNotEmpty) {
         _orderList.addAll(resData.listData);
@@ -498,6 +506,7 @@ class PayHistoryPageState extends State<PayHistoryPage> {
       "payMethodText": "무통장입금",
       "paymentAmt": "59400",
       "refundAmt": "0",
+      "subscriptStat": "E",
       "list_OrderChange": [
         {
           "changeSeq": "1",

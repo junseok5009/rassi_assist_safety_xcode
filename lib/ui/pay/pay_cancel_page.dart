@@ -47,6 +47,7 @@ class PayCancelPageState extends State<PayCancelPage> {
   String _lgTid = '';
   String _lgCancelAmt = '';
 
+  bool _isRemainAmt = false; //환불 가능한 금액
   bool _isBankTransfer = false;
   String _refundEstDate = '';
   final _bankNameController = TextEditingController();
@@ -454,7 +455,11 @@ class PayCancelPageState extends State<PayCancelPage> {
               style: TextStyle(fontSize: 17),
             ),
             onPressed: () {
-              _sendPayWebRefund();
+              if(_isRemainAmt) {
+                _sendPayWebRefund();
+              } else {
+                commonShowToast('환불 가능한 금액이 없습니다.');
+              }
             },
           ),
         ],
@@ -636,11 +641,13 @@ class PayCancelPageState extends State<PayCancelPage> {
 
           if (item.remainAmt == '' || item.remainAmt == '0') {
             //환불 가능 금액 없음
+            _isRemainAmt = false;
           } else {
             //무통장입금 환불신청
             if (item.payMethod == 'PM20') {
               _isBankTransfer = true;
             }
+            _isRemainAmt = true;
           }
 
           setState(() {});

@@ -39,6 +39,7 @@ class Order01 {
   final String payMethod;
   final String payMethodText;
   final String paymentAmt;
+  final String subscriptStat; //구독상태 (S:구독 이용중, C:구독 해지(상품이용중), E:구독 만료, N:비구독자)
   final String refundAmt;
   final String refundDttm;
   final List<OrderChange> chList;
@@ -59,6 +60,7 @@ class Order01 {
     this.payMethod = '',
     this.payMethodText = '',
     this.paymentAmt = '',
+    this.subscriptStat = '',
     this.refundAmt = '',
     this.refundDttm = '',
     this.chList = const [],
@@ -84,6 +86,7 @@ class Order01 {
       payMethod: json['payMethod'] ?? '',
       payMethodText: json['payMethodText'] ?? '',
       paymentAmt: json['paymentAmt'],
+      subscriptStat: json['subscriptStat'] ?? '',
       refundAmt: json['refundAmt'] ?? '0',
       refundDttm: json['refundDttm'] ?? '',
       chList: list.map((i) => OrderChange.fromJson(i)).toList(),
