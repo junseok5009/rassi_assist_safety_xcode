@@ -112,17 +112,14 @@ class ThemeHotPageState extends State<ThemeHotPage> {
               ),
             ),
 
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
 
             _tmList.isEmpty
                 ? Container(
                     margin: const EdgeInsets.symmetric(
                       horizontal: 15,
                     ),
-                    child:
-                        CommonView.setNoDataView(170, 'Weekly HOT3 데이터가 없습니다.'),
+                    child: CommonView.setNoDataView(170, 'Weekly HOT3 데이터가 없습니다.'),
                   )
                 : SizedBox(
                     width: double.infinity,
@@ -132,9 +129,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
                       children: [
                         Swiper(
                           controller: _swiperWController,
-                          pagination: _tmList.length < 2
-                              ? null
-                              : CommonSwiperPagenation.getNormalSP(8),
+                          pagination: _tmList.length < 2 ? null : CommonSwiperPagenation.getNormalSP(8),
                           itemCount: _tmList.length,
                           itemBuilder: (BuildContext context, int index) {
                             return TileTheme02(_tmList[index], '${index + 1}');
@@ -184,8 +179,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
             _dataList.isEmpty
                 ? Container(
                     margin: const EdgeInsets.all(15),
-                    child:
-                        CommonView.setNoDataView(170, 'Daily HOT3 데이터가 없습니다.'),
+                    child: CommonView.setNoDataView(170, '일간 테마 TOP3 데이터가 없습니다.'),
                   )
                 : Column(
                     children: [
@@ -203,9 +197,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
                         },
                       ),
 
-                      const SizedBox(
-                        height: 15.0,
-                      ),
+                      const SizedBox(height: 15),
                       const Padding(
                         padding: EdgeInsets.only(left: 15.0, bottom: 15.0),
                         child: Text(
@@ -229,7 +221,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            'Daily HOT3',
+            '일간 테마 TOP3',
             style: TStyle.defaultTitle,
           ),
           CommonView.setDatePickerBtnView(
@@ -237,8 +229,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
               _dateFormat.format(_dateTime),
             ),
             () async {
-              await CommonDatePicker.showYearMonthPicker(context, _dateTime)
-                  .then((value) {
+              await CommonDatePicker.showYearMonthPicker(context, _dateTime).then((value) {
                 if (value != null) {
                   _dateTime = value;
                   _requestTrTheme03();
