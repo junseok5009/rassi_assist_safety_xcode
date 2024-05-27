@@ -3,9 +3,11 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/theme_info.dart';
+import 'package:rassi_assist/models/theme_top_data.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_viewer.dart';
+
+import '../../common/ui_style.dart';
 
 /// 2022.02.08
 /// -->(05.10 변경) 주간 Weekly HOT 테마 조회
@@ -20,19 +22,17 @@ class TrTheme02 {
     return TrTheme02(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData:
-          json['retData'] == null ? defTheme02 : Theme02.fromJson(json['retData']),
+      retData: json['retData'] == null ? defTheme02 : Theme02.fromJson(json['retData']),
     );
   }
 }
-
 
 const defTheme02 = Theme02();
 
 class Theme02 {
   final String startDate;
   final String endDate;
-  final List<ThemeInfo> listData;
+  final List<ThemeTopData> listData;
 
   const Theme02({this.startDate = '', this.endDate = '', this.listData = const []});
 
@@ -44,14 +44,14 @@ class Theme02 {
     return Theme02(
       startDate: json['startDate'] ?? '',
       endDate: json['endDate'] ?? '',
-      listData: list.map((i) => ThemeInfo.fromJson(i)).toList(),
+      listData: list.map((i) => ThemeTopData.fromJson(i)).toList(),
     );
   }
 }
 
 //화면구성 - 테마리스트 HOT3 Swiper
 class TileTheme02 extends StatelessWidget {
-  final ThemeInfo item;
+  final ThemeTopData item;
   final String topIdx;
 
   const TileTheme02(this.item, this.topIdx, {Key? key}) : super(key: key);
@@ -59,17 +59,11 @@ class TileTheme02 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          width: double.infinity,
-          height: 230,
-          margin: const EdgeInsets.symmetric(
-            horizontal: 15,
-          ),
-          //decoration: UIStyle.boxRoundLine6(),
-          child: _setThemeContainer(),
-        ),
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(20, 10, 20, 40),
+        decoration: UIStyle.boxShadowBasic(16),
+        child: _setThemeNewContainer(),
       ),
       onTap: () {
         basePageState.callPageRouteUpData(
@@ -80,6 +74,61 @@ class TileTheme02 extends StatelessWidget {
     );
   }
 
+  Widget _setThemeNewContainer() {
+    String rText;
+    Color rColor;
+    if (item.increaseRate.contains('-')) {
+      rText = item.increaseRate;
+      rColor = RColor.sigSell;
+    } else {
+      rText = '+${item.increaseRate}';
+      rColor = RColor.sigBuy;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${item.themeName} 테마',
+                style: TStyle.title17,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                '$rText%',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                  color: rColor,
+                ),
+              ),
+            ],
+          ),
+
+          //Top3 종목 리스트
+          Container(
+            margin: const EdgeInsets.only(top: 20),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: UIStyle.boxWeakGrey10(),
+            child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: item.listStock.length,
+              itemBuilder: (BuildContext context, int index) {
+                return TileThemeTop(item.listStock[index]);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //(기존 테마 전체보기)
   Widget _setThemeContainer() {
     String rText;
     Color rColor;
@@ -126,9 +175,7 @@ class TileTheme02 extends StatelessWidget {
               children: [
                 Column(
                   children: [
-                    const SizedBox(
-                      height: 20.0,
-                    ),
+                    const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 15,
@@ -196,9 +243,7 @@ class TileTheme02 extends StatelessWidget {
                   '${item.themeName} 테마',
                   style: TStyle.btnTextWht20,
                 ),
-                const SizedBox(
-                  height: 3.0,
-                ),
+                const SizedBox(height: 3),
                 Text(
                   '$rText%',
                   style: TextStyle(
@@ -223,8 +268,75 @@ class TileTheme02 extends StatelessWidget {
       return img;
     } on Exception catch (_) {
       // DLog.d(ThemeHotViewer.TAG, 'ERR : Exception');
-      return const NetworkImage(
-          'http://files.thinkpool.com/rassi_signal/theme_images/0000.jpg');
+      return const NetworkImage('http://files.thinkpool.com/rassi_signal/theme_images/0000.jpg');
     }
+  }
+}
+
+//화면구성 - Top3 종목 리스트
+class TileThemeTop extends StatelessWidget {
+  final StockTopData stockInfo;
+
+  const TileThemeTop(this.stockInfo, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      child: Container(
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(15, 7, 15, 7),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        TStyle.getLimitString(stockInfo.stockName, 8),
+                        style: TStyle.content17T,
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        stockInfo.stockCode,
+                        style: TStyle.contentGrey13,
+                      ),
+                    ],
+                  ),
+
+                  //주간 등락률
+                  Container(
+                    width: 80,
+                    height: 23,
+                    alignment: Alignment.center,
+                    decoration: UIStyle.boxRoundFullColor6c(
+                      TStyle.getMinusPlusFlucColor(stockInfo.increaseRate),
+                    ),
+                    child: Text(
+                      TStyle.getPercentString(stockInfo.increaseRate),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        basePageState.goStockHomePage(
+          stockInfo.stockCode,
+          stockInfo.stockName,
+          Const.STK_INDEX_HOME,
+        );
+      },
+    );
   }
 }

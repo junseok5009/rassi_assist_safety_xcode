@@ -86,96 +86,32 @@ class TileTheme03 extends StatelessWidget {
     List<ThemeOb>? subList = item.listData;
     return Container(
       width: double.infinity,
-      // height: 200,
       margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-      decoration: UIStyle.boxRoundLine6(),
+      // padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      // decoration: UIStyle.boxRoundLine6(),
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Image.asset(
-                    'images/rassi_itemar_icon_ar1.png',
-                    width: 20,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    TStyle.getDateMdKorFormat(item.tradeDate),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: RColor.bgBuy,
-                    ),
-                  ),
-                ],
-              ),
-              Visibility(
-                visible: item.tradeDate == TStyle.getTodayString(),
-                child: const Chip(
-                  label: Text(
-                    ' TODAY ',
-                    style: TStyle.btnTextWht14,
-                  ),
-                  backgroundColor: RColor.bgBuy,
+              const SizedBox(width: 5),
+              //   visible: item.tradeDate == TStyle.getTodayString(),
+              Text(
+                item.tradeDate == TStyle.getTodayString()
+                    ? '${TStyle.getDateDivFormat(item.tradeDate)} 오늘'
+                    : TStyle.getDateDivFormat(item.tradeDate),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: item.tradeDate == TStyle.getTodayString() ? RColor.mainColor : RColor.greyBasic_8c8c8c,
                 ),
-              )
+              ),
             ],
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
 
           // 테마리스트 New
           _setThemeBox(subList),
-
-/*        // 테마리스트 Old
-        ListView.builder(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          itemCount: subList.length,
-          itemBuilder: (context, index) {
-            return Container(
-              width: double.infinity,
-              height: 70,
-              decoration: UIStyle.boxRoundLine6(),
-              margin: const EdgeInsets.only(
-                top: 10.0,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: InkWell(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      TStyle.getLimitString(subList[index].themeName, 10),
-                      style: TStyle.title18T,
-                    ),
-                    Text(
-                      TStyle.getPercentString(
-                        subList[index].increaseRate,
-                      ),
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: TStyle.getMinusPlusColor(
-                          subList[index].increaseRate,
-                        ),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    )
-                  ],
-                ),
-                onTap: () {
-                  basePageState.callPageRouteUpData(
-                    const ThemeHotViewer(),
-                    PgData(userId: '', pgSn: subList[index].themeCode),
-                  );
-                },
-              ),
-            );
-          },
-        ),*/
         ],
       ),
     );
@@ -190,7 +126,7 @@ class TileTheme03 extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: SizedBox(
         width: double.infinity,
-        height: 100,
+        height: 110,
         child: Row(
           children: [
             if (item1 != null) _setInfoBox(item1),
@@ -217,17 +153,17 @@ class TileTheme03 extends StatelessWidget {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.all(5),
-        decoration: UIStyle.boxWeakGrey6(),
+        decoration: UIStyle.boxShadowBasic(16),
         child: InkWell(
           splashColor: Colors.deepPurpleAccent.withAlpha(30),
           child: Container(
             padding: const EdgeInsets.all(10.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   tItem.themeName,
-                  style: TStyle.subTitle,
+                  style: TStyle.content16T,
                   maxLines: 1,
                   overflow: TextOverflow.clip,
                 ),

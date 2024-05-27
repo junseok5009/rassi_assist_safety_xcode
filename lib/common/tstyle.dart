@@ -1087,6 +1087,21 @@ class TStyle {
     }
   }
 
+  static Color getMinusPlusFlucColor(String sCount) {
+    if (sCount.isNotEmpty) {
+      double dCount = double.tryParse(sCount) ?? 0;
+      if (dCount == 0) {
+        return Colors.black;
+      } else if (dCount < 0) {
+        return RColor.sigSell;
+      } else {
+        return RColor.sigBuy;
+      }
+    } else {
+      return Colors.grey;
+    }
+  }
+
   // getMinusPlusColorBox 와 함께 사용하는 텍스트 컬러, +- = 흰, 0 = 블랙
   static Color getIsZeroBlackNotWhite(String sCount) {
     if (sCount.isNotEmpty) {

@@ -11,7 +11,7 @@ import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/models/theme_info.dart';
+import 'package:rassi_assist/models/theme_top_data.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme02.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme03.dart';
 import 'package:rassi_assist/ui/common/common_date_picker.dart';
@@ -40,7 +40,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
   String _userId = "";
 
   final SwiperController _swiperWController = SwiperController();
-  final List<ThemeInfo> _tmList = []; //위클리 HOT3
+  final List<ThemeTopData> _tmList = []; //위클리 HOT3
   String _startDate = '';
   String _endDate = '';
 
@@ -99,7 +99,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  _setSubTitle('Weekly HOT'),
+                  _setSubTitle('주간 테마 TOP3'),
                   Visibility(
                     visible: _tmList.isNotEmpty,
                     child: Text(
@@ -111,19 +111,16 @@ class ThemeHotPageState extends State<ThemeHotPage> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
 
             _tmList.isEmpty
                 ? Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                    ),
-                    child: CommonView.setNoDataView(170, 'Weekly HOT3 데이터가 없습니다.'),
+                    margin: const EdgeInsets.symmetric(horizontal: 15),
+                    child: CommonView.setNoDataView(170, '주간 테마 TOP3 데이터가 없습니다.'),
                   )
                 : SizedBox(
                     width: double.infinity,
-                    height: 270,
+                    height: 290,
                     child: Stack(
                       alignment: Alignment.topCenter,
                       children: [
@@ -137,7 +134,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
                         ),
 
                         //좌우 스크롤 Arrow
-                        Container(
+/*                        Container(
                           width: double.infinity,
                           height: 230,
                           margin: const EdgeInsets.symmetric(
@@ -168,12 +165,13 @@ class ThemeHotPageState extends State<ThemeHotPage> {
                               ),
                             ],
                           ),
-                        ),
+                        ),*/
                       ],
                     ),
                   ),
+            const SizedBox(height: 20),
 
-            //Daily HOT3
+            //일간 테마 TOP3
             _setDailyHeader(),
 
             _dataList.isEmpty
@@ -213,18 +211,18 @@ class ThemeHotPageState extends State<ThemeHotPage> {
     );
   }
 
-  //데일리 HOT3
+  //일간 테마 TOP3
   Widget _setDailyHeader() {
     return Padding(
-      padding: const EdgeInsets.only(top: 10, left: 15, right: 15),
+      padding: const EdgeInsets.only(top: 10, left: 20, right: 25),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
             '일간 테마 TOP3',
-            style: TStyle.defaultTitle,
+            style: TStyle.title18T,
           ),
-          CommonView.setDatePickerBtnView(
+          CommonView.setCalendarPickerBtnView(
             getDateYmFormat(
               _dateFormat.format(_dateTime),
             ),
@@ -245,7 +243,7 @@ class ThemeHotPageState extends State<ThemeHotPage> {
   //소항목 타이틀
   Widget _setSubTitle(String subTitle) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20, left: 15, right: 5),
+      padding: const EdgeInsets.only(top: 20, left: 20, right: 5),
       child: Text(
         subTitle,
         style: TStyle.title18T,
@@ -253,11 +251,11 @@ class ThemeHotPageState extends State<ThemeHotPage> {
     );
   }
 
-  //2021년 00월
+  //2024/05
   String getDateYmFormat(String date) {
     String rtStr = '';
     if (date.length > 5) {
-      rtStr = '${date.substring(0, 4)}년 ${date.substring(4, 6)}월';
+      rtStr = '${date.substring(0, 4)}/${date.substring(4, 6)}';
       return rtStr;
     }
     return '';
