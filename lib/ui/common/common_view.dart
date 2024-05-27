@@ -108,6 +108,43 @@ class CommonView {
     );
   }
 
+  // 날짜 or 연도 등 선택하는 버튼
+  static Widget setCalendarPickerBtnView(
+      String dateTitle,
+      void Function() onTap,
+      ) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: onTap,
+      child: FittedBox(
+        child: Container(
+          decoration: UIStyle.boxRoundLine8LineColor(RColor.greyBoxLine_c9c9c9),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 15,
+            vertical: 7,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'images/icon_calendar.png',
+                height: 20,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Text(
+                dateTitle,
+                style: TStyle.contentGreyTitle,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // 일반적인 () 더보기 버튼
   static Widget setBasicMoreRoundBtnView(
     List<Widget> widgetList,
