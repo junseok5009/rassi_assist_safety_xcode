@@ -26,8 +26,7 @@ class HomeTileHotTheme extends StatefulWidget {
   State<HomeTileHotTheme> createState() => HomeTileHotThemeState();
 }
 
-class HomeTileHotThemeState extends State<HomeTileHotTheme>
-    with AutomaticKeepAliveClientMixin<HomeTileHotTheme>{
+class HomeTileHotThemeState extends State<HomeTileHotTheme> {
   late SharedPreferences _prefs;
   final AppGlobal _appGlobal = AppGlobal();
   String _userId = '';
@@ -48,9 +47,6 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme>
   }
 
   @override
-  bool get wantKeepAlive => true;
-
-  @override
   void initState() {
     super.initState();
     _loadPrefData().then((_) {
@@ -67,7 +63,7 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    //super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -198,8 +194,7 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme>
                 '#${item.themeName}',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: item.themeStatus == 'BULL' ||
-                          item.themeStatus == 'Bullish'
+                  color: item.themeStatus == 'BULL' || item.themeStatus == 'Bullish'
                       ? i == _themeDiv
                           ? const Color(0xffFF5050)
                           : const Color(0xffFDA2A2)
@@ -277,13 +272,10 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme>
       physics: const NeverScrollableScrollPhysics(),
       scrollDirection: Axis.vertical,
       padding: EdgeInsets.zero,
-      itemCount: _selectDiv == 0
-          ? _listTheme08[_themeDiv].listToday.length
-          : _listTheme08[_themeDiv].listTrend.length,
+      itemCount: _selectDiv == 0 ? _listTheme08[_themeDiv].listToday.length : _listTheme08[_themeDiv].listTrend.length,
       itemBuilder: (context, index) {
-        Theme08Item item = _selectDiv == 0
-            ? _listTheme08[_themeDiv].listToday[index]
-            : _listTheme08[_themeDiv].listTrend[index];
+        Theme08Item item =
+            _selectDiv == 0 ? _listTheme08[_themeDiv].listToday[index] : _listTheme08[_themeDiv].listTrend[index];
         return InkWell(
           onTap: () {
             basePageState.callPageRouteUpData(
@@ -331,18 +323,7 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme>
                     ),
                   ],
                 ),
-                Text(
-                  TStyle.getPercentString(
-                    item.fluctuationRate,
-                  ),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: TStyle.getMinusPlusColor(
-                      item.fluctuationRate,
-                    ),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                CommonView.setFluctuationRateBox(value: item.fluctuationRate),
               ],
             ),
           ),

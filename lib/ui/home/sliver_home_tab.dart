@@ -140,22 +140,22 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> with SingleTic
                       //padding: const EdgeInsets.fromLTRB(0, 0, 0, 2),
                       child: Column(
                         children: [
-                          const TabBar(
+                          TabBar(
                             indicatorColor: Colors.black,
                             indicatorWeight: 3,
                             labelColor: Colors.black,
-                            labelStyle: TextStyle(
+                            labelStyle: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w600,
                               color: RColor.blackTitle_141414,
                             ),
                             unselectedLabelColor: RColor.greyTitle_cdcdcd,
-                            unselectedLabelStyle: TextStyle(
+                            unselectedLabelStyle: const TextStyle(
                               fontSize: 16,
                               color: RColor.greyTitle_cdcdcd,
                             ),
                             isScrollable: true,
-                            tabs: [
+                            tabs: const [
                               SizedBox(
                                 width: 32,
                                 child: Tab(
@@ -172,6 +172,16 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> with SingleTic
                                 text: '마켓뷰',
                               ),
                             ],
+                            onTap: (value) {
+                              if (value == 0) {
+                                var childCurrentState = SliverHomeWidget.globalKey.currentState;
+                                if (childCurrentState != null) {
+                                  childCurrentState.setState(() {
+                                    childCurrentState.addAutomaticKeepAlives = false;
+                                  });
+                                }
+                              }
+                            },
                             // _tabs.map((String name) => Tab(text: name)).toList(),
                           ),
                           Container(

@@ -3,83 +3,81 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
+
 /// 2020.10.29
-/// 승률(적중률) TOP
-class TrHonor01 {
+/// 수익 발생(10% 이상) 횟수 TOP > 수익난 매매 TOP 50
+class TrHonor02 {
   final String retCode;
   final String retMsg;
-  final List<Honor01> retData;
+  final List<Honor02> retData;
 
-  TrHonor01({this.retCode='', this.retMsg='', this.retData = const []});
+  TrHonor02({this.retCode = '', this.retMsg = '', this.retData = const []});
 
-  factory TrHonor01.fromJson(Map<String, dynamic> json) {
-    List<Honor01> rtList;
-    var list = json['retData'] as List;
-    // list == null
-    //     ? rtList = null
-    //     : rtList = list.map((i) => Honor01.fromJson(i)).toList();
-
-    return TrHonor01(
+  factory TrHonor02.fromJson(Map<String, dynamic> json) {
+    var jsonList = json['retData'];
+    return TrHonor02(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData: list.map((i) => Honor01.fromJson(i)).toList(),
+      retData: jsonList == null ? [] : (jsonList as List).map((i) => Honor02.fromJson(i)).toList(),
     );
   }
 }
 
-class Honor01 {
+
+class Honor02 {
   final String stockCode;
   final String stockName;
   final String tradeFlag;
-  final String winningRate;
   final String tradeCount;
+  final String holdingDays;
 
-  Honor01({
-    this.stockCode='',
-    this.stockName='',
-    this.tradeFlag='',
-    this.winningRate='',
-    this.tradeCount='',
+  Honor02({
+    this.stockCode = '',
+    this.stockName = '',
+    this.tradeFlag = '',
+    this.tradeCount = '',
+    this.holdingDays = '',
   });
 
-  factory Honor01.fromJson(Map<String, dynamic> json) {
-    return Honor01(
+  factory Honor02.fromJson(Map<String, dynamic> json) {
+    return Honor02(
       stockCode: json['stockCode'],
       stockName: json['stockName'],
       tradeFlag: json['tradeFlag'],
-      winningRate: json['winningRate'],
       tradeCount: json['tradeCount'],
+      holdingDays: json['holdingDays'],
     );
   }
 
   @override
   String toString() {
-    return '$stockName|$stockCode|$tradeFlag';
+    return '$stockName|$stockCode|$tradeFlag|$holdingDays';
   }
 }
 
-//화면구성
-class TileHonor01 extends StatelessWidget {
-  final Honor01 item;
 
-  TileHonor01(this.item);
+//화면구성
+class TileHonor02 extends StatelessWidget {
+  final Honor02 item;
+  TileHonor02(this.item);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 50,
-      margin: const EdgeInsets.only(
-        left: 15.0,
-        right: 15.0,
-      ),
+      margin: const EdgeInsets.only(left: 15.0, right: 15.0,),
       decoration: const BoxDecoration(
         color: RColor.bgWeakGrey,
-        border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
+        border: Border(
+            bottom: BorderSide(
+                color: Colors.grey,
+                width: 1)
+        ),
       ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: SizedBox(
+        child: Container(
           width: double.infinity,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,13 +88,9 @@ class TileHonor01 extends StatelessWidget {
             ],
           ),
         ),
-        onTap: () {
+        onTap: (){
           Navigator.pop(context);
-          basePageState.goStockHomePage(
-            item.stockCode,
-            item.stockName,
-            Const.STK_INDEX_SIGNAL,
-          );
+          basePageState.goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_HOME,);
         },
       ),
     );
@@ -107,26 +101,16 @@ class TileHonor01 extends StatelessWidget {
       flex: 3,
       child: Container(
         decoration: const BoxDecoration(
-          border: Border(
-              right: BorderSide(
-                  color: Colors.grey,
-                  width: 1)
-          ),
+          border: Border(right: BorderSide(color: Colors.grey, width: 1)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              item.stockName,
-              maxLines: 1,
+            Text(item.stockName, maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TStyle.commonSTitle,
-            ),
-            Text(
-              item.stockCode,
-              style: TStyle.textSGrey,
-            ),
+              style: TStyle.commonSTitle,),
+            Text(item.stockCode, style: TStyle.textSGrey,),
           ],
         ),
       ),
@@ -143,10 +127,7 @@ class TileHonor01 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              '+${item.winningRate}%',
-              style: TStyle.textMBuy,
-            ),
+            Text('${item.tradeCount}번', style: TStyle.commonSTitle,),
           ],
         ),
       ),
@@ -159,10 +140,7 @@ class TileHonor01 extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            '${item.tradeCount}번',
-            style: TStyle.commonSTitle,
-          )
+          Text('${item.holdingDays}일', style: TStyle.commonSTitle,),
         ],
       ),
     );

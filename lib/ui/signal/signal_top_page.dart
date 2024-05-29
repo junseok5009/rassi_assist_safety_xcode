@@ -8,11 +8,11 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_honor01.dart';
-import 'package:rassi_assist/models/tr_honor02.dart';
-import 'package:rassi_assist/models/tr_honor03.dart';
-import 'package:rassi_assist/models/tr_honor04.dart';
-import 'package:rassi_assist/models/tr_honor05.dart';
+import 'package:rassi_assist/models/tr_honor/tr_honor01.dart';
+import 'package:rassi_assist/models/tr_honor/tr_honor02.dart';
+import 'package:rassi_assist/models/tr_honor/tr_honor03.dart';
+import 'package:rassi_assist/models/tr_honor/tr_honor04.dart';
+import 'package:rassi_assist/models/tr_honor/tr_honor05.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/common_appbar.dart';
@@ -24,7 +24,7 @@ import '../../common/ui_style.dart';
 class SignalTopPage extends StatefulWidget {
   static const routeName = '/page_signal_top';
   static const String TAG = "[SignalTopPage]";
-  SignalTopPage({Key? key}) : super(key: key);
+  const SignalTopPage({Key? key}) : super(key: key);
   @override
   State<StatefulWidget> createState() => SignalTopPageState();
 }
@@ -56,7 +56,7 @@ class SignalTopPageState extends State<SignalTopPage> {
           Duration.zero,
           () {
             PgData args = ModalRoute.of(context)!.settings.arguments as PgData;
-            if (_userId != '' && args != null) {
+            if (_userId != '') {
               String sTr = '';
               if (args.pgData == 'HIT') {
                 TAG_NAME = '성과TOP_적중률';

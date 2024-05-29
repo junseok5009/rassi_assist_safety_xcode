@@ -937,7 +937,7 @@ class TStyle {
 
   //가격 형식 표시 + 소수점 반영
   static String getMoneyPoint2(String sText) {
-    if (sText.length > 0) {
+    if (sText.isNotEmpty) {
       //var prc = int.parse(sText);
       if (sText.contains('.')) {
         return NumberFormat('###,###,###,###.##')
@@ -954,9 +954,9 @@ class TStyle {
 
   //소수점 2자리까지 표시
   static String getFixedNum(String sText) {
-    if (sText.length > 0) {
+    if (sText.isNotEmpty) {
       var dNum = double.parse(sText);
-      if (dNum < 0) {
+      /*if (dNum < 0) {
         //음수일 경우에 floor()에서 반올림 일어나 따로 처리
         var temp = (dNum * -100);
         temp = temp.floor() / -100;
@@ -965,7 +965,9 @@ class TStyle {
         var temp = (dNum * 100);
         temp = temp.floor() / 100;
         return temp.toString();
-      }
+      }*/
+      var temp = (dNum * 100).truncateToDouble() / 100;
+      return temp.toStringAsFixed(2);
       // return NumberFormat('##0.0#').format(dNum).replaceAll(' ', '');  //자동 반올림이 일어남
     }
     return '';
@@ -1055,7 +1057,7 @@ class TStyle {
     return '';
   }
 
-  // 0 = black
+  // 0 = bubbleChartGrey
   static Color getMinusPlusColor(String sCount) {
     if (sCount.isNotEmpty) {
       double dCount = double.tryParse(sCount) ?? 0;
@@ -1067,7 +1069,7 @@ class TStyle {
         return RColor.sigBuy;
       }
     } else {
-      return Colors.black;
+      return RColor.bubbleChartGrey;
     }
   }
 

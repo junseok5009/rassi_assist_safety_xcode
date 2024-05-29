@@ -1,13 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
-import 'package:rassi_assist/common/common_function_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
@@ -17,14 +13,15 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/chart_theme.dart';
-import 'package:rassi_assist/models/none_tr/stock/stock_chart.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme04n.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme05.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme06.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// 2022.04.22 - JY
 /// (핫)테마 상세보기
@@ -40,11 +37,9 @@ class ThemeHotViewer extends StatefulWidget {
 }
 
 class ThemeHotViewerState extends State<ThemeHotViewer> {
-  final GlobalKey _containerKey = GlobalKey();
   late SharedPreferences _prefs;
   String _userId = "";
 
-  bool _initFirst = true;
   String _themeCode = '';
   String _themeName = '';
   String _themeStatus = '';
@@ -53,21 +48,239 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
   String _selDiv = '';
   String _increseRate = '';
   String _themeDesc = '';
-  bool _bSelectA = true;
-  bool _bSelectB = false;
 
-  String _dateStr = '[]';
-  String _dataStr = '[]';
-  bool _bSelect1M = false, _bSelect6M = false, _bSelect12M = true;
+  // 현재 테마 주도주
+  bool _isLeadingTop3 = true; // true : 단기 강세 TOP 3 <> false : 추세주도주
+  late TrackballBehavior _trackballBehavior;
+  final List<Theme05StockChart> _leadingStockList = [];
 
-  final List<StockChart> _stockList = [];
+  // 테마 차트
+  final List<ChartTheme> _listThemeChart = [];
+  int _highestThemeChartListIndex = 0;
+  int _lowestThemeChartListIndex = 0;
+  late TrackballBehavior _trackballBehaviorTheme;
+  int _themeDivIndex = 0; // 0 : 1개월 / 1 : 3개월 / 2 : 6개월 / 3 : 12개월
+  final List<String> _themeDivTitles = ['1M', '3M', '6M', '1Y'];
+
   final List<TopCard> _tcList = [];
   final List<ThemeStHistory> _thList = [];
 
-  double _themeInfoTextWidgetHeight = 0;
-
   @override
   void initState() {
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      shouldAlwaysShow: false,
+      lineDashArray: const [4, 3],
+      lineWidth: 1,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        Theme05ChartData? item1, item2, item3;
+        bool isCandleDivMin = false;
+        int index = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        if (_leadingStockList.isNotEmpty && index < _leadingStockList[0].listChart.length) {
+          item1 = _leadingStockList[0].listChart[index];
+          isCandleDivMin = _leadingStockList[0].candleDiv == 'MIN';
+        }
+        if (_leadingStockList.length >= 2 && index < _leadingStockList[1].listChart.length) {
+          item2 = _leadingStockList[1].listChart[index];
+        }
+        if (_leadingStockList.length >= 3 && index < _leadingStockList[2].listChart.length) {
+          item3 = _leadingStockList[2].listChart[index];
+        }
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2,),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 6,
+                offset: const Offset(2, 2),
+              )
+            ],
+          ),
+          child: FittedBox(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      item1 == null
+                          ? ''
+                          : isCandleDivMin
+                              ? '${TStyle.getDateSlashFormat1(item1.td)}  ${item1.tt.substring(0, 2)}:${item1.tt.substring(2)}'
+                              : TStyle.getDateSlashFormat1(item1.td),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                  ],
+                ),
+                if (item1 != null)
+                  Row(
+                    children: [
+                      _leadingStockChartCircleTrackBall(const Color(0xffFBD240)),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        _leadingStockList[0].stockName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          //color: title == '매수' ? RColor.bgBuy : RColor.bgSell,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        '${TStyle.getMoneyPoint(
+                          item1.tp,
+                        )}원',
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (item2 != null)
+                  Row(
+                    children: [
+                      _leadingStockChartCircleTrackBall(const Color(0xff5DD68D)),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        _leadingStockList[1].stockName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          //color: title == '매수' ? RColor.bgBuy : RColor.bgSell,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        '${TStyle.getMoneyPoint(item2.tp)}원',
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (item3 != null)
+                  Row(
+                    children: [
+                      _leadingStockChartCircleTrackBall(const Color(0xffaba5f1)),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        _leadingStockList[2].stockName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          //color: title == '매수' ? RColor.bgBuy : RColor.bgSell,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        '${TStyle.getMoneyPoint(item3.tp)}원',
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    _trackballBehaviorTheme = TrackballBehavior(
+      enable: true,
+      shouldAlwaysShow: false,
+      lineDashArray: const [4, 3],
+      lineWidth: 1,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        int index = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        ChartTheme? item;
+        if (_listThemeChart.isNotEmpty && index < _listThemeChart.length) {
+          item = _listThemeChart[index];
+        }
+        return Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 6,
+                offset: const Offset(2, 2),
+              )
+            ],
+          ),
+          child: FittedBox(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      item == null ? '' : TStyle.getDateSlashFormat1(item.tradeDate),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                  ],
+                ),
+                if (item != null)
+                  Row(
+                    children: [
+                      _leadingStockChartCircleTrackBall(
+                        RColor.chartGreen,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        TStyle.getMoneyPoint(item.tradeIndex),
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
       ThemeHotViewer.TAG_NAME,
@@ -81,11 +294,27 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
         }
         if (_userId != '') {
           _fetchPosts(
+              TR.THEME05,
+              jsonEncode(<String, String>{
+                'userId': _userId,
+                'themeCode': _themeCode,
+                'selectDiv': 'SHORT', //SHORT: 단기강세TOP3, TREND: 추세주도주
+              }));
+          _fetchPosts(
               TR.THEME04,
               jsonEncode(<String, String>{
                 'userId': _userId,
                 'themeCode': _themeCode,
-                'periodMonth': '12',
+                'periodMonth': '1',
+              }));
+          _fetchPosts(
+              TR.THEME06,
+              jsonEncode(<String, String>{
+                'userId': _userId,
+                'themeCode': _themeCode,
+                'topStockYn': 'Y',
+                'pageNo': '0',
+                'pageItemSize': '5',
               }));
         }
       });
@@ -96,136 +325,121 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        double getWidgetHeight = CommonFunctionClass.instance.getSize(_containerKey).height;
-        if (getWidgetHeight != _themeInfoTextWidgetHeight) {
-          _themeInfoTextWidgetHeight = getWidgetHeight;
-          super.setState(() {});
-        }
-      });
     }
   }
 
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? AppGlobal().userId ?? '';
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? AppGlobal().userId;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CommonAppbar.simpleNoTitleWithExit(
+        context,
+        RColor.bgBasic_fdfdfd,
+        Colors.black,
+      ),
       backgroundColor: RColor.bgBasic_fdfdfd,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 테마명, 전일대비, 테마설명
-              _setHeaderInfo(),
-              SizedBox(
-                height: _themeInfoTextWidgetHeight / 2 + 30,
+              // 테마명
+              Text(
+                '$_themeName 테마',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: InkWell(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    child: const ImageIcon(
-                      AssetImage(
-                        'images/rassi_icon_qu_bl.png',
-                      ),
-                      size: 22,
-                      color: Colors.grey,
+
+              const SizedBox(
+                height: 8,
+              ),
+
+              // 전일비
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    '전일대비 ',
+                    style: TextStyle(
+                      fontSize: 16,
                     ),
-                    onTap: () {
-                      _showDialogDesc(RString.desc_hot_theme_index_pop);
-                    },
+                  ),
+                  const SizedBox(
+                    width: 4,
+                  ),
+                  CommonView.setFluctuationRateBox(value: _increseRate),
+                ],
+              ),
+
+              const SizedBox(
+                height: 5,
+              ),
+
+              // 테마 설명
+              _paddingView(
+                child: Text(
+                  _themeDesc,
+                  style: const TextStyle(
+                    fontSize: 16,
                   ),
                 ),
               ),
 
-              //AI테마분석 (THEME04 강세 / 약세)
-              _setThemeStatus(),
-              SizedBox(
-                  height: 10.0,
-                  child: Container(
-                    color: RColor.bgWeakGrey,
-                  )),
+              // 테마 추세는 ?
+              _paddingView(
+                child: _setThemeStatus(),
+              ),
+
+              CommonView.setDivideLine,
+
+              // 현재 테마 주도주
+              _setLeadingStockView,
+
+              CommonView.setDivideLine,
 
               //테마 지수 차트 (THEME04)
-              _setSubTitle(
-                '테마 차트',
+              _paddingView(
+                child: const Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    '테마 차트',
+                    style: TStyle.defaultTitle,
+                  ),
+                ),
               ),
               // const SizedBox(height: 10.0,),
-              SizedBox(
-                width: double.infinity,
-                height: 250,
-                child: _setEChartView(),
-              ),
+              _paddingView(child: _themeChart),
 
-              _setSelectTabChart(),
               const SizedBox(
                 height: 10.0,
               ),
 
-              //현재 테마주도주 (THEME05)
-              _setSubTitle(
-                '현재 테마주도주',
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              _setSelectThemeTypeTab(),
-
-              _isBearTheme
-                  ? Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                      ),
-                      child: CommonView.setNoDataView(
-                        150,
-                        '테마 추세가 현재 약세일 경우\n주도주가 분석되지 않습니다.',
-                      ),
-                    )
-                  : ListView.builder(
-                      physics: const ScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: _stockList.length,
-                      itemBuilder: (context, index) {
-                        return TileTheme05(_stockList[index], _selDiv);
-                      },
-                    ),
+              _themeDateDivView,
 
               const SizedBox(
-                height: 10,
+                height: 10.0,
               ),
 
               //테마주도주 히스토리 (THEME06)
-              _setSubTitle(
-                '테마주도주 히스토리',
-              ),
-              _tcList.isEmpty ? const SizedBox() : _setCardHistory(),
-
-              const SizedBox(
-                height: 15,
-              ),
-
-              _thList.isEmpty
-                  ? Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                      ),
-                      child: CommonView.setNoDataView(150, '히스토리 데이터가 없습니다.'),
-                    )
-                  : ListView.builder(
-                      physics: const ScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: _thList.length,
-                      itemBuilder: (context, index) {
-                        return TileTheme06List(_thList[index]);
-                      },
-                    ),
+              if (_tcList.isNotEmpty) _paddingView(child: _setCardHistory()),
+              if (_thList.isEmpty)
+                _paddingView(child: CommonView.setNoDataView(150, '히스토리 데이터가 없습니다.'))
+              else
+                ListView.builder(
+                  physics: const ScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 20,),
+                  itemCount: _thList.length,
+                  itemBuilder: (context, index) {
+                    return TileTheme06List(_thList[index]);
+                  },
+                ),
 
               const SizedBox(
                 height: 20,
@@ -237,134 +451,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     );
   }
 
-  // 테마명, 전일대비, 테마설명
-  Widget _setHeaderInfo() {
-    String rText;
-    Color rColor;
-    if (_increseRate.contains('-')) {
-      rText = _increseRate;
-      rColor = RColor.sigSell;
-    } else {
-      rText = '+$_increseRate';
-      rColor = RColor.sigBuy;
-    }
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        _setThemeBackgroundImageWidget(_themeCode),
-        Align(
-          alignment: Alignment.topRight,
-          child: IconButton(
-            icon: const Icon(Icons.close),
-            color: Colors.white,
-            iconSize: 24,
-            onPressed: () => Navigator.of(context).pop(null),
-          ),
-        ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: Container(
-            margin: const EdgeInsets.only(
-              top: 55,
-            ),
-            child: Column(
-              children: [
-                Text(
-                  '$_themeName 테마',
-                  style: TStyle.btnTextWht20,
-                ),
-                const SizedBox(
-                  height: 15.0,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      '전일대비 ',
-                      style: TStyle.btnContentWht16,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(
-                      '$rText%',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20,
-                        color: rColor,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 50.0,
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          left: 20,
-          right: 20,
-          bottom: (_themeInfoTextWidgetHeight) * -1 / 2,
-          child: Container(
-            key: _containerKey,
-            //margin: const EdgeInsets.symmetric(horizontal: 10,),
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-            decoration: const BoxDecoration(
-              //color: RColor.mainColor,
-              //color: Color(0xffe9e9ec),
-              color: RColor.mainColor,
-              borderRadius: BorderRadius.all(
-                Radius.circular(15),
-              ),
-            ),
-            child: Text(
-              _themeDesc,
-              /*style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),*/
-              style: TStyle.btnTextWht13,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _setThemeBackgroundImageWidget(String tCode) {
-    if (tCode.isEmpty) {
-      return const SizedBox(
-        width: double.infinity,
-        height: 200,
-      );
-    }
-    return SizedBox(
-      width: double.infinity,
-      height: 200,
-      child: ColorFiltered(
-        colorFilter: ColorFilter.mode(
-          Colors.black.withOpacity(0.6), // 어두운 색 및 투명도 값 (0.0 ~ 1.0)
-          BlendMode.srcATop, // 혼합 모드
-        ),
-        child: CachedNetworkImage(
-          fit: BoxFit.fill,
-          imageUrl: 'http://files.thinkpool.com/rassi_signal/theme_images/$tCode.jpg',
-          errorWidget: (context, url, error) => CachedNetworkImage(
-            fit: BoxFit.fill,
-            imageUrl: RString.themeDefaultUrl,
-            errorWidget: (context, url, error) => Container(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  //테마 상태 (강세 / 약세)
+  // 테마 추세는 ?
   Widget _setThemeStatus() {
     bool isBull = true;
     String status = '';
@@ -386,204 +473,698 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
       status = '약세';
       statusSub = '전환';
     }
-
     return InkWell(
+      onTap: () => _showDialogDesc(RString.desc_hot_theme_index_pop),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.only(top: 5, left: 20, right: 20, bottom: 20),
+        decoration: UIStyle.boxRoundFullColor16c(
+          const Color(0xff353B6F),
+        ),
+        padding: const EdgeInsets.all(
+          15,
+        ),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'images/icon_rassi_logo_purple.png',
-                      fit: BoxFit.cover,
-                      height: 50,
-                      color: RColor.mainColor,
-                    ),
-                    const SizedBox(
-                      width: 12,
-                    ),
-                    const Text(
-                      '라씨 매매비서가 분석한\n현재 테마 상태는?',
-                      style: TStyle.title18,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
+            SizedBox(
               width: double.infinity,
-              height: 38,
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              decoration: BoxDecoration(
-                color: isBull ? RColor.bgBuy : RColor.bgSell,
-                borderRadius: const BorderRadius.all(Radius.circular(20.0)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+              height: 50,
+              child: Stack(
                 children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          status,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
+                  Center(
+                    child: Image.asset(
+                      'images/icon_rassi_logo_white.png',
+                      width: 30,
+                      height: 30,
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: InkWell(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      child: const ImageIcon(
+                        AssetImage(
+                          'images/rassi_icon_qu_bl.png',
                         ),
-                        Text(
-                          ' $statusSub',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 6,
-                        ),
-                        Text(
-                          _themeDays,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 19,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const Text(
-                          '일째',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                      onTap: () {
+                        _showDialogDesc(RString.desc_hot_theme_index_pop);
+                      },
                     ),
                   ),
                 ],
               ),
             ),
+            const Text(
+              '라씨 매매비서가 분석한\n현재 테마 추세는?',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(
-              height: 15,
+              height: 25,
+            ),
+            FittedBox(
+              child: Container(
+                //constraints: BoxConstraints(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: isBull ? RColor.bgBuy : RColor.bgSell,
+                  borderRadius: const BorderRadius.all(Radius.circular(20.0)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      status + statusSub,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 6,
+                    ),
+                    Text(
+                      _themeDays,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const Text(
+                      '일째',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
             ),
           ],
         ),
       ),
-      onTap: () => _showDialogDesc(RString.desc_hot_theme_index_pop),
     );
   }
 
-  //현재 테마주도주
-  Widget _setSelectThemeTypeTab() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+  // ㅡㅡㅡ 현재 테마주도주 ㅡㅡㅡ
+  Widget get _setLeadingStockView {
+    return _paddingView(
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  child: Container(
-                    height: 38,
-                    margin: const EdgeInsets.only(left: 10),
-                    padding: const EdgeInsets.all(5),
-                    decoration: _bSelectA ? UIStyle.boxBtnSelectedSell() : UIStyle.boxRoundLine20(),
-                    child: Center(
-                      child: Text(
-                        '단기 강세 TOP 3',
-                        style: _bSelectA ? TStyle.btnTextWht15 : TStyle.commonTitle15,
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    if (_bSelectB) {
-                      setState(() {
-                        _bSelectA = true;
-                        _bSelectB = false;
-                        _stockList.clear();
-                      });
-                      _requestTheme05('SHORT');
-                    }
-                  },
-                ),
-              ),
-              Expanded(
-                child: InkWell(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  child: Container(
-                    height: 38,
-                    margin: const EdgeInsets.only(left: 10),
-                    padding: const EdgeInsets.all(5),
-                    decoration: _bSelectB ? UIStyle.boxBtnSelectedSell() : UIStyle.boxRoundLine20(),
-                    child: Center(
-                      child: Text(
-                        '추세주도주',
-                        style: _bSelectB ? TStyle.btnTextWht15 : TStyle.commonTitle15,
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    if (_bSelectA) {
-                      setState(() {
-                        _bSelectA = false;
-                        _bSelectB = true;
-                        _stockList.clear();
-                      });
-                      DLog.d(ThemeHotViewer.TAG, '추세주도주');
-                      _requestTheme05('TREND');
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-            ],
+          const Align(
+            alignment: Alignment.topLeft,
+            child: Text(
+              '현재 테마 주도주',
+              style: TStyle.defaultTitle,
+            ),
           ),
+
+          const SizedBox(
+            height: 20,
+          ),
+
+          // 단기 강세 <> 이번 추세 주도주
+          _setLeadingStockDivButtons,
+
+          const SizedBox(
+            height: 20,
+          ),
+
+          // 현재 테마 주도주 설명
+          Text(
+            _isLeadingTop3 ? RString.desc_theme_stock_short : RString.desc_theme_stock_trend,
+            style: TStyle.textGrey15,
+            textAlign: TextAlign.left,
+          ),
+
           const SizedBox(
             height: 15,
           ),
 
-          //테마주도주 설명 텍스트
-          Visibility(
-            visible: _bSelectA,
-            child: const Text(
-              RString.desc_theme_stock_short,
-              style: TStyle.textGrey15,
-              textAlign: TextAlign.left,
+          // 현재 테마 주도주 차트
+          if (!_isBearTheme)
+            if (_isLeadingTop3) _leadingStockTop3Chart else _leadingStockTrendsChart,
+          if (!_isBearTheme)
+            const SizedBox(
+              height: 10,
             ),
-          ),
-          Visibility(
-            visible: _bSelectB,
-            child: const Text(
-              RString.desc_theme_stock_trend,
-              style: TStyle.textGrey15,
-              textAlign: TextAlign.left,
-            ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
+          if (!_isBearTheme) _leadingStockChartCircleParent,
+
+          _isBearTheme
+              ? CommonView.setNoDataView(
+                  150,
+                  '테마 추세가 현재 약세일 경우\n주도주가 분석되지 않습니다.',
+                )
+              : ListView.builder(
+                  physics: const ScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: _leadingStockList.length,
+                  itemBuilder: (context, index) {
+                    return TileTheme05(index, _leadingStockList[index], _selDiv);
+                  },
+                ),
         ],
+      ),
+    );
+  }
+
+  Widget get _setLeadingStockDivButtons {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(
+          flex: 1,
+          child: InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  width: 1.4,
+                  color: !_isLeadingTop3 ? RColor.lineGrey : Colors.black,
+                ),
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(
+                    5,
+                  ),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '단기 강세 TOP3',
+                  style: !_isLeadingTop3 ? const TextStyle(fontSize: 15, color: RColor.lineGrey) : TStyle.commonTitle15,
+                ),
+              ),
+            ),
+            onTap: () {
+              if (!_isLeadingTop3) {
+                setState(() {
+                  _isLeadingTop3 = true;
+                  _leadingStockList.clear();
+                });
+                _requestTheme05('SHORT');
+              }
+            },
+          ),
+        ),
+        Flexible(
+          flex: 1,
+          child: InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  width: 1.4,
+                  color: !_isLeadingTop3 ? Colors.black : RColor.lineGrey,
+                ),
+                borderRadius: const BorderRadius.horizontal(
+                  right: Radius.circular(
+                    5,
+                  ),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '이번 추세 주도주',
+                  style: !_isLeadingTop3
+                      ? TStyle.commonTitle15
+                      : const TextStyle(
+                          fontSize: 15,
+                          color: RColor.lineGrey,
+                        ),
+                ),
+              ),
+            ),
+            onTap: () {
+              if (_isLeadingTop3) {
+                setState(() {
+                  _isLeadingTop3 = false;
+                  _leadingStockList.clear();
+                });
+              }
+              _requestTheme05('TREND');
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  ChartAxis _leadingStockChartYAxis(String axisName) => NumericAxis(
+        rangePadding: ChartRangePadding.round,
+        opposedPosition: true,
+        axisLine: const AxisLine(
+          width: 0,
+        ),
+        majorGridLines: MajorGridLines(
+          width: axisName.contains('1') ? 1 : 0,
+        ),
+        majorTickLines: const MajorTickLines(
+          width: 0,
+        ),
+        desiredIntervals: 4,
+        name: axisName,
+        labelFormat: '',
+        labelPosition: ChartDataLabelPosition.inside,
+        labelStyle: const TextStyle(
+          fontSize: 0,
+        ),
+      );
+
+  Widget _paddingView({required Widget child}) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: child,
+      );
+
+  Widget get _leadingStockTop3Chart {
+    if (_leadingStockList.isEmpty) {
+      return const SizedBox();
+    }
+    return SizedBox(
+      width: double.infinity,
+      height: 200,
+      child: SfCartesianChart(
+        plotAreaBorderWidth: 0,
+        enableMultiSelection: false,
+        margin: EdgeInsets.zero,
+        primaryXAxis: NumericAxis(
+            axisBorderType: AxisBorderType.withoutTopAndBottom,
+            axisLine: const AxisLine(
+              width: 1,
+              color: Colors.black,
+            ),
+            majorGridLines: const MajorGridLines(
+              width: 0,
+            ),
+            majorTickLines: const MajorTickLines(
+              width: 1,
+              color: Colors.black,
+            ),
+            edgeLabelPlacement: EdgeLabelPlacement.shift,
+            axisLabelFormatter: (axisLabelRenderArgs) {
+              String labelDate = '';
+              int index = axisLabelRenderArgs.value.toInt();
+              if (_leadingStockList.isNotEmpty) {
+                Theme05ChartData item = _leadingStockList[0].listChart[index];
+                labelDate =
+                    '${TStyle.getDateSlashFormat1(item.td)}\n${item.tt.substring(0, 2)}:${item.tt.substring(2)}';
+              }
+              return ChartAxisLabel(
+                labelDate,
+                const TextStyle(
+                  fontSize: 10,
+                  color: RColor.greyBasic_8c8c8c,
+                ),
+              );
+            }),
+        primaryYAxis: _leadingStockChartYAxis('yAxis1'),
+        axes: [
+          _leadingStockChartYAxis('yAxis2'),
+          _leadingStockChartYAxis('yAxis3'),
+        ],
+        trackballBehavior: _trackballBehavior,
+        selectionType: SelectionType.point,
+        series: [
+          if (_leadingStockList.isNotEmpty)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[0].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xffFBD240),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis1',
+            ),
+          if (_leadingStockList.length >= 2)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[1].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xff5DD68D),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis2',
+            ),
+          if (_leadingStockList.length >= 3)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[2].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xffaba5f1),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis3',
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget get _leadingStockTrendsChart {
+    if (_leadingStockList.isEmpty) {
+      return const SizedBox();
+    }
+    return SizedBox(
+      width: double.infinity,
+      height: 200,
+      child: SfCartesianChart(
+        plotAreaBorderWidth: 0,
+        enableMultiSelection: false,
+        margin: EdgeInsets.zero,
+        primaryXAxis: NumericAxis(
+            axisBorderType: AxisBorderType.withoutTopAndBottom,
+            axisLine: const AxisLine(
+              width: 1,
+              color: Colors.black,
+            ),
+            majorGridLines: const MajorGridLines(
+              width: 0,
+            ),
+            majorTickLines: const MajorTickLines(
+              width: 1,
+              color: Colors.black,
+            ),
+            edgeLabelPlacement: EdgeLabelPlacement.shift,
+            axisLabelFormatter: (axisLabelRenderArgs) {
+              String labelDate = '';
+              int index = axisLabelRenderArgs.value.toInt();
+              if (_leadingStockList.isNotEmpty) {
+                Theme05ChartData item = _leadingStockList[0].listChart[index];
+                labelDate = _leadingStockList[0].candleDiv == 'MIN'
+                    ? '${TStyle.getDateSlashFormat1(item.td)}\n${item.tt.substring(0, 2)}:${item.tt.substring(2)}'
+                    : TStyle.getDateSlashFormat1(item.td);
+              }
+              return ChartAxisLabel(
+                labelDate,
+                const TextStyle(
+                  fontSize: 10,
+                  color: RColor.greyBasic_8c8c8c,
+                ),
+              );
+            }),
+        primaryYAxis: _leadingStockChartYAxis('yAxis1'),
+        axes: [
+          _leadingStockChartYAxis('yAxis2'),
+          _leadingStockChartYAxis('yAxis3'),
+        ],
+        trackballBehavior: _trackballBehavior,
+        selectionType: SelectionType.point,
+        series: [
+          if (_leadingStockList.isNotEmpty)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[0].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xffFBD240),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis1',
+            ),
+          if (_leadingStockList.length >= 2)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[1].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xff5DD68D),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis2',
+            ),
+          if (_leadingStockList.length >= 3)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[2].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xffaba5f1),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis3',
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget get _leadingStockChartCircleParent {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (_leadingStockList.isNotEmpty)
+          _leadingStockChartCircle(
+            _leadingStockList[0].stockName,
+            const Color(0xffFBD240),
+          ),
+        if (_leadingStockList.length > 1)
+          const SizedBox(
+            width: 10,
+          ),
+        if (_leadingStockList.length > 1)
+          _leadingStockChartCircle(_leadingStockList[1].stockName, const Color(0xff5DD68D)),
+        if (_leadingStockList.length > 2)
+          const SizedBox(
+            width: 10,
+          ),
+        if (_leadingStockList.length > 2)
+          _leadingStockChartCircle(_leadingStockList[02].stockName, const Color(0xffaba5f1)),
+      ],
+    );
+  }
+
+  Widget _leadingStockChartCircle(String stockName, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 7,
+          height: 7,
+          //color: Color(0xffFF5050),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        //const SizedBox(width: 4,),
+        Text(
+          '  $stockName',
+          style: const TextStyle(
+            fontSize: 11,
+            color: RColor.new_basic_text_color_grey,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _leadingStockChartCircleTrackBall(Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ㅡㅡㅡ 현재 테마주도주 끝 ㅡㅡㅡ
+
+  //차트 테마지수
+  Widget get _themeChart {
+    if (_listThemeChart.isEmpty) {
+      return const SizedBox();
+    }
+    return SizedBox(
+      width: double.infinity,
+      height: 200,
+      child: SfCartesianChart(
+        plotAreaBorderWidth: 0,
+        enableMultiSelection: false,
+        margin: EdgeInsets.zero,
+        primaryXAxis: NumericAxis(
+            axisBorderType: AxisBorderType.withoutTopAndBottom,
+            axisLine: const AxisLine(
+              width: 1,
+              color: Colors.black,
+            ),
+            majorGridLines: const MajorGridLines(
+              width: 0,
+            ),
+            majorTickLines: const MajorTickLines(
+              width: 1,
+              color: Colors.black,
+            ),
+            edgeLabelPlacement: EdgeLabelPlacement.shift,
+            axisLabelFormatter: (axisLabelRenderArgs) {
+              int index = axisLabelRenderArgs.value.toInt();
+              return ChartAxisLabel(
+                TStyle.getDateSlashFormat1(_listThemeChart[index].tradeDate),
+                const TextStyle(
+                  fontSize: 10,
+                  color: RColor.greyBasic_8c8c8c,
+                ),
+              );
+            }),
+        primaryYAxis: NumericAxis(
+          rangePadding: ChartRangePadding.round,
+          opposedPosition: true,
+          axisLine: const AxisLine(
+            width: 0,
+          ),
+          majorGridLines: const MajorGridLines(
+            width: 1,
+          ),
+          majorTickLines: const MajorTickLines(
+            width: 0,
+          ),
+          axisLabelFormatter: (axisLabelRenderArgs) {
+            return ChartAxisLabel(
+              TStyle.getMoneyPoint(axisLabelRenderArgs.value.toString()),
+              const TextStyle(
+                fontSize: 10,
+                color: RColor.greyBasic_8c8c8c,
+              ),
+            );
+          },
+        ),
+        trackballBehavior: _trackballBehaviorTheme,
+        selectionType: SelectionType.point,
+        series: [
+          if (_listThemeChart.isNotEmpty)
+            LineSeries<ChartTheme, int>(
+              dataSource: _listThemeChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => double.parse(item.tradeIndex),
+              color: RColor.chartGreen,
+              width: 1.4,
+              enableTooltip: false,
+              dataLabelSettings: DataLabelSettings(
+                isVisible: true,
+                borderWidth: 1,
+                borderColor: RColor.greyBoxLine_c9c9c9,
+                color: Colors.white,
+                opacity: 0.6,
+                //labelAlignment: ChartDataLabelAlignment.top,
+                textStyle: const TextStyle(
+                  fontSize: 8,
+                  color: Colors.black,
+                ),
+                showZeroValue: true,
+                margin: EdgeInsets.zero,
+                builder: (data, point, series, pointIndex, seriesIndex) {
+                  if (pointIndex == _highestThemeChartListIndex) {
+                    //DLog.e('최고 index : $pointIndex');
+                    //return '최고123';
+                    //return '최고 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
+                    return Text(
+                      '최고 ${TStyle.getMoneyPoint(_listThemeChart[pointIndex].tradeIndex)}',
+                      style: const TextStyle(
+                        fontSize: 10,
+                      ),
+                    );
+                  } else if (pointIndex == _lowestThemeChartListIndex) {
+                    //DLog.e('최저 index : $index');
+                    //return '최저';
+                    //return '최저 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
+                    return Text(
+                      '최저 ${TStyle.getMoneyPoint(_listThemeChart[pointIndex].tradeIndex)}',
+                      style: const TextStyle(
+                        fontSize: 10,
+                      ),
+                    );
+                  } else {
+                    //DLog.e('기타 index : $index');
+                    return const SizedBox();
+                  }
+                  //return Container(child: Text('${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원'),);
+                },
+                //overflowMode: OverflowMode.shift,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget get _themeDateDivView {
+    return Container(
+      width: double.infinity,
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(
+          4,
+          (index) => InkWell(
+            splashColor: Colors.transparent,
+            onTap: () {
+              if (_themeDivIndex != index) {
+                setState(() {
+                  _themeDivIndex = index;
+                });
+                _requestTheme04(_themeDivIndex == 0
+                    ? '1'
+                    : _themeDivIndex == 1
+                        ? '3'
+                        : _themeDivIndex == 2
+                            ? '6'
+                            : _themeDivIndex == 3
+                                ? '12'
+                                : '1');
+              }
+            },
+            child: _setDateInnerView(index),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _setDateInnerView(int index) {
+    return Container(
+      alignment: Alignment.center,
+      decoration: (_themeDivIndex == index) ? UIStyle.boxNewSelectBtn2() : UIStyle.boxNewUnSelectBtn2(),
+      margin: const EdgeInsets.symmetric(
+        horizontal: 5,
+      ),
+      padding: const EdgeInsets.symmetric(
+        vertical: 6,
+        horizontal: 15,
+      ),
+      child: Text(
+        _themeDivTitles[index],
+        style: TextStyle(
+          color: (_themeDivIndex == index) ? Colors.black : RColor.new_basic_text_color_grey,
+          fontSize: 14,
+          fontWeight: (_themeDivIndex == index) ? FontWeight.w600 : FontWeight.w500,
+        ),
       ),
     );
   }
@@ -592,208 +1173,20 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
   Widget _setCardHistory() {
     return SizedBox(
       width: double.infinity,
-      height: 210,
+      height: 190,
       child: Swiper(
         controller: SwiperController(),
-        pagination: _tcList.length < 2 ? null : CommonSwiperPagenation.getNormalSP(9.0),
+        pagination: _tcList.length < 2
+            ? null
+            : CommonSwiperPagenation.getNormalSpWithMargin2(
+                6,
+                0,
+                RColor.purpleBasic_6565ff,
+              ),
         itemCount: _tcList.length,
         itemBuilder: (BuildContext context, int index) {
           return TileTheme06(_tcList[index]);
         },
-      ),
-    );
-  }
-
-  //차트 테마지수
-  Widget _setEChartView() {
-    return Echarts(
-      captureHorizontalGestures: true,
-      reloadAfterInit: true,
-      extraScript: '''
-          var date = [];
-          var data = [];
-        ''',
-      option: '''
-        {
-          grid: {
-            // backgroundColor: 'transparent',
-            backgroundColor: 'rgba(125,125,125,0.1)',
-            top: 15,
-            left: 5,
-            right: 5,
-            bottom: 20,
-            show: true,
-          },
-          xAxis: {
-              show: false,
-              type: 'category',
-              boundaryGap: ['10%', '10%'],
-              // boundaryGap: false,
-              data: $_dateStr,
-          },
-          yAxis: {
-              show: false,
-              type: 'value',
-              position: 'right',
-              scale: true,
-              boundaryGap: [0, '5%'],
-              splitLine: {
-                  show: false,
-              },
-          },
-          tooltip: {
-              trigger: 'axis',
-          },
-          dataZoom: [
-          {
-              type: 'inside',
-              start: 0,
-              end: 100,
-          }, 
-          ],
-          series: [
-              {
-                name: '테마지수',
-                type: 'line',
-                smooth: true,
-                stack: 'a',
-                symbol: 'circle',
-                symbolSize: 5,
-                sampling: 'average',
-                itemStyle: {
-                  color: '#68cc54',
-                },
-                areaStyle: {
-                  color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    {
-                      offset: 0,
-                      color: 'rgba(104,204,84,0.8)',
-                    },
-                    {
-                      offset: 1,
-                      color: 'rgba(104,204,84,0.0)',
-                    },
-                  ])
-                },
-                data: $_dataStr,
-              }
-             
-          ]
-        }
-      ''',
-    );
-  }
-
-  //차트 선택 탭바
-  Widget _setSelectTabChart() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  child: Container(
-                    height: 38,
-                    margin: const EdgeInsets.symmetric(horizontal: 15),
-                    padding: const EdgeInsets.all(5),
-                    decoration: _bSelect1M ? UIStyle.boxBtnSelectedTab() : const BoxDecoration(),
-                    child: const Center(
-                      child: Text(
-                        '1개월',
-                        style: TStyle.textGrey18,
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    if (!_bSelect1M) {
-                      setState(() {
-                        _bSelect1M = true;
-                        _bSelect6M = false;
-                        _bSelect12M = false;
-                      });
-                      _requestTheme04('1');
-                    }
-                  },
-                ),
-              ),
-              Expanded(
-                child: InkWell(
-                  child: Container(
-                    height: 38,
-                    margin: const EdgeInsets.symmetric(horizontal: 15),
-                    padding: const EdgeInsets.all(5),
-                    decoration: _bSelect6M ? UIStyle.boxBtnSelectedTab() : const BoxDecoration(),
-                    child: const Center(
-                      child: Text(
-                        '6개월',
-                        style: TStyle.textGrey18,
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    if (!_bSelect6M) {
-                      setState(() {
-                        _bSelect1M = false;
-                        _bSelect6M = true;
-                        _bSelect12M = false;
-                      });
-                      _requestTheme04('6');
-                    }
-                  },
-                ),
-              ),
-              Expanded(
-                child: InkWell(
-                  child: Container(
-                    height: 38,
-                    margin: const EdgeInsets.symmetric(horizontal: 15),
-                    padding: const EdgeInsets.all(5),
-                    decoration: _bSelect12M ? UIStyle.boxBtnSelectedTab() : const BoxDecoration(),
-                    child: const Center(
-                      child: Text(
-                        '1년',
-                        style: TStyle.textGrey18,
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    if (!_bSelect12M) {
-                      setState(() {
-                        _bSelect1M = false;
-                        _bSelect6M = false;
-                        _bSelect12M = true;
-                      });
-                      _requestTheme04('12');
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-        ],
-      ),
-    );
-  }
-
-  //소항목 타이틀
-  Widget _setSubTitle(String subTitle) {
-    return Container(
-      padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-      child: Row(
-        children: [
-          Text(
-            subTitle,
-            style: TStyle.defaultTitle,
-          ),
-        ],
       ),
     );
   }
@@ -914,45 +1307,40 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
         } else if (_themeStatus == 'BEAR' || _themeStatus == 'Bearish') {
           _isBearTheme = true;
         }
-
-        List<ChartTheme> chartData = resData.retData.listChart;
-        _setChartData(chartData);
+        _listThemeChart.clear();
+        _listThemeChart.addAll(resData.retData.listChart);
+        double maxTi = 0;
+        double minTi = 0;
+        resData.retData.listChart.asMap().forEach((index, element) {
+          double price = double.parse(element.tradeIndex);
+          if (index == 0) {
+            maxTi = price;
+            minTi = price;
+            _highestThemeChartListIndex = 0;
+            _lowestThemeChartListIndex = 0;
+          }
+          if (price > maxTi) {
+            maxTi = price;
+            _highestThemeChartListIndex = index;
+          }
+          if (price < minTi) {
+            minTi = price;
+            _lowestThemeChartListIndex = index;
+          }
+        });
         setState(() {});
-      }
-
-      if (_initFirst) {
-        _fetchPosts(
-            TR.THEME05,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-              'themeCode': _themeCode,
-              'selectDiv': 'SHORT', //SHORT: 단기강세TOP3, TREND: 추세주도주
-            }));
       }
     }
 
     //현재 테마 주도주
     else if (trStr == TR.THEME05) {
       final TrTheme05 resData = TrTheme05.fromJson(jsonDecode(response.body));
-      _stockList.clear();
+      _leadingStockList.clear();
       if (resData.retCode == RT.SUCCESS) {
-        _stockList.addAll(resData.retData.listStock);
+        _leadingStockList.addAll(resData.retData.listStock);
         _selDiv = resData.retData.selectDiv;
       }
       setState(() {});
-
-      if (_initFirst) {
-        _initFirst = false;
-        _fetchPosts(
-            TR.THEME06,
-            jsonEncode(<String, String>{
-              'userId': _userId,
-              'themeCode': _themeCode,
-              'topStockYn': 'Y',
-              'pageNo': '0',
-              'pageItemSize': '5',
-            }));
-      }
     }
     //테마주도주 히스토리
     else if (trStr == TR.THEME06) {
@@ -965,22 +1353,5 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
       }
       setState(() {});
     }
-  }
-
-  //테마지수 차트 데이터
-  void _setChartData(List<ChartTheme> chartData) {
-    String tmpDate = '[';
-    String tmpData = '[';
-    for (int i = 0; i < chartData.length; i++) {
-      tmpDate = '$tmpDate\'${chartData[i].tradeDate}\',';
-      // tmpDate = tmpDate + '\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
-
-      tmpData = '$tmpData{value: ${chartData[i].tradeIndex},symbol: \'none\'},';
-    }
-    tmpDate = '$tmpDate]';
-    tmpData = '$tmpData]';
-    _dateStr = tmpDate;
-    _dataStr = tmpData;
-    DLog.d(ThemeHotViewer.TAG, _dataStr);
   }
 }

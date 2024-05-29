@@ -13,14 +13,11 @@ class TrSns02 {
   TrSns02({this.retCode = '', this.retMsg = '', this.listData = const [],});
 
   factory TrSns02.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Sns02>? rtList;
-    list == null ? rtList = null : rtList = list.map((i) => Sns02.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrSns02(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      listData: list.map((i) => Sns02.fromJson(i)).toList(),
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => Sns02.fromJson(i)).toList(),
     );
   }
 }
@@ -42,7 +39,7 @@ class Sns02 {
 //화면구성
 class TileSns02 extends StatelessWidget {
   final Sns02 item;
-  TileSns02(this.item);
+  const TileSns02(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +53,7 @@ class TileSns02 extends StatelessWidget {
       ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -103,18 +100,14 @@ class TileSns02 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_getSocialString(item.concernGrade), style: TStyle.content14,),
+            Text(
+              item.concernGrade == '1' ? '조용' :
+              item.concernGrade == '2' ? '수군' :
+              item.concernGrade == '3' ? '왁자지껄' :
+              item.concernGrade == '4' ? '폭발' : '', style: TStyle.content14,),
           ],
         ),
       ),
     );
-  }
-
-  String _getSocialString(String num) {
-    if(num == '1') return '조용';
-    else if(num == '2') return '수군';
-    else if(num == '3') return '왁자지껄';
-    else if(num == '4') return '폭발';
-    return '';
   }
 }

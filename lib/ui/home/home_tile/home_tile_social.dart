@@ -1,22 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/d_log.dart';
+import 'package:rassi_assist/common/net.dart';
+import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/tr_sns/tr_sns07.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/sub/social_list_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../../common/const.dart';
-import '../../../common/d_log.dart';
-import '../../../common/net.dart';
-import '../../../common/tstyle.dart';
-import '../../../models/none_tr/app_global.dart';
-import '../../../models/pg_data.dart';
-import '../../../models/tr_sns07.dart';
-import '../../common/common_popup.dart';
-import '../../common/common_view.dart';
-import '../../main/base_page.dart';
-import '../../sub/social_list_page.dart';
 
 /// 커뮤니티 활동 급상승(소셜지수)
 class HomeTileSocial extends StatefulWidget {
@@ -26,7 +24,7 @@ class HomeTileSocial extends StatefulWidget {
   State<StatefulWidget> createState() => HomeTileSocialState();
 }
 
-class HomeTileSocialState extends State<HomeTileSocial> with AutomaticKeepAliveClientMixin<HomeTileSocial> {
+class HomeTileSocialState extends State<HomeTileSocial>{
   final AppGlobal _appGlobal = AppGlobal();
   late SharedPreferences _prefs;
   String _userId = '';
@@ -39,9 +37,6 @@ class HomeTileSocialState extends State<HomeTileSocial> with AutomaticKeepAliveC
     _prefs = await SharedPreferences.getInstance();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? _appGlobal.userId;
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -68,7 +63,6 @@ class HomeTileSocialState extends State<HomeTileSocial> with AutomaticKeepAliveC
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -132,7 +126,6 @@ class HomeTileSocialState extends State<HomeTileSocial> with AutomaticKeepAliveC
                   divisions: 3,
                   label: _currentSliderValue.round().toString(),
                   onChanged: (double value) {
-                    DLog.e('_setSliderValue value : $value / _timelineList.length : ${_timelineList.length}');
                     _setSliderValue(value);
                   },
                 ),
@@ -142,19 +135,16 @@ class HomeTileSocialState extends State<HomeTileSocial> with AutomaticKeepAliveC
 
           // 종목 리스트
           _socialList.isNotEmpty
-              ? SizedBox(
-                  height: 90,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    scrollDirection: Axis.vertical,
-                    padding: EdgeInsets.zero,
-                    itemCount: _socialList.length,
-                    itemBuilder: (context, index) {
-                      return TileSns03N(_socialList[index], index);
-                    },
-                  ),
-                )
+              ? ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                scrollDirection: Axis.vertical,
+                padding: EdgeInsets.zero,
+                itemCount: _socialList.length,
+                itemBuilder: (context, index) {
+                  return TileSns03N(_socialList[index], index);
+                },
+              )
               : CommonView.setNoDataTextView(130, '현재 커뮤니티 활동이\n평소보다 급상승한 종목이 없습니다.'),
         ],
       ),
@@ -185,9 +175,7 @@ class HomeTileSocialState extends State<HomeTileSocial> with AutomaticKeepAliveC
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -219,11 +207,8 @@ class TileSns03N extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      // height: 70,
       margin: EdgeInsets.only(
-        top: index == 0 ? 0 : 10,
-        left: 0,
-        right: 0,
+        top: index == 0 ? 0 : 12,
       ),
       alignment: Alignment.centerLeft,
       child: InkWell(
@@ -262,14 +247,7 @@ class TileSns03N extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                TStyle.getPercentString(item.fluctuationRate),
-                style: TextStyle(
-                  fontSize: 16,
-                  color: TStyle.getMinusPlusColor(item.fluctuationRate),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              CommonView.setFluctuationRateBox(value: item.fluctuationRate, fontSize: 15,),
             ],
           ),
         ),

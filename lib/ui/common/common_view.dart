@@ -225,6 +225,22 @@ class CommonView {
     );
   }
 
+  static Widget setFluctuationRateBox({EdgeInsetsGeometry? marginEdgeInsetsGeometry, required String value, double? fontSize,}) => Container(
+    margin: marginEdgeInsetsGeometry ?? EdgeInsets.zero,
+    padding: const EdgeInsets.symmetric(
+      horizontal: 5,
+      vertical: 2,
+    ),
+    decoration: UIStyle.boxRoundFullColor6c(TStyle.getMinusPlusColor(value)),
+    child: Text(
+      TStyle.getPercentString(TStyle.getFixedNum(value)),
+      style: TextStyle(
+        fontSize: fontSize ?? 16,
+        color: Colors.white,
+      ),
+    ),
+  );
+
   static Widget get setDivideLine => Container(
     margin: const EdgeInsets.symmetric(vertical: 20),
     color: const Color(

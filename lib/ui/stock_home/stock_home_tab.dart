@@ -44,8 +44,7 @@ class StockHomeTab extends StatefulWidget {
   State<StockHomeTab> createState() => StockHomeTabState();
 }
 
-class StockHomeTabState extends State<StockHomeTab>
-    with TickerProviderStateMixin {
+class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixin {
   late UserInfoProvider _userInfoProvider;
 
   late SharedPreferences _prefs;
@@ -80,15 +79,13 @@ class StockHomeTabState extends State<StockHomeTab>
     tabIndex = _appGlobal.tabIndex >= 2 ? 0 : _appGlobal.tabIndex;
     _currentTabIndex = tabIndex;
     //logoUrl = 'http://files.thinkpool.com/radarstock/company_logo/logo_' + stkCode + '.jpg';
-    _tabController =
-        TabController(length: 2, vsync: this, initialIndex: tabIndex);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: tabIndex);
     _tabController.addListener(_handleTabSelection);
     Provider.of<StockTabNameProvider>(context, listen: false).setJustTopTrue();
     _userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
     _userInfoProvider.addListener(refreshChild);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<StockInfoProvider>(context, listen: false)
-          .postRequest(stkCode);
+      Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
     });
     _loadPrefData();
   }
@@ -167,7 +164,16 @@ class StockHomeTabState extends State<StockHomeTab>
                 ),
                 isScrollable: true,
                 tabs: _setOnlyTitleTabView(),
-                //_setNormalTabView(),
+                onTap: (value) {
+                  if (value == 0) {
+                    var childCurrentState = StockHomeHomePage.globalKey.currentState;
+                    if (childCurrentState != null) {
+                      childCurrentState.setState(() {
+                        childCurrentState.addAutomaticKeepAlives = false;
+                      });
+                    }
+                  }
+                },
               ),
             ],
           ),
@@ -222,8 +228,7 @@ class StockHomeTabState extends State<StockHomeTab>
   }
 
   _handleTabSelection() {
-    if (_tabController.indexIsChanging ||
-        _tabController.index != _tabController.previousIndex) {
+    if (_tabController.indexIsChanging || _tabController.index != _tabController.previousIndex) {
       setState(() {
         _currentTabIndex = _tabController.index;
       });
@@ -244,7 +249,7 @@ class StockHomeTabState extends State<StockHomeTab>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      if(mounted) CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -265,7 +270,7 @@ class StockHomeTabState extends State<StockHomeTab>
   Widget _setTabView() {
     return TabBarView(
       physics: //Platform.isAndroid ? const NeverScrollableScrollPhysics() : null,
-      const NeverScrollableScrollPhysics(),
+          const NeverScrollableScrollPhysics(),
       controller: _tabController,
       children: [
         RefreshIndicator(
@@ -278,12 +283,21 @@ class StockHomeTabState extends State<StockHomeTab>
               childCurrentState!.stkCode = _appGlobal.stkCode;
               childCurrentState.stkName = _appGlobal.stkName;
               childCurrentState.stkGrpCode = '';
-              Provider.of<StockInfoProvider>(context, listen: false)
-                  .postRequest(stkCode);
+              Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
               await childCurrentState.reload();
             }
           },
-          child: StockHomeHomePage(),
+          child: Platform.isAndroid
+              ? StockHomeHomePage()
+              : GestureDetector(
+                  onPanUpdate: (details) {
+                    //DLog.e('details.delta.d : ${details.delta.dy}');
+                    if (details.delta.dx < -2) {
+                      _tabController.animateTo(1);
+                    }
+                  },
+                  child: StockHomeHomePage(),
+                ),
         ),
         /* StockHomeHomePage(),*/
         RefreshIndicator(
@@ -292,14 +306,21 @@ class StockHomeTabState extends State<StockHomeTab>
           strokeWidth: 2.0,
           onRefresh: () async {
             if (StockHomeSignalPage.globalKey.currentState != null) {
-              var childCurrentState =
-                  StockHomeSignalPage.globalKey.currentState;
+              var childCurrentState = StockHomeSignalPage.globalKey.currentState;
               //Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
               childCurrentState?.reload();
               await Future.delayed(const Duration(milliseconds: 1000));
             }
           },
-          child: StockHomeSignalPage(),
+          child: GestureDetector(
+              onPanUpdate: (details) {
+                if (details.delta.dx > 2) {
+                  _tabController.animateTo(
+                    0,
+                  );
+                }
+              },
+              child: StockHomeSignalPage()),
         ),
         //StockHomeSignalPage(),
       ],
@@ -310,9 +331,7 @@ class StockHomeTabState extends State<StockHomeTab>
     return [
       Consumer<StockTabNameProvider>(
         builder: (context, provider, _) {
-          String stockFluctuationRate =
-              Provider.of<StockInfoProvider>(context, listen: true)
-                  .getFluctaionRate;
+          String stockFluctuationRate = Provider.of<StockInfoProvider>(context, listen: true).getFluctaionRate;
           return Padding(
             padding: const EdgeInsets.only(bottom: 5),
             child: Text(
@@ -325,9 +344,7 @@ class StockHomeTabState extends State<StockHomeTab>
                 //공통 중간 타이틀
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
-                color: provider.getIsTop ||
-                        stockFluctuationRate.isEmpty ||
-                        stockFluctuationRate == '0'
+                color: provider.getIsTop || stockFluctuationRate.isEmpty || stockFluctuationRate == '0'
                     ? Colors.black
                     : stockFluctuationRate.contains('-')
                         ? RColor.lightSell_2e70ff
@@ -523,13 +540,13 @@ class StockHomeTabState extends State<StockHomeTab>
     final result = await Navigator.push(
       context,
       CustomNvRouteClass.createRoute(
-        const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
+        const SearchPage(
+          landWhere: SearchPage.goStockHome,
+          pocketSn: '',
+        ),
       ),
     );
-    if (result != null &&
-        result is Stock &&
-        result.stockName.isNotEmpty &&
-        result.stockCode.isNotEmpty) {
+    if (result != null && result is Stock && result.stockName.isNotEmpty && result.stockCode.isNotEmpty) {
       if (_appGlobal.stkCode != result.stockCode) {
         _appGlobal.stkCode = result.stockCode;
         _appGlobal.stkName = result.stockName;
@@ -565,8 +582,7 @@ class StockHomeTabState extends State<StockHomeTab>
   }
 
   showAddStockLayerAndResult() async {
-    String result =
-        await CommonLayer.instance.showLayerAddStockWithAddSignalBtn(
+    String result = await CommonLayer.instance.showLayerAddStockWithAddSignalBtn(
       context,
       Stock(
         stockName: stkName,
@@ -605,8 +621,7 @@ class StockHomeTabState extends State<StockHomeTab>
           );
         }
       } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(
-            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
       } else {
         CommonPopup.instance.showDialogBasic(context, '알림', result);
       }
@@ -629,8 +644,7 @@ class StockHomeTabState extends State<StockHomeTab>
       } else if (result == CustomNvRouteResult.cancel) {
         // user cancel
       } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(
-            context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
       } else {
         CommonPopup.instance.showDialogBasic(context, '알림', result);
       }
@@ -727,9 +741,7 @@ class StockHomeTabState extends State<StockHomeTab>
 
     if (mounted) {
       if (result == CustomNvRouteResult.refresh) {
-        String result =
-            await Provider.of<PocketProvider>(context, listen: false)
-                .deleteStock(
+        String result = await Provider.of<PocketProvider>(context, listen: false).deleteStock(
           Stock(
             stockName: stkName,
             stockCode: stkCode,
@@ -738,11 +750,9 @@ class StockHomeTabState extends State<StockHomeTab>
         );
         if (mounted) {
           if (result == CustomNvRouteResult.refresh) {
-            Provider.of<StockInfoProvider>(context, listen: false)
-                .postRequest(stkCode);
+            Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
           } else if (result == CustomNvRouteResult.fail) {
-            CommonPopup.instance.showDialogBasic(
-                context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+            CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
           } else {
             CommonPopup.instance.showDialogBasic(context, '안내', result);
           }
@@ -819,11 +829,9 @@ class StockHomeTabState extends State<StockHomeTab>
                     ),
                   ),
                   onTap: () {
-                    var stockInfoProvider =
-                        Provider.of<StockInfoProvider>(context, listen: false);
+                    var stockInfoProvider = Provider.of<StockInfoProvider>(context, listen: false);
                     // [포켓 > 나의포켓 > 포켓선택]
-                    basePageState.goPocketPage(Const.PKT_INDEX_MY,
-                        pktSn: stockInfoProvider.getPockSn);
+                    basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: stockInfoProvider.getPockSn);
                     Navigator.popUntil(
                       context,
                       ModalRoute.withName(BasePage.routeName),

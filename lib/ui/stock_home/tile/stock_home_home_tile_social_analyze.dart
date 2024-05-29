@@ -12,7 +12,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../../common/const.dart';
 import '../../../../models/pg_data.dart';
-import '../../../../models/tr_sns06.dart';
+import '../../../models/tr_sns/tr_sns06.dart';
 import '../../main/base_page.dart';
 import '../../user/community_page.dart';
 import '../page/recent_social_list_page.dart';
@@ -332,7 +332,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                         ),
                         onTap: () {
                           basePageState.callPageRouteUpData(
-                            NaverCommunityPage(),
+                            const NaverCommunityPage(),
                             PgData(stockCode: AppGlobal().stkCode, stockName: AppGlobal().stkName),
                           );
                         },
@@ -366,7 +366,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                         ),
                         onTap: () {
                           basePageState.callPageRouteUpData(
-                            CommunityPage(),
+                            const CommunityPage(),
                             PgData(
                                 userId: AppGlobal().userId,
                                 stockCode: AppGlobal().stkCode,
@@ -438,10 +438,9 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
           margin: const EdgeInsets.only(
             top: 5,
           ),
-          //color: Colors.amber,
           child: SfCartesianChart(
             enableAxisAnimation: true,
-            plotAreaBorderWidth: 1,
+            plotAreaBorderWidth: 0,
             margin: EdgeInsets.zero,
             primaryXAxis: CategoryAxis(
               plotBands: _listPlotBand,

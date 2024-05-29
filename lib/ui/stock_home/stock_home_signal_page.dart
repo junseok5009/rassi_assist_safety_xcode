@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -55,7 +56,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   bool varWantKeepAlive = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
-  late ScrollController _scrollController;
+  final ScrollController _scrollController = ScrollController();
   late StockTabNameProvider _stockTabNameProvider;
   bool _showBottomSheet = true;
 
@@ -130,7 +131,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
     stkName = _appGlobal.stkName;
     _stockTabNameProvider =
         Provider.of<StockTabNameProvider>(context, listen: false);
-    _scrollController = ScrollController();
+    //_scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == 0) {
         if (!_showBottomSheet) {
@@ -170,6 +171,13 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
           /*Provider.of<StockInfoProvider>(context, listen: false)
               .postRequest(stkCode),*/
         });
+  }
+
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   reload() {
@@ -1871,7 +1879,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         accountData.initUserStatus();
       }
 
-      if (_scrollController.position.pixels == 0) {
+      if (_scrollController.hasClients && _scrollController.position.pixels == 0) {
         if (!_showBottomSheet) {
           setState(() {
             _showBottomSheet = true;

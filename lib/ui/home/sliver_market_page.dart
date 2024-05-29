@@ -550,9 +550,6 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
                 children: _bubbleWidgetList,
               ),
             ),
-         /* const SizedBox(
-            height: 15.0,
-          ),*/
           CommonView.setBasicMoreRoundBtnView(
             [
               Text(

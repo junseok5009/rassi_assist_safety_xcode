@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +14,9 @@ import 'package:rassi_assist/models/tr_compare/tr_compare07.dart';
 
 import '../../../../common/const.dart';
 import '../../../../common/ui_style.dart';
-import '../../common/common_popup.dart';
-import '../../../models/none_tr/app_global.dart';
 import '../../../../models/pg_data.dart';
+import '../../../models/none_tr/app_global.dart';
+import '../../common/common_popup.dart';
 import '../../main/base_page.dart';
 import '../page/stock_compare_page.dart';
 
@@ -25,17 +24,15 @@ import '../page/stock_compare_page.dart';
 /// 종목홈(개편)_홈_종목비교 카드 + 시가총액/매출액/영업이익 차트
 
 class StockHomeHomeTileStockCompare extends StatefulWidget {
-  static final GlobalKey<StockHomeHomeTileStockCompareState> globalKey =
-      GlobalKey();
+  static final GlobalKey<StockHomeHomeTileStockCompareState> globalKey = GlobalKey();
+
   StockHomeHomeTileStockCompare() : super(key: globalKey);
+
   @override
-  State<StockHomeHomeTileStockCompare> createState() =>
-      StockHomeHomeTileStockCompareState();
+  State<StockHomeHomeTileStockCompare> createState() => StockHomeHomeTileStockCompareState();
 }
 
-class StockHomeHomeTileStockCompareState
-    extends State<StockHomeHomeTileStockCompare>
-    with AutomaticKeepAliveClientMixin<StockHomeHomeTileStockCompare> {
+class StockHomeHomeTileStockCompareState extends State<StockHomeHomeTileStockCompare> {
   String _userId = '';
   final _appGlobal = AppGlobal();
   String _stockCode = '';
@@ -48,9 +45,6 @@ class StockHomeHomeTileStockCompareState
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 억, true 이면 천억
   String _year = ''; // ~ 년도 + 분기 반영 종목 표기
   String _quarter = ''; // ~ 년도 + 분기 반영 종목 표기
-
-  @override
-  bool get wantKeepAlive => true;
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -69,14 +63,13 @@ class StockHomeHomeTileStockCompareState
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Visibility(
       visible: _checkStockCompareViewVisible(),
       child: Column(
@@ -96,44 +89,39 @@ class StockHomeHomeTileStockCompareState
                 const SizedBox(
                   height: 20,
                 ),
-                InkWell(
-                  onTap: () {},
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              '${TStyle.getPostWord(_stockName, '과', '와')} 같은 ',
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                            Text(
-                              _stockGroup.stockGrpNm,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: RColor.mainColor,
-                              ),
-                            ),
-                            const Text(
-                              ' 그룹에 속한',
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          '${TStyle.getPostWord(_stockName, '과', '와')} 같은 ',
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          _stockGroup.stockGrpNm,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: RColor.mainColor,
+                          ),
                         ),
                         const Text(
-                          '다른 종목들도 비교해 보세요.',
+                          ' 그룹에 속한',
                           style: TextStyle(
                             fontSize: 16,
                           ),
-                        )
+                        ),
                       ],
                     ),
-                  ),
+                    const Text(
+                      '다른 종목들도 비교해 보세요.',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    )
+                  ],
                 ),
                 const SizedBox(
                   height: 20,
@@ -145,9 +133,7 @@ class StockHomeHomeTileStockCompareState
 
                 // 테이블 _ 하단 : 데이터 반영 기준일 + base data 표시
                 Visibility(
-                  visible: _compare02.listStock.isNotEmpty &&
-                      _year.isNotEmpty &&
-                      _quarter.isNotEmpty,
+                  visible: _compare02.listStock.isNotEmpty && _year.isNotEmpty && _quarter.isNotEmpty,
                   child: Container(
                     width: double.infinity,
                     margin: const EdgeInsets.only(bottom: 20),
@@ -268,7 +254,7 @@ class StockHomeHomeTileStockCompareState
                   color: _stockCompareDiv == 0 ? Colors.black : RColor.lineGrey,
                 ),
                 borderRadius: const BorderRadius.horizontal(
-                  left: const Radius.circular(
+                  left: Radius.circular(
                     5,
                   ),
                 ),
@@ -292,8 +278,7 @@ class StockHomeHomeTileStockCompareState
                     _stockCompareDiv = 0;
                     _compare02.listStock.sort(
                       (a, b) {
-                        return double.parse(b.marketValue)
-                            .compareTo(double.parse(a.marketValue));
+                        return double.parse(b.marketValue).compareTo(double.parse(a.marketValue));
                       },
                     );
                     _isRightYAxisUpUnit = _findMaxValue >= 1000;
@@ -314,14 +299,11 @@ class StockHomeHomeTileStockCompareState
                 border: Border.symmetric(
                   horizontal: BorderSide(
                     width: 1.4,
-                    color:
-                        _stockCompareDiv == 1 ? Colors.black : RColor.lineGrey,
+                    color: _stockCompareDiv == 1 ? Colors.black : RColor.lineGrey,
                   ),
                   vertical: BorderSide(
                     width: _stockCompareDiv == 1 ? 1.4 : 0,
-                    color: _stockCompareDiv == 1
-                        ? Colors.black
-                        : Colors.transparent,
+                    color: _stockCompareDiv == 1 ? Colors.black : Colors.transparent,
                   ),
                 ),
               ),
@@ -338,17 +320,17 @@ class StockHomeHomeTileStockCompareState
               ),
             ),
             onTap: () {
-              if (_stockCompareDiv != 1)
+              if (_stockCompareDiv != 1) {
                 setState(() {
                   _stockCompareDiv = 1;
                   _compare02.listStock.sort(
                     (a, b) {
-                      return double.parse(b.sales)
-                          .compareTo(double.parse(a.sales));
+                      return double.parse(b.sales).compareTo(double.parse(a.sales));
                     },
                   );
                   _isRightYAxisUpUnit = _findMaxValue >= 1000;
                 });
+              }
             },
           ),
         ),
@@ -365,7 +347,7 @@ class StockHomeHomeTileStockCompareState
                   color: _stockCompareDiv == 2 ? Colors.black : RColor.lineGrey,
                 ),
                 borderRadius: const BorderRadius.horizontal(
-                  right: const Radius.circular(
+                  right: Radius.circular(
                     5,
                   ),
                 ),
@@ -383,17 +365,17 @@ class StockHomeHomeTileStockCompareState
               ),
             ),
             onTap: () {
-              if (_stockCompareDiv != 2)
+              if (_stockCompareDiv != 2) {
                 setState(() {
                   _stockCompareDiv = 2;
                   _compare02.listStock.sort(
                     (a, b) {
-                      return double.parse(b.salesProfit)
-                          .compareTo(double.parse(a.salesProfit));
+                      return double.parse(b.salesProfit).compareTo(double.parse(a.salesProfit));
                     },
                   );
                   _isRightYAxisUpUnit = _findMaxValue >= 1000;
                 });
+              }
             },
           ),
         ),
@@ -404,19 +386,18 @@ class StockHomeHomeTileStockCompareState
   Widget _makeTableQuarterInfo() {
     // 테이블 _ 하단 : 종목 반영 년도 + 분기 표시
 
-    List<StockCompare02> _vAlStockCompare02 = [];
-    _vAlStockCompare02.addAll(_compare02.listStock);
+    List<StockCompare02> vAlStockCompare02 = [];
+    vAlStockCompare02.addAll(_compare02.listStock);
 
     _listYQClass.clear();
-    for (int i = 0; i < _vAlStockCompare02.length; i++) {
-      var item = _vAlStockCompare02[i];
+    for (int i = 0; i < vAlStockCompare02.length; i++) {
+      var item = vAlStockCompare02[i];
       if (item.latestQuarter.isNotEmpty) {
         String itemYear = item.latestQuarter.substring(0, 4);
         String itemQ = item.latestQuarter.substring(5);
         bool isSame = false;
         for (int k = 0; k < _listYQClass.length; k++) {
-          if (itemYear == _listYQClass[k].year &&
-              itemQ == _listYQClass[k].quarter) {
+          if (itemYear == _listYQClass[k].year && itemQ == _listYQClass[k].quarter) {
             isSame = true;
             _listYQClass[k].listStockName.add(item.stockName);
             break;
@@ -433,7 +414,7 @@ class StockHomeHomeTileStockCompareState
     _listYQClass.sort((a, b) => b.year.compareTo(a.year));
 
     return Visibility(
-      visible: _vAlStockCompare02.isNotEmpty,
+      visible: vAlStockCompare02.isNotEmpty,
       child: Container(
         decoration: UIStyle.boxNewBasicGrey10(),
         padding: const EdgeInsets.all(20),
@@ -470,21 +451,18 @@ class StockHomeHomeTileStockCompareState
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
   void _parseTrData(String trStr, final http.Response response) {
     DLog.w(trStr + response.body);
     if (trStr == TR.COMPARE07) {
-      final TrCompare07 resData =
-          TrCompare07.fromJson(jsonDecode(response.body));
+      final TrCompare07 resData = TrCompare07.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        Compare07 _compare07 = resData.retData;
-        if (_compare07.listStockGroup.isNotEmpty) {
-          _stockGroup = _compare07.listStockGroup[0];
+        Compare07 compare07 = resData.retData;
+        if (compare07.listStockGroup.isNotEmpty) {
+          _stockGroup = compare07.listStockGroup[0];
 
           // DEFINE 종목 비교
           _fetchPosts(
@@ -511,14 +489,12 @@ class StockHomeHomeTileStockCompareState
       _compare02 = constCompare02;
       _year = '';
       _quarter = '';
-      final TrCompare02 resData =
-          TrCompare02.fromJson(jsonDecode(response.body));
+      final TrCompare02 resData = TrCompare02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _compare02 = resData.retData;
         _compare02.listStock.sort(
           (a, b) {
-            return double.parse(b.marketValue)
-                .compareTo(double.parse(a.marketValue));
+            return double.parse(b.marketValue).compareTo(double.parse(a.marketValue));
           },
         );
 
@@ -545,13 +521,11 @@ class StockHomeHomeTileStockCompareState
             int rodIndex,
           ) {
             return BarTooltipItem(
-              '${TStyle.getBillionUnitWithMoneyPointByDouble(
+              TStyle.getBillionUnitWithMoneyPointByDouble(
                 rod.toY.round().toString(),
-              )}',
+              ),
               TextStyle(
-                color: rod.color == RColor.chartGreyColor
-                    ? RColor.new_basic_text_color_grey
-                    : rod.color,
+                color: rod.color == RColor.chartGreyColor ? RColor.new_basic_text_color_grey : rod.color,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),
@@ -563,9 +537,7 @@ class StockHomeHomeTileStockCompareState
   Widget getTitles(double value, TitleMeta meta) {
     var item = _compare02.listStock[value.toInt()];
     final style = TextStyle(
-      color: item.stockName == _stockName
-          ? RColor.sigBuy
-          : RColor.new_basic_text_color_grey,
+      color: item.stockName == _stockName ? RColor.sigBuy : RColor.new_basic_text_color_grey,
       fontSize: 14,
     );
     return SideTitleWidget(
@@ -627,9 +599,7 @@ class StockHomeHomeTileStockCompareState
             BarChartRodData(
               borderRadius: BorderRadius.zero,
               width: 16,
-              color: _compare02.listStock[index].stockCode == _stockCode
-                  ? RColor.sigBuy
-                  : RColor.chartGreyColor,
+              color: _compare02.listStock[index].stockCode == _stockCode ? RColor.sigBuy : RColor.chartGreyColor,
               toY: _stockCompareDiv == 0
                   ? double.parse(_compare02.listStock[index].marketValue)
                   : _stockCompareDiv == 1
@@ -647,20 +617,16 @@ class StockHomeHomeTileStockCompareState
       return 0;
     } else {
       if (_stockCompareDiv == 0) {
-        var item = _compare02.listStock.reduce((curr, next) =>
-            double.parse(curr.marketValue) > double.parse(next.marketValue)
-                ? curr
-                : next);
+        var item = _compare02.listStock
+            .reduce((curr, next) => double.parse(curr.marketValue) > double.parse(next.marketValue) ? curr : next);
         return double.parse(item.marketValue);
       } else if (_stockCompareDiv == 1) {
-        var item = _compare02.listStock.reduce((curr, next) =>
-            double.parse(curr.sales) > double.parse(next.sales) ? curr : next);
+        var item = _compare02.listStock
+            .reduce((curr, next) => double.parse(curr.sales) > double.parse(next.sales) ? curr : next);
         return double.parse(item.sales);
       } else if (_stockCompareDiv == 2) {
-        var item = _compare02.listStock.reduce((curr, next) =>
-            double.parse(curr.salesProfit) > double.parse(next.salesProfit)
-                ? curr
-                : next);
+        var item = _compare02.listStock
+            .reduce((curr, next) => double.parse(curr.salesProfit) > double.parse(next.salesProfit) ? curr : next);
         return double.parse(item.salesProfit);
       } else {
         return 0;

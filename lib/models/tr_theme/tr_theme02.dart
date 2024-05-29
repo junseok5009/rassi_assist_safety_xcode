@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/theme_top_data.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_viewer.dart';
-
-import '../../common/ui_style.dart';
 
 /// 2022.02.08
 /// -->(05.10 변경) 주간 Weekly HOT 테마 조회
@@ -63,7 +62,7 @@ class TileTheme02 extends StatelessWidget {
         width: double.infinity,
         margin: const EdgeInsets.fromLTRB(20, 10, 20, 40),
         decoration: UIStyle.boxShadowBasic(16),
-        child: _setThemeNewContainer(),
+        child: _setThemeContainer(),
       ),
       onTap: () {
         basePageState.callPageRouteUpData(
@@ -74,17 +73,7 @@ class TileTheme02 extends StatelessWidget {
     );
   }
 
-  Widget _setThemeNewContainer() {
-    String rText;
-    Color rColor;
-    if (item.increaseRate.contains('-')) {
-      rText = item.increaseRate;
-      rColor = RColor.sigSell;
-    } else {
-      rText = '+${item.increaseRate}';
-      rColor = RColor.sigBuy;
-    }
-
+  Widget _setThemeContainer() {
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -98,11 +87,11 @@ class TileTheme02 extends StatelessWidget {
               ),
               const SizedBox(height: 3),
               Text(
-                '$rText%',
+                TStyle.getPercentString(item.increaseRate),
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
-                  color: rColor,
+                  color: TStyle.getMinusPlusColor(item.increaseRate),
                 ),
               ),
             ],
@@ -121,138 +110,6 @@ class TileTheme02 extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 return TileThemeTop(item.listStock[index]);
               },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  //(기존 테마 전체보기)
-  Widget _setThemeContainer() {
-    String rText;
-    Color rColor;
-    if (item.increaseRate.contains('-')) {
-      rText = item.increaseRate;
-      rColor = RColor.sigSell;
-    } else {
-      rText = '+${item.increaseRate}';
-      rColor = RColor.sigBuy;
-    }
-
-    return Container(
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(6.0)),
-        image: DecorationImage(
-          image: NetworkImage(RString.themeDefaultUrl),
-          fit: BoxFit.fill,
-        ),
-      ),
-      child: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: 180.0,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(6),
-                topRight: Radius.circular(6),
-              ),
-              image: DecorationImage(
-                image: _setNetworkImage(item.themeCode),
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(6.0)),
-              color: const Color(0xbb121212).withOpacity(0.45),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 1,
-                        ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(20.0),
-                        ),
-                      ),
-                      child: Text(
-                        ' TOP$topIdx ',
-                        style: TStyle.btnTextWht14,
-                      ),
-                    ),
-                  ],
-                ),
-
-                // 하단 테마에 속한 3종목
-                Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: RColor.mainColor,
-                    borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(6),
-                      bottomLeft: Radius.circular(6),
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 14,
-                  ),
-                  child: Wrap(
-                    spacing: 7.0,
-                    alignment: WrapAlignment.center,
-                    children: List.generate(
-                      item.listStock.length,
-                      (index) => InkWell(
-                        child: Container(
-                          padding: const EdgeInsets.all(1),
-                          // color: RColor.bgWeakGrey,
-                          child: Text(
-                            ' ${TStyle.getLimitString(item.listStock[index].stockName, 7)}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Color(0xffEFEFEF),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${item.themeName} 테마',
-                  style: TStyle.btnTextWht20,
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '$rText%',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 22,
-                    color: rColor,
-                  ),
-                ),
-              ],
             ),
           ),
         ],
@@ -308,22 +165,7 @@ class TileThemeTop extends StatelessWidget {
                   ),
 
                   //주간 등락률
-                  Container(
-                    width: 80,
-                    height: 23,
-                    alignment: Alignment.center,
-                    decoration: UIStyle.boxRoundFullColor6c(
-                      TStyle.getMinusPlusFlucColor(stockInfo.increaseRate),
-                    ),
-                    child: Text(
-                      TStyle.getPercentString(stockInfo.increaseRate),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                  CommonView.setFluctuationRateBox(value: stockInfo.increaseRate, fontSize: 14),
                 ],
               ),
             ),

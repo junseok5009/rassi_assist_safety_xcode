@@ -20,7 +20,7 @@ class CommonPopup {
     return instance;
   }
 
-  // 네트워크 에러 알림
+  // 네트워크 에러 알림 >> 추후 삭제
   void showDialogNetErr(BuildContext funcBuildContext) {
     if (funcBuildContext.mounted) {
       showDialog(
@@ -99,6 +99,75 @@ class CommonPopup {
             );
           });
     }
+  }
+
+  Widget netErrBuilder({required BuildContext builderContext}) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          InkWell(
+            child: const Icon(
+              Icons.close,
+              color: Colors.black,
+            ),
+            onTap: () {
+              Navigator.pop(builderContext);
+            },
+          ),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          children: [
+            Image.asset(
+              'images/rassibs_img_infomation.png',
+              height: 60,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(
+              height: 5.0,
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20, left: 10, right: 10),
+              child: Text(
+                '안내',
+                style: TStyle.commonTitle,
+              ),
+            ),
+            const SizedBox(
+              height: 25.0,
+            ),
+            const Text(
+              RString.err_network,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 30.0,
+            ),
+            InkWell(
+              child: Container(
+                width: 140,
+                height: 36,
+                decoration: UIStyle.roundBtnStBox(),
+                child: const Center(
+                  child: Text(
+                    '확인',
+                    style: TStyle.btnTextWht15,
+                  ),
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(builderContext);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   // 공통 알림
@@ -436,13 +505,14 @@ class CommonPopup {
                           const SizedBox(
                             height: 10,
                           ),
-                          Container(
+                          SizedBox(
                             width: AppGlobal().deviceWidth / 2.5,
                             height: AppGlobal().deviceWidth / 2.5,
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
                                 Align(
+                                  alignment: Alignment.center,
                                   child: Container(
                                     width: AppGlobal().deviceWidth / 3.7,
                                     height: AppGlobal().deviceWidth / 3.7,
@@ -451,7 +521,6 @@ class CommonPopup {
                                       color: Color(0xffD8D8FF),
                                     ),
                                   ),
-                                  alignment: Alignment.center,
                                 ),
                                 Align(
                                   alignment: Alignment.center,
@@ -606,13 +675,14 @@ class CommonPopup {
                           const SizedBox(
                             height: 10,
                           ),
-                          Container(
+                          SizedBox(
                             width: AppGlobal().deviceWidth / 2.5,
                             height: AppGlobal().deviceWidth / 2.5,
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
                                 Align(
+                                  alignment: Alignment.center,
                                   child: Container(
                                     width: AppGlobal().deviceWidth / 3.7,
                                     height: AppGlobal().deviceWidth / 3.7,
@@ -621,7 +691,6 @@ class CommonPopup {
                                       color: Color(0xffD8D8FF),
                                     ),
                                   ),
-                                  alignment: Alignment.center,
                                 ),
                                 Align(
                                   alignment: Alignment.center,
@@ -828,7 +897,7 @@ class CommonPopup {
     );
   }
 
-  // 23.12.05 공통 알림 팝업 개편 >> 확인 버튼 없음, 타이틀 빈 값이면 안보이게
+  // 23.12.05 공통 알림 팝업 개편 >> 확인 버튼 없음, 타이틀 빈 값이면 안보이게 >>>>> 삭제 예정
   showDialogBasic(BuildContext context, String title, String message) async {
     if (context.mounted) {
       return showDialog<String>(

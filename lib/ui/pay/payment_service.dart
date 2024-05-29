@@ -21,6 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PaymentService {
   static const String TAG = "[PaymentService] ";
   static PaymentService? _instance;
+
   factory PaymentService() => _instance ?? PaymentService._internal();
 
   //명명된 생성자 (private 으로 명명된 생성자)
@@ -55,7 +56,9 @@ class PaymentService {
           'ios.ac_pr.ad4',
           'ios.ac_pr.ad3',
           'ios.ac_pr.at1',
-          'ios.ac_pr.at2'
+          'ios.ac_pr.at2',
+          'ios.ac_pr.am6d0',
+          'ios.ac_pr.am6d5',
         ];
 
   StreamSubscription<ConnectionResult>? _connectionSubscription;
@@ -102,9 +105,9 @@ class PaymentService {
     });
 
     /// 새 업데이트가 ``purchaseUpdated`` 스트림에 도착하면 호출됩니다.
-    _purchaseUpdatedSubscription = FlutterInappPurchase.purchaseUpdated.listen((PurchasedItem? event){
+    _purchaseUpdatedSubscription = FlutterInappPurchase.purchaseUpdated.listen((PurchasedItem? event) {
       DLog.d(PaymentService.TAG, '[purchaseUpdated 리스너]:');
-      if(event != null){
+      if (event != null) {
         if (Platform.isAndroid) {
           _handlePurchaseUpdateAndroid(event);
         } else {
@@ -124,7 +127,7 @@ class PaymentService {
         _callProStatusChangedListeners('md_exit');
       } else {
         String? msg = purchaseError?.message;
-        if(msg != null){
+        if (msg != null) {
           _callErrorListeners(msg);
         }
       }
@@ -251,8 +254,7 @@ class PaymentService {
 
   // 스토어 상품 목록
   Future<void> _getItems() async {
-    List<IAPItem> items =
-        await FlutterInappPurchase.instance.getSubscriptions(_productIds);
+    List<IAPItem> items = await FlutterInappPurchase.instance.getSubscriptions(_productIds);
     _products = [];
     for (var item in items) {
       DLog.d(TAG, '# Store Item : ${item.productId}');
@@ -285,6 +287,19 @@ class PaymentService {
     DLog.d(TAG, '|    discountsIOS : ${item.discountsIOS}    |');
     DLog.d(TAG, 'ㅡㅡㅡㅡㅡ requestStorePurchase ㅡㅡㅡㅡㅡ');
 
+    var lggingInApp01Json = jsonEncode(<String, String>{
+      'userId': _userId,
+      'svcDiv': Const.isDebuggable ? 'T' : 'S',
+      'paymentAmt': _getPaymentAmount(item.productId!) ?? '',
+      'currency': _getPaymentCurrency(item.productId!) ?? '',
+      'productId': item.productId ?? '',
+      //'orgOrderId': item.originalTransactionIdentifierIOS ?? '',
+      //'orderId': item.transactionId ?? '',
+      //'purchaseToken': item.transactionReceipt ?? '',
+      'inappMsg': 'ios_purchase_msg',
+    });
+    DLog.e('[PaymentService] lggingInApp01Json : ${lggingInApp01Json.toString()}');
+
     return await FlutterInappPurchase.instance.requestPurchase(item.productId ?? '');
   }
 
@@ -316,8 +331,7 @@ class PaymentService {
 
   //구매목록 처리
   void requestPurchaseAsync() async {
-    if(Platform.isAndroid) {
-    }
+    if (Platform.isAndroid) {}
   }
 
   // 결제 완료 고객 5년간 휴면회원 전환 방지
@@ -339,12 +353,13 @@ class PaymentService {
 
   //구매확인(구매승인 절차) - 영수증 검증 요청
   void requestInApp01(PurchasedItem purchasedItem) {
-    DLog.d(TAG,
+    DLog.d(
+        TAG,
         '# requestInApp01 ->'
-            ' ${purchasedItem.productId} |'
-            ' ${purchasedItem.transactionId} |'
-            ' _getPaymentAmount : ${_getPaymentAmount(purchasedItem.productId!)} |'
-            ' ${_getPaymentCurrency(purchasedItem.productId!)}');
+        ' ${purchasedItem.productId} |'
+        ' ${purchasedItem.transactionId} |'
+        ' _getPaymentAmount : ${_getPaymentAmount(purchasedItem.productId!)} |'
+        ' ${_getPaymentCurrency(purchasedItem.productId!)}');
 
     _pdId = purchasedItem.productId ?? '';
     _purchasedTrId = purchasedItem.transactionId ?? '';
@@ -428,32 +443,34 @@ class PaymentService {
   String? _getPaymentAmount(String prodId) {
     for (IAPItem item in _products) {
       if (item.productId == prodId) {
-        if(item.introductoryPrice!.isEmpty){
+        if (item.introductoryPrice!.isEmpty) {
           DLog.d(PaymentService.TAG, 'introductoryPrice.isEmpty');
           DLog.d(PaymentService.TAG, '${item.productId} / ${item.price}');
           return item.price;
-        }else {
+        } else {
           DLog.d(PaymentService.TAG, 'introductoryPrice.isNotEmpty');
-          DLog.e('item.introductoryPriceNumberOfPeriodsIOS.isEmpty : ${(item.introductoryPriceNumberOfPeriodsIOS?.isEmpty ?? true)} / '
+          DLog.e(
+              'item.introductoryPriceNumberOfPeriodsIOS.isEmpty : ${(item.introductoryPriceNumberOfPeriodsIOS?.isEmpty ?? true)} / '
               'AppGlobal().isAlreadyPromotionProductPayUser : ${AppGlobal().isAlreadyPromotionProductPayUser}');
-          if ((item.introductoryPriceNumberOfPeriodsIOS?.isEmpty ?? true) || AppGlobal().isAlreadyPromotionProductPayUser) {
+          if ((item.introductoryPriceNumberOfPeriodsIOS?.isEmpty ?? true) ||
+              AppGlobal().isAlreadyPromotionProductPayUser) {
             return item.price;
           } else {
-            int integerIntroductoryPriceNumberOfPeriodsIOS = int.parse(
-                (item.introductoryPriceNumberOfPeriodsIOS ?? '0'));
+            int integerIntroductoryPriceNumberOfPeriodsIOS =
+                int.parse((item.introductoryPriceNumberOfPeriodsIOS ?? '0'));
             if (integerIntroductoryPriceNumberOfPeriodsIOS > 1) {
               return '0';
             } else {
               String str = item.introductoryPrice ?? '0';
               String intStr = str.replaceAll(RegExp('[^0-9.]+'), '');
-              DLog.d(PaymentService.TAG,
-                  '${item.productId} / ${item.price} / $intStr');
+              DLog.d(PaymentService.TAG, '${item.productId} / ${item.price} / $intStr');
               return intStr;
             }
           }
         }
       }
     }
+    DLog.e('[${PaymentService.TAG} item.productId != prodId >>> prodId : ${prodId} / ');
     return '';
   }
 
@@ -473,8 +490,7 @@ class PaymentService {
     if (Platform.isIOS) {
       return;
     }
-    List<PurchasedItem>? purchasedItems =
-        await FlutterInappPurchase.instance.getAvailablePurchases();
+    List<PurchasedItem>? purchasedItems = await FlutterInappPurchase.instance.getAvailablePurchases();
 
     _pastPurchases = [];
     _pastPurchases.addAll(purchasedItems ?? []);

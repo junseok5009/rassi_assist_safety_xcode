@@ -14,16 +14,11 @@ class TrHonor03 {
   TrHonor03({this.retCode = '', this.retMsg = '', this.retData = const []});
 
   factory TrHonor03.fromJson(Map<String, dynamic> json) {
-    List<Honor03>? rtList;
-    var list = json['retData'] as List;
-    list == null
-        ? rtList = null
-        : rtList = list.map((i) => Honor03.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrHonor03(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData: list.map((i) => Honor03.fromJson(i)).toList(),
+      retData: jsonList == null ? [] : (jsonList as List).map((i) => Honor03.fromJson(i)).toList(),
     );
   }
 }

@@ -127,6 +127,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       SliverHomeWidget.TAG_NAME,
     );
     _userId = appGlobal.userId;
+    addAutomaticKeepAlives = true;
     _loadPrefData().then((value) {
       _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
       _dayCheckPush = _prefs.getString(Const.PREFS_DAY_CHECK_PUSH) ?? '';
@@ -155,6 +156,8 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
     }
   }
 
+  bool addAutomaticKeepAlives = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -165,7 +168,8 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
           SliverList(
-            delegate: SliverChildListDelegate(addAutomaticKeepAlives: true, [
+            delegate: SliverChildListDelegate(
+                addAutomaticKeepAlives: addAutomaticKeepAlives, [
               const SizedBox(
                 height: 15,
               ),
@@ -1164,18 +1168,19 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       _listPrPopup.clear();
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
 
-      if (resData.retCode == RT.SUCCESS) {
-        /*//테스트를 위한 데이터 입니다.
-        resData.retData.add(Prom02(
-          title: 'dd',
-          viewPosition: 'TOP',
-          promoDiv: 'BANNER',
-          contentType: 'IMG',
-          linkType: 'APP',
-          linkPage: 'LPHE',
-          content: 'http://files.thinkpool.com/rassiPrm/tips_FFFAED.jpg',
-        ));*/
+      /*//테스트를 위한 데이터 입니다.
+      resData.retCode = RT.SUCCESS;
+      resData.retData.add(Prom02(
+        title: 'dd',
+        viewPosition: 'TOP',
+        promoDiv: 'BANNER',
+        contentType: 'IMG',
+        linkType: 'APP',
+        linkPage: 'LPQ1',
+        content: 'http://files.thinkpool.com/rassiPrm/tips_FFFAED.jpg',
+      ));*/
 
+      if (resData.retCode == RT.SUCCESS) {
         if (resData.retData.isNotEmpty) {
           for (int i = 0; i < resData.retData.length; i++) {
             Prom02 item = resData.retData[i];

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_group.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 
 import '../../../common/tstyle.dart';
 import '../../../common/ui_style.dart';
@@ -61,15 +62,11 @@ class TileCompareItem extends StatelessWidget {
     return InkWell(
       child: Container(
         width: double.infinity,
-        // height: 71,
         alignment: Alignment.centerLeft,
-        // margin: const EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0,),
-        // decoration: UIStyle.boxWithOpacityNew(),
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              // height: 65,
               padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -78,7 +75,7 @@ class TileCompareItem extends StatelessWidget {
                     stockGroup.stockGrpNm,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                      fontSize: 16,
                       color: Color(0xff111111),
                     ),
                   ),
@@ -86,7 +83,7 @@ class TileCompareItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
-                      //TODO 종목수가 없을 경우 표시
+                      //TODO 종목수가 없을 경우 표시 >> 24.05.28 HJS 종목을 비교하는 컨텐츠인데, 종목이 없는거면 에러 아닌가요...?
                       Text(
                         '${stockGroup.groupStockCnt}종목',
                         style: TStyle.listItem,
@@ -94,23 +91,7 @@ class TileCompareItem extends StatelessWidget {
                       const SizedBox(
                         width: 10,
                       ),
-
-                      Container(
-                        width: 80,
-                        height: 23,
-                        alignment: Alignment.center,
-                        decoration: UIStyle.boxRoundFullColor6c(
-                          TStyle.getMinusPlusColor(stockGroup.groupfluctRate),
-                        ),
-                        child: Text(
-                          TStyle.getPercentString(stockGroup.groupfluctRate),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      CommonView.setFluctuationRateBox(value: stockGroup.groupfluctRate),
                     ],
                   ),
                 ],

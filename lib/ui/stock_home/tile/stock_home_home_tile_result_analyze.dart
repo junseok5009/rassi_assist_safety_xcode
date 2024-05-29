@@ -27,13 +27,14 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 class StockHomeHomeTileResultAnalyze extends StatefulWidget {
   static final GlobalKey<StockHomeHomeTileResultAnalyzeState> globalKey = GlobalKey();
+
   StockHomeHomeTileResultAnalyze() : super(key: globalKey);
+
   @override
   State<StockHomeHomeTileResultAnalyze> createState() => StockHomeHomeTileResultAnalyzeState();
 }
 
-class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultAnalyze>
-    with AutomaticKeepAliveClientMixin<StockHomeHomeTileResultAnalyze> {
+class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultAnalyze> {
   //bool _wantKeepAlive = false;
 
   final AppGlobal _appGlobal = AppGlobal();
@@ -66,6 +67,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
   TooltipBehavior? _tooltipBehavior;
   double _seriesAnimation = 1500;
   ChartSeriesController? _chartColumnController;
+
   //ChartSeriesController? _chartLineController;
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
@@ -77,9 +79,6 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
     }
     _requestTrAll();
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void setState(VoidCallback fn) {
@@ -118,8 +117,6 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_swipeIndex <= _listBarData.length - 1) {
         _tooltipBehavior?.hide();
@@ -129,7 +126,6 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
         });
       }
     });
-
     if (_isNoData.isEmpty) {
       return const SizedBox(
         width: 0,
@@ -1331,7 +1327,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
   }
 
   Future<void> _parseTrData(String trStr, final http.Response response) async {
-     DLog.w(trStr + response.body);
+    DLog.w(trStr + response.body);
     if (trStr == TR.SEARCH10) {
       final TrSearch10 resData = TrSearch10.fromJson(jsonDecode(response.body));
       _confirmSearch10SalesIndexInListData = -1;

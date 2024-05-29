@@ -13,8 +13,8 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/models/tr_sns01.dart';
-import 'package:rassi_assist/models/tr_sns02.dart';
+import 'package:rassi_assist/models/tr_sns/tr_sns01.dart';
+import 'package:rassi_assist/models/tr_sns/tr_sns02.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

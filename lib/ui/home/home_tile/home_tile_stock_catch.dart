@@ -28,7 +28,9 @@ class HomeTileStockCatch extends StatefulWidget {
   State<StatefulWidget> createState() => HomeTileStockCatchState();
 }
 
-class HomeTileStockCatchState extends State<HomeTileStockCatch> with AutomaticKeepAliveClientMixin<HomeTileStockCatch> {
+class HomeTileStockCatchState extends State<HomeTileStockCatch>
+    //with AutomaticKeepAliveClientMixin<HomeTileStockCatch>
+{
   late SharedPreferences _prefs;
   final AppGlobal _appGlobal = AppGlobal();
   String _userId = '';
@@ -51,8 +53,8 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch> with AutomaticKe
     }
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  /*@override
+  bool get wantKeepAlive => true;*/
 
   @override
   void initState() {
@@ -72,7 +74,7 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch> with AutomaticKe
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    //super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 10,

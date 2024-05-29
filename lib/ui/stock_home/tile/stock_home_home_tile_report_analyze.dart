@@ -24,8 +24,7 @@ class StockHomeHomeTileReportAnalyze extends StatefulWidget {
 }
 
 class StockHomeHomeTileReportAnalyzeState
-    extends State<StockHomeHomeTileReportAnalyze>
-    with AutomaticKeepAliveClientMixin<StockHomeHomeTileReportAnalyze> {
+    extends State<StockHomeHomeTileReportAnalyze>{
   int _divIndex = 0; // 0 : 목표가 / 1 : 발생트렌드 / 2 : 발행증권사
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
@@ -39,9 +38,6 @@ class StockHomeHomeTileReportAnalyzeState
       });
     }
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -58,7 +54,6 @@ class StockHomeHomeTileReportAnalyzeState
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Column(
       children: [
         Padding(

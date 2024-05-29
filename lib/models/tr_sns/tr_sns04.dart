@@ -1,4 +1,3 @@
-
 /// 2021.07.01
 /// 당일 소셜지수 발생 히스토리
 class TrSns04 {
@@ -9,14 +8,11 @@ class TrSns04 {
   TrSns04({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrSns04.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Sns04> rtList;
-    list == null ? rtList = const [] : rtList = list.map((i) => Sns04.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrSns04(
-        retCode: json['retCode'],
-        retMsg: json['retMsg'],
-        listData: rtList,
+      retCode: json['retCode'],
+      retMsg: json['retMsg'],
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => Sns04.fromJson(i)).toList(),
     );
   }
 }
@@ -30,13 +26,11 @@ class Sns04 {
   Sns04({this.issueTime = '', this.listData = const [], this.subCount = 0});
 
   factory Sns04.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Stock'] as List;
-    List<SnsFlow> listStk = list.map((e) => SnsFlow.fromJson(e)).toList();
-
+    var jsonStockList = json['list_Stock'];
     return Sns04(
-      issueTime: json['issueTime'],
-      listData: listStk,
-      subCount: listStk.length,
+      issueTime: json['issueTime'] ?? '',
+      listData: jsonStockList == null ? [] : (jsonStockList as List).map((e) => SnsFlow.fromJson(e)).toList(),
+      subCount: jsonStockList == null ? 0 : (jsonStockList as List).length,
     );
   }
 

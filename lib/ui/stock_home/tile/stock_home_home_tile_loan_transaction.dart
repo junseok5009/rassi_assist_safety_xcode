@@ -31,8 +31,7 @@ class StockHomeHomeTileLoanTransaction extends StatefulWidget {
   State<StockHomeHomeTileLoanTransaction> createState() => StockHomeHomeTileLoanTransactionState();
 }
 
-class StockHomeHomeTileLoanTransactionState extends State<StockHomeHomeTileLoanTransaction>
-    with AutomaticKeepAliveClientMixin<StockHomeHomeTileLoanTransaction> {
+class StockHomeHomeTileLoanTransactionState extends State<StockHomeHomeTileLoanTransaction>{
   final AppGlobal _appGlobal = AppGlobal();
 
   bool _isRightYAxisUpUnit = false; // 차트 왼쪽 값의 단위가 false 이면 주, true 이면 천주
@@ -52,9 +51,6 @@ class StockHomeHomeTileLoanTransactionState extends State<StockHomeHomeTileLoanT
   int _loanDateClickIndex = 0;
 
   late TrackballBehavior _trackballBehavior;
-
-  @override
-  bool get wantKeepAlive => true;
 
   // 종목 바뀌면 다른화면에서도 이거 호출해서 갱신해줘야함
   initPage() {
@@ -154,7 +150,6 @@ class StockHomeHomeTileLoanTransactionState extends State<StockHomeHomeTileLoanT
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Column(
       children: [
         Padding(

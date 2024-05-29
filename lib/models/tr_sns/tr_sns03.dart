@@ -19,16 +19,11 @@ class TrSns03 {
   });
 
   factory TrSns03.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Sns03>? rtList;
-    list == null
-        ? rtList = null
-        : rtList = list.map((i) => Sns03.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrSns03(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      listData: list.map((i) => Sns03.fromJson(i)).toList(),
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => Sns03.fromJson(i)).toList(),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +6,7 @@ import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/pocket/sliver_pocket_tab.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -53,8 +55,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
   @override
   void initState() {
     super.initState();
-    int compareTradePrc = widget.item.listChart.first.tradePrc
-        .compareTo(widget.item.listChart.last.tradePrc);
+    int compareTradePrc = widget.item.listChart.first.tradePrc.compareTo(widget.item.listChart.last.tradePrc);
     _chartColor = compareTradePrc > 0
         ? RColor.bgSell
         : compareTradePrc < 0
@@ -100,7 +101,8 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                     flex: 1,
                     child: InkWell(
                       onTap: () {
-                        SliverPocketTab.globalKey.currentState?.refreshChildWithMoveTab(moveTabIndex: 1, changePocketSn: widget.item.pocketSn);
+                        SliverPocketTab.globalKey.currentState
+                            ?.refreshChildWithMoveTab(moveTabIndex: 1, changePocketSn: widget.item.pocketSn);
                       },
                       child: Container(
                         decoration: UIStyle.boxRoundFullColor25c(
@@ -148,8 +150,9 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  CommonView.setFluctuationRateBox(value: widget.item.fluctuationRate, fontSize: 15,),
                   //등락률
-                  Text(
+                  /*Text(
                     TStyle.getPercentString(
                       widget.item.fluctuationRate,
                     ),
@@ -162,7 +165,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -184,7 +187,9 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
           height: 42,
           child: SfCartesianChart(
             plotAreaBorderWidth: 0,
-            margin: EdgeInsets.all(1,),
+            margin: EdgeInsets.all(
+              1,
+            ),
             primaryXAxis: const CategoryAxis(
               isVisible: false,
               rangePadding: ChartRangePadding.none,
@@ -192,7 +197,9 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
             ),
             primaryYAxis: NumericAxis(
               //isVisible: false,
-              labelStyle: TextStyle(fontSize: 0,),
+              labelStyle: TextStyle(
+                fontSize: 0,
+              ),
               axisLine: const AxisLine(
                 width: 0,
               ),
@@ -234,8 +241,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 enableTooltip: false,
                 animationDelay: 0,
                 animationDuration: _animationDuration,
-                onRendererCreated: (controller) =>
-                    _chartController = controller,
+                onRendererCreated: (controller) => _chartController = controller,
               ),
             ],
           ),
@@ -259,10 +265,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
       return double.parse(widget.item.listChart[0].tradePrc);
     } else {
       var item = widget.item.listChart.reduce(
-        (curr, next) =>
-            double.parse(curr.tradePrc) > double.parse(next.tradePrc)
-                ? curr
-                : next,
+        (curr, next) => double.parse(curr.tradePrc) > double.parse(next.tradePrc) ? curr : next,
       );
       return double.parse(item.tradePrc);
     }
@@ -275,10 +278,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
       return double.parse(widget.item.listChart[0].tradePrc);
     } else {
       var item = widget.item.listChart.reduce(
-        (curr, next) =>
-            double.parse(curr.tradePrc) > double.parse(next.tradePrc)
-                ? next
-                : curr,
+        (curr, next) => double.parse(curr.tradePrc) > double.parse(next.tradePrc) ? next : curr,
       );
       return double.parse(item.tradePrc);
     }
@@ -374,12 +374,9 @@ class TilePocketSig extends StatelessWidget {
           const SizedBox(
             width: 5,
           ),
-          if (Provider.of<UserInfoProvider>(context, listen: false)
-              .isPremiumUser())
+          if (Provider.of<UserInfoProvider>(context, listen: false).isPremiumUser())
             _setSignalView()
-          else if (Provider.of<UserInfoProvider>(context, listen: false)
-                  .is3StockUser() &&
-              item.signalYn == 'Y')
+          else if (Provider.of<UserInfoProvider>(context, listen: false).is3StockUser() && item.signalYn == 'Y')
             _setSignalView()
           else
             _setNoPremiumBlockView(context)
@@ -554,48 +551,40 @@ class _TileStockIssue extends State<TileStockIssue> {
       ),
       child: Row(
         children: [
-          Flexible(
-            flex: 1,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: InkWell(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.item.keyword,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: Color(0xff111111),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: InkWell(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.item.keyword,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Color(0xff111111),
                     ),
-                    const SizedBox(
-                      height: 7,
-                    ),
-                    _issueStatusView(widget.item.avgFluctRate),
-                  ],
-                ),
-                onTap: () {
-                  basePageState.callPageRouteUpData(
-                      const IssueViewer(),
-                      PgData(
-                          userId: '',
-                          pgSn: widget.item.newsSn,
-                          pgData: widget.item.issueSn));
-                },
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(
+                    height: 7,
+                  ),
+                  _issueStatusView(widget.item.avgFluctRate),
+                ],
               ),
+              onTap: () {
+                basePageState.callPageRouteUpData(
+                    const IssueViewer(), PgData(userId: '', pgSn: widget.item.newsSn, pgData: widget.item.issueSn));
+              },
             ),
           ),
-          Flexible(
-            flex: 2,
+          Expanded(
             child: Align(
               alignment: Alignment.centerRight,
               child: Container(
-                constraints: const BoxConstraints(maxWidth: 250),
+                //constraints: const BoxConstraints(maxWidth: 250),
                 child: _relayStockView(context, widget.item.stockList.length),
               ),
             ),
@@ -606,9 +595,24 @@ class _TileStockIssue extends State<TileStockIssue> {
   }
 
   Widget _issueStatusView(String avgFluctRate) {
-    if (avgFluctRate == '0' ||
-        avgFluctRate == '0.0' ||
-        avgFluctRate == '0.00') {
+    double dValue = double.tryParse(avgFluctRate) ?? 0;
+    return Row(
+      children: [
+        Text(
+          '${dValue == 0 ? '보합' : dValue > 0 ? '상승중' : '하락중'} ',
+          style: TextStyle(
+            color: TStyle.getMinusPlusColor(avgFluctRate),
+          ),
+        ),
+        CommonView.setFluctuationRateBox(
+          marginEdgeInsetsGeometry: const EdgeInsets.only(left: 4,),
+          value: avgFluctRate,
+          fontSize: 14,
+        ),
+      ],
+    );
+
+    if (avgFluctRate == '0' || avgFluctRate == '0.0' || avgFluctRate == '0.00') {
       return Text(
         '보합 ${TStyle.getPercentString(avgFluctRate)}',
         style: TStyle.contentGrey14,
@@ -640,8 +644,7 @@ class _TileStockIssue extends State<TileStockIssue> {
       crossAxisAlignment: WrapCrossAlignment.start,
       spacing: 7,
       alignment: WrapAlignment.end,
-      children: List.generate(
-          len, (index) => _relayStock(widget.item.stockList[index])),
+      children: List.generate(len, (index) => _relayStock(widget.item.stockList[index])),
     );
   }
 

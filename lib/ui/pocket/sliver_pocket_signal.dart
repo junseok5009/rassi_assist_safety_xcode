@@ -4,10 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/provider/signal_provider.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
 
 import '../../common/const.dart';
@@ -35,7 +35,6 @@ class SliverPocketSignalWidget extends StatefulWidget {
 class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
   late SignalProvider _signalProvider;
   bool _isFaVisible = true;
-
 
   final ScrollController _scrollController = ScrollController();
 
@@ -93,7 +92,10 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                           return InkWell(
                               onTap: () {
                                 basePageState.callPageRouteUP(
-                                  const SearchPage(landWhere: SearchPage.addSignalLayer, pocketSn: '',),
+                                  const SearchPage(
+                                    landWhere: SearchPage.addSignalLayer,
+                                    pocketSn: '',
+                                  ),
                                 );
                               },
                               child: _setEmptySignalView());
@@ -178,7 +180,8 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                           signalList[index].myTradeFlag == 'S' ? isUserSig = true : isUserSig = false;
                                         }
                                         return Visibility(
-                                          visible: !(_signalProvider.getSortIndex == 2 && signalList[index].myTradeFlag == 'H'),
+                                          visible: !(_signalProvider.getSortIndex == 2 &&
+                                              signalList[index].myTradeFlag == 'H'),
                                           child: _setListItem(
                                             index == 0,
                                             index == signalList.length - 1,
@@ -223,7 +226,10 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                         ),
                                         onTap: () {
                                           basePageState.callPageRouteUP(
-                                            const SearchPage(landWhere: SearchPage.addSignalLayer, pocketSn: '',),
+                                            const SearchPage(
+                                              landWhere: SearchPage.addSignalLayer,
+                                              pocketSn: '',
+                                            ),
                                           );
                                         },
                                       ),
@@ -465,21 +471,12 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
     if (tradeFlag) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.baseline,
+        crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          Text(
-            TStyle.getPercentString(item.profitRate),
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: TStyle.getMinusPlusColor(
-                item.profitRate,
-              ),
-            ),
-          ),
+          CommonView.setFluctuationRateBox(value: item.profitRate, fontSize: 14,),
           const SizedBox(
-            width: 5,
+            width: 6,
           ),
           Text(
             TStyle.getMoneyPoint(item.sellPrice),
@@ -493,21 +490,12 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
     } else {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.baseline,
+        crossAxisAlignment: CrossAxisAlignment.center,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          Text(
-            TStyle.getPercentString(item.profitRate),
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: TStyle.getMinusPlusColor(
-                item.profitRate,
-              ),
-            ),
-          ),
+          CommonView.setFluctuationRateBox(value: item.profitRate, fontSize: 14,),
           const SizedBox(
-            width: 5,
+            width: 6,
           ),
           Text(
             TStyle.getMoneyPoint(item.buyPrice),
@@ -716,22 +704,14 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
 
   //매수정보수정 레이어
   _showChangeSignalLayerAndResult(StockPktSignal stockPktSignal) async {
-    String result = await CommonLayer.instance.showLayerChangeSignal(
+    await CommonLayer.instance
+        .showLayerChangeSignal(
       context,
       stockPktSignal,
-    );
-
-    if (context.mounted) {
-      if (result == CustomNvRouteResult.refresh) {
-        // reload();
-      } else if (result == CustomNvRouteResult.cancel) {
-        //
-      } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
-      } else {
-        CommonPopup.instance.showDialogBasic(context, '알림', result);
-      }
-    }
+    )
+        .then((result) {
+      _resultAfterPopup(result);
+    });
   }
 
   //매수정보수정 팝업
@@ -831,27 +811,33 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
   }
 
   _delSignalAndResult(StockPktSignal stockPktSignal) async {
-    String result = CustomNvRouteResult.fail;
+    //String result = CustomNvRouteResult.fail;
     if (stockPktSignal.resultDiv == 'S') {
-      result = await Provider.of<SignalProvider>(context, listen: false).delSignalS(
-        stockPktSignal.pocketSn,
-        stockPktSignal.stockCode,
-      );
+      await Provider.of<SignalProvider>(context, listen: false)
+          .delSignalS(
+            stockPktSignal.pocketSn,
+            stockPktSignal.stockCode,
+          )
+          .then((value) => _resultAfterPopup(value));
     } else if (stockPktSignal.resultDiv == 'P') {
-      result = await Provider.of<SignalProvider>(context, listen: false).delSignalP(
-        stockPktSignal.pocketSn,
-        stockPktSignal.stockCode,
-      );
+      await Provider.of<SignalProvider>(context, listen: false)
+          .delSignalP(
+            stockPktSignal.pocketSn,
+            stockPktSignal.stockCode,
+          )
+          .then((value) => _resultAfterPopup(value));
     }
+  }
 
-    if (context.mounted) {
-      if (result == CustomNvRouteResult.refresh) {
-        //reload();
-      } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
-      } else {
-        CommonPopup.instance.showDialogBasic(context, '안내', result);
-      }
+  void _resultAfterPopup(String result) {
+    if (result == CustomNvRouteResult.refresh) {
+      // reload();
+    } else if (result == CustomNvRouteResult.cancel) {
+      //
+    } else if (result == CustomNvRouteResult.fail) {
+      CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+    } else {
+      CommonPopup.instance.showDialogBasic(context, '알림', result);
     }
   }
 }

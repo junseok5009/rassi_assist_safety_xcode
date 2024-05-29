@@ -36,6 +36,17 @@ class UIStyle {
     );
   }
 
+  static BoxDecoration boxCustom({required Color bgColor, required Color lineColor, required double lineWidth, required double boxRadius}){
+    return BoxDecoration(
+      color: bgColor,
+      border: Border.all(
+        color: lineColor,
+        width: lineWidth,
+      ),
+      borderRadius: BorderRadius.all(Radius.circular(boxRadius)),
+    );
+  }
+
   //옅은 회색 라운드 배경 (Solid)
   static BoxDecoration boxWeakGrey(double rad) {
     return BoxDecoration(

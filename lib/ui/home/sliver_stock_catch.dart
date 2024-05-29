@@ -269,6 +269,9 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                         ),
                         _setSubTitleMore("최근 3일 매수 후 급등 종목",
                             RString.desc_find_01_sub, 'CUR_B'),
+                        const SizedBox(
+                          height: 10.0,
+                        ),
                         _setTopRising(context),
                         const SizedBox(
                           height: 10.0,

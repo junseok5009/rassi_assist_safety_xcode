@@ -125,7 +125,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: RColor.bgBasic_fdfdfd,
       child: CustomScrollView(
         slivers: [
           SliverOverlapInjector(

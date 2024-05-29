@@ -43,7 +43,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/none_tr/app_global.dart';
 import '../../models/tr_disclos01.dart';
-import '../../models/tr_sns06.dart';
+import '../../models/tr_sns/tr_sns06.dart';
 import '../common/common_swiper_pagination.dart';
 import 'page/result_analyze_page.dart';
 import 'page/stock_disclos_list_page.dart';
@@ -66,9 +66,10 @@ class StockHomeHomePage extends StatefulWidget {
   State<StatefulWidget> createState() => StockHomeHomePageState();
 }
 
-class StockHomeHomePageState extends State<StockHomeHomePage> with AutomaticKeepAliveClientMixin<StockHomeHomePage> {
+class StockHomeHomePageState extends State<StockHomeHomePage> {
   final AppGlobal _appGlobal = AppGlobal();
   late SharedPreferences _prefs;
+  bool addAutomaticKeepAlives = false;
 
   // 유저정보
   String _userId = "";
@@ -123,14 +124,12 @@ class StockHomeHomePageState extends State<StockHomeHomePage> with AutomaticKeep
   final List<Disclos> _listDisclos = [];
 
   @override
-  bool get wantKeepAlive => true;
-
-  @override
   void initState() {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
       StockHomeHomePage.TAG_NAME,
     );
+    addAutomaticKeepAlives = true;
     stkCode = _appGlobal.stkCode;
     stkName = _appGlobal.stkName;
     _stockTabNameProvider = Provider.of<StockTabNameProvider>(context, listen: false);
@@ -201,7 +200,6 @@ class StockHomeHomePageState extends State<StockHomeHomePage> with AutomaticKeep
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -233,73 +231,75 @@ class StockHomeHomePageState extends State<StockHomeHomePage> with AutomaticKeep
               )
             : null,
         body: SafeArea(
-          child: CustomScrollView(
-            controller: _scrollController,
-            scrollDirection: Axis.vertical,
-            slivers: [
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    // 이벤트 메인차트 + 아래 뷰
-                    StockHomeHomeTileEventView(),
+          child: GestureDetector(
+            child: CustomScrollView(
+              controller: _scrollController,
+              scrollDirection: Axis.vertical,
+              slivers: [
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    addAutomaticKeepAlives: addAutomaticKeepAlives,
+                    [
+                      // 이벤트 메인차트 + 아래 뷰
+                      StockHomeHomeTileEventView(),
 
-                    Container(
-                      color: RColor.new_basic_grey,
-                      height: 15.0,
-                    ),
+                      Container(
+                        color: RColor.new_basic_grey,
+                        height: 15.0,
+                      ),
 
-                    //오늘의 요약정보
-                    _setTodayBrief(),
+                      //오늘의 요약정보
+                      _setTodayBrief(),
 
-                    Container(
-                      color: RColor.new_basic_grey,
-                      height: 15.0,
-                    ),
+                      Container(
+                        color: RColor.new_basic_grey,
+                        height: 15.0,
+                      ),
 
-                    // 라씨매매비서는 현재?
-                    _setRassiSignal(),
+                      // 라씨매매비서는 현재?
+                      _setRassiSignal(),
 
-                    // 이 회사는요?
-                    _setCompanyInfo(),
+                      // 이 회사는요?
+                      _setCompanyInfo(),
 
-                    // 종목 이슈
-                    _setStockIssue(),
+                      // 종목 이슈
+                      _setStockIssue(),
 
-                    // 종목 비교
-                    StockHomeHomeTileStockCompare(),
+                      // 종목 비교
+                      StockHomeHomeTileStockCompare(),
 
-                    // 실적분석
-                    StockHomeHomeTileResultAnalyze(),
+                      // 실적분석
+                      StockHomeHomeTileResultAnalyze(),
 
-                    // 투자자별 매매동향 (외국인/기관 매매동향) + 일자별 매매동향 현황
-                    StockHomeHomeTileTradingTrends(),
+                      // 투자자별 매매동향 (외국인/기관 매매동향) + 일자별 매매동향 현황
+                      StockHomeHomeTileTradingTrends(),
 
-                    // 대차거래와 공매
-                    StockHomeHomeTileLoanTransaction(),
+                      // 대차거래와 공매
+                      StockHomeHomeTileLoanTransaction(),
 
-                    // 리포트 분석
-                    StockHomeHomeTileReportAnalyze(),
+                      // 리포트 분석
+                      StockHomeHomeTileReportAnalyze(),
 
-                    // 소셜 분석
-                    StockHomeHomeTileSocialAnalyze(
-                      sns06: _sns06,
-                    ),
+                      // 소셜 분석
+                      StockHomeHomeTileSocialAnalyze(
+                        sns06: _sns06,
+                      ),
 
-                    // 보호 예수
-                    if (_invest24.listInvest24Lockup.isNotEmpty) _setLockupList(),
+                      // 보호 예수
+                      if (_invest24.listInvest24Lockup.isNotEmpty) _setLockupList(),
 
-                    // AI속보
-                    _setRassiroList(),
+                      // AI속보
+                      _setRassiroList(),
 
-                    //공시
-                    _setDisclos(),
+                      //공시
+                      _setDisclos(),
 
-                    _setAddPocket(),
-                  ],
-                  //addAutomaticKeepAlives: true,
-                ),
-              )
-            ],
+                      _setAddPocket(),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

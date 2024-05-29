@@ -22,7 +22,8 @@ class HomeTileMystockStatus2 extends StatefulWidget {
 }
 
 class _HomeTileMystockStatus2State extends State<HomeTileMystockStatus2>
-    with AutomaticKeepAliveClientMixin {
+//    with AutomaticKeepAliveClientMixin
+{
   @override
   void setState(VoidCallback fn) {
     if (mounted) {
@@ -30,12 +31,12 @@ class _HomeTileMystockStatus2State extends State<HomeTileMystockStatus2>
     }
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  /*@override
+  bool get wantKeepAlive => true;*/
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    //super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,

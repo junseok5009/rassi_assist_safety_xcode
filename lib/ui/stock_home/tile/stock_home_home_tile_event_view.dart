@@ -40,8 +40,7 @@ class StockHomeHomeTileEventView extends StatefulWidget {
   State<StockHomeHomeTileEventView> createState() => StockHomeHomeTileEventViewState();
 }
 
-class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
-    with AutomaticKeepAliveClientMixin<StockHomeHomeTileEventView> {
+class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
   final _appGlobal = AppGlobal();
   String _userId = '';
   String _stockCode = '';
@@ -79,9 +78,6 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
   final List<Search12ChartData> _listPriceCommonChart = [];
 
   @override
-  bool get wantKeepAlive => true;
-
-  @override
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
@@ -111,7 +107,6 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         5,
@@ -156,7 +151,12 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>
                       + result.substring(4, 6) + '/'
                       + result.substring(6, 8);
                       return result;
-                  };                 
+                  };                
+                  chart.on('click', (params) => {
+                    if(params.componentType === 'series') {
+                        Messager.postMessage('anything');
+                    }
+                  }); 
                   chart.on('mousemove', function (params) {
                       Messager.postMessage('mousemove4');
                   });
