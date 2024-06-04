@@ -270,7 +270,7 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
   Widget _setTabView() {
     return TabBarView(
       physics: //Platform.isAndroid ? const NeverScrollableScrollPhysics() : null,
-          const NeverScrollableScrollPhysics(),
+      const NeverScrollableScrollPhysics(),
       controller: _tabController,
       children: [
         RefreshIndicator(
@@ -287,17 +287,7 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
               await childCurrentState.reload();
             }
           },
-          child: Platform.isAndroid
-              ? StockHomeHomePage()
-              : GestureDetector(
-                  onPanUpdate: (details) {
-                    //DLog.e('details.delta.d : ${details.delta.dy}');
-                    if (details.delta.dx < -2) {
-                      _tabController.animateTo(1);
-                    }
-                  },
-                  child: StockHomeHomePage(),
-                ),
+          child: StockHomeHomePage(),
         ),
         /* StockHomeHomePage(),*/
         RefreshIndicator(
@@ -312,15 +302,7 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
               await Future.delayed(const Duration(milliseconds: 1000));
             }
           },
-          child: GestureDetector(
-              onPanUpdate: (details) {
-                if (details.delta.dx > 2) {
-                  _tabController.animateTo(
-                    0,
-                  );
-                }
-              },
-              child: StockHomeSignalPage()),
+          child: StockHomeSignalPage(),
         ),
         //StockHomeSignalPage(),
       ],

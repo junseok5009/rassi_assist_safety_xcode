@@ -49,11 +49,8 @@ import 'package:rassi_assist/ui/sub/social_list_page.dart';
 import 'package:rassi_assist/ui/sub/stk_catch_big.dart';
 import 'package:rassi_assist/ui/sub/stk_catch_top.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
-import 'package:rassi_assist/ui/sub/theme_search.dart';
 import 'package:rassi_assist/ui/test/notification_setting.dart';
 import 'package:rassi_assist/ui/test/test_page.dart';
-import 'package:rassi_assist/ui/test/theme_list_page.dart';
-import 'package:rassi_assist/ui/test/theme_viewer.dart';
 import 'package:rassi_assist/ui/test/web_chart.dart';
 import 'package:rassi_assist/ui/user/community_page.dart';
 import 'package:rassi_assist/ui/user/terms_page.dart';
@@ -96,9 +93,9 @@ final routes = {
 
   // 종목홈_챗GPT기업개요
   AgentNoLinkSignUpPage.routeName: (
-      BuildContext context,
-      ) =>
-  const AgentNoLinkSignUpPage(),
+    BuildContext context,
+  ) =>
+      const AgentNoLinkSignUpPage(),
 
   MyPage.routeName: (BuildContext context) => MyPage(),
   KeyboardPage.routeName: (BuildContext context) => const KeyboardPage(),
@@ -119,9 +116,6 @@ final routes = {
   ConditionPage.routeName: (BuildContext context) => const ConditionPage(),
   StkCatchBigPage.routeName: (BuildContext context) => const StkCatchBigPage(),
   StkCatchTopPage.routeName: (BuildContext context) => const StkCatchTopPage(),
-  ThemeListPage.routeName: (BuildContext context) => const ThemeListPage(),
-  ThemeViewer.routeName: (BuildContext context) => const ThemeViewer(),
-  ThemeSearch.routeName: (BuildContext context) => ThemeSearch(),
   ThemeHotPage.routeName: (BuildContext context) => const ThemeHotPage(),
 
   IntroSearchPage.routeName: (BuildContext context) => const IntroSearchPage(),

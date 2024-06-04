@@ -231,75 +231,74 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
               )
             : null,
         body: SafeArea(
-          child: GestureDetector(
-            child: CustomScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.vertical,
-              slivers: [
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    addAutomaticKeepAlives: addAutomaticKeepAlives,
-                    [
-                      // 이벤트 메인차트 + 아래 뷰
-                      StockHomeHomeTileEventView(),
+          child: CustomScrollView(
+            controller: _scrollController,
+            scrollDirection: Axis.vertical,
+            slivers: [
+              SliverList(
 
-                      Container(
-                        color: RColor.new_basic_grey,
-                        height: 15.0,
-                      ),
+                delegate: SliverChildListDelegate(
+                  addAutomaticKeepAlives: addAutomaticKeepAlives,
+                  [
+                    // 이벤트 메인차트 + 아래 뷰
+                    StockHomeHomeTileEventView(),
 
-                      //오늘의 요약정보
-                      _setTodayBrief(),
+                    Container(
+                      color: RColor.new_basic_grey,
+                      height: 15.0,
+                    ),
 
-                      Container(
-                        color: RColor.new_basic_grey,
-                        height: 15.0,
-                      ),
+                    //오늘의 요약정보
+                    _setTodayBrief(),
 
-                      // 라씨매매비서는 현재?
-                      _setRassiSignal(),
+                    Container(
+                      color: RColor.new_basic_grey,
+                      height: 15.0,
+                    ),
 
-                      // 이 회사는요?
-                      _setCompanyInfo(),
+                    // 라씨매매비서는 현재?
+                    _setRassiSignal(),
 
-                      // 종목 이슈
-                      _setStockIssue(),
+                    // 이 회사는요?
+                    _setCompanyInfo(),
 
-                      // 종목 비교
-                      StockHomeHomeTileStockCompare(),
+                    // 종목 이슈
+                    _setStockIssue(),
 
-                      // 실적분석
-                      StockHomeHomeTileResultAnalyze(),
+                    // 종목 비교
+                    StockHomeHomeTileStockCompare(),
 
-                      // 투자자별 매매동향 (외국인/기관 매매동향) + 일자별 매매동향 현황
-                      StockHomeHomeTileTradingTrends(),
+                    // 실적분석
+                    StockHomeHomeTileResultAnalyze(),
 
-                      // 대차거래와 공매
-                      StockHomeHomeTileLoanTransaction(),
+                    // 투자자별 매매동향 (외국인/기관 매매동향) + 일자별 매매동향 현황
+                    StockHomeHomeTileTradingTrends(),
 
-                      // 리포트 분석
-                      StockHomeHomeTileReportAnalyze(),
+                    // 대차거래와 공매
+                    StockHomeHomeTileLoanTransaction(),
 
-                      // 소셜 분석
-                      StockHomeHomeTileSocialAnalyze(
-                        sns06: _sns06,
-                      ),
+                    // 리포트 분석
+                    StockHomeHomeTileReportAnalyze(),
 
-                      // 보호 예수
-                      if (_invest24.listInvest24Lockup.isNotEmpty) _setLockupList(),
+                    // 소셜 분석
+                    StockHomeHomeTileSocialAnalyze(
+                      sns06: _sns06,
+                    ),
 
-                      // AI속보
-                      _setRassiroList(),
+                    // 보호 예수
+                    if (_invest24.listInvest24Lockup.isNotEmpty) _setLockupList(),
 
-                      //공시
-                      _setDisclos(),
+                    // AI속보
+                    _setRassiroList(),
 
-                      _setAddPocket(),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                    //공시
+                    _setDisclos(),
+
+                    _setAddPocket(),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),

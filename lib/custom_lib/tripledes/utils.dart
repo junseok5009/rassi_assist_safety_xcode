@@ -225,7 +225,7 @@ Future<String> utilsGetIDFA() async {
     if (await AppTrackingTransparency.trackingAuthorizationStatus ==
         TrackingStatus.authorized) {
       final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
-      strIDFA = uuid ?? '';
+      strIDFA = uuid;
     }
   } on PlatformException {
     strIDFA = '';

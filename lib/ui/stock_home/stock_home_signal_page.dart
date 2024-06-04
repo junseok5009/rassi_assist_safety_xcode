@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -116,12 +115,22 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   List<SignalAnal> _acvList = []; //AI 매매신호 성과 : 적중률, 누적수익률, 매매횟수 등등
   bool _hasSellResults = true; //매매신호(매도) 성과 표시여부
 
+  late TrackballBehavior _trackballBehavior;
+
   @override
   void initState() {
+    _trackballBehavior = TrackballBehavior(
+        shouldAlwaysShow: true,
+        enable: true,
+        activationMode: ActivationMode.singleTap,
+        tooltipSettings: const InteractiveTooltip(
+          enable: true,
+          color: Colors.red,
+        ));
     _zoomPanBehavior = ZoomPanBehavior(
       enablePinching: true,
-      zoomMode: ZoomMode.x,
       enablePanning: true,
+      zoomMode: ZoomMode.x,
     );
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
@@ -129,8 +138,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
     );
     stkCode = _appGlobal.stkCode;
     stkName = _appGlobal.stkName;
-    _stockTabNameProvider =
-        Provider.of<StockTabNameProvider>(context, listen: false);
+    _stockTabNameProvider = Provider.of<StockTabNameProvider>(context, listen: false);
     //_scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == 0) {
@@ -154,8 +162,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
           }
         } else {}
       } else {
-        if (_stockTabNameProvider.getIsTop &&
-            _scrollController.position.pixels > 0) {
+        if (_stockTabNameProvider.getIsTop && _scrollController.position.pixels > 0) {
           _stockTabNameProvider.setTopFalse();
         }
       }
@@ -172,7 +179,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
               .postRequest(stkCode),*/
         });
   }
-
 
   @override
   void dispose() {
@@ -216,9 +222,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       });
                       // [포켓 > 나의포켓 > 포켓선택]
                       basePageState.goPocketPage(Const.PKT_INDEX_MY,
-                          pktSn: Provider.of<StockInfoProvider>(context,
-                                  listen: false)
-                              .getPockSn);
+                          pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
                       Navigator.popUntil(
                         context,
                         ModalRoute.withName(BasePage.routeName),
@@ -229,10 +233,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       height: AppGlobal().isTablet ? 130 : 110,
                       color: const Color(0xd9a064e0),
                       margin: EdgeInsets.only(
-                        bottom:
-                            MediaQuery.of(_scaffoldKey.currentState!.context)
-                                .viewPadding
-                                .bottom,
+                        bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom,
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 25,
@@ -327,18 +328,14 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       setState(() {
                         _showBottomSheet = false;
                       });
-                      StockHomeTab.globalKey.currentState!
-                          .showAddStockLayerAndResult();
+                      StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
                     },
                     child: Container(
                       width: double.infinity,
                       height: AppGlobal().isTablet ? 130 : 110,
                       color: RColor.lightSell_2e70ff,
-                      margin: EdgeInsets.only(
-                          bottom:
-                              MediaQuery.of(_scaffoldKey.currentState!.context)
-                                  .viewPadding
-                                  .bottom),
+                      margin:
+                          EdgeInsets.only(bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 25,
                       ),
@@ -474,9 +471,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
 
                   Container(
                     child: (() {
-                      bool isMyStock =
-                          Provider.of<StockInfoProvider>(context, listen: false)
-                              .getIsMyStock;
+                      bool isMyStock = Provider.of<StockInfoProvider>(context, listen: false).getIsMyStock;
                       if (_appGlobal.isFreeUser) {
                         if (_isSignalTargetYn || !isMyStock) {
                           // 매매신호 실시간 받기
@@ -520,7 +515,11 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                               height: 270,
                               child: _setEChartView(),
                             ),
-                            //_setSignalLineChart1,
+                            /*Column(
+                              children: [
+                                _setSignalLineChart1,
+                              ],
+                            ),*/
                           ],
                         ),
                         const SizedBox(
@@ -737,8 +736,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
               flex: 1,
               child: Center(
                 child: Text('AI매매신호가 발생되지\n않는 종목입니다.',
-                    style: TextStyle(fontSize: 16, color: RColor.iconGrey),
-                    textAlign: TextAlign.center),
+                    style: TextStyle(fontSize: 16, color: RColor.iconGrey), textAlign: TextAlign.center),
               ),
             ),
           ],
@@ -772,8 +770,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
               flex: 1,
               child: Center(
                 child: Text('AI매매신호 내역이 없습니다.',
-                    style: TextStyle(fontSize: 16, color: RColor.iconGrey),
-                    textAlign: TextAlign.center),
+                    style: TextStyle(fontSize: 16, color: RColor.iconGrey), textAlign: TextAlign.center),
               ),
             ),
           ],
@@ -992,8 +989,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
     return InkWell(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-        padding: const EdgeInsets.only(
-            left: 30.0, right: 30.0, bottom: 5.0, top: 5.0),
+        padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 5.0, top: 5.0),
         height: 40,
         decoration: UIStyle.roundBtnStBox(),
         child: Center(
@@ -1046,8 +1042,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
     return InkWell(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-        padding: const EdgeInsets.only(
-            left: 15.0, right: 15.0, bottom: 5.0, top: 5.0),
+        padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 5.0, top: 5.0),
         height: 40,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -1086,10 +1081,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
       ),
       onTap: () {
         //알림설정으로 이동
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const NotificationSettingN()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationSettingN()));
       },
     );
   }
@@ -1101,8 +1093,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
       child: InkWell(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20.0),
-          padding: const EdgeInsets.only(
-              left: 30.0, right: 30.0, bottom: 5.0, top: 5.0),
+          padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 5.0, top: 5.0),
           height: 40,
           decoration: UIStyle.roundBtnBox(RColor.btnAllView),
           child: Center(
@@ -1245,8 +1236,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
               Column(
                 children: [
                   const Text('현재'),
-                  _setCircleReturns(
-                      balAmt, RColor.jinbora, TStyle.btnTextWht16),
+                  _setCircleReturns(balAmt, RColor.jinbora, TStyle.btnTextWht16),
                 ],
               ),
             ],
@@ -1402,8 +1392,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         ],
       ),
       onTap: () {
-        basePageState.callPageRouteData(
-            SignalTopPage(), PgData(pgData: routeStr));
+        basePageState.callPageRouteData(const SignalTopPage(), PgData(pgData: routeStr));
       },
     );
   }
@@ -1428,8 +1417,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
             onTap: () {
               // [포켓 > 나의포켓 > 포켓선택]
               basePageState.goPocketPage(Const.PKT_INDEX_MY,
-                  pktSn: Provider.of<StockInfoProvider>(context, listen: false)
-                      .getPockSn);
+                  pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
               Navigator.popUntil(
                 context,
                 ModalRoute.withName(BasePage.routeName),
@@ -1616,8 +1604,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         barrierDismissible: false,
         builder: (BuildContext buildContext) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -1661,8 +1648,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                     ),
                     onPressed: () {
                       Navigator.pop(buildContext);
-                      StockHomeTab.globalKey.currentState!
-                          .showAddStockLayerAndResult();
+                      StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
                     },
                   ),
                 ],
@@ -1705,9 +1691,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
       prePrc = '매도가';
       isHoldingStk = false;
       _isForbiddenShow = data.signalData.isForbidden == 'Y' ? true : false;
-      _forbiddenDesc = data.signalData.isForbidden == 'Y'
-          ? data.signalData.forbiddenDesc
-          : '';
+      _forbiddenDesc = data.signalData.isForbidden == 'Y' ? data.signalData.forbiddenDesc : '';
     }
 
     if (data.signalData.profitRate.contains('-')) {
@@ -1803,42 +1787,124 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   }
 
   Widget get _setSignalLineChart1 {
-    return SizedBox(
+    if(_signalChartDataList.isEmpty) return const SizedBox();
+    return Container(
       width: double.infinity,
-      height: 300,
+      height: 270,
+      padding: const EdgeInsets.all(15),
       child: SfCartesianChart(
         plotAreaBorderWidth: 0,
-        margin: const EdgeInsets.all(1),
-        zoomPanBehavior: _zoomPanBehavior,
-        onZooming: (zoomingArgs) {},
-        primaryXAxis: const CategoryAxis(
-          //isVisible: false,
-          rangePadding: ChartRangePadding.none,
+        margin: EdgeInsets.zero,
+        primaryXAxis: DateTimeCategoryAxis(
+          //initialZoomPosition: 0.1,
+          // https://www.syncfusion.com/forums/175539/xaxis-disappears-when-pinching-out
+          initialVisibleMinimum: _signalChartDataList.length > 30 ? _signalChartDataList[_signalChartDataList.length - 35].dateTime : _signalChartDataList.first.dateTime,
+          initialVisibleMaximum: _signalChartDataList.last.dateTime,
+          interval: 7,
+          axisBorderType: AxisBorderType.withoutTopAndBottom,
+          axisLine:  const AxisLine(
+            width: 1,
+            color: Colors.black,
+          ),
+          majorGridLines: const MajorGridLines(
+            width: 0,
+          ),
+          majorTickLines: const MajorTickLines(
+            width: 1,
+            color: Colors.black,
+          ),
+          edgeLabelPlacement: EdgeLabelPlacement.shift,
+          //autoScrollingDelta: 40,
           labelPlacement: LabelPlacement.onTicks,
-          //zoomFactor: 0.1,
-          //zoomPosition: 1,
-          //interval: 10,
+          axisLabelFormatter: (axisLabelRenderArgs) {
+            //DLog.e('axisLabelRenderArgs : ${axisLabelRenderArgs.value} / ${axisLabelRenderArgs.currentDateFormat} / ${axisLabelRenderArgs.text}');
+            return ChartAxisLabel(
+              TStyle.getDateSlashFormat1(_signalChartDataList[axisLabelRenderArgs.value.toInt()].tradeDate),
+              const TextStyle(
+                fontSize: 10,
+              ),
+            );
+          },
+          //initialVisibleMaximum: 30,
         ),
         primaryYAxis: const NumericAxis(
-          //isVisible: false,
+          axisLine: AxisLine(width: 0,),
+          majorTickLines: MajorTickLines(width: 0,),
           opposedPosition: true,
-          rangePadding: ChartRangePadding.none,
-          edgeLabelPlacement: EdgeLabelPlacement.hide,
-          plotOffset: 1,
+          rangePadding: ChartRangePadding.round,
         ),
+        onTrackballPositionChanging: (trackballArgs) {},
+        zoomPanBehavior: _zoomPanBehavior,
+        onMarkerRender: (markerArgs) {
+          int? index = markerArgs.pointIndex;
+          if (index != null && index < _signalChartDataList.length && _signalChartDataList[index].flag.isNotEmpty) {
+            var item = _signalChartDataList[index];
+            if (item.flag == 'B') {
+              markerArgs.color = Colors.red;
+              markerArgs.borderWidth = 1;
+              markerArgs.shape = DataMarkerType.triangle;
+            } else if (item.flag == 'S') {
+              markerArgs.color = Colors.blue;
+              markerArgs.shape = DataMarkerType.invertedTriangle;
+              markerArgs.borderWidth = 1;
+            } else {
+              markerArgs.color = Colors.white;
+            }
+          } else {
+            markerArgs.markerWidth = 0;
+            //markerArgs.color = Colors.white;
+          }
+        },
+        onDataLabelRender: (dataLabelArgs) {
+          int index = dataLabelArgs.pointIndex;
+          if (index < _signalChartDataList.length && _signalChartDataList[index].flag.isNotEmpty) {
+            var item = _signalChartDataList[index];
+            if (item.flag == 'B') {
+              dataLabelArgs.color = Colors.red;
+              dataLabelArgs.text = '${dataLabelArgs.text}\n매수신호발생';
+              //dataLabelArgs.borderWidth = 1;
+              //dataLabelArgs.shape = DataMarkerType.triangle;
+            } else if (item.flag == 'S') {
+              dataLabelArgs.color = Colors.blue;
+              dataLabelArgs.text = '${dataLabelArgs.text}\n매도신호발생';
+              //dataLabelArgs.shape = DataMarkerType.invertedTriangle;
+            } else {
+              dataLabelArgs.textStyle = const TextStyle(fontSize: 0);
+            }
+          } else {
+            dataLabelArgs.textStyle = const TextStyle(fontSize: 0);
+          }
+        },
         series: [
-          LineSeries<ChartData, String>(
+          LineSeries<ChartData, DateTime>(
             dataSource: _signalChartDataList,
-            xValueMapper: (item, index) => item.tradeDate,
-            yValueMapper: (item, index) => int.parse(item.tradePrc),
+            xValueMapper: (item, index) => item.dateTime,
+            yValueMapper: (item, index) => int.tryParse(item.tradePrc) ?? 0,
             pointColorMapper: (ChartData data, _) {
               return RColor.chartTradePriceColor;
             },
             width: 1.4,
             enableTooltip: false,
-            //isVisible: true,
             animationDelay: 0,
-            //animationDuration: _animationDuration,
+            markerSettings: const MarkerSettings(
+              isVisible: true,
+              shape: DataMarkerType.invertedTriangle,
+              borderWidth: 0,
+              width: 10,
+              height: 10,
+              //imageUrl: 'images/livechart.png'
+            ),
+            dataLabelMapper: (ChartData data, _){
+              if(data.flag.isNotEmpty){
+                return data.tradeDate;
+              }
+            },
+            dataLabelSettings: const DataLabelSettings(
+              isVisible: true,
+              textStyle: TextStyle(fontSize: 10,),
+            ),
+            initialIsVisible: true,
+            //animationDuration: _animation Duration,
             //onRendererCreated: (controller) => _chartController = controller,
           ),
         ],
@@ -1990,13 +2056,11 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         String tmpDate = '[';
         String tmpData = '[';
         for (int i = 0; i < chartData.length; i++) {
-          tmpDate =
-              '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
+          tmpDate = '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
 
           //0:없음, 1:매수, 2:매도
           if (chartData[i].flag == '') {
-            tmpData =
-                '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
+            tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
           } else if (chartData[i].flag == 'B') {
             tmpData =
                 '$tmpData{value: ${chartData[i].tradePrc},symbol: $upArrow, symbolOffset: [0,18],itemStyle: {color:\'red\'}},';

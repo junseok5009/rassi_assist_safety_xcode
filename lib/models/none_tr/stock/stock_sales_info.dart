@@ -15,7 +15,7 @@ class StockSalesInfo {
   factory StockSalesInfo.fromJson(Map<String, dynamic> json) {
     var jsonListSalesInfo = json['list_SalesInfo'] as List;
     List<SalesInfo> vListSalesInfo = [];
-    if (jsonListSalesInfo != null) vListSalesInfo = jsonListSalesInfo.map((i) => SalesInfo.fromJson(i)).toList();
+    vListSalesInfo = jsonListSalesInfo.map((i) => SalesInfo.fromJson(i)).toList();
     return StockSalesInfo(
       stockCode: json['stockCode'],
       stockName: json['stockName'],

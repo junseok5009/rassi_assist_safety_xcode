@@ -14,7 +14,7 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/chart_theme.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_theme/tr_theme04n.dart';
+import 'package:rassi_assist/models/tr_theme/tr_theme04.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme05.dart';
 import 'package:rassi_assist/models/tr_theme/tr_theme06.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
@@ -39,15 +39,12 @@ class ThemeHotViewer extends StatefulWidget {
 class ThemeHotViewerState extends State<ThemeHotViewer> {
   late SharedPreferences _prefs;
   String _userId = "";
-
   String _themeCode = '';
-  String _themeName = '';
-  String _themeStatus = '';
+
+  Theme04 _theme04Item = const Theme04();
+
   bool _isBearTheme = false;
-  String _themeDays = ''; //강세/약세 00일째
   String _selDiv = '';
-  String _increseRate = '';
-  String _themeDesc = '';
 
   // 현재 테마 주도주
   bool _isLeadingTop3 = true; // true : 단기 강세 TOP 3 <> false : 추세주도주
@@ -349,7 +346,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
             children: [
               // 테마명
               Text(
-                '$_themeName 테마',
+                '${_theme04Item.themeObj.themeName} 테마',
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w600,
@@ -373,7 +370,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                   const SizedBox(
                     width: 4,
                   ),
-                  CommonView.setFluctuationRateBox(value: _increseRate),
+                  CommonView.setFluctuationRateBox(value: _theme04Item.themeObj.increaseRate,),
                 ],
               ),
 
@@ -384,7 +381,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
               // 테마 설명
               _paddingView(
                 child: Text(
-                  _themeDesc,
+                  _theme04Item.themeObj.themeDesc,
                   style: const TextStyle(
                     fontSize: 16,
                   ),
@@ -405,12 +402,25 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
 
               //테마 지수 차트 (THEME04)
               _paddingView(
-                child: const Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    '테마 차트',
-                    style: TStyle.defaultTitle,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '테마 차트',
+                      style: TStyle.defaultTitle,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          '${_theme04Item.periodMonth}개월 동안',
+                          style: const TextStyle(color: RColor.greyBasic_8c8c8c,
+                          ),
+                        ),
+                        const SizedBox(width: 6,),
+                        CommonView.setFluctuationRateBox(value: _theme04Item.periodFluctRate,),
+                      ],
+                    ),
+                  ],
                 ),
               ),
               // const SizedBox(height: 10.0,),
@@ -456,19 +466,20 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     bool isBull = true;
     String status = '';
     String statusSub = '';
-    if (_themeStatus == 'BULL') {
+    String themeStatus = _theme04Item.themeObj.themeStatus;
+    if (themeStatus == 'BULL') {
       isBull = true;
       status = '강세';
       statusSub = '추세';
-    } else if (_themeStatus == 'Bullish') {
+    } else if (themeStatus == 'Bullish') {
       isBull = true;
       status = '강세';
       statusSub = '추세';
-    } else if (_themeStatus == 'BEAR') {
+    } else if (themeStatus == 'BEAR') {
       isBull = false;
       status = '약세';
       statusSub = '추세';
-    } else if (_themeStatus == 'Bearish') {
+    } else if (themeStatus == 'Bearish') {
       isBull = false;
       status = '약세';
       statusSub = '전환';
@@ -558,7 +569,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                       width: 6,
                     ),
                     Text(
-                      _themeDays,
+                      _theme04Item.themeObj.elapsedDays,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -1292,19 +1303,17 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     DLog.d(ThemeHotViewer.TAG, response.body);
 
     if (trStr == TR.THEME04) {
-      final TrTheme04N resData = TrTheme04N.fromJson(jsonDecode(response.body));
+      final TrTheme04 resData = TrTheme04.fromJson(jsonDecode(response.body));
+      _theme04Item = const Theme04();
       if (resData.retCode == RT.SUCCESS) {
         DLog.d(ThemeHotViewer.TAG, resData.retData.themeObj.toString());
 
-        ThemeStu item = resData.retData.themeObj;
-        _themeName = item.themeName;
-        _themeDays = item.elapsedDays;
-        _themeStatus = item.themeStatus;
-        _increseRate = item.increaseRate;
-        _themeDesc = item.themeDesc;
-        if (_themeStatus == 'BULL' || _themeStatus == 'Bullish') {
+        _theme04Item = resData.retData;
+        String themeStatus = _theme04Item.themeObj.themeStatus;
+
+        if (themeStatus == 'BULL' || themeStatus == 'Bullish') {
           _isBearTheme = false;
-        } else if (_themeStatus == 'BEAR' || _themeStatus == 'Bearish') {
+        } else if (themeStatus == 'BEAR' || themeStatus == 'Bearish') {
           _isBearTheme = true;
         }
         _listThemeChart.clear();
