@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_echarts/flutter_echarts.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
@@ -73,11 +73,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   String dateTime = "";
   String statTxt = "";
 
-  String _dateStr = '[]';
-  String _dataStr = '[]';
-  final String upArrow = '\'path://M16 1l-15 15h9v16h12v-16h9z\'';
-  final String downArrow = '\'path://M16 31l15-15h-9v-16h-12v16h-9z\'';
-
   String holdDays = ""; //보유중 0일째 (매도 전 보유기간)
   String holdPeriod = ""; //지난 거래 전 보유기간
 
@@ -109,24 +104,16 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   late ZoomPanBehavior _zoomPanBehavior;
   final List<ChartData> _signalChartDataList = [];
 
-  final List<ChartData> chartData = [];
-
   // 라씨매매비서는 현재?
   List<SignalAnal> _acvList = []; //AI 매매신호 성과 : 적중률, 누적수익률, 매매횟수 등등
   bool _hasSellResults = true; //매매신호(매도) 성과 표시여부
 
-  late TrackballBehavior _trackballBehavior;
+  //NumericAxisController? _numericAxisController;
+  ChartSeriesController<ChartData, DateTime>? _chartSeriesController;
+  String _recentSignalDataFlag = '';
 
   @override
   void initState() {
-    _trackballBehavior = TrackballBehavior(
-        shouldAlwaysShow: true,
-        enable: true,
-        activationMode: ActivationMode.singleTap,
-        tooltipSettings: const InteractiveTooltip(
-          enable: true,
-          color: Colors.red,
-        ));
     _zoomPanBehavior = ZoomPanBehavior(
       enablePinching: true,
       enablePanning: true,
@@ -139,7 +126,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
     stkCode = _appGlobal.stkCode;
     stkName = _appGlobal.stkName;
     _stockTabNameProvider = Provider.of<StockTabNameProvider>(context, listen: false);
-    //_scrollController = ScrollController();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == 0) {
         if (!_showBottomSheet) {
@@ -192,6 +178,9 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         jsonEncode(<String, String>{
           'userId': _userId,
         }));
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(0, duration: const Duration(seconds: 1), curve: Curves.fastEaseInToSlowEaseOut);
+    }
   }
 
   // 저장된 데이터를 가져오는 것에 시간이 필요함
@@ -510,16 +499,16 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                         ),
                         Column(
                           children: [
-                            SizedBox(
+                            /*SizedBox(
                               width: double.infinity,
                               height: 270,
                               child: _setEChartView(),
-                            ),
-                            /*Column(
-                              children: [
-                                _setSignalLineChart1,
-                              ],
                             ),*/
+                            Column(
+                              children: [
+                                _setSignalLineChart1(),
+                              ],
+                            ),
                           ],
                         ),
                         const SizedBox(
@@ -1710,212 +1699,264 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
     setState(() {});
   }
 
-  //새로운 차트 데이터
-  Widget _setEChartView() {
-    return Echarts(
-      captureHorizontalGestures: true,
-      reloadAfterInit: true,
-      extraScript: '''
-          var up = 'path://M286.031,265l-16.025,3L300,223l29.994,45-16.041-3-13.961,69Z';
-          var down = 'path://M216.969,292l16.025-3L203,334l-29.994-45,16.041,3,13.961-69Z';
-          var non = 'none';
-          var date = [];
-          var data = [];
-          var sym = [non, up, down];
-        ''',
-      option: '''
-        {
-          grid: {
-            top: 15,
-            left: 20,
-            right: 60,
-          },
-          xAxis: {
-              type: 'category',
-              boundaryGap: false,
-              data: $_dateStr,
-          },
-          yAxis: {
-              type: 'value',
-              position: 'right',
-              scale: true,
-              boundaryGap: [0, '5%'],
-              splitLine: {
-                show: false,
-              },
-          },
-          dataZoom: [
-                {
-                  //show: false,
-                  start: ${chartData.length > 60 ? '85' : '0'},
-                  end: 100,
-                  xAxisIndex: [0, 1],
-                  zoomLock: true,
-                  handleSize: '0%',
-                  moveHandleSize: 30,
-                  brushSelect: false,
-                },
-                {
-                  type: 'inside',
-                  realtime: true,
-                  start: 50,
-                  end: 60,
-                  zoomLock: true,
-                  xAxisIndex: [0, 1]
-                }
-              ],
-          series: [
-              {
-                  name: 'data',
-                  type: 'line',
-                  color: '#31b573',
-                  smooth: false,
-                  showSymbol: true,
-                  showAllSymbol: true,
-                  symbolSize: 12,
-                  sampling: 'average',
-                  lineStyle: {
-                    color: '#68cc54',
-                    width: 1.5
-                  },
-                  data: $_dataStr,
-              }
-          ]
-        }
-      ''',
-    );
-  }
-
-  Widget get _setSignalLineChart1 {
-    if(_signalChartDataList.isEmpty) return const SizedBox();
+  Widget _setSignalLineChart1() {
+    if (_signalChartDataList.isEmpty) return const SizedBox();
     return Container(
       width: double.infinity,
-      height: 270,
-      padding: const EdgeInsets.all(15),
-      child: SfCartesianChart(
-        plotAreaBorderWidth: 0,
-        margin: EdgeInsets.zero,
-        primaryXAxis: DateTimeCategoryAxis(
-          //initialZoomPosition: 0.1,
-          // https://www.syncfusion.com/forums/175539/xaxis-disappears-when-pinching-out
-          initialVisibleMinimum: _signalChartDataList.length > 30 ? _signalChartDataList[_signalChartDataList.length - 35].dateTime : _signalChartDataList.first.dateTime,
-          initialVisibleMaximum: _signalChartDataList.last.dateTime,
-          interval: 7,
-          axisBorderType: AxisBorderType.withoutTopAndBottom,
-          axisLine:  const AxisLine(
-            width: 1,
-            color: Colors.black,
-          ),
-          majorGridLines: const MajorGridLines(
-            width: 0,
-          ),
-          majorTickLines: const MajorTickLines(
-            width: 1,
-            color: Colors.black,
-          ),
-          edgeLabelPlacement: EdgeLabelPlacement.shift,
-          //autoScrollingDelta: 40,
-          labelPlacement: LabelPlacement.onTicks,
-          axisLabelFormatter: (axisLabelRenderArgs) {
-            //DLog.e('axisLabelRenderArgs : ${axisLabelRenderArgs.value} / ${axisLabelRenderArgs.currentDateFormat} / ${axisLabelRenderArgs.text}');
-            return ChartAxisLabel(
-              TStyle.getDateSlashFormat1(_signalChartDataList[axisLabelRenderArgs.value.toInt()].tradeDate),
-              const TextStyle(
-                fontSize: 10,
+      height: 230,
+      margin: const EdgeInsets.all(
+        10,
+      ),
+      child: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: 230,
+            padding: const EdgeInsets.all(5),
+            child: SfCartesianChart(
+              plotAreaBorderWidth: 0,
+              margin: EdgeInsets.zero,
+              /*annotations: [
+                if (provider.getVisibleXAxisLastIndex != -1 && _signalChartDataList.isNotEmpty)
+                    CartesianChartAnnotation(
+                      coordinateUnit: CoordinateUnit.percentage,
+                      //region: AnnotationRegion.chart,
+                      widget: FittedBox(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            minWidth: 20,
+                          ),
+                          //width: 50,
+                          height: 30,
+                          decoration: UIStyle.boxRoundFullColor8c(Colors.red),
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 5,
+                          ),
+                          child: Text(
+                            provider.getVisibleXAxisLastIndex != -1
+                                ? _signalChartDataList[provider.getVisibleXAxisLastIndex].tradePrc
+                                : '',
+                            style: TextStyle(
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                      //x: provider.getVisibleXAxisLastIndex + 3,
+                      //y: int.parse(_signalChartDataList[provider.getVisibleXAxisLastIndex].tradePrc),
+                      x: '93%',
+                      y: '${100 - provider.getYAxisPercentage}%',
+                      //y: '100%'
+                      //y: '86%',
+                      //y: '${100 - provider.getYAxisPercentage < 5 ? 5 : 100 - provider.getYAxisPercentage > 89 ? 89 : 100 - provider.getYAxisPercentage}%',
+                      //y: '89%'
+                    ),
+              ],*/
+              primaryXAxis: DateTimeCategoryAxis(
+                // https://www.syncfusion.com/forums/175539/xaxis-disappears-when-pinching-out
+                plotOffset: 10,
+                initialVisibleMinimum: _signalChartDataList.length > 36
+                    ? _signalChartDataList[_signalChartDataList.length - 35].dateTime
+                    : _signalChartDataList.first.dateTime,
+                initialVisibleMaximum: _signalChartDataList.last.dateTime,
+                interval: 7,
+                axisBorderType: AxisBorderType.withoutTopAndBottom,
+                axisLine: const AxisLine(
+                  width: 1,
+                  color: Colors.black,
+                ),
+                majorGridLines: const MajorGridLines(
+                  width: 0,
+                ),
+                majorTickLines: const MajorTickLines(
+                  width: 1,
+                  color: Colors.black,
+                ),
+                desiredIntervals: 1,
+                edgeLabelPlacement: EdgeLabelPlacement.shift,
+                labelPlacement: LabelPlacement.onTicks,
+                axisLabelFormatter: (axisLabelRenderArgs) {
+                  return ChartAxisLabel(
+                    _signalChartDataList.isEmpty || _signalChartDataList.length - 1 < axisLabelRenderArgs.value.toInt()
+                        ? ''
+                        : TStyle.getDateSlashFormat1(_signalChartDataList[axisLabelRenderArgs.value.toInt()].tradeDate),
+                    const TextStyle(
+                      fontSize: 10,
+                    ),
+                  );
+                },
               ),
-            );
-          },
-          //initialVisibleMaximum: 30,
-        ),
-        primaryYAxis: const NumericAxis(
-          axisLine: AxisLine(width: 0,),
-          majorTickLines: MajorTickLines(width: 0,),
-          opposedPosition: true,
-          rangePadding: ChartRangePadding.round,
-        ),
-        onTrackballPositionChanging: (trackballArgs) {},
-        zoomPanBehavior: _zoomPanBehavior,
-        onMarkerRender: (markerArgs) {
-          int? index = markerArgs.pointIndex;
-          if (index != null && index < _signalChartDataList.length && _signalChartDataList[index].flag.isNotEmpty) {
-            var item = _signalChartDataList[index];
-            if (item.flag == 'B') {
-              markerArgs.color = Colors.red;
-              markerArgs.borderWidth = 1;
-              markerArgs.shape = DataMarkerType.triangle;
-            } else if (item.flag == 'S') {
-              markerArgs.color = Colors.blue;
-              markerArgs.shape = DataMarkerType.invertedTriangle;
-              markerArgs.borderWidth = 1;
-            } else {
-              markerArgs.color = Colors.white;
-            }
-          } else {
-            markerArgs.markerWidth = 0;
-            //markerArgs.color = Colors.white;
-          }
-        },
-        onDataLabelRender: (dataLabelArgs) {
-          int index = dataLabelArgs.pointIndex;
-          if (index < _signalChartDataList.length && _signalChartDataList[index].flag.isNotEmpty) {
-            var item = _signalChartDataList[index];
-            if (item.flag == 'B') {
-              dataLabelArgs.color = Colors.red;
-              dataLabelArgs.text = '${dataLabelArgs.text}\n매수신호발생';
-              //dataLabelArgs.borderWidth = 1;
-              //dataLabelArgs.shape = DataMarkerType.triangle;
-            } else if (item.flag == 'S') {
-              dataLabelArgs.color = Colors.blue;
-              dataLabelArgs.text = '${dataLabelArgs.text}\n매도신호발생';
-              //dataLabelArgs.shape = DataMarkerType.invertedTriangle;
-            } else {
-              dataLabelArgs.textStyle = const TextStyle(fontSize: 0);
-            }
-          } else {
-            dataLabelArgs.textStyle = const TextStyle(fontSize: 0);
-          }
-        },
-        series: [
-          LineSeries<ChartData, DateTime>(
-            dataSource: _signalChartDataList,
-            xValueMapper: (item, index) => item.dateTime,
-            yValueMapper: (item, index) => int.tryParse(item.tradePrc) ?? 0,
-            pointColorMapper: (ChartData data, _) {
-              return RColor.chartTradePriceColor;
-            },
-            width: 1.4,
-            enableTooltip: false,
-            animationDelay: 0,
-            markerSettings: const MarkerSettings(
-              isVisible: true,
-              shape: DataMarkerType.invertedTriangle,
-              borderWidth: 0,
-              width: 10,
-              height: 10,
-              //imageUrl: 'images/livechart.png'
+              primaryYAxis: NumericAxis(
+                axisLine: const AxisLine(
+                  width: 0,
+                  //color: RColor.greyBasic_8c8c8c,
+                ),
+                majorGridLines: const MajorGridLines(
+                  width: 0,
+                ),
+                majorTickLines: const MajorTickLines(
+                  width: 0,
+                ),
+                plotOffset: 10,
+                placeLabelsNearAxisLine: false,
+                decimalPlaces: 0,
+                axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                  TStyle.getMoneyPoint(axisLabelRenderArgs.text),
+                  const TextStyle(
+                    fontSize: 12,
+                    color: Colors.black,
+                  ),
+                ),
+                labelAlignment: LabelAlignment.center,
+                opposedPosition: true,
+                rangePadding: ChartRangePadding.round,
+              ),
+              zoomPanBehavior: _zoomPanBehavior,
+              onMarkerRender: (markerArgs) {
+                int? index = markerArgs.pointIndex;
+                if (index != null &&
+                    index < _signalChartDataList.length &&
+                    _signalChartDataList[index].flag.isNotEmpty) {
+                  var item = _signalChartDataList[index];
+                  // markerArgs.seriesIndex == 0 : 매수 / markerArgs.seriesIndex == 1 : 매도
+                  if (item.flag == 'B' && markerArgs.seriesIndex == 1) {
+                    //DLog.e('markerArgs.seriesIndex : ${markerArgs.seriesIndex} / markerArgs.viewportPointIndex : ${markerArgs.viewportPointIndex}');
+                    //markerArgs.color = Colors.red;
+                    //markerArgs.borderWidth = 1;
+                    //markerArgs.shape = DataMarkerType.triangle;
+                    markerArgs.markerWidth = 30;
+                    markerArgs.markerHeight = 50;
+                  } else if (item.flag == 'S' && markerArgs.seriesIndex == 0) {
+                    markerArgs.markerWidth = 30;
+                    markerArgs.markerHeight = 50;
+                    //markerArgs.color = Colors.blue;
+                    //markerArgs.shape = DataMarkerType.invertedTriangle;
+                    //markerArgs.borderWidth = 1;
+                  } else {
+                    markerArgs.markerWidth = 0;
+                  }
+                } else {
+                  markerArgs.markerWidth = 0;
+                  //markerArgs.color = Colors.white;
+                }
+              },
+              onDataLabelRender: (dataLabelArgs) {
+                int index = dataLabelArgs.pointIndex;
+                if (index < _signalChartDataList.length && _signalChartDataList[index].flag.isNotEmpty) {
+                  var item = _signalChartDataList[index];
+                  if (item.flag == 'B') {
+                    dataLabelArgs.color = Colors.red;
+                    dataLabelArgs.text = '${dataLabelArgs.text}\n매수신호발생';
+                    //dataLabelArgs.borderWidth = 1;
+                    //dataLabelArgs.shape = DataMarkerType.triangle;
+                  } else if (item.flag == 'S') {
+                    dataLabelArgs.color = Colors.blue;
+                    dataLabelArgs.text = '${dataLabelArgs.text}\n매도신호발생';
+                    //dataLabelArgs.shape = DataMarkerType.invertedTriangle;
+                  } else {
+                    dataLabelArgs.textStyle = const TextStyle(fontSize: 0);
+                  }
+                } else {
+                  dataLabelArgs.textStyle = const TextStyle(fontSize: 0);
+                }
+              },
+              series: [
+                if (_signalChartDataList.isNotEmpty)
+                  AreaSeries<ChartData, DateTime>(
+                    dataSource: _signalChartDataList,
+                    xValueMapper: (item, index) => item.dateTime,
+                    yValueMapper: (item, index) => int.tryParse(item.tradePrc) ?? 0,
+                    pointColorMapper: (ChartData data, _) => const Color(0xffCBCBCB),
+                    onRendererCreated: (controller) => _chartSeriesController = controller,
+                    borderWidth: 1.4,
+                    borderColor: _recentSignalDataFlag.isEmpty
+                        ? const Color(0xffCBCBCB)
+                        : _recentSignalDataFlag == 'B'
+                        ? const Color(0xfffddbdb)
+                        : (_recentSignalDataFlag == 'S')
+                        ? const Color(0xffe1e0e0)
+                        : const Color(0xffCBCBCB),
+                    enableTooltip: false,
+                    animationDelay: 100,
+                    animationDuration: 2000,
+                    markerSettings: const MarkerSettings(
+                      isVisible: true,
+                      borderWidth: 0,
+                      width: 0,
+                      height: 0,
+                      shape: DataMarkerType.image,
+                      image: AssetImage('images/icon_arrow_signal_chart_dn.png'),
+                    ),
+                    initialIsVisible: true,
+                    gradient: LinearGradient(
+                      colors: [
+                        if (_recentSignalDataFlag.isEmpty)
+                          const Color(0xffffffff)
+                        else if (_recentSignalDataFlag == 'B')
+                          const Color(0xffFFECEC)
+                        else if (_recentSignalDataFlag == 'S')
+                          const Color(0xffEFEFEF)
+                        else
+                          const Color(0xffffffff),
+                        if (_recentSignalDataFlag.isEmpty)
+                          const Color(0xffffffff)
+                        else if (_recentSignalDataFlag == 'B')
+                          const Color(0xffFFECEC)
+                        else if (_recentSignalDataFlag == 'S')
+                            const Color(0xffEFEFEF)
+                          else
+                            const Color(0xffffffff),
+                      ],
+                       stops: const [
+                        0,
+                        0,
+                      ],
+
+                    ),
+                  ),
+                if (_signalChartDataList.isNotEmpty)
+                  LineSeries<ChartData, DateTime>(
+                    dataSource: _signalChartDataList,
+                    xValueMapper: (item, index) => item.dateTime,
+                    yValueMapper: (item, index) => int.tryParse(item.tradePrc) ?? 0,
+                    width: 0,
+                    color: Colors.transparent,
+                    markerSettings: const MarkerSettings(
+                      isVisible: true,
+                      borderWidth: 0,
+                      width: 0,
+                      height: 0,
+                      shape: DataMarkerType.image,
+                      image: AssetImage('images/icon_arrow_signal_chart_up.png'),
+                    ),
+                  ),
+
+              ],
             ),
-            dataLabelMapper: (ChartData data, _){
-              if(data.flag.isNotEmpty){
-                return data.tradeDate;
-              }
-            },
-            dataLabelSettings: const DataLabelSettings(
-              isVisible: true,
-              textStyle: TextStyle(fontSize: 10,),
-            ),
-            initialIsVisible: true,
-            //animationDuration: _animation Duration,
-            //onRendererCreated: (controller) => _chartController = controller,
           ),
         ],
       ),
     );
   }
 
-  //convert 패키지의 jsonDecode 사용
-  void _fetchPosts(String trStr, String json) async {
-    //DLog.d(StockHomeSignalPage.TAG, trStr + ' ' + json);
+  String get _findRecentSignalData {
+    if (_signalChartDataList.isEmpty) {
+      return '';
+    } else {
+      String flag = '';
+      for (int a = _signalChartDataList.length - 1; a >= 0; a--) {
+        String itemFlag = _signalChartDataList[a].flag;
+        if (itemFlag.isNotEmpty) {
+          flag = itemFlag;
+          break;
+        }
+      }
+      return flag;
+    }
+  }
 
+  void _fetchPosts(String trStr, String json) async {
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
       final http.Response response = await http.post(
@@ -1934,7 +1975,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   }
 
   // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
-  void _parseTrData(String trStr, final http.Response response) {
+  Future<void> _parseTrData(String trStr, final http.Response response) async {
     DLog.w(trStr + response.body);
     if (trStr == TR.USER04) {
       final TrUser04 resData = TrUser04.fromJson(jsonDecode(response.body));
@@ -2041,42 +2082,24 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
     //매매신호 차트 및 투자 수익금
     else if (trStr == TR.SIGNAL08) {
       final TrSignal08 resData = TrSignal08.fromJson(jsonDecode(response.body));
-      chartData.clear();
       _signalChartDataList.clear();
+      _recentSignalDataFlag = '';
+      //_chartSeriesController?.isVisible = false;
+      //setState(() {});
+      await Future.delayed(const Duration(milliseconds: 100));
       if (resData.retCode == RT.SUCCESS) {
         final Signal08 mData = resData.retData;
         beginYear = mData.beginYear;
         invAmt = mData.investAmt;
         balAmt = mData.balanceAmt;
-
-        chartData.addAll(mData.listChart);
-
         _signalChartDataList.addAll(mData.listChart);
-
-        String tmpDate = '[';
-        String tmpData = '[';
-        for (int i = 0; i < chartData.length; i++) {
-          tmpDate = '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
-
-          //0:없음, 1:매수, 2:매도
-          if (chartData[i].flag == '') {
-            tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
-          } else if (chartData[i].flag == 'B') {
-            tmpData =
-                '$tmpData{value: ${chartData[i].tradePrc},symbol: $upArrow, symbolOffset: [0,18],itemStyle: {color:\'red\'}},';
-          } else if (chartData[i].flag == 'S') {
-            tmpData =
-                '$tmpData{value: ${chartData[i].tradePrc},symbol: $downArrow, symbolOffset: [0,-18],itemStyle: {color:\'blue\'}},';
-            // 'symbol: \'arrow\', symbolRotate: 180, itemStyle: {color:\'blue\'}},';
-          }
-        }
-        tmpDate = '$tmpDate]';
-        tmpData = '$tmpData]';
-        _dateStr = tmpDate;
-        _dataStr = tmpData;
-
-        //TODO 슬리버가 사용되는 스크롤뷰에서는 차트 리로딩이 안 일어남. -> 차트를 하나의 리스트로 감싸서 테스트 해도 안됨
-        setState(() {});
+        _recentSignalDataFlag = _findRecentSignalData;
+        setState(() {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            _chartSeriesController?.isVisible = true;
+            _chartSeriesController?.animate();
+          });
+        });
       }
     }
   }

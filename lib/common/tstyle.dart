@@ -1062,7 +1062,7 @@ class TStyle {
     if (sCount.isNotEmpty) {
       double dCount = double.tryParse(sCount) ?? 0;
       if (dCount == 0) {
-        return Colors.black;
+        return RColor.bubbleChartGrey;
       } else if (dCount < 0) {
         return RColor.sigSell;
       } else {

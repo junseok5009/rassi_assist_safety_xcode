@@ -1,4 +1,6 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -489,16 +491,16 @@ class CommonPopup {
                     ),
                     Container(
                       margin: const EdgeInsets.symmetric(
-                        vertical: 25,
+                        vertical: 20,
                       ),
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(10),
                       decoration: UIStyle.boxRoundFullColor6c(
                         RColor.greyBox_f5f5f5,
                       ),
                       child: Column(
                         children: [
                           const Text(
-                            '프리미엄에서',
+                            '프리미엄 계정에서는',
                             textAlign: TextAlign.start,
                             style: TStyle.content15,
                           ),
@@ -506,48 +508,36 @@ class CommonPopup {
                             height: 10,
                           ),
                           SizedBox(
-                            width: AppGlobal().deviceWidth / 2.5,
+                            width: AppGlobal().deviceWidth / 2.3,
                             height: AppGlobal().deviceWidth / 2.5,
-                            child: Stack(
-                              alignment: Alignment.center,
+                            child: Column(
                               children: [
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    width: AppGlobal().deviceWidth / 3.7,
-                                    height: AppGlobal().deviceWidth / 3.7,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xffD8D8FF),
-                                    ),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: _premiumPopupBox('매매신호\n무제한'),
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      Expanded(
+                                        child: _premiumPopupBox('나만의\n매도신호'),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    width: AppGlobal().deviceWidth / 8,
-                                    height: AppGlobal().deviceWidth / 8,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: RColor.greyBox_f5f5f5,
-                                    ),
+                                const SizedBox(height: 10,),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: _premiumPopupBox('실시간\n알림'),
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      Expanded(
+                                        child: _premiumPopupBox('포켓 더\n만들기'),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                Align(
-                                  alignment: Alignment.topCenter,
-                                  child: _premiumCircleWidget('매매신호\n무제한', 0),
-                                ),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: _premiumCircleWidget('나만의\n매도신호', 1),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: _premiumCircleWidget('실시간\n알림', 2),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: _premiumCircleWidget('포켓\n추가', 3),
                                 ),
                               ],
                             ),
@@ -555,16 +545,20 @@ class CommonPopup {
                           const SizedBox(
                             height: 10,
                           ),
-                          const Text(
-                            '모두 이용하실 수 있습니다.',
-                            textAlign: TextAlign.center,
-                            style: TStyle.content15,
+                          const FittedBox(
+                            child: Text(
+                              '모두 이용하실 수 있습니다.',
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
+                              style: TStyle.content15,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     InkWell(
                       child: Container(
+                        width: double.infinity,
                         height: 50,
                         constraints: const BoxConstraints(
                           minWidth: 100,
@@ -614,6 +608,22 @@ class CommonPopup {
     }
   }
 
+  Widget _premiumPopupBox(String text) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: UIStyle.boxRoundFullColor8c(const Color(0xffD8D8FF)),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(10,),
+      child: AutoSizeText(
+        text,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        style: const TextStyle(fontWeight: FontWeight.w600,),
+      ),
+    );
+  }
+
   // 24.04.23 프리미엄 업그레이드 (AOS 3종목 > 프리미엄) 팝업 basic
   Future<String> showDialogPremiumUpgrade(BuildContext context) async {
     if (context.mounted) {
@@ -643,6 +653,7 @@ class CommonPopup {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
@@ -659,16 +670,16 @@ class CommonPopup {
                     ),
                     Container(
                       margin: const EdgeInsets.symmetric(
-                        vertical: 25,
+                        vertical: 20,
                       ),
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(10),
                       decoration: UIStyle.boxRoundFullColor6c(
                         RColor.greyBox_f5f5f5,
                       ),
                       child: Column(
                         children: [
                           const Text(
-                            '프리미엄에서',
+                            '프리미엄 계정에서는',
                             textAlign: TextAlign.start,
                             style: TStyle.content15,
                           ),
@@ -676,48 +687,36 @@ class CommonPopup {
                             height: 10,
                           ),
                           SizedBox(
-                            width: AppGlobal().deviceWidth / 2.5,
+                            width: AppGlobal().deviceWidth / 2.3,
                             height: AppGlobal().deviceWidth / 2.5,
-                            child: Stack(
-                              alignment: Alignment.center,
+                            child: Column(
                               children: [
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    width: AppGlobal().deviceWidth / 3.7,
-                                    height: AppGlobal().deviceWidth / 3.7,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xffD8D8FF),
-                                    ),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: _premiumPopupBox('매매신호\n무제한'),
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      Expanded(
+                                        child: _premiumPopupBox('나만의\n매도신호'),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    width: AppGlobal().deviceWidth / 8,
-                                    height: AppGlobal().deviceWidth / 8,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: RColor.greyBox_f5f5f5,
-                                    ),
+                                const SizedBox(height: 10,),
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: _premiumPopupBox('실시간\n알림'),
+                                      ),
+                                      const SizedBox(width: 10,),
+                                      Expanded(
+                                        child: _premiumPopupBox('포켓\n더 만들기'),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                Align(
-                                  alignment: Alignment.topCenter,
-                                  child: _premiumCircleWidget('매매신호\n무제한', 0),
-                                ),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: _premiumCircleWidget('나만의\n매도신호', 1),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: _premiumCircleWidget('실시간\n알림', 2),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: _premiumCircleWidget('포켓\n추가', 3),
                                 ),
                               ],
                             ),
@@ -725,17 +724,24 @@ class CommonPopup {
                           const SizedBox(
                             height: 10,
                           ),
-                          const Text(
-                            '모두 이용하실 수 있습니다.',
-                            textAlign: TextAlign.center,
-                            style: TStyle.content15,
+                          const FittedBox(
+                            child: Text(
+                              '모두 이용하실 수 있습니다.',
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
+                              style: TStyle.content15,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     InkWell(
                       child: Container(
+                        width: double.infinity,
                         height: 50,
+                        constraints: const BoxConstraints(
+                          minWidth: 100,
+                        ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 30,
                         ),
@@ -743,12 +749,15 @@ class CommonPopup {
                           RColor.mainColor,
                         ),
                         alignment: Alignment.center,
-                        child: const Text(
-                          '계정 업그레이드',
-                          style: TextStyle(
-                            color: Colors.white,
+                        child: const FittedBox(
+                          child: Text(
+                            '계정 업그레이드',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
                       onTap: () {
@@ -765,7 +774,7 @@ class CommonPopup {
           );
         },
       ).then(
-        (value) {
+            (value) {
           if (value != null) {
             return value;
           } else {

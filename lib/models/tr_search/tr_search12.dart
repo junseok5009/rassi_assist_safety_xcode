@@ -175,7 +175,7 @@ class Search12ChartData {
     this.fr = '',
     this.ec = '',
     this.titleList = const [],
-    this.index = 0,
+    this.index = -1,
   });
 
   Search12ChartData.empty() {
@@ -185,7 +185,7 @@ class Search12ChartData {
     fr = '';
     ec = '';
     titleList = [];
-    index = 0;
+    index = -1;
   }
 
   factory Search12ChartData.fromJson(Map<String, dynamic> json, int vInedx) {

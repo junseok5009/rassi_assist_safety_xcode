@@ -106,18 +106,20 @@ class HomeTileIssue extends StatelessWidget {
                 ),
 
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  //textBaseline: TextBaseline.alphabetic,
                   children: [
                     const Text(
                       '오늘 선정된 이슈 총 ',
-                      style: TStyle.content15,
+                      style: TextStyle(fontSize: 15,),
                     ),
                     Text(
                       listIssue03.length.toString(),
-                      style: TStyle.subTitle,
+                      style: TStyle.commonSTitle,
                     ),
                     const Text(
                       '개',
-                      style: TStyle.content15,
+                      style: TextStyle(fontSize: 15,),
                     ),
                   ],
                 )
@@ -229,7 +231,7 @@ class TileIssue03N extends StatelessWidget {
         ),
         Text(
           item.content,
-          style: TStyle.textGreyDefault,
+          style: TextStyle(fontSize: 15, color: Color(0xff111111)),
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
         ),

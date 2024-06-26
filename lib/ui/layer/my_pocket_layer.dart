@@ -99,14 +99,14 @@ class MyPocketLayerState extends State<MyPocketLayer> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'images/icon_setting_grey.png',
+                        'images/icon_setting_black.png',
                         height: 16,
                       ),
                       const SizedBox(width: 5),
                       const Text(
                         '포켓설정',
                         style: TextStyle(
-                          color: RColor.greyBasicStrong_666666,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],

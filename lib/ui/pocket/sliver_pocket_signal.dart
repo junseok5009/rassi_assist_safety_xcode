@@ -102,72 +102,6 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                         } else {
                           return Column(
                             children: [
-                              /*Container(
-                                width: double.infinity,
-                                height: 50,
-                                child: FittedBox(
-                                  child: Row(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Checkbox(
-                                            value: _signalProvider.getSortIndex == 0,
-                                            onChanged: (value) async {
-                                              if (value != (_signalProvider.getSortIndex == 0)) {
-                                                bool result = await _signalProvider.filterListBuyRegDttm;
-                                                _scrollController.animateTo(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
-                                              }
-                                            },
-                                          ),
-                                          const Text('추가순'),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Checkbox(
-                                            value: _signalProvider.getSortIndex == 1,
-                                            onChanged: (value) async {
-                                              if (value != (_signalProvider.getSortIndex == 1)) {
-                                                bool result = await _signalProvider.filterListProfitRate;
-                                                _scrollController.animateTo(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
-                                              }
-                                            },
-                                          ),
-                                          const Text('수익률순'),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Checkbox(
-                                            value: _signalProvider.getSortIndex == 2,
-                                            onChanged: (value) async {
-                                              if (value != (_signalProvider.getSortIndex == 2)) {
-                                                bool result = await _signalProvider.filterListSellDttm;
-                                                _scrollController.animateTo(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
-                                              }
-                                            },
-                                          ),
-                                          const Text('신호발생순'),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Checkbox(
-                                            value: _signalProvider.getSortIndex == 3,
-                                            onChanged: (value) async {
-                                              if (value != (_signalProvider.getSortIndex == 3)) {
-                                                bool result = await _signalProvider.filterListStockName;
-                                                _scrollController.animateTo(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
-                                              }
-                                            },
-                                          ),
-                                          const Text('종목명순'),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),*/
                               Expanded(
                                 child: Stack(
                                   children: [
@@ -191,47 +125,105 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
                                         );
                                       },
                                     ),
-                                    Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: InkWell(
-                                        child: AnimatedContainer(
-                                          width: double.infinity,
-                                          height: _isFaVisible ? 50 : 0,
-                                          duration: const Duration(milliseconds: 200),
-                                          decoration: UIStyle.boxRoundLine6bgColor(
-                                            RColor.bgBasic_fdfdfd,
-                                          ),
-                                          margin: const EdgeInsets.symmetric(
-                                            vertical: 10,
-                                            horizontal: 20,
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Image.asset(
-                                                'images/icon_add_circle_black.png',
-                                                height: 16,
-                                              ),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              const Text(
-                                                '나만의 매도신호 만들기',
-                                                style: TextStyle(
-                                                    //fontSize: 14,
-                                                    ),
-                                              ),
-                                            ],
+                                    Visibility(
+                                      visible: _signalProvider.getSortIndex == 2 &&
+                                          _signalProvider.getSortSignalStockCountIsZero,
+                                      child: Align(
+                                        alignment: Alignment.topCenter,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(20.0),
+                                          child: CommonView.setNoDataView(
+                                            150,
+                                            '신호가 발생된 종목이 없습니다.',
                                           ),
                                         ),
-                                        onTap: () {
-                                          basePageState.callPageRouteUP(
-                                            const SearchPage(
-                                              landWhere: SearchPage.addSignalLayer,
-                                              pocketSn: '',
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                        width: double.infinity,
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 10,
+                                          horizontal: 20,
+                                        ),
+                                        //height: 100,
+                                        child: Row(
+                                          children: [
+                                            InkWell(
+                                              child: AnimatedContainer(
+                                                width: 100,
+                                                height: _isFaVisible ? 50 : 0,
+                                                duration: const Duration(milliseconds: 200),
+                                                decoration: UIStyle.boxRoundLine6bgColor(
+                                                  RColor.bgBasic_fdfdfd,
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                      'images/icon_signal_filter_change.png',
+                                                      height: 16,
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    const Text(
+                                                      '순서',
+                                                      style: TextStyle(
+                                                          //fontSize: 14,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              onTap: () async {
+                                                await _showLayerSignalFilter.then((value) {});
+                                              },
                                             ),
-                                          );
-                                        },
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            Expanded(
+                                              child: InkWell(
+                                                child: AnimatedContainer(
+                                                  width: double.infinity,
+                                                  height: _isFaVisible ? 50 : 0,
+                                                  duration: const Duration(milliseconds: 200),
+                                                  decoration: UIStyle.boxRoundLine6bgColor(
+                                                    RColor.bgBasic_fdfdfd,
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Image.asset(
+                                                        'images/icon_add_circle_black.png',
+                                                        height: 16,
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      const Text(
+                                                        '나만의 매도신호 만들기',
+                                                        style: TextStyle(
+                                                            //fontSize: 14,
+                                                            ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                onTap: () {
+                                                  basePageState.callPageRouteUP(
+                                                    const SearchPage(
+                                                      landWhere: SearchPage.addSignalLayer,
+                                                      pocketSn: '',
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -471,10 +463,19 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
     if (tradeFlag) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          CommonView.setFluctuationRateBox(value: item.profitRate, fontSize: 14,),
+          Text(
+            TStyle.getPercentString(TStyle.getFixedNum(item.profitRate)),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: TStyle.getMinusPlusColor(
+                item.profitRate,
+              ),
+            ),
+          ),
           const SizedBox(
             width: 6,
           ),
@@ -490,10 +491,19 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
     } else {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          CommonView.setFluctuationRateBox(value: item.profitRate, fontSize: 14,),
+          Text(
+            TStyle.getPercentString(TStyle.getFixedNum(item.profitRate)),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: TStyle.getMinusPlusColor(
+                item.profitRate,
+              ),
+            ),
+          ),
           const SizedBox(
             width: 6,
           ),
@@ -826,6 +836,128 @@ class SliverPocketSignalWidgetState extends State<SliverPocketSignalWidget> {
             stockPktSignal.stockCode,
           )
           .then((value) => _resultAfterPopup(value));
+    }
+  }
+
+  // 24.06.05 나만의 신호 필터링 - 순서 변경 레이어
+  Future<String> get _showLayerSignalFilter async {
+    if (mounted) {
+      return showModalBottomSheet<String>(
+        isScrollControlled: true,
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext bc) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
+              ),
+            ),
+            child: Wrap(
+              children: <Widget>[
+                SafeArea(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: const Icon(Icons.close),
+                          color: Colors.black,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          iconSize: 24,
+                          onPressed: () {
+                            if (mounted) {
+                              Navigator.pop(context, CustomNvRouteResult.cancel);
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      const Text(
+                        '나만의 신호 순서',
+                        style: TStyle.title18T,
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      ListView.builder(
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                              ),
+                              child: Text(
+                                index == 0
+                                    ? '나만의 신호 만든 순서로 보기'
+                                    : index == 1
+                                        ? '수익률 순서로 보기'
+                                        : index == 2
+                                            ? '신호 발생 순서로 보기'
+                                            : index == 3
+                                                ? '종목명 가나다 순서로 보기'
+                                                : '',
+                                style: _signalProvider.getSortIndex == index
+                                    ? const TextStyle(
+                                        color: RColor.mainColor,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 15,
+                                      )
+                                    : const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 15,
+                                      ),
+                              ),
+                            ),
+                            onTap: () async {
+                              if (index == 0) {
+                                await _signalProvider.filterListBuyRegDttm;
+                              } else if (index == 1) {
+                                await _signalProvider.filterListProfitRate;
+                              } else if (index == 2) {
+                                await _signalProvider.filterListSellDttm;
+                              } else if (index == 3) {
+                                await _signalProvider.filterListStockName;
+                              }
+                              if (bc.mounted) {
+                                Navigator.pop(bc);
+                              }
+                              _scrollController.animateTo(0,
+                                  duration: const Duration(milliseconds: 500), curve: Curves.ease);
+                            },
+                          );
+                        },
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 4,
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ).then(
+        (value) {
+          if (value != null) {
+            return value;
+          } else {
+            return CustomNvRouteResult.cancel;
+          }
+        },
+      );
+    } else {
+      return CustomNvRouteResult.cancel;
     }
   }
 

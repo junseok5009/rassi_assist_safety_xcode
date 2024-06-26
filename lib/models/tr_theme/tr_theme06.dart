@@ -7,7 +7,6 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/chart_theme.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/tr_atom.dart';
-import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
 /// 2022.05.18
@@ -197,29 +196,19 @@ class TileTheme06List extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${TStyle.getDateSlashFormat2(item.startDate)}~'
-            '${TStyle.getDateSlashFormat2(item.endDate)}',
-            style: TStyle.contentGrey14,
-          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                '${item.elapsedDays}일간',
-                style: TStyle.title18T,
+                '${TStyle.getDateSlashFormat2(item.startDate)}~'
+                '${TStyle.getDateSlashFormat2(item.endDate)}',
+                style: TStyle.contentGrey14,
               ),
               Text(
-                TStyle.getPercentString(item.increaseRate),
-                maxLines: 1,
-                overflow: TextOverflow.clip,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                  color: TStyle.getMinusPlusColor(item.increaseRate),
-                ),
+                '${item.elapsedDays}일간',
+                style: TStyle.title18T,
               ),
             ],
           ),
@@ -250,7 +239,7 @@ class TileTheme06List extends StatelessWidget {
           children: [
             Expanded(
               child: AutoSizeText(
-                '${index + 1}  ${tItem.stockName}',
+                tItem.stockName,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -261,7 +250,18 @@ class TileTheme06List extends StatelessWidget {
             const SizedBox(
               height: 4,
             ),
-            CommonView.setFluctuationRateBox(value: tItem.fluctuationRate),
+            Text(
+              TStyle.getPercentString(
+                (double.tryParse(tItem.fluctuationRate) ?? 0).floor().toString()
+              ),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: TStyle.getMinusPlusColor(
+                  tItem.fluctuationRate,
+                ),
+              ),
+            ),
           ],
         ),
         onTap: () {

@@ -236,7 +236,6 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
             scrollDirection: Axis.vertical,
             slivers: [
               SliverList(
-
                 delegate: SliverChildListDelegate(
                   addAutomaticKeepAlives: addAutomaticKeepAlives,
                   [

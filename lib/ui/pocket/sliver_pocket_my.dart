@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/pocket.dart';
@@ -220,37 +222,14 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                           Expanded(
                             child: InkWell(
                               onTap: () async {
-                                var result = await CommonLayer.instance.showLayerMyPocket(
-                                  context,
-                                  _pocket.pktSn,
-                                );
-                                if (context.mounted) {
-                                  if (result == CustomNvRouteResult.landPremiumPopup) {
-                                    String result = await CommonPopup.instance.showDialogPremium(context);
-                                    if (result == CustomNvRouteResult.landPremiumPage) {
-                                      basePageState.navigateAndGetResultPayPremiumPage();
-                                    }
-                                  } else if (result == CustomNvRouteResult.landing) {
-                                    Future.delayed(const Duration(milliseconds: 300), () async {
-                                      // 포켓 설정
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const PocketSettingPage(),
-                                        ),
-                                      );
-                                    });
-                                  } else if (result == CustomNvRouteResult.cancel) {
-                                    reload();
-                                  } else {
-                                    int resultPktIndex = _pocketProvider.getPocketListIndexByPocketSn(result);
-                                    if (resultPktIndex != -1) {
-                                      _pocket = _pocketProvider.getPocketList[resultPktIndex];
-                                      reload(changePocketSn: _pocket.pktSn);
-                                    } else {
-                                      reload();
-                                    }
-                                  }
+                                int nowPocketListIndex = _pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn);
+                                if(nowPocketListIndex == -1){
+                                  commonShowToast('에러\n앱을 종료 후 다시 기동하여 주십시오.');
+                                }else if(nowPocketListIndex == 0){
+                                  commonShowToast('처음 포켓입니다.');
+                                }else{
+                                  _pocket = _pocketProvider.getPocketList[nowPocketListIndex-1];
+                                  await reload(changePocketSn: _pocket.pktSn);
                                 }
                               },
                               child: Container(
@@ -263,14 +242,17 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Image.asset(
-                                      'images/icon_arrow_down.png',
-                                      height: 8,
+                                    RotatedBox(
+                                      quarterTurns: 1,
+                                      child: Image.asset(
+                                        'images/icon_arrow_down.png',
+                                        height: 8,
+                                      ),
                                     ),
                                     const SizedBox(
-                                      width: 10,
+                                      width: 8,
                                     ),
-                                    const Text('이동'),
+                                    const Text('이전포켓'),
                                   ],
                                 ),
                               ),
@@ -281,14 +263,16 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                           ),
                           Expanded(
                             child: InkWell(
-                              onTap: () {
-                                // 포켓 설정
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const PocketSettingPage(),
-                                  ),
-                                );
+                              onTap: () async {
+                                int nowPocketListIndex = _pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn);
+                                if(nowPocketListIndex == -1){
+                                  commonShowToast('에러\n앱을 종료 후 다시 기동하여 주십시오.');
+                                }else if(nowPocketListIndex == _pocketProvider.getPocketList.length -1){
+                                  commonShowToast('마지막 포켓입니다.');
+                                }else{
+                                  _pocket = _pocketProvider.getPocketList[nowPocketListIndex+1];
+                                  await reload(changePocketSn: _pocket.pktSn);
+                                }
                               },
                               child: Container(
                                 decoration: UIStyle.boxRoundLine6bgColor(
@@ -300,14 +284,17 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Image.asset(
-                                      'images/icon_setting_black.png',
-                                      height: 16,
+                                    RotatedBox(
+                                      quarterTurns: 3,
+                                      child: Image.asset(
+                                        'images/icon_arrow_down.png',
+                                        height: 8,
+                                      ),
                                     ),
                                     const SizedBox(
-                                      width: 10,
+                                      width: 8,
                                     ),
-                                    const Text('설정'),
+                                    const Text('다음포켓'),
                                   ],
                                 ),
                               ),
@@ -320,7 +307,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                             child: InkWell(
                               onTap: () {
                                 basePageState.callPageRouteUP(
-                                  SearchPage(landWhere: SearchPage.addPocketLayer, pocketSn: _pocket.pktSn,),
+                                  SearchPage(
+                                    landWhere: SearchPage.addPocketLayer,
+                                    pocketSn: _pocket.pktSn,
+                                  ),
                                 );
                               },
                               child: Container(
@@ -699,7 +689,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   Text(
                     '${TStyle.getMoneyPoint(item.tradePrice)} ',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 17,
                     ),
                   ),
                 ],
@@ -713,6 +703,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                 '$typeText ${item.elapsedDays}일째 ',
                 style: const TextStyle(
                   color: RColor.greyBasicStrong_666666,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -859,7 +850,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                 ),
                 onTap: () async {
                   basePageState.callPageRouteUP(
-                    SearchPage(landWhere: SearchPage.addPocketLayer,pocketSn: _pocket.pktSn,),
+                    SearchPage(
+                      landWhere: SearchPage.addPocketLayer,
+                      pocketSn: _pocket.pktSn,
+                    ),
                   );
                 },
               ),
@@ -1049,12 +1043,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
             headers: Net.headers,
           )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
-
       _parseTrData(trStr, response);
       return true;
     } on TimeoutException catch (_) {
-      DLog.d(SliverPocketMyWidget.TAG, 'ERR : TimeoutException (12 seconds)');
-      CommonPopup.instance.showDialogNetErr(context);
+      if(mounted) CommonPopup.instance.showDialogNetErr(context);
       return false;
     }
   }

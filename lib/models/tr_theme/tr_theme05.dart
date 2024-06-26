@@ -148,7 +148,7 @@ class TileTheme05 extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            '${index + 1}  ${item.stockName}',
+            item.stockName,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,

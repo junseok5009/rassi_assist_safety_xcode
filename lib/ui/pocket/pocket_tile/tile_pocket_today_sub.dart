@@ -604,10 +604,15 @@ class _TileStockIssue extends State<TileStockIssue> {
             color: TStyle.getMinusPlusColor(avgFluctRate),
           ),
         ),
-        CommonView.setFluctuationRateBox(
-          marginEdgeInsetsGeometry: const EdgeInsets.only(left: 4,),
-          value: avgFluctRate,
-          fontSize: 14,
+        const SizedBox(width: 4,),
+        Text(
+          TStyle.getPercentString(TStyle.getFixedNum(avgFluctRate)),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: TStyle.getMinusPlusColor(
+                avgFluctRate,
+            ),
+          ),
         ),
       ],
     );

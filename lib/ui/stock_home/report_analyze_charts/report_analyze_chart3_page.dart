@@ -143,7 +143,7 @@ class ReportAnalyzeChart3PageState extends State<ReportAnalyzeChart3Page>
       );
     } else {
       return const SizedBox(
-        height: 100,
+        height: 240,
       );
     }
   }

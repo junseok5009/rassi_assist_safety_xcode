@@ -246,17 +246,18 @@ class UserCenterState extends State<UserCenterWidget> {
   //QNA 상세내용 다이얼로그
   void _showDialogQna(Qna03 qItem) {
     String answer = '';
-    if (qItem.answer != null && qItem.answer.length > 0) {
+    if (qItem.answer.isNotEmpty) {
       for (int i = 0; i < qItem.answer.length; i++) {
         answer = answer + qItem.answer[i].content;
       }
     } else {
+      answer = '답변 미완료';
       DLog.d(UserCenterPage.TAG, 'answer list null');
     }
 
     List<String> answerStrList = [];
     List<TextSpan> spanList = [];
-    if (answer.length > 0 && answer.contains('http')) {
+    if (answer.isNotEmpty && answer.contains('http')) {
       answerStrList.add(answer.substring(0, answer.indexOf('http')));
       spanList.add(
         TextSpan(

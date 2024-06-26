@@ -32,8 +32,12 @@ class SignalProvider with ChangeNotifier {
 
   // 나만의 신호 필터 0 : 추가순 / 1 : 수익률순 / 2 : 신호발생순 / 3:종목명순
   int _sortIndex = 0;
-
   int get getSortIndex => _sortIndex;
+
+  // 24.06.05 나만의 신호 sortIndex == 2 (신호 발생순) 일 경우에,
+  // 나만의 신호로 등록된 종목은 있는데, 신호 발생 종목이 하나도 없을 경우 체크를 위한 변수
+  bool _sortSignalStockCountIsZero = false;
+  bool get getSortSignalStockCountIsZero => _sortSignalStockCountIsZero;
 
   void loggingSignalInfo() {
     _pocket13.stkList.asMap().forEach((key1, value1) {
@@ -192,9 +196,11 @@ class SignalProvider with ChangeNotifier {
     if(_pocket13.isEmpty){
       await setList();
     }
+    bool vSortSignalStockCountIsZero = true;
     _pocket13.stkList.sort(
           (a, b) {
         if (a.myTradeFlag == 'S' && b.myTradeFlag == 'S') {
+          vSortSignalStockCountIsZero = false;
           return int.parse(b.sellDttm).compareTo(int.parse(a.sellDttm));
         } else {
           // 's'와 'h'가 아닌 경우, 's'를 우선시
@@ -203,6 +209,7 @@ class SignalProvider with ChangeNotifier {
       },
     );
     _sortIndex = 2;
+    _sortSignalStockCountIsZero = vSortSignalStockCountIsZero;
     notifyListeners();
     return true;
   }

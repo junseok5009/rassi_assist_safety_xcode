@@ -25,7 +25,6 @@ import 'package:rassi_assist/models/tr_pock/tr_pock11.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi15.dart';
-import 'package:rassi_assist/models/tr_stk_catch03.dart';
 import 'package:rassi_assist/models/tr_today/tr_today01.dart';
 import 'package:rassi_assist/models/tr_today/tr_today05.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
@@ -99,7 +98,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   bool bSelPktA = true, bSelPktB = false, bSelPktC = false, bSelPktD = false, bSelPktE = false;
 
   late SwiperController controller;
-  final List<StkCatch03> _listCatch03 = []; //이 시간 종목캐치
 
   List<TagNew> _listTagN = []; //이 시간 추천태그
 
@@ -168,8 +166,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
           ),
           SliverList(
-            delegate: SliverChildListDelegate(
-                addAutomaticKeepAlives: addAutomaticKeepAlives, [
+            delegate: SliverChildListDelegate(addAutomaticKeepAlives: addAutomaticKeepAlives, [
               const SizedBox(
                 height: 15,
               ),
@@ -1120,23 +1117,6 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
         _listTagN = resData.listData;
 
         setState(() {});
-      }
-
-      _fetchPosts(
-          TR.STKCATCH03,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-          }));
-    }
-
-    //이 시간 종목캐치
-    else if (trStr == TR.STKCATCH03) {
-      _listCatch03.clear();
-      final TrStkCatch03 resData = TrStkCatch03.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS) {
-        if (resData.retData.isNotEmpty) {
-          _listCatch03.addAll(resData.retData);
-        }
       }
 
       _fetchPosts(

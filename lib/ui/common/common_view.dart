@@ -121,22 +121,25 @@ class CommonView {
         child: Container(
           decoration: UIStyle.boxRoundLine8LineColor(RColor.greyBoxLine_c9c9c9),
           padding: const EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 7,
+            horizontal: 10,
+            vertical: 6,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            //crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            //textBaseline: TextBaseline.alphabetic,
             children: [
-              Image.asset(
-                'images/icon_calendar.png',
-                height: 20,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
               Text(
                 dateTitle,
-                style: TStyle.contentGreyTitle,
+                style: TStyle.textGrey15,
+              ),
+              const SizedBox(
+                width: 6,
+              ),
+              Image.asset(
+                'images/icon_calendar.png',
+                height: 18,
               ),
             ],
           ),

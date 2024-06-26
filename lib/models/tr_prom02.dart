@@ -65,17 +65,17 @@ class Prom02 {
 
   factory Prom02.fromJson(Map<String, dynamic> json) {
     return Prom02(
-      promoSn: json['promoSn'],
-      viewPage: json['viewPage'],
+      promoSn: json['promoSn'] ?? '',
+      viewPage: json['viewPage'] ?? '',
       viewPosition: json['viewPosition'] ?? '',
-      promoDiv: json['promoDiv'],
-      contentType: json['contentType'],
+      promoDiv: json['promoDiv'] ?? '',
+      contentType: json['contentType'] ?? '',
       title: json['title'] ?? '',
       content: json['content'] ?? '',
       linkType: json['linkType'] ?? '',
       linkPage: json['linkPage'] ?? '',
       buttonTxt: json['buttonTxt'] ?? '',
-      popupBlockTime: json['popupBlockTime'],
+      popupBlockTime: json['popupBlockTime'] ?? '',
     );
   }
 

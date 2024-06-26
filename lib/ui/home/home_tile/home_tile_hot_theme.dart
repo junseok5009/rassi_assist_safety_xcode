@@ -297,22 +297,13 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '${index + 1}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 7,
-                    ),
-                    Text(
                       item.stockName,
                       style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(
-                      width: 3,
+                      width: 4,
                     ),
                     Text(
                       item.stockCode,
@@ -323,7 +314,16 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme> {
                     ),
                   ],
                 ),
-                CommonView.setFluctuationRateBox(value: item.fluctuationRate),
+                Text(
+                  TStyle.getPercentString(TStyle.getFixedNum(item.fluctuationRate)),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: TStyle.getMinusPlusColor(
+                      item.fluctuationRate,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

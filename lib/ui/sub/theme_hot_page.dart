@@ -223,15 +223,11 @@ class ThemeHotPageState extends State<ThemeHotPage> {
             style: TStyle.title18T,
           ),
           CommonView.setCalendarPickerBtnView(
-            getDateYmFormat(
-              _dateFormat.format(_dateTime),
-            ),
+            TStyle.getDateLongYmKorFormat(_dateFormat.format(_dateTime)),
             () async {
               await CommonDatePicker.showYearMonthPicker(context, _dateTime).then((value) {
-                if (value != null) {
-                  _dateTime = value;
-                  _requestTrTheme03();
-                }
+                _dateTime = value;
+                _requestTrTheme03();
               });
             },
           ),

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
@@ -40,9 +41,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
   late SharedPreferences _prefs;
   String _userId = "";
   String _themeCode = '';
-
   Theme04 _theme04Item = const Theme04();
-
   bool _isBearTheme = false;
   String _selDiv = '';
 
@@ -61,6 +60,8 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
 
   final List<TopCard> _tcList = [];
   final List<ThemeStHistory> _thList = [];
+
+  ChartSeriesController? _chartAreaSeriesController;
 
   @override
   void initState() {
@@ -93,7 +94,10 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
           item3 = _leadingStockList[2].listChart[index];
         }
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2,),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 2,
+          ),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.8),
             borderRadius: BorderRadius.circular(5),
@@ -127,10 +131,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                 if (item1 != null)
                   Row(
                     children: [
-                      _leadingStockChartCircleTrackBall(const Color(0xffFBD240)),
-                      const SizedBox(
-                        width: 5,
-                      ),
                       Text(
                         _leadingStockList[0].stockName,
                         style: const TextStyle(
@@ -139,7 +139,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                         ),
                       ),
                       const SizedBox(
-                        width: 5,
+                        width: 6,
                       ),
                       Text(
                         '${TStyle.getMoneyPoint(
@@ -154,10 +154,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                 if (item2 != null)
                   Row(
                     children: [
-                      _leadingStockChartCircleTrackBall(const Color(0xff5DD68D)),
-                      const SizedBox(
-                        width: 5,
-                      ),
                       Text(
                         _leadingStockList[1].stockName,
                         style: const TextStyle(
@@ -166,7 +162,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                         ),
                       ),
                       const SizedBox(
-                        width: 5,
+                        width: 6,
                       ),
                       Text(
                         '${TStyle.getMoneyPoint(item2.tp)}원',
@@ -179,10 +175,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                 if (item3 != null)
                   Row(
                     children: [
-                      _leadingStockChartCircleTrackBall(const Color(0xffaba5f1)),
-                      const SizedBox(
-                        width: 5,
-                      ),
                       Text(
                         _leadingStockList[2].stockName,
                         style: const TextStyle(
@@ -191,7 +183,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                         ),
                       ),
                       const SizedBox(
-                        width: 5,
+                        width: 6,
                       ),
                       Text(
                         '${TStyle.getMoneyPoint(item3.tp)}원',
@@ -228,7 +220,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
           item = _listThemeChart[index];
         }
         return Container(
-          padding: const EdgeInsets.all(2),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.8),
             borderRadius: BorderRadius.circular(5),
@@ -253,25 +245,22 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                         color: RColor.greyBasic_8c8c8c,
                       ),
                     ),
+                    if (item != null)
+                      Row(
+                        children: [
+                          const SizedBox(
+                            width: 6,
+                          ),
+                          Text(
+                            TStyle.getMoneyPoint(item.tradeIndex),
+                            style: const TextStyle(
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
-                if (item != null)
-                  Row(
-                    children: [
-                      _leadingStockChartCircleTrackBall(
-                        RColor.chartGreen,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        TStyle.getMoneyPoint(item.tradeIndex),
-                        style: const TextStyle(
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
               ],
             ),
           ),
@@ -348,7 +337,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
               Text(
                 '${_theme04Item.themeObj.themeName} 테마',
                 style: const TextStyle(
-                  fontSize: 32,
+                  fontSize: 26,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -364,13 +353,22 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                   const Text(
                     '전일대비 ',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 17,
                     ),
                   ),
                   const SizedBox(
                     width: 4,
                   ),
-                  CommonView.setFluctuationRateBox(value: _theme04Item.themeObj.increaseRate,),
+                  Text(
+                    TStyle.getPercentString(TStyle.getFixedNum(_theme04Item.themeObj.increaseRate)),
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      color: TStyle.getMinusPlusColor(
+                        _theme04Item.themeObj.increaseRate,
+                      ),
+                    ),
+                  ),
                 ],
               ),
 
@@ -413,11 +411,21 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                       children: [
                         Text(
                           '${_theme04Item.periodMonth}개월 동안',
-                          style: const TextStyle(color: RColor.greyBasic_8c8c8c,
+                          style: const TextStyle(
+                            color: RColor.greyBasic_8c8c8c,
                           ),
                         ),
-                        const SizedBox(width: 6,),
-                        CommonView.setFluctuationRateBox(value: _theme04Item.periodFluctRate,),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        Text(
+                          TStyle.getPercentString(TStyle.getFixedNum(_theme04Item.periodFluctRate)),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: TStyle.getMinusPlusColor(_theme04Item.periodFluctRate),
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -444,7 +452,9 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                 ListView.builder(
                   physics: const ScrollPhysics(),
                   shrinkWrap: true,
-                  padding: const EdgeInsets.symmetric(horizontal: 20,),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                  ),
                   itemCount: _thList.length,
                   itemBuilder: (context, index) {
                     return TileTheme06List(_thList[index]);
@@ -546,7 +556,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                 //constraints: BoxConstraints(),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20.0,
-                  vertical: 4,
+                  vertical: 6,
                 ),
                 decoration: BoxDecoration(
                   color: isBull ? RColor.bgBuy : RColor.bgSell,
@@ -561,7 +571,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                       status + statusSub,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 16,
                         color: Colors.white,
                       ),
                     ),
@@ -572,7 +582,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                       _theme04Item.themeObj.elapsedDays,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 16,
                         color: Colors.white,
                       ),
                     ),
@@ -580,7 +590,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
                       '일째',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 16,
                         color: Colors.white,
                       ),
                     ),
@@ -633,8 +643,8 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
           ),
 
           // 현재 테마 주도주 차트
-          if (!_isBearTheme)
-            if (_isLeadingTop3) _leadingStockTop3Chart else _leadingStockTrendsChart,
+          if (!_isBearTheme) _leadingStockChart,
+          //if (_isLeadingTop3) _leadingStockTop3Chart else _leadingStockTrendsChart,
           if (!_isBearTheme)
             const SizedBox(
               height: 10,
@@ -767,6 +777,94 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: child,
       );
+
+  Widget get _leadingStockChart {
+    /*if (_leadingStockList.isEmpty) {
+      commonShowToastCenter('_leadingStockList.isEmpty !!!');
+      return const SizedBox();
+    }*/
+    return SizedBox(
+      width: double.infinity,
+      height: 200,
+      child: SfCartesianChart(
+        plotAreaBorderWidth: 0,
+        enableMultiSelection: false,
+        margin: EdgeInsets.zero,
+        primaryXAxis: NumericAxis(
+            axisBorderType: AxisBorderType.withoutTopAndBottom,
+            axisLine: const AxisLine(
+              width: 1,
+              color: Colors.black,
+            ),
+            majorGridLines: const MajorGridLines(
+              width: 0,
+            ),
+            majorTickLines: const MajorTickLines(
+              width: 1,
+              color: Colors.black,
+            ),
+            edgeLabelPlacement: EdgeLabelPlacement.shift,
+            axisLabelFormatter: (axisLabelRenderArgs) {
+              String labelDate = '';
+              int index = axisLabelRenderArgs.value.toInt();
+              if (_leadingStockList.isNotEmpty) {
+                Theme05ChartData item = _leadingStockList[0].listChart[index];
+                labelDate = _isLeadingTop3
+                    ? '${TStyle.getDateSlashFormat1(item.td)}\n${item.tt.substring(0, 2)}:${item.tt.substring(2)}'
+                    : _leadingStockList[0].candleDiv == 'MIN'
+                        ? '${TStyle.getDateSlashFormat1(item.td)}\n${item.tt.substring(0, 2)}:${item.tt.substring(2)}'
+                        : TStyle.getDateSlashFormat1(item.td);
+              }
+              return ChartAxisLabel(
+                labelDate,
+                const TextStyle(
+                  fontSize: 10,
+                  color: RColor.greyBasic_8c8c8c,
+                ),
+              );
+            }),
+        primaryYAxis: _leadingStockChartYAxis('yAxis1'),
+        axes: [
+          _leadingStockChartYAxis('yAxis2'),
+          _leadingStockChartYAxis('yAxis3'),
+        ],
+        trackballBehavior: _trackballBehavior,
+        selectionType: SelectionType.point,
+        series: [
+          if (_leadingStockList.isNotEmpty)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[0].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xffFBD240),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis1',
+            ),
+          if (_leadingStockList.length >= 2)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[1].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xff5DD68D),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis2',
+            ),
+          if (_leadingStockList.length >= 3)
+            LineSeries<Theme05ChartData, int>(
+              dataSource: _leadingStockList[2].listChart,
+              xValueMapper: (item, index) => index,
+              yValueMapper: (item, index) => int.parse(item.tp),
+              color: const Color(0xffaba5f1),
+              width: 1.4,
+              enableTooltip: false,
+              yAxisName: 'yAxis3',
+            ),
+        ],
+      ),
+    );
+  }
 
   Widget get _leadingStockTop3Chart {
     if (_leadingStockList.isEmpty) {
@@ -989,23 +1087,6 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     );
   }
 
-  Widget _leadingStockChartCircleTrackBall(Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 6,
-          height: 6,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-      ],
-    );
-  }
-
   // ㅡㅡㅡ 현재 테마주도주 끝 ㅡㅡㅡ
 
   //차트 테마지수
@@ -1015,13 +1096,14 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     }
     return SizedBox(
       width: double.infinity,
-      height: 200,
+      height: 210,
       child: SfCartesianChart(
         plotAreaBorderWidth: 0,
         enableMultiSelection: false,
         margin: EdgeInsets.zero,
         primaryXAxis: NumericAxis(
             axisBorderType: AxisBorderType.withoutTopAndBottom,
+            plotOffset: 0,
             axisLine: const AxisLine(
               width: 1,
               color: Colors.black,
@@ -1036,6 +1118,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
             edgeLabelPlacement: EdgeLabelPlacement.shift,
             axisLabelFormatter: (axisLabelRenderArgs) {
               int index = axisLabelRenderArgs.value.toInt();
+              if (_listThemeChart.length - 1 < index) return ChartAxisLabel('', const TextStyle());
               return ChartAxisLabel(
                 TStyle.getDateSlashFormat1(_listThemeChart[index].tradeDate),
                 const TextStyle(
@@ -1047,6 +1130,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
         primaryYAxis: NumericAxis(
           rangePadding: ChartRangePadding.round,
           opposedPosition: true,
+          plotOffset: 22,
           axisLine: const AxisLine(
             width: 0,
           ),
@@ -1068,57 +1152,100 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
         ),
         trackballBehavior: _trackballBehaviorTheme,
         selectionType: SelectionType.point,
+        onMarkerRender: (markerArgs) {
+          if (markerArgs.pointIndex == 0 || markerArgs.pointIndex == _listThemeChart.length - 1) {
+            markerArgs.markerWidth = 6;
+            markerArgs.markerHeight = 6;
+            markerArgs.color =
+                _theme04Item.periodFluctRate.contains('-') ? const Color(0xff9eb3ff) : const Color(0xffFF9090);
+            markerArgs.shape = DataMarkerType.circle;
+          } else {
+            markerArgs.markerWidth = 0;
+            markerArgs.markerHeight = 0;
+          }
+        },
+        annotations: <CartesianChartAnnotation>[
+          CartesianChartAnnotation(
+            widget: Text(
+              '최고\n${TStyle.getMoneyPoint(_listThemeChart[_highestThemeChartListIndex].tradeIndex)}',
+              style: const TextStyle(
+                fontSize: 10,
+                color: RColor.bgBuy,
+                fontWeight: FontWeight.w500,
+                height: 1.1,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            coordinateUnit: CoordinateUnit.point,
+            x: _highestThemeChartListIndex,
+            y: double.parse(_listThemeChart[_highestThemeChartListIndex].tradeIndex),
+            horizontalAlignment: _highestThemeChartListIndex < _listThemeChart.length / 8
+                ? ChartAlignment.near
+                : _highestThemeChartListIndex > _listThemeChart.length / 8 * 7
+                    ? ChartAlignment.far
+                    : ChartAlignment.center,
+            verticalAlignment: ChartAlignment.far,
+          ),
+          CartesianChartAnnotation(
+            widget: Text(
+              '최저\n${TStyle.getMoneyPoint(_listThemeChart[_lowestThemeChartListIndex].tradeIndex)}',
+              style: const TextStyle(
+                fontSize: 10,
+                color: RColor.bgSell,
+                fontWeight: FontWeight.w500,
+                height: 1.1,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            coordinateUnit: CoordinateUnit.point,
+            x: _lowestThemeChartListIndex,
+            y: double.parse(_listThemeChart[_lowestThemeChartListIndex].tradeIndex),
+            horizontalAlignment: _lowestThemeChartListIndex < _listThemeChart.length / 8
+                ? ChartAlignment.near
+                : _lowestThemeChartListIndex > _listThemeChart.length / 8 * 7
+                    ? ChartAlignment.far
+                    : ChartAlignment.center,
+            verticalAlignment: ChartAlignment.center,
+          )
+        ],
         series: [
           if (_listThemeChart.isNotEmpty)
-            LineSeries<ChartTheme, int>(
+            AreaSeries<ChartTheme, int>(
               dataSource: _listThemeChart,
               xValueMapper: (item, index) => index,
-              yValueMapper: (item, index) => double.parse(item.tradeIndex),
-              color: RColor.chartGreen,
-              width: 1.4,
-              enableTooltip: false,
-              dataLabelSettings: DataLabelSettings(
-                isVisible: true,
-                borderWidth: 1,
-                borderColor: RColor.greyBoxLine_c9c9c9,
-                color: Colors.white,
-                opacity: 0.6,
-                //labelAlignment: ChartDataLabelAlignment.top,
-                textStyle: const TextStyle(
-                  fontSize: 8,
-                  color: Colors.black,
-                ),
-                showZeroValue: true,
-                margin: EdgeInsets.zero,
-                builder: (data, point, series, pointIndex, seriesIndex) {
-                  if (pointIndex == _highestThemeChartListIndex) {
-                    //DLog.e('최고 index : $pointIndex');
-                    //return '최고123';
-                    //return '최고 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
-                    return Text(
-                      '최고 ${TStyle.getMoneyPoint(_listThemeChart[pointIndex].tradeIndex)}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                      ),
-                    );
-                  } else if (pointIndex == _lowestThemeChartListIndex) {
-                    //DLog.e('최저 index : $index');
-                    //return '최저';
-                    //return '최저 ${TStyle.getMoneyPoint(datum.tradePrice)}원';
-                    return Text(
-                      '최저 ${TStyle.getMoneyPoint(_listThemeChart[pointIndex].tradeIndex)}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                      ),
-                    );
-                  } else {
-                    //DLog.e('기타 index : $index');
-                    return const SizedBox();
-                  }
-                  //return Container(child: Text('${TStyle.getMoneyPoint(_listData[pointIndex].tradePrice)}원'),);
-                },
-                //overflowMode: OverflowMode.shift,
+              yValueMapper: (item, index) => double.tryParse(item.tradeIndex),
+              borderWidth: 1,
+              borderColor:
+                  _theme04Item.periodFluctRate.contains('-') ? const Color(0xff9eb3ff) : const Color(0xffFF9090),
+              gradient: LinearGradient(
+                colors: [
+                  if (_theme04Item.periodFluctRate.contains('-'))
+                    const Color(0xffb4c3fa).withOpacity(0.4)
+                  else
+                    const Color(0xffeea0a0).withOpacity(0.4),
+                  const Color(0xffffffff),
+                ],
+                stops: const [
+                  0,
+                  0.9,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
+              markerSettings: MarkerSettings(
+                isVisible: true,
+                color: _theme04Item.periodFluctRate.contains('-') ? const Color(0xff9eb3ff) : const Color(0xffFF9090),
+                width: 0,
+                height: 0,
+                borderWidth: 0,
+                shape: DataMarkerType.circle,
+              ),
+              borderDrawMode: BorderDrawMode.top,
+              animationDuration: 1500,
+              //animationDelay: 200,
+              onRendererCreated: (ChartSeriesController controller) {
+                _chartAreaSeriesController = controller;
+              },
             ),
         ],
       ),
@@ -1161,30 +1288,40 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
   Widget _setDateInnerView(int index) {
     return Container(
       alignment: Alignment.center,
-      decoration: (_themeDivIndex == index) ? UIStyle.boxNewSelectBtn2() : UIStyle.boxNewUnSelectBtn2(),
+      decoration: (_themeDivIndex == index)
+          ? UIStyle.boxRoundFullColor25c(
+              RColor.greySliderBar_ebebeb,
+            )
+          : null,
       margin: const EdgeInsets.symmetric(
         horizontal: 5,
       ),
       padding: const EdgeInsets.symmetric(
-        vertical: 6,
-        horizontal: 15,
+        horizontal: 12,
+        vertical: 4,
       ),
       child: Text(
         _themeDivTitles[index],
-        style: TextStyle(
-          color: (_themeDivIndex == index) ? Colors.black : RColor.new_basic_text_color_grey,
-          fontSize: 14,
-          fontWeight: (_themeDivIndex == index) ? FontWeight.w600 : FontWeight.w500,
-        ),
+        style: (_themeDivIndex == index)
+            ? const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              )
+            : const TextStyle(
+                color: RColor.greyBasic_8c8c8c,
+              ),
       ),
     );
   }
 
   //테마주도주 히스토리 (THEME06)
   Widget _setCardHistory() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 190,
+      margin: const EdgeInsets.only(
+        top: 10,
+      ),
       child: Swiper(
         controller: SwiperController(),
         pagination: _tcList.length < 2
@@ -1192,7 +1329,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
             : CommonSwiperPagenation.getNormalSpWithMargin2(
                 6,
                 0,
-                RColor.purpleBasic_6565ff,
+                Colors.black,
               ),
         itemCount: _tcList.length,
         itemBuilder: (BuildContext context, int index) {
@@ -1299,12 +1436,16 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     }
   }
 
-  void _parseTrData(String trStr, final http.Response response) {
+  Future<void> _parseTrData(String trStr, final http.Response response) async {
     DLog.d(ThemeHotViewer.TAG, response.body);
 
     if (trStr == TR.THEME04) {
       final TrTheme04 resData = TrTheme04.fromJson(jsonDecode(response.body));
       _theme04Item = const Theme04();
+      _listThemeChart.clear();
+      _chartAreaSeriesController?.isVisible = false;
+      //setState(() { });
+      await Future.delayed(const Duration(milliseconds: 100));
       if (resData.retCode == RT.SUCCESS) {
         DLog.d(ThemeHotViewer.TAG, resData.retData.themeObj.toString());
 
@@ -1316,7 +1457,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
         } else if (themeStatus == 'BEAR' || themeStatus == 'Bearish') {
           _isBearTheme = true;
         }
-        _listThemeChart.clear();
+
         _listThemeChart.addAll(resData.retData.listChart);
         double maxTi = 0;
         double minTi = 0;
@@ -1337,7 +1478,12 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
             _lowestThemeChartListIndex = index;
           }
         });
-        setState(() {});
+        setState(() {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            _chartAreaSeriesController?.isVisible = true;
+            _chartAreaSeriesController?.animate();
+          });
+        });
       }
     }
 
@@ -1345,6 +1491,7 @@ class ThemeHotViewerState extends State<ThemeHotViewer> {
     else if (trStr == TR.THEME05) {
       final TrTheme05 resData = TrTheme05.fromJson(jsonDecode(response.body));
       _leadingStockList.clear();
+      //await Future.delayed(const Duration(milliseconds: 100));
       if (resData.retCode == RT.SUCCESS) {
         _leadingStockList.addAll(resData.retData.listStock);
         _selDiv = resData.retData.selectDiv;

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_echarts/flutter_echarts.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
-import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
@@ -18,14 +18,15 @@ import 'package:rassi_assist/provider/stock_home/stock_home_event_view_div_provi
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_expanded_view.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/custom/CustomBoxShadow.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/recent_social_list_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/result_analyze_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_disclos_list_page.dart';
-import 'package:rassi_assist/ui/stock_home/page/stock_issue_page.dart';
-import 'package:rassi_assist/ui/stock_home/stock_home_tab.dart';
+import 'package:rassi_assist/ui/stock_home/page/stock_issu.dart';
 import 'package:rassi_assist/ui/web/only_web_view.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// 2023.02.14_HJS
 /// 종목홈(개편)_홈_최상단 메인 이벤트 차트
@@ -40,7 +41,7 @@ class StockHomeHomeTileEventView extends StatefulWidget {
   State<StockHomeHomeTileEventView> createState() => StockHomeHomeTileEventViewState();
 }
 
-class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
+class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView> {
   final _appGlobal = AppGlobal();
   String _userId = '';
   String _stockCode = '';
@@ -48,6 +49,8 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
   bool _beforeOpening = false;
   bool _beforeChart = false;
   String _fluctuationRate = '0';
+  ChartSeriesController? _chartAreaSeriesController;
+  ChartSeriesController? _chartPreCloseSeriesController;
 
   // 1일 1개월 3개월..
   late StockHomeEventViewDivProvider _stockHomeEventViewDivProvider;
@@ -59,23 +62,12 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
 
   final List<String> _listEventMoreStr = ['종목이슈', '소셜지수', '자세한 차트', '공시 모아', '실적분석'];
 
-  // 이벤트 차트 변수
-  String _eventChartOption = '{}';
-  String _eventChartData = '[]';
-  String _eventChartXAxisData = '[]';
-  String _eventChartMarkPointData = '[]';
-  String _eventChartRightMargin = '20%';
-  final List<Search12ChartData> _listPriceEventChart = [];
+  final List<Search12ChartData> _listChartData = [];
+  String _commonChartPreClosePrice = '0';
+  int _minTpChartDataIndex = -1;
+  int _maxTpChartDataIndex = -1;
 
-  // 일반 차트 변수
-  String _commonChartOption = '{}';
-  String _commonChartData = '[]';
-  String _commonChartXAxisData = '[]';
-  String _commonChartMarkPointData = '[]';
-  String _commonChartMarkLine = '{}';
-  String _commonChartPreClosePrice = '';
-  String _commonChartRightMargin = '20%';
-  final List<Search12ChartData> _listPriceCommonChart = [];
+  late TrackballBehavior _trackballBehavior;
 
   @override
   void setState(VoidCallback fn) {
@@ -97,6 +89,81 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
 
   @override
   void initState() {
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      lineDashArray: const [4, 3],
+      shouldAlwaysShow: false,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        int selectedIndex = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        return Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              CustomBoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 6,
+                offset: const Offset(2, 2),
+              ),
+            ],
+          ),
+          child: FittedBox(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      _stockHomeEventViewDivProvider.getIndex == 0
+                          ? '${_listChartData[selectedIndex].tt.substring(0, 2)}:${_listChartData[selectedIndex].tt.substring(2, 4)}'
+                          : TStyle.getDateSlashFormat1(_listChartData[selectedIndex].td),
+                      //TStyle.getDateSlashFormat1(_listChartData[selectedIndex].td),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      //'xValue => ${_data[trackballDetails.pointIndex!].x.toString()}',
+                      '${TStyle.getMoneyPoint(_listChartData[selectedIndex].tp)}원',
+                      style: const TextStyle(
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                if (_stockHomeEventViewDivProvider.getIndex == 2 && _listChartData[selectedIndex].titleList.isNotEmpty)
+                  Container(
+                    constraints: BoxConstraints(maxWidth: AppGlobal().deviceWidth - 200),
+                    child: AutoSizeText(
+                      _listChartData[selectedIndex].titleList.join('\n'),
+                      maxLines: 2,
+                      style: const TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: 5,
+                        color: RColor.purpleBasic_6565ff,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
     super.initState();
     _stockHomeEventViewDivProvider = Provider.of<StockHomeEventViewDivProvider>(
       context,
@@ -108,11 +175,9 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        5,
-        10,
-        5,
-        20,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 10,
       ),
       child: Column(
         children: [
@@ -126,82 +191,302 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
                 SizedBox(
                   width: double.infinity,
                   height: 250,
-                  child: Echarts(
-                    captureAllGestures: true,
-                    reloadAfterInit: true,
-                    onWebResourceError: (p0, p1) {
-                      DLog.e('onWebResourceError p0 : $p0 / p1 : $p1');
+                  child: SfCartesianChart(
+                    plotAreaBorderWidth: 0,
+                    trackballBehavior: _trackballBehavior,
+                    primaryXAxis: CategoryAxis(
+                      majorGridLines: const MajorGridLines(width: 0),
+                      plotOffset: 0,
+                      interval: _stockHomeEventViewDivProvider.getIndex == 0 ? 8 : null,
+                      plotBands: <PlotBand>[
+                        if (_minTpChartDataIndex != -1 && _maxTpChartDataIndex != _minTpChartDataIndex)
+                          PlotBand(
+                            isVisible: true,
+                            color: Colors.red,
+                            start: _minTpChartDataIndex,
+                            end: _minTpChartDataIndex,
+                            associatedAxisEnd: int.parse(_listChartData[_minTpChartDataIndex].tp),
+                            associatedAxisStart: int.parse(_listChartData[_minTpChartDataIndex].tp),
+                            borderWidth: 10,
+                            shouldRenderAboveSeries: true,
+                            verticalTextPadding: '3%',
+                            text: '최저\n${TStyle.getMoneyPoint(_listChartData[_minTpChartDataIndex].tp)}',
+                            textAngle: 0,
+                            textStyle: const TextStyle(
+                              fontSize: 10,
+                              color: RColor.bgSell,
+                              fontWeight: FontWeight.w500,
+                              height: 1.1,
+                            ),
+                            horizontalTextAlignment: _minTpChartDataIndex < _listChartData.length / 4
+                                ? TextAnchor.start
+                                : _minTpChartDataIndex > _listChartData.length / 4 * 3
+                                    ? TextAnchor.end
+                                    : TextAnchor.middle,
+                            verticalTextAlignment: TextAnchor.end,
+                          ),
+                        if (_maxTpChartDataIndex != -1 && _minTpChartDataIndex != _maxTpChartDataIndex)
+                          PlotBand(
+                            isVisible: true,
+                            start: _maxTpChartDataIndex,
+                            end: _maxTpChartDataIndex,
+                            associatedAxisEnd: int.parse(_listChartData[_maxTpChartDataIndex].tp),
+                            associatedAxisStart: int.parse(_listChartData[_maxTpChartDataIndex].tp),
+                            borderWidth: 0,
+                            shouldRenderAboveSeries: true,
+                            verticalTextPadding: '10%',
+                            text: '최고\n${TStyle.getMoneyPoint(_listChartData[_maxTpChartDataIndex].tp)}',
+                            textAngle: 0,
+                            textStyle: const TextStyle(
+                              fontSize: 10,
+                              color: RColor.bgBuy,
+                              fontWeight: FontWeight.w500,
+                              height: 1.1,
+                            ),
+                            horizontalTextAlignment: _maxTpChartDataIndex < _listChartData.length / 8
+                                ? TextAnchor.start
+                                : _maxTpChartDataIndex > _listChartData.length / 8 * 7
+                                    ? TextAnchor.end
+                                    : TextAnchor.middle,
+                            verticalTextAlignment: TextAnchor.start,
+                          ),
+                        // 09:20 데이터가 하나로, 최고 최저점이 같은 경우
+                        if (_maxTpChartDataIndex != -1 &&
+                            _minTpChartDataIndex != -1 &&
+                            _minTpChartDataIndex == _maxTpChartDataIndex)
+                          PlotBand(
+                            isVisible: true,
+                            start: _maxTpChartDataIndex,
+                            end: _maxTpChartDataIndex,
+                            associatedAxisEnd: int.parse(_listChartData[_maxTpChartDataIndex].tp),
+                            associatedAxisStart: int.parse(_listChartData[_maxTpChartDataIndex].tp),
+                            borderWidth: 0,
+                            shouldRenderAboveSeries: true,
+                            verticalTextPadding: '10%',
+                            text: TStyle.getMoneyPoint(_listChartData[_maxTpChartDataIndex].tp),
+                            textAngle: 0,
+                            textStyle: const TextStyle(
+                              fontSize: 10,
+                              color: RColor.greyBasic_8c8c8c,
+                              fontWeight: FontWeight.w500,
+                              height: 1,
+                            ),
+                            horizontalTextAlignment: TextAnchor.end,
+                            verticalTextAlignment: TextAnchor.start,
+                          ),
+                        PlotBand(
+                          isVisible: _stockHomeEventViewDivProvider.getIndex == 0 && !(_beforeOpening || _beforeChart),
+                          associatedAxisStart: int.tryParse(_commonChartPreClosePrice) ?? 0,
+                          associatedAxisEnd: int.tryParse(_commonChartPreClosePrice) ?? 0,
+                          text: '전일종가 ${TStyle.getMoneyPoint(_commonChartPreClosePrice)}',
+                          textAngle: 0,
+                          textStyle: const TextStyle(
+                            fontSize: 10,
+                            color: RColor.greyBasic_8c8c8c,
+                          ),
+                          borderWidth: 0,
+                          shouldRenderAboveSeries: true,
+                          dashArray: const [3, 6],
+                          verticalTextPadding: '1%',
+                          horizontalTextAlignment: TextAnchor.end,
+                          verticalTextAlignment: TextAnchor.end,
+                        ),
+                      ],
+                      labelPlacement: LabelPlacement.onTicks,
+                      labelStyle: const TextStyle(
+                        fontSize: 10,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      axisLine: const AxisLine(
+                        width: 0,
+                      ),
+                      majorTickLines: const MajorTickLines(
+                        width: 0,
+                      ),
+                      opposedPosition: true,
+                      rangePadding: ChartRangePadding.round,
+                      majorGridLines: const MajorGridLines(width: 1),
+                      plotOffset: 22,
+                      axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                        TStyle.getMoneyPoint(axisLabelRenderArgs.text),
+                        const TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
+                      ),
+                      decimalPlaces: 0,
+                      // 소수점 안나오게
+                      isVisible: !(_stockHomeEventViewDivProvider.getIndex == 0 && (_beforeOpening || _beforeChart)),
+                      /*minimum: _stockHomeEventViewDivProvider.getIndex == 0
+                          ? (double.tryParse(_commonChartPreClosePrice) ?? 0) >
+                                  (double.tryParse(_findMinTpCommonItem.tp) ?? 0)
+                              ? (double.tryParse(_findMinTpCommonItem.tp) ?? 0)
+                              : (double.tryParse(_commonChartPreClosePrice) ?? 0)
+                          : null,*/
+                    ),
+                    enableAxisAnimation: false,
+                    onMarkerRender: (markerArgs) {
+                      int lastTpItemIndex = _listChartData
+                              .firstWhere(
+                                (element) => element.tp.isEmpty,
+                                orElse: () => Search12ChartData.empty(),
+                              )
+                              .index -
+                          1;
+                      if (markerArgs.pointIndex == 0 ||
+                          (lastTpItemIndex > 0 && lastTpItemIndex == markerArgs.pointIndex) ||
+                          (lastTpItemIndex < 0 && markerArgs.pointIndex == _listChartData.last.index)) {
+                        if (_stockHomeEventViewDivProvider.getIndex == 2 &&
+                            _listChartData[markerArgs.pointIndex!].ec.isNotEmpty &&
+                            _listChartData[markerArgs.pointIndex!].ec != '0') {
+                          markerArgs.shape = DataMarkerType.image;
+                        } else {
+                          markerArgs.markerWidth = 6;
+                          markerArgs.markerHeight = 6;
+                          markerArgs.color =
+                              _fluctuationRate.contains('-') ? const Color(0xff9eb3ff) : const Color(0xffFF9090);
+                          markerArgs.shape = DataMarkerType.circle;
+                        }
+                      } else if (markerArgs.pointIndex == _minTpChartDataIndex) {
+                        markerArgs.markerWidth = 7;
+                        markerArgs.markerHeight = 7;
+                        markerArgs.shape = DataMarkerType.invertedTriangle;
+                        markerArgs.color = RColor.sigSell;
+                      } else if (markerArgs.pointIndex == _maxTpChartDataIndex) {
+                        markerArgs.markerWidth = 7;
+                        markerArgs.markerHeight = 7;
+                        markerArgs.shape = DataMarkerType.triangle;
+                        markerArgs.color = RColor.sigBuy;
+                      } else if (_stockHomeEventViewDivProvider.getIndex == 2 &&
+                          _listChartData[markerArgs.pointIndex!].ec.isNotEmpty &&
+                          _listChartData[markerArgs.pointIndex!].ec != '0') {
+                        markerArgs.shape = DataMarkerType.image;
+                      } else {
+                        markerArgs.markerWidth = 0;
+                        markerArgs.markerHeight = 0;
+                      }
                     },
-                    option: _stockHomeEventViewDivProvider.getIndex == 2 ? _eventChartOption : _commonChartOption,
-                    extraScript: '''
-                  const upColor = 'red'; // 상승 봉 색깔
-                  const upBorderColor = 'red'; // 상승 선 색깔
-                  const downColor = 'blue';
-                  const downBorderColor = 'blue';
-                  function numberWithCommas(x) {
-                    return x.toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ",");
-                  };
-                  function dateDotFormatter(x) {
-                    if (x.toString().length < 7) {
-                      return x.substring(0,2) + ':' + x.substring(2,4);
-                    }
-                    var result = x.toString();
-                    result =
-                      result.substring(2, 4) +'/'
-                      + result.substring(4, 6) + '/'
-                      + result.substring(6, 8);
-                      return result;
-                  };                
-                  chart.on('click', (params) => {
-                    if(params.componentType === 'series') {
-                        Messager.postMessage('anything');
-                    }
-                  }); 
-                  chart.on('mousemove', function (params) {
-                      Messager.postMessage('mousemove4');
-                  });
-                  chart.on('mouseup', function (params) {
-                      Messager.postMessage('mouseup');
-                  });
-                  chart.on('mouseover', (params) => {
-                      chart.dispatchAction({
-                        type: 'highlight',
-                        seriesIndex: [0],
-                        dataIndex: [0],
-                      });
-                      chart.dispatchAction({
-                        type: 'showTip',
-                        seriesIndex: 0,
-                        dataIndex: 0,
-                      });
-                      Messager.postMessage('mouseover');
-                  });
-                  
-                  chart.on('globalout', (params) => {
-                      Messager.postMessage('globalout');
-                  });
-                  
-                  chart.on('mousedown', (params) => {
-                      Messager.postMessage('mousedown');
-                  });
-                  
-                  chart.on('mouseout', (params) => {
-                      chart.dispatchAction({
-                        type: 'downplay',
-                        seriesIndex: [0],
-                        dataIndex: [0],
-                      });
-                      chart.dispatchAction({
-                        type: 'hideTip',
-                        seriesIndex: 0,
-                        dataIndex: 0,
-                      });
-                      Messager.postMessage('mouseout');
-                  });
-                  ''',
-                    onMessage: (String message) {
-                      DLog.w('message : $message');
-                    },
+                    series: [
+                      AreaSeries<Search12ChartData, String>(
+                        dataSource: _listChartData,
+                        xValueMapper: (item, index) {
+                          if (_stockHomeEventViewDivProvider.index == 0) {
+                            String tt = item.tt;
+                            if (tt.length >= 4) {
+                              return '${tt.substring(0, 2)}:${tt.substring(2, 4)}';
+                            } else {
+                              return tt;
+                            }
+                          } else {
+                            return TStyle.getDateSlashFormat1(item.td);
+                          }
+                        },
+                        yValueMapper: (item, index) => int.tryParse(item.tp),
+                        borderWidth: 1,
+                        borderColor: _fluctuationRate.contains('-') ? const Color(0xff9eb3ff) : const Color(0xffFF9090),
+                        gradient: LinearGradient(
+                          colors: [
+                            if (_fluctuationRate.contains('-'))
+                              const Color(0xffb4c3fa).withOpacity(0.4)
+                            else
+                              const Color(0xffeea0a0).withOpacity(0.4),
+                            const Color(0xffffffff),
+                          ],
+                          stops: const [
+                            0,
+                            0.9,
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        markerSettings: MarkerSettings(
+                          isVisible: true,
+                          color: _fluctuationRate.contains('-') ? const Color(0xff9eb3ff) : const Color(0xffFF9090),
+                          width: 0,
+                          height: 0,
+                          borderWidth: 0,
+                          shape: DataMarkerType.circle,
+                        ),
+                        borderDrawMode: BorderDrawMode.top,
+                        animationDuration: 1500,
+                        //animationDelay: 200,
+                        onRendererCreated: (ChartSeriesController controller) {
+                          _chartAreaSeriesController = controller;
+                        },
+                      ),
+                      if (_stockHomeEventViewDivProvider.getIndex == 2)
+                        LineSeries<Search12ChartData, String>(
+                          dataSource: _listChartData,
+                          xValueMapper: (item, index) => TStyle.getDateSlashFormat1(item.td),
+                          yValueMapper: (item, index) => int.tryParse(item.tp),
+                          color: Colors.transparent,
+                          markerSettings: MarkerSettings(
+                            isVisible: true,
+                            width: _eventDivSelectedIndex == 0
+                                ? 10
+                                : _eventDivSelectedIndex == 1
+                                    ? 11
+                                    : _eventDivSelectedIndex == 2
+                                        ? 10
+                                        : _eventDivSelectedIndex == 3
+                                            ? 16
+                                            : 14,
+                            height: _eventDivSelectedIndex == 0
+                                ? 10
+                                : _eventDivSelectedIndex == 1
+                                    ? 11
+                                    : _eventDivSelectedIndex == 2
+                                        ? 10
+                                        : _eventDivSelectedIndex == 3
+                                            ? 16
+                                            : 14,
+                            shape: DataMarkerType.image,
+                            image: AssetImage(_eventDivSelectedIndex == 0
+                                ? 'images/icon_event_chart_0.png'
+                                : _eventDivSelectedIndex == 1
+                                    ? 'images/icon_event_chart_1.png'
+                                    : _eventDivSelectedIndex == 2
+                                        ? 'images/icon_event_chart_2.png'
+                                        : _eventDivSelectedIndex == 3
+                                            ? 'images/icon_event_chart_3.png'
+                                            : _eventDivSelectedIndex == 4
+                                                ? 'images/icon_event_chart_4.png'
+                                                : 'images/icon_event_chart_0.png'),
+                          ),
+                        ),
+                      if (_stockHomeEventViewDivProvider.getIndex == 0 &&
+                          _commonChartPreClosePrice.isNotEmpty &&
+                          _commonChartPreClosePrice != '0' &&
+                          !(_beforeOpening || _beforeChart))
+                        LineSeries<Search12ChartData, String>(
+                          dataSource: _listChartData,
+                          xValueMapper: (item, index) {
+                            String tt = item.tt;
+                            if (tt.length >= 4) {
+                              return '${tt.substring(0, 2)}:${tt.substring(2, 4)}';
+                            } else {
+                              return tt;
+                            }
+                          },
+                          yValueMapper: (item, index) => int.tryParse(_commonChartPreClosePrice) ?? 0,
+                          width: 0,
+                          color: Colors.transparent,
+                          animationDuration: 2000,
+                          trendlines: [
+                            Trendline(
+                              isVisible: true,
+                              width: 1,
+                              dashArray: [4, 3],
+                              color: RColor.greyBasic_8c8c8c,
+                            )
+                          ],
+                          onRendererCreated: (ChartSeriesController controller) {
+                            _chartPreCloseSeriesController = controller;
+                          },
+                        ),
+                    ],
                   ),
                 ),
                 if (_beforeOpening && _stockHomeEventViewDivProvider.getIndex == 0)
@@ -209,7 +494,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
                     alignment: Alignment.center,
                     color: RColor.bgBasic_fdfdfd,
                     margin: const EdgeInsets.only(
-                      bottom: 30,
+                      bottom: 28,
                     ),
                     child: const Text('장 시작 전 입니다.'),
                   )
@@ -218,7 +503,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
                     alignment: Alignment.center,
                     color: RColor.bgBasic_fdfdfd,
                     margin: const EdgeInsets.only(
-                      bottom: 30,
+                      bottom: 28,
                     ),
                     child: const Text(
                       '20분부터 업데이트 됩니다.\n(20분 지연)',
@@ -234,7 +519,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
                     alignment: Alignment.center,
                     //color: RColor.bgBasic_fdfdfd,
                     margin: const EdgeInsets.only(
-                      bottom: 30,
+                      bottom: 28,
                     ),
                     child: Text(
                       '최근 3개월간 ${_listEventChartDivModel[_eventDivSelectedIndex].divName.replaceAll('\n', '')} 이벤트가 없습니다.',
@@ -832,320 +1117,39 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
     }
   }
 
-  // 이벤트 차트 셋팅
-  _initEventChartOption() {
-    // DEFINE 라인 / 봉 차트 데이터 파싱 + 마크 포인트 파싱
-    _eventChartData = '[';
-    _eventChartMarkPointData = '[';
-    _eventChartXAxisData = '[';
-    String eventChartMarkPointYAxisValue = '0'; //마크포인트 찍는 y좌표 = 최고가 위에 찍어야함
-
-    _listPriceEventChart.asMap().forEach(
-      (index, value) {
-        //_eventChartData += '${double.parse(value.tp)},';
-        _eventChartData += '{value : ${double.tryParse(value.tp) ?? "''"}, value1: ${value.ec}, value2: [';
-
-        for (var element in value.titleList) {
-          _eventChartData += "'$element',";
-        }
-
-        _eventChartData += '],},';
-        //'value2: [ ${value.ec}, ${int.parse(value.ec) + 1}, ${int.parse(value.ec) + 2}, ${int.parse(value.ec) + 3} ],},'
-
-        eventChartMarkPointYAxisValue = value.tp;
-        switch (value.ec) {
-          case '0':
-            break;
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-            _eventChartMarkPointData += '''
-            {
-              coord: [$index, $eventChartMarkPointYAxisValue,],
-              name: "${value.td}",              
-              symbol: '${_eventDivSelectedIndex == 0 ? 'image://https://files.thinkpool.com/rassi_signal/rs_img_bell_is.png' : _eventDivSelectedIndex == 1 ? 'image://https://files.thinkpool.com/rassi_signal/rs_img_bell_com.png' : _eventDivSelectedIndex == 2 ? 'image://https://files.thinkpool.com/rassi_signal/rs_img_bell_pr.png' : _eventDivSelectedIndex == 3 ? 'image://https://files.thinkpool.com/rassi_signal/rs_img_bell_no.png' : _eventDivSelectedIndex == 4 ? 'image://https://files.thinkpool.com/rassi_signal/rs_img_bell_re.png' : 'image://https://files.thinkpool.com/rassi_signal/rs_img_bell_is.png'}',
-              symbolSize: '${_eventDivSelectedIndex == 0 || _eventDivSelectedIndex == 1 || _eventDivSelectedIndex == 2 ? 10 : 15}',
-            },
-            ''';
-            break;
-        }
-
-        _eventChartXAxisData += "'${value.td}',";
-      },
-    );
-
-    var maxTpItem = _findMaxTpEventItem;
-    bool isOffsetMax = (maxTpItem.index < _listPriceEventChart.length / 10) ||
-            (maxTpItem.index > _listPriceEventChart.length - (_listPriceEventChart.length / 10))
-        ? true
-        : false;
-    _eventChartMarkPointData += '''
-    {        
-      coord: [${maxTpItem.index}, ${maxTpItem.tp}],
-      value: '최고${isOffsetMax ? '\\n' : ' '}${TStyle.getMoneyPoint(maxTpItem.tp)}',
-      symbol: 'roundRect',
-      symbolSize: 0.1,      
-       label: {
-        show: true,
-        backgroundColor: 'transparent',
-        color: '#FC525B',
-        textStyle: {
-          fontSize: 11,
-        },       
-        position: 'top',
-      },
-    },
-    ''';
-
-    var minTpItem = _findMinTpEventItem;
-    bool isOffsetMin = (minTpItem.index < _listPriceEventChart.length / 10) ||
-            (minTpItem.index > _listPriceEventChart.length - (_listPriceEventChart.length / 10))
-        ? true
-        : false;
-    _eventChartMarkPointData += '''
-    {        
-      coord: [${minTpItem.index}, ${minTpItem.tp}],
-      value: '최저${isOffsetMin ? '\\n' : ' '}${TStyle.getMoneyPoint(minTpItem.tp)}',
-      symbol: 'roundRect',
-      symbolSize: 0.1,
-      label: {
-        show: true,
-        backgroundColor: 'transparent',
-        color: '#6A86E7',
-        textStyle: {
-          fontSize: 10.5,
-        },        
-        position: 'bottom',
-      },
-    },
-    ''';
-
-    //symbolOffset: ['${minTpItem.index > (_listPriceChart.length / 2) ? '-300%' : '200%'}', '100%'],
-
-    _eventChartData += ']';
-    _eventChartMarkPointData += ']';
-    _eventChartXAxisData += ']';
-
-    //DLog.d('','_eventChartData : $_eventChartData');
-    //DLog.d('','_eventChartMarkPointData : $_eventChartMarkPointData');
-    //DLog.d('','_eventChartXAxisData : $_eventChartXAxisData');
-
-    double maxTp = double.tryParse(_findMaxTpEventItem.tp) ?? 0;
-    _eventChartRightMargin = maxTp > 1000000
-        ? '20%'
-        : maxTp > 100000
-            ? '18%'
-            : maxTp > 10000
-                ? '16%'
-                : maxTp > 1000
-                    ? '14%'
-                    : maxTp > 100
-                        ? '12%'
-                        : maxTp > 10
-                            ? '10%'
-                            : '20%';
-
-    _initCommonChartOption();
-  }
-
-  Search12ChartData get _findMaxTpEventItem {
-    if (_listPriceEventChart.isEmpty) {
-      return Search12ChartData.empty();
-    } else if (_listPriceEventChart.length == 1) {
-      return _listPriceEventChart[0];
+  int get _findMaxTpChartDataIndex {
+    final nonNullList = _listChartData.where((data) => double.tryParse(data.tp) != null).toList();
+    if (nonNullList.isEmpty) {
+      return -1;
+    } else if (nonNullList.length == 1) {
+      return 0;
     } else {
-      return _listPriceEventChart.reduce(
-        (curr, next) => (double.tryParse(curr.tp) ?? 0) > (double.tryParse(next.tp) ?? 0) ? curr : next,
-      );
+      return nonNullList
+          .reduce(
+            (curr, next) => (double.tryParse(curr.tp) ?? 0) > (double.tryParse(next.tp) ?? 0) ? curr : next,
+          )
+          .index;
     }
   }
 
-  Search12ChartData get _findMinTpEventItem {
-    if (_listPriceEventChart.isEmpty) {
-      return Search12ChartData.empty();
-    } else if (_listPriceEventChart.length == 1) {
-      return _listPriceEventChart[0];
+  int get _findMinTpChartDataIndex {
+    final nonNullList = _listChartData.where((data) => double.tryParse(data.tp) != null).toList();
+    if (nonNullList.isEmpty) {
+      return -1;
+    } else if (nonNullList.length == 1) {
+      return 0;
     } else {
-      return _listPriceEventChart.reduce(
-        (curr, next) => (double.tryParse(curr.tp) ?? 0) > (double.tryParse(next.tp) ?? 0) ? next : curr,
-      );
+      return nonNullList
+          .reduce(
+            (curr, next) => (double.tryParse(curr.tp) ?? 0) > (double.tryParse(next.tp) ?? 0) ? next : curr,
+          )
+          .index;
     }
-  }
-
-  // 일반 차트 셋팅
-  _initCommonChartOption() {
-    // DEFINE 라인 / 봉 차트 데이터 파싱 + 마크 포인트 파싱
-    _commonChartData = '[';
-    _commonChartMarkPointData = '[';
-    _commonChartMarkLine = '{}';
-    _commonChartXAxisData = '[';
-    _listPriceCommonChart.asMap().forEach(
-      (index, value) {
-        _commonChartData += '{value : ${double.tryParse(value.tp)}, value1: ${value.ec}, value2: [';
-        for (var element in value.titleList) {
-          _commonChartData += "'$element',";
-        }
-        //_commonChartData += "], lineStyle: { color: 'red', width: 15, }, },";
-
-        _commonChartData += '],},';
-        _commonChartXAxisData += "'${_stockHomeEventViewDivProvider.getIndex == 0 ? value.tt : value.td}',";
-      },
-    );
-
-    if (_eventDivSelectedIndex == 0 && (_beforeOpening || _beforeChart)) {
-    } else {
-      var maxTpItem = _findMaxTpCommonItem;
-      bool isOffsetMax = (maxTpItem.index < _listPriceCommonChart.length / 10) ||
-              (maxTpItem.index > _listPriceCommonChart.length - (_listPriceCommonChart.length / 10))
-          ? true
-          : false;
-      _commonChartMarkPointData += '''
-    {        
-      coord: [${maxTpItem.index}, ${maxTpItem.tp}],
-      value: '최고${isOffsetMax ? '\\n' : ' '}${TStyle.getMoneyPoint(maxTpItem.tp)}',
-      symbol: 'roundRect',
-      symbolSize: 0.1,
-       label: {
-        show: true,
-        backgroundColor: 'transparent',
-        color: '#FC525B',
-        textStyle: {
-          fontSize: 11,
-        }, 
-        position: 'top',      
-      },
-    },
-    ''';
-
-      var minTpItem = _findMinTpCommonItem;
-      bool isOffsetMin = (minTpItem.index < _listPriceCommonChart.length / 10) ||
-              (minTpItem.index > _listPriceCommonChart.length - (_listPriceCommonChart.length / 10))
-          ? true
-          : false;
-      _commonChartMarkPointData += '''
-    {        
-      coord: [${minTpItem.index}, ${minTpItem.tp}],
-      value: '최저${isOffsetMin ? '\\n' : ' '}${TStyle.getMoneyPoint(minTpItem.tp)}',
-      symbol: 'roundRect',
-      symbolSize: 0.1,      
-      label: {
-        show: true,
-        backgroundColor: 'transparent',
-        color: '#6A86E7',
-        textStyle: {
-          fontSize: 10.5,
-        },        
-        position: 'bottom',
-      },
-    },
-    ''';
-    }
-
-    if (_stockHomeEventViewDivProvider.getIndex == 0 && !_beforeOpening) {
-      _commonChartMarkLine = '''
-    {
-      show: ${_stockHomeEventViewDivProvider.getIndex == 0 ? 'true' : 'false'},
-      symbol: 'none',      
-      label: {
-        show: true,
-        position: 'insideEndTop',
-        formatter:'전일종가 ${TStyle.getMoneyPoint(
-        _commonChartPreClosePrice,
-      )}',
-        fontSize: 10,
-        color: '#8C8C8C',
-      },
-      silent: false,
-      emphasis: {
-        disabled: false,
-      },
-      lineStyle: {
-        color: '#8C8C8C',
-      },
-      data: [{
-        yAxis: '$_commonChartPreClosePrice',
-      },],
-    },    
-    ''';
-    }
-
-    _commonChartData += ']';
-    _commonChartMarkPointData += ']';
-    _commonChartXAxisData += ']';
-
-    //DLog.w('_commonChartData : $_commonChartData');
-    //DLog.w('_commonChartMarkPointData : $_commonChartMarkPointData');
-    //DLog.w('_commonChartXAxisData : $_commonChartXAxisData');
-
-    double maxTp = double.tryParse(_findMaxTpCommonItem.tp) ?? 0;
-    _commonChartRightMargin = _stockHomeEventViewDivProvider.getIndex == 0 && (_beforeOpening || _beforeChart)
-        ? '5%'
-        : maxTp > 1000000
-            ? '20%'
-            : maxTp > 100000
-                ? '18%'
-                : maxTp > 10000
-                    ? '16%'
-                    : maxTp > 1000
-                        ? '14%'
-                        : maxTp > 100
-                            ? '12%'
-                            : maxTp > 10
-                                ? '10%'
-                                : '20%';
-
-    _initChartOption();
-  }
-
-  Search12ChartData get _findMaxTpCommonItem {
-    if (_listPriceCommonChart.isEmpty) {
-      return Search12ChartData.empty();
-    } else if (_listPriceCommonChart.length == 1) {
-      return _listPriceCommonChart[0];
-    } else {
-      return _listPriceCommonChart.reduce(
-        (curr, next) => double.tryParse(curr.tp) == null
-            ? next
-            : double.tryParse(next.tp) == null
-                ? curr
-                : double.parse(curr.tp) > double.parse(next.tp)
-                    ? curr
-                    : next,
-      );
-    }
-  }
-
-  Search12ChartData get _findMinTpCommonItem {
-    if (_listPriceCommonChart.isEmpty) {
-      return Search12ChartData.empty();
-    } else if (_listPriceCommonChart.length == 1) {
-      return _listPriceCommonChart[0];
-    } else {
-      return _listPriceCommonChart.reduce(
-        (curr, next) => double.tryParse(curr.tp) == null
-            ? next
-            : double.tryParse(next.tp) == null
-                ? curr
-                : double.parse(curr.tp) > double.parse(next.tp)
-                    ? next
-                    : curr,
-      );
-    }
-  }
-
-  int get _find1DEventHasTpCount {
-    int count = 0;
-    _listPriceCommonChart.takeWhile((value) => value.tp.isNotEmpty).forEach((element) {
-      count = element.index;
-    });
-    return count;
   }
 
   bool get _isEventExist {
     //bool isEventExist = false;
-    for (var item in _listPriceEventChart) {
+    for (var item in _listChartData) {
       int eventCount = int.tryParse(item.ec) ?? 0;
       if (eventCount != 0) {
         return false;
@@ -1155,386 +1159,58 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView>{
     //return isEventExist;
   }
 
-  // 차트 이닛 옵션
-  _initChartOption() {
-    String lineColor = _fluctuationRate.contains('-') ? '#9eb3ff' : '#FF9090';
-    String areaColor = _fluctuationRate.contains('-') ? '#b4c3fa' : '#eea0a0';
-
-    _eventChartOption = '''
-{
-    tooltip: {
-        transitionDuration: 0,
-        confine: true,
-        trigger: 'none',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        formatter: function(params) {
-            let tooltip = ``;
-            params.forEach(({
-                marker,
-                seriesName,
-                value
-            }) => {
-                value = value || [0];
-                tooltip += `
-                              <div style="text-align:left;">
-                              <span style="text-align:left;color:#8C8C8C;font-size:12px;";> \${dateDotFormatter(params[0].axisValue)} </span>
-                                 &nbsp;\${numberWithCommas(params[0].data.value)}원
-                              </div>                                                
-                            `;   
-                for (var i = 0; i < params[0].data.value2.length; i++) {
-                    tooltip += ` <div style="text-align:left;color:#7774F7;";>
-        \${params[0].data.value2[i]}
-        </div>
-        `;
-                };
-            });
-            return tooltip;
-        },
-        position: function(pos, params, dom, rect, size) {          
-            if (pos[0] < size.viewSize[0] / 2) return [pos[0] + 15, 'top'];
-            else return [pos[0] - 100, 'top'];
-        },          
-    },
-    dataZoom: [{
-        type: 'inside',
-        disabled: false,
-        zoomLock: true,
-    }, ],
-    grid: {
-        left: '5%',
-        top: '10%',
-         right: '$_eventChartRightMargin',
-        bottom: '18%',
-    },
-    xAxis: {
-        type: 'category',
-        show: true,
-        boundaryGap: false,
-        data: $_eventChartXAxisData,
-        axisLabel: {
-            formatter: function(value, index) {
-                return dateDotFormatter(value);
-            },
-            color: '#8C8C8C',
-            fontSize: 10,
-        },        
-        offset: 25,
-        axisPointer: {
-            show: true,
-            label: {
-                show: false,
-            },
-            snap: true,
-            lineStyle: { color: 'black' , }, }, }, 
-    yAxis: { 
-      type: 'value',
-      position: 'right',
-      min: function(value) { 
-        return value.min
-      },
-      triggerEvent: false,
-      show: true,
-      axisLabel: {
-        color: 'black',
-      },
-      offset: 5,
-    },
-        series: [{
-            type: 'line',
-            symbol: 'none',
-            triggerEvent: false,
-            name: 'chart',
-            lineStyle: {
-                color: '$lineColor',
-                width: 1,
-            },            
-            silent: false,
-                          symbol: function(value, params){
-                             if (params.dataIndex == 0 || params.dataIndex == ${_listPriceEventChart.length - 1}) {
-                              return 'circle';
-                            } 
-                            else {
-                              return 'none';
-                            }
-                          },
-                          showSymbol: 'true',
-                          showAllSymbol: 'true',
-                          symbolSize: 6,
-                                                    bolderWhenHover: false,
-            itemStyle: {
-              borderWidth: 0,
-              color: '$lineColor'
-            },
-            areaStyle: {
-                            silent: false,
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                              {
-                                offset: 0,
-                                color: '$areaColor'
-                              },
-                              {
-                                offset: 1,
-                                color: '#ffffff'
-                              }
-                            ]),
-                          },
-                          emphasis: {
-                              areaStyle: {
-                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                  {
-                                  offset: 0,
-                                  color: '$areaColor'
-                                  },
-                                  {
-                                  offset: 1,
-                                  color: '#ffffff'
-                                  }
-                                ]),
-                                opacity: 0.6,                                
-                              },
-                              lineStyle: {
-                              color: '$lineColor',
-                              width: 1,
-                              },                              
-                          },
-            data: $_eventChartData,           
-            markPoint: {
-                data: $_eventChartMarkPointData
-            },
-         
-        },],
-    }                  
-''';
-
-    //DLog.d('tag', _eventChartOption);
-
-    _commonChartOption = '''
-                  {
-                    tooltip: {
-                      transitionDuration: 0,
-                      confine: true,                      
-                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                      formatter: function (params) {                  
-                        let tooltip = ``;
-                        if(params[0].axisValue != null && params[0].axisValue !== "" && params[0].data.value != null && params[0].data.value !== ""){                           
-                            tooltip += `
-                              <div style="text-align:left;">
-                              <span style="text-align:left;color:#8C8C8C;font-size:12px;";> \${dateDotFormatter(params[0].axisValue)} </span>
-                                 &nbsp;\${numberWithCommas(params[0].data.value)}원
-                              </div>                                                
-                            `;         
-                        }    
-                        if(params[0].data != null && params[0].data.value2 != null){
-                            <!--Messager.postMessage(params[0].data.value2);-->
-                            for(var i = 0; i < params[0].data.value2.length; i++){
-                             tooltip += `
-                             <div style="text-align:left;"'>
-                                \${params[0].data.value2[i]}
-                             </div>
-                            `;
-                            };     
-                        }   
-                        return tooltip;
-                      },
-                      position: function (pos, params, dom, rect, size) {                 
-                          if(pos[0] < size.viewSize[0] / 2) return [pos[0] + 20, 'top'];
-                          else return [pos[0] - 130, 'top'];
-                        },
-                    },     
-                    dataZoom: [
-                      {
-                       type: 'inside',      
-                       disabled: false,  
-                       zoomLock: true,                      
-                      },
-                    ],             
-                    grid: {
-                      left: '5%',
-                      top: '10%',
-                      right: '$_commonChartRightMargin',
-                      bottom: '18%',                      
-                    },
-                    xAxis:  {
-                        type: 'category',
-                        show: true,
-                        triggerEvent: true,
-                        boundaryGap: false,                
-                        data: $_commonChartXAxisData,
-                        axisLabel: {
-                          formatter: function (value, index) {
-                            return dateDotFormatter(value);
-                          },
-                          color: '#8C8C8C',
-                          fontSize: 10,
-                        },
-                        offset: 25,
-                        axisPointer: {
-                          show: true,
-                          label: {
-                            show: false,
-                          },                         
-                          snap: true,
-                          lineStyle:{
-                            color:'black',                    
-                          },                          
-                        },
-                      },
-                    yAxis: {
-                      type: 'value',
-                      position: 'right',
-                      min: function (value) {
-                          return ${_stockHomeEventViewDivProvider.getIndex != 0 ? 'value.min' : (double.tryParse(_findMinTpCommonItem.tp) ?? 0) > (double.tryParse(_commonChartPreClosePrice) ?? 0) ? '${double.tryParse(_commonChartPreClosePrice) ?? 0}' : 'value.min'} 
-                      },                      
-                      max: function (value) {
-                          return ${_stockHomeEventViewDivProvider.getIndex == 0 && !_beforeOpening && (double.tryParse(_commonChartPreClosePrice) ?? 0) > (double.tryParse(_findMaxTpCommonItem.tp) ?? 0) ? '${(double.tryParse(_commonChartPreClosePrice) ?? 0)}' : 'null'};  
-                      },
-                      triggerEvent: true, 
-                      show: true,
-                      axisLabel: {
-                        color: 'black',
-                      },                
-                      offset: 5,
-                    },
-                    series: [
-                      {
-                          type: 'line',
-                          symbol: 'none',
-                          name: 'chart',
-                          triggerEvent: true,
-                          triggerLineEvent: true,
-                          lineStyle: {
-                              color: '$lineColor',
-                              width: 1,
-                          },                                                    
-                          symbol: function(value, params){
-                             if (params.dataIndex == 0 || params.dataIndex == ${_stockHomeEventViewDivProvider.getIndex == 0 ? _find1DEventHasTpCount : _listPriceCommonChart.length - 1}) {
-                              return 'circle';
-                            } 
-                            else {
-                              return 'none';
-                            }
-                          },
-                          showSymbol: 'true',
-                          showAllSymbol: 'true',
-                          symbolSize: 6,
-                          bolderWhenHover: false,
-                          itemStyle: {
-                            borderWidth: 0,
-                            color: '$lineColor',
-                          },
-                          areaStyle: {
-                            
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                              {
-                                offset: 0,
-                                color: '$areaColor'
-                              },
-                              {
-                                offset: 1,
-                                color: '#ffffff'
-                              }
-                            ]),
-                          },
-                          emphasis: {
-                              areaStyle: {
-                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                  {
-                                  offset: 0,
-                                  color: '$areaColor'
-                                  },
-                                  {
-                                  offset: 1,
-                                  color: '#ffffff'
-                                  }
-                                ]),
-                                opacity: 0.6,                                
-                              },
-                              lineStyle: {
-                              color: '$lineColor',
-                              width: 1,
-                              },                              
-                          },
-                          data: $_commonChartData,
-                          markPoint: {
-                              data: $_commonChartMarkPointData
-                          },
-                          markLine: $_commonChartMarkLine
-                      },   
-                    ],
-                  }
-                  ''';
-
-    setState(() {});
-  }
-
   _requestTrAll() async {
-    // DEFINE 차트
-    _fetchPosts(
-      TR.SEARCH12,
-      jsonEncode(
-        <String, String>{
-          'userId': _userId,
-          'stockCode': _stockCode,
-          'selectDiv': _listChartDateDivModel[_stockHomeEventViewDivProvider.getIndex].divCode,
-          if (_stockHomeEventViewDivProvider.getIndex == 2)
-            'menuDiv': _listEventChartDivModel[_eventDivSelectedIndex].divCode,
-        },
-      ),
-    );
-  }
+    // DEFINE SEARCH12 차트
 
-  Future<void> _fetchPosts(String trStr, String json) async {
-    DLog.e('$trStr $json');
-
-    var url = Uri.parse(Net.TR_BASE + trStr);
+    var url = Uri.parse(Net.TR_BASE + TR.SEARCH12);
     try {
       final http.Response response = await http
           .post(
             url,
-            body: json,
+            body: jsonEncode(
+              <String, String>{
+                'userId': _userId,
+                'stockCode': _stockCode,
+                'selectDiv': _listChartDateDivModel[_stockHomeEventViewDivProvider.getIndex].divCode,
+                if (_stockHomeEventViewDivProvider.getIndex == 2)
+                  'menuDiv': _listEventChartDivModel[_eventDivSelectedIndex].divCode,
+              },
+            ),
             headers: Net.headers,
           )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      _parseTrData(trStr, response);
-    } on TimeoutException catch (_) {
-      if (mounted) CommonPopup.instance.showDialogNetErr(context);
-    }
-  }
-
-  void _parseTrData(String trStr, final http.Response response) {
-    DLog.e(trStr + response.body);
-    if (trStr == TR.SEARCH12) {
       final TrSearch12 resData = TrSearch12.fromJson(jsonDecode(response.body));
       _beforeOpening = false;
       _beforeChart = false;
       _fluctuationRate = '0';
-      if (resData.retCode == RT.SUCCESS) {
+      _listChartData.clear();
+      _minTpChartDataIndex = -1;
+      _maxTpChartDataIndex = -1;
+      _chartAreaSeriesController?.isVisible = false;
+      _chartPreCloseSeriesController?.isVisible = false;
+      //setState(() {});
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (resData.retCode == RT.SUCCESS && resData.retData != null) {
         Search12 search12 = resData.retData!;
         _beforeOpening = search12.beforeOpening == 'Y';
         _beforeChart = search12.beforeChart == 'Y';
         _commonChartPreClosePrice = search12.basePrice;
         _fluctuationRate = search12.search01!.fluctuationRate;
-
-        if (_stockHomeEventViewDivProvider.getIndex == 2) {
-          _listPriceEventChart.clear();
-          if (search12.listPriceChart.isNotEmpty) {
-            _listPriceEventChart.addAll(search12.listPriceChart);
-          }
-          _initEventChartOption();
-        } else {
-          _listPriceCommonChart.clear();
-          if (search12.listPriceChart.isNotEmpty) {
-            _listPriceCommonChart.addAll(search12.listPriceChart);
-          }
-          _initCommonChartOption();
-        }
-      } else {
+        _listChartData.addAll(search12.listPriceChart);
+        _minTpChartDataIndex = _findMinTpChartDataIndex;
+        _maxTpChartDataIndex = _findMaxTpChartDataIndex;
         setState(() {
-          _listPriceEventChart.clear();
-          _listPriceCommonChart.clear();
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            _chartAreaSeriesController?.isVisible = true;
+            _chartPreCloseSeriesController?.isVisible = true;
+            _chartAreaSeriesController?.animate();
+            _chartPreCloseSeriesController?.animate();
+          });
         });
       }
+    } on TimeoutException catch (_) {
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 }

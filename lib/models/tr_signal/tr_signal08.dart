@@ -32,13 +32,12 @@ class Signal08 {
   });
 
   factory Signal08.fromJson(Map<String, dynamic> json) {
-    var list = json['list_SigChart'] as List;
-    List<ChartData> listData = list.map((e) => ChartData.fromJson(e)).toList();
+    var jsonList = json['list_SigChart'];
     return Signal08(
         beginYear: json['beginYear'],
         investAmt: json['investAmt'],
         balanceAmt: json['balanceAmt'],
-        listChart: listData
+        listChart: jsonList == null ? [] : (jsonList as List).map((e) => ChartData.fromJson(e)).toList()
     );
   }
 }

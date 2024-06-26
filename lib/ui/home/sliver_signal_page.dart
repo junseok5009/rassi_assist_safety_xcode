@@ -526,7 +526,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 _signal09.buyCount == '0' &&
                 _signal09.sellCount == '0',
             child: SizedBox(
-              height: 105,
+              height: _signal09.noticeCode == 'TIME_BEFORE' ? 105 : 30,
               child: Center(
                 child: Text(
                   _signal09.noticeCode == 'TIME_BEFORE' ? '장 시작 전 입니다.' : '오늘 새로 발생된 매매신호가 없습니다.',

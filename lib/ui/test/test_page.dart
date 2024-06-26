@@ -47,6 +47,7 @@ import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_page.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/test/halflayer/test_half_layer_main.dart';
+import 'package:rassi_assist/ui/test/test_1_page.dart';
 import 'package:rassi_assist/ui/test/test_event_popup_page.dart';
 import 'package:rassi_assist/ui/test/test_image_fit.dart';
 import 'package:rassi_assist/ui/test/test_image_full_page.dart';
@@ -458,6 +459,26 @@ class TestState extends State<TestWidget> {
                 CustomNvRouteClass.createRouteName(
                   instance: const AgentWelcomePage(),
                   routeName: AgentWelcomePage.routeName,
+                ),
+              );
+            },
+          ),
+        ),
+        Builder(
+          builder: (context) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              color: Colors.redAccent[100],
+              child: const Text(
+                'test1\npage',
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                CustomNvRouteClass.createRoute(
+                  const Test1Page(),
                 ),
               );
             },

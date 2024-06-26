@@ -671,7 +671,6 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
       final TrPock10 resData = TrPock10.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _pock10 = resData.retData!;
-        DLog.d('d', _pock10.toString());
 
         if (resData.retData != null) {
           // _stockCount = int.parse(resData.retData.stockCount);
@@ -687,7 +686,6 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
     } else if (trStr == TR.POCK11) {
       final TrPock11 resData = TrPock11.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        DLog.d('d', '$_showBottomBoard');
         _pock11 = resData.retData!;
         setState(() {
 /*          _scrollController.animateTo(

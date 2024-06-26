@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -10,6 +11,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_search/tr_search11.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/stock_home/tile/result_analyze_tile_chart1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -63,8 +65,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         height: 0,
       ),
       builder: (BuildContext context, TrackballDetails trackballDetails) {
-        int index =
-            trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        int index = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
         var item = _listPerPbrData[index];
         return Container(
           padding: const EdgeInsets.all(2),
@@ -133,11 +134,8 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
     );
     _loadPrefData().then((_) => {
           Future.delayed(Duration.zero, () {
-            PgData pgData =
-                ModalRoute.of(context)!.settings.arguments as PgData;
-            if (_userId != '' &&
-                pgData.stockCode.isNotEmpty &&
-                pgData.stockName.isNotEmpty) {
+            PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
+            if (_userId != '' && pgData.stockCode.isNotEmpty && pgData.stockName.isNotEmpty) {
               _stockName = pgData.stockName;
               _stockCode = pgData.stockCode;
               _requestTrSearch11();
@@ -163,7 +161,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
     _initChart1IsQuart = ((ModalRoute.of(context)!.settings.arguments) as PgData).booleanData;
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
+      /*  appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
           _stockName.length > 8
@@ -175,6 +173,11 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         elevation: 1,
         centerTitle: false,
         leadingWidth: 25,
+      ),*/
+      appBar: CommonAppbar.basic(
+          buildContext: context,
+          title: _stockName.length > 8 ? '${_stockName.substring(0, 8)} 실적분석' : '$_stockName 실적분석',
+          elevation: 1,
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -272,15 +275,11 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                       children: [
                         Text(
                           '최근1년',
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: RColor.new_basic_text_color_grey),
+                          style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
                         ),
                         Text(
                           '(배)',
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: RColor.new_basic_text_color_grey),
+                          style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
                         ),
                       ],
                     ),
@@ -307,16 +306,14 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                           ),
                           //desiredIntervals: 4,
                           //labelPlacement: LabelPlacement.onTicks,
-                          axisLabelFormatter: (axisLabelRenderArgs) =>
-                              ChartAxisLabel(
+                          axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
                             '${axisLabelRenderArgs.text.substring(2, 4)}/${axisLabelRenderArgs.text.substring(4)}',
                             const TextStyle(
                               fontSize: 11,
                               color: RColor.greyBasic_8c8c8c,
                             ),
                           ),
-                          labelIntersectAction:
-                              AxisLabelIntersectAction.multipleRows,
+                          labelIntersectAction: AxisLabelIntersectAction.multipleRows,
                           //desiredIntervals: 4,
                         ),
                         primaryYAxis: const NumericAxis(
@@ -355,8 +352,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                             majorTickLines: const MajorTickLines(
                               width: 0,
                             ),
-                            axisLabelFormatter: (axisLabelRenderArgs) =>
-                                ChartAxisLabel(
+                            axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
                               axisLabelRenderArgs.text,
                               const TextStyle(
                                 fontSize: 12,
@@ -369,12 +365,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                         series: [
                           ColumnSeries<Search11PerPbr, String>(
                             dataSource: _listPerPbrData,
-                            xValueMapper: (Search11PerPbr data, index) =>
-                                data.tradeDate,
+                            xValueMapper: (Search11PerPbr data, index) => data.tradeDate,
                             yValueMapper: (Search11PerPbr data, index) {
-                              return _isPer
-                                  ? double.parse(data.per)
-                                  : double.parse(data.pbr);
+                              return _isPer ? double.parse(data.per) : double.parse(data.pbr);
                             },
                             /*  pointColorMapper: (Search11PerPbr data, index) {
                               if (index == _swipeIndex) {
@@ -393,8 +386,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                           LineSeries<Search11PerPbr, String>(
                             dataSource: _listPerPbrData,
                             xValueMapper: (item, index) => index.toString(),
-                            yValueMapper: (item, index) =>
-                                int.parse(item.tradePrice),
+                            yValueMapper: (item, index) => int.parse(item.tradePrice),
                             color: RColor.chartTradePriceColor,
                             width: 1.4,
                             enableTooltip: false,
@@ -421,9 +413,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                         ),
                         Text(
                           _isPer ? '  PER' : '  PBR',
-                          style: const TextStyle(
-                              fontSize: 11,
-                              color: RColor.new_basic_text_color_grey),
+                          style: const TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
                         ),
                         const SizedBox(
                           width: 20,
@@ -439,9 +429,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                         ),
                         const Text(
                           '  주가',
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: RColor.new_basic_text_color_grey),
+                          style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
                         ),
                       ],
                     ),
@@ -617,9 +605,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
           getDotPainter: (spot, p1, p2, index) {
             return FlDotCirclePainter(
               radius: 4,
-              color: index == _listDividendData.length - 1
-                  ? RColor.mainColor
-                  : RColor.lineGrey,
+              color: index == _listDividendData.length - 1 ? RColor.mainColor : RColor.lineGrey,
               strokeWidth: 0,
               //strokeColor: Colors.blue,
             );
@@ -642,8 +628,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                 show: false,
               ),
               backgroundColor: Colors.transparent,
-              showingTooltipIndicators:
-                  _getShowingIndicatorsIndexList.map((index) {
+              showingTooltipIndicators: _getShowingIndicatorsIndexList.map((index) {
                 return ShowingTooltipIndicators([
                   LineBarSpot(
                     lineBarsData[0],
@@ -654,8 +639,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
               }).toList(),
               lineTouchData: LineTouchData(
                 enabled: false,
-                getTouchedSpotIndicator:
-                    (LineChartBarData barData, List<int> spotIndexes) {
+                getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
                   return spotIndexes.map((index) {
                     return TouchedSpotIndicatorData(
                       FlLine(
@@ -663,12 +647,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                       ),
                       FlDotData(
                         show: true,
-                        getDotPainter: (spot, percent, barData, index) =>
-                            FlDotCirclePainter(
+                        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
                           radius: 4,
-                          color: index == _listDividendData.length - 1
-                              ? RColor.mainColor
-                              : RColor.lineGrey,
+                          color: index == _listDividendData.length - 1 ? RColor.mainColor : RColor.lineGrey,
                           strokeWidth: 0,
                           //strokeColor: Colors.brown,
                         ),
@@ -685,10 +666,8 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                       return LineTooltipItem(
                         '${lineBarSpot.y.toString()}%',
                         TextStyle(
-                          color: lineBarSpot.x.toInt() ==
-                                  _listDividendData.length - 1
-                              ? RColor.mainColor
-                              : Colors.black,
+                          color:
+                              lineBarSpot.x.toInt() == _listDividendData.length - 1 ? RColor.mainColor : Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
@@ -729,8 +708,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
             child: const Center(
               child: Text(
                 '!',
-                style: TextStyle(
-                    fontSize: 18, color: RColor.new_basic_text_color_grey),
+                style: TextStyle(fontSize: 18, color: RColor.new_basic_text_color_grey),
               ),
             ),
           ),
@@ -739,8 +717,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
           ),
           Text(
             message,
-            style: const TextStyle(
-                fontSize: 14, color: RColor.new_basic_text_color_grey),
+            style: const TextStyle(fontSize: 14, color: RColor.new_basic_text_color_grey),
           ),
         ],
       ),
@@ -811,10 +788,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
         ),
         row == 0
             ? Container(
-                color: RColor.bgTableGrey,
-                height: 32,
-                alignment: Alignment.center,
-                child: _setTitleView(column))
+                color: RColor.bgTableGrey, height: 32, alignment: Alignment.center, child: _setTitleView(column))
             : _setValueView(row - 1, column),
         Visibility(
           visible: _listDividendData.length == row,

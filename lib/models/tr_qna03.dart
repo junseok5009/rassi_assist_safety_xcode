@@ -32,16 +32,14 @@ class Qna03 {
     this.title = '', this.content = '', this.answer = const []});
 
   factory Qna03.fromJson(Map<String, dynamic> json) {
-
-    var list = json['list_Qna'] as List;
-    List<Contents>? listAns = list == null ? null : list.map((e) => Contents.fromJson(e)).toList();
+    var jsonList = json['list_Qna'];
     return Qna03(
-      qnaSn: json['qnaSn'],
-      qnaStatus: json['qnaStatus'],
-      regDate: json['regDate'],
-      title: json['title'],
-      content: json['content'],
-      answer: list.map((e) => Contents.fromJson(e)).toList(),
+      qnaSn: json['qnaSn'] ?? '',
+      qnaStatus: json['qnaStatus'] ?? '',
+      regDate: json['regDate'] ?? '',
+      title: json['title'] ?? '',
+      content: json['content'] ?? '',
+      answer: jsonList == null ? [] : (jsonList as List).map((e) => Contents.fromJson(e)).toList(),
     );
   }
 

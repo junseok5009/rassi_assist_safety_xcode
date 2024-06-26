@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
@@ -11,52 +12,33 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/chart_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal07.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal08.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2020.12.22
 /// 매매신호 - 모든 내역
-class SignalAllPage extends StatelessWidget {
+class SignalAllPage extends StatefulWidget {
+  const SignalAllPage({Key? key}) : super(key: key);
+
   static const routeName = '/page_signal_all';
   static const String TAG = "[SignalAllPage]";
   static const String TAG_NAME = '매매신호_전체내역';
-
-  const SignalAllPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepStat,
-          elevation: 0,
-        ),
-        body: const SignalAllWidget(),
-      ),
-    );
-  }
-}
-
-class SignalAllWidget extends StatefulWidget {
-  const SignalAllWidget({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SignalAllState();
 }
 
-class SignalAllState extends State<SignalAllWidget> {
+class SignalAllState extends State<SignalAllPage> {
   late SharedPreferences _prefs;
   String _userId = "";
-  late PgData args;
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
 
-  String stkName = "";
-  String stkCode = "";
+  String _stkName = "";
+  String _stkCode = "";
 
   final List<ChartDataR> _listData = [];
   late ScrollController _scrollController;
@@ -81,66 +63,57 @@ class SignalAllState extends State<SignalAllWidget> {
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
 
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 400), () {
-      DLog.d(SignalAllPage.TAG, "delayed user id : $_userId");
-      if (_userId != '' && args != null) {
-        DLog.d(SignalAllPage.TAG, args.pgData);
-
+    _loadPrefData().then((value) {
+      Future.delayed(Duration.zero, () {
+        PgData args = ModalRoute.of(context)!.settings.arguments as PgData;
+        _stkName = args.stockName;
+        _stkCode = args.stockCode;
+        if (_stkCode.isEmpty) {
+          Navigator.pop(context);
+        }
         _fetchPosts(
             TR.SIGNAL08,
             jsonEncode(<String, String>{
               'userId': _userId,
-              'stockCode': args.stockCode,
+              'stockCode': _stkCode,
               'includeData': 'Y',
             }));
-      }
+      });
     });
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? AppGlobal().userId;
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _bYetDispose = false;
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    stkName = args.stockName;
-    stkCode = args.stockCode;
-    DLog.d(SignalAllPage.TAG, args.stockName);
-    DLog.d(SignalAllPage.TAG, args.stockCode);
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        title: Text(
-          '${TStyle.getLimitString(stkName, 10)}의 AI매매신호 내역',
-          style: TStyle.commonTitle,
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
-        elevation: 1,
-      ),
+      appBar: CommonAppbar.basic(buildContext: context, title: '$_stkName AI매매신호 내역', elevation: 0),
+      backgroundColor: RColor.bgBasic_fdfdfd,
       body: SafeArea(
         child: ListView.builder(
           controller: _scrollController,
           itemCount: _listData.length + 1,
           itemBuilder: (context, index) {
-            if(index == 0) {
+            if (index == 0) {
               return _setHeaderView();
             } else {
-              return TileSignal07(_listData[index -1]);
+              return TileSignal07(_listData[index - 1]);
             }
           },
         ),
@@ -152,7 +125,7 @@ class SignalAllState extends State<SignalAllWidget> {
     return Container(
       width: double.infinity,
       height: 460,
-      color: RColor.bgWeakGrey,
+      color: RColor.bgBasic_fdfdfd,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -162,7 +135,7 @@ class SignalAllState extends State<SignalAllWidget> {
                 padding: const EdgeInsets.only(top: 15, left: 10, right: 10),
                 alignment: Alignment.centerLeft,
                 child: const Text(
-                  '최근 1년간 AI 매매신호',
+                  '최근 1년간 AI매매신호',
                   style: TStyle.commonTitle,
                 ),
               ),
@@ -179,7 +152,6 @@ class SignalAllState extends State<SignalAllWidget> {
               //   height: 240,),
             ],
           ),
-
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -295,7 +267,8 @@ class SignalAllState extends State<SignalAllWidget> {
 
   //리스트뷰 하단 리스너
   _scrollListener() {
-    if (_scrollController.offset >= _scrollController.position.maxScrollExtent && !_scrollController.position.outOfRange) {
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
       _requestSIGNAL07();
@@ -307,7 +280,7 @@ class SignalAllState extends State<SignalAllWidget> {
         TR.SIGNAL07,
         jsonEncode(<String, String>{
           'userId': _userId,
-          'stockCode': stkCode,
+          'stockCode': _stkCode,
           'pageNo': pageNum.toString(),
           'pageItemSize': '30',
         }));
@@ -426,7 +399,6 @@ class SignalAllState extends State<SignalAllWidget> {
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,
-                      
                     ),
                   ),
                   const SizedBox(
@@ -435,7 +407,6 @@ class SignalAllState extends State<SignalAllWidget> {
                   const Text(
                     RString.err_network,
                     textAlign: TextAlign.center,
-                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -450,7 +421,6 @@ class SignalAllState extends State<SignalAllWidget> {
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            
                           ),
                         ),
                       ),
@@ -480,7 +450,7 @@ class SignalAllState extends State<SignalAllWidget> {
           )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if (_bYetDispose) _parseTrData(trStr, response);
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(SignalAllPage.TAG, 'ERR : TimeoutException (12 seconds)');
       _showDialogNetErr();
@@ -498,33 +468,30 @@ class SignalAllState extends State<SignalAllWidget> {
       final TrSignal08 resData = TrSignal08.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
-        final Signal08? mData = resData.retData;
-        if (mData != null) {
-          List<ChartData> chartData = mData.listChart;
-          String tmpDate = '[';
-          String tmpData = '[';
-          for (int i = 0; i < chartData.length; i++) {
-            tmpDate = '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
-
-            //0:없음, 1:매수, 2:매도
-            if (chartData[i].flag == null || chartData[i].flag == '') {
-              tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
-            } else if (chartData[i].flag == 'B') {
-              tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: $upArrow, symbolOffset: [0,18],itemStyle: {color:\'red\'}},';
-            } else if (chartData[i].flag == 'S') {
-              tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: $downArrow, symbolOffset: [0,-18],itemStyle: {color:\'blue\'}},';
-              // 'symbol: \'arrow\', symbolRotate: 180, itemStyle: {color:\'blue\'}},';
-            }
+        final Signal08 mData = resData.retData;
+        List<ChartData> chartData = mData.listChart;
+        String tmpDate = '[';
+        String tmpData = '[';
+        for (int i = 0; i < chartData.length; i++) {
+          tmpDate = '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].tradeDate)}\',';
+          //0:없음, 1:매수, 2:매도
+          if (chartData[i].flag.isEmpty) {
+            tmpData = '$tmpData{value: ${chartData[i].tradePrc},symbol: \'none\'},';
+          } else if (chartData[i].flag == 'B') {
+            tmpData =
+                '$tmpData{value: ${chartData[i].tradePrc},symbol: $upArrow, symbolOffset: [0,18],itemStyle: {color:\'red\'}},';
+          } else if (chartData[i].flag == 'S') {
+            tmpData =
+                '$tmpData{value: ${chartData[i].tradePrc},symbol: $downArrow, symbolOffset: [0,-18],itemStyle: {color:\'blue\'}},';
+            // 'symbol: \'arrow\', symbolRotate: 180, itemStyle: {color:\'blue\'}},';
           }
-          tmpDate = '$tmpDate]';
-          tmpData = '$tmpData]';
-          _dateStr = tmpDate;
-          _dataStr = tmpData;
-          DLog.d(SignalAllPage.TAG, _dataStr);
-          setState(() {});
         }
+        tmpDate = '$tmpDate]';
+        tmpData = '$tmpData]';
+        _dateStr = tmpDate;
+        _dataStr = tmpData;
+        setState(() {});
       }
-
       _requestSIGNAL07();
     }
 

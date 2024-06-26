@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +27,7 @@ class HomeTileStockCatch extends StatefulWidget {
   State<StatefulWidget> createState() => HomeTileStockCatchState();
 }
 
-class HomeTileStockCatchState extends State<HomeTileStockCatch>
-    //with AutomaticKeepAliveClientMixin<HomeTileStockCatch>
+class HomeTileStockCatchState extends State<HomeTileStockCatch> //with AutomaticKeepAliveClientMixin<HomeTileStockCatch>
 {
   late SharedPreferences _prefs;
   final AppGlobal _appGlobal = AppGlobal();
@@ -140,7 +138,7 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
           _isFirstBtn
               ? _listCatch.isNotEmpty
                   ? Container(
-                      margin: EdgeInsets.symmetric(
+                      margin: const EdgeInsets.symmetric(
                         horizontal: 10,
                       ),
                       child: TileStkCatch03N(_listCatch[0]))
@@ -274,8 +272,6 @@ class HomeTileStockCatchState extends State<HomeTileStockCatch>
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -314,7 +310,7 @@ class TileStkCatch03N extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 230,
-      margin: EdgeInsets.symmetric(
+      margin: const EdgeInsets.symmetric(
         horizontal: 10,
       ),
       child: _setThemeBox(
@@ -341,8 +337,8 @@ class TileStkCatch03N extends StatelessWidget {
   Widget _setEmptyBox() {
     return Container(
       width: double.infinity,
-      height: 85,
-      margin: const EdgeInsets.only(left: 10, right: 10, top: 15, bottom: 5),
+      height: 78,
+      margin: const EdgeInsets.only(top: 15, bottom: 5),
       padding: const EdgeInsets.symmetric(
         horizontal: 15,
       ),
@@ -350,7 +346,9 @@ class TileStkCatch03N extends StatelessWidget {
       child: const Center(
         child: Text(
           '발생한 종목이 없습니다.',
-          style: TStyle.listItem,
+          style: TextStyle(
+            fontSize: 15,
+          ),
         ),
       ),
     );

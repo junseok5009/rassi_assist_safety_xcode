@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
@@ -165,9 +166,9 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
                 isScrollable: true,
                 tabs: _setOnlyTitleTabView(),
                 onTap: (value) {
-                  if (value == 0) {
+                  if (_currentTabIndex == 0) {
                     var childCurrentState = StockHomeHomePage.globalKey.currentState;
-                    if (childCurrentState != null) {
+                    if (childCurrentState != null && childCurrentState.addAutomaticKeepAlives) {
                       childCurrentState.setState(() {
                         childCurrentState.addAutomaticKeepAlives = false;
                       });
@@ -232,6 +233,16 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
       setState(() {
         _currentTabIndex = _tabController.index;
       });
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        /*if (_currentTabIndex == 0) {
+          var childCurrentState = StockHomeHomePage.globalKey.currentState;
+          if (childCurrentState != null && childCurrentState.addAutomaticKeepAlives) {
+            childCurrentState.setState(() {
+              childCurrentState.addAutomaticKeepAlives = false;
+            });
+          }
+        }*/
+      });
     }
   }
 
@@ -269,8 +280,8 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
   //하단 탭뷰
   Widget _setTabView() {
     return TabBarView(
-      physics: //Platform.isAndroid ? const NeverScrollableScrollPhysics() : null,
-      const NeverScrollableScrollPhysics(),
+      //physics: //Platform.isAndroid ? const NeverScrollableScrollPhysics() : null,
+      //const NeverScrollableScrollPhysics(),
       controller: _tabController,
       children: [
         RefreshIndicator(
