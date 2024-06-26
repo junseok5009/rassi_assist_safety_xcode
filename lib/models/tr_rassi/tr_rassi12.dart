@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/ui/sub/report_page.dart';
 
@@ -45,7 +46,7 @@ class Rassi12 {
 }
 
 
-//화면구성
+//화면구성 (기존)
 class TileRassi12 extends StatelessWidget {
   final Rassi12 item;
   final Color bColor;
@@ -85,3 +86,49 @@ class TileRassi12 extends StatelessWidget {
   }
 
 }
+
+//화면구성 - Swiper
+class TileSwpRassi12 extends StatelessWidget {
+  final List<Rassi12> itemList;
+
+  TileSwpRassi12(this.itemList);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 200,
+      margin: const EdgeInsets.only(left: 10, right: 8,),
+      child: GridView.count(
+        physics: const NeverScrollableScrollPhysics(),
+        childAspectRatio: 1.4,
+        crossAxisCount: 2,
+        children: List<Widget>.generate(itemList.length, (index) {
+          return InkWell(
+            child: Container(
+              // width: 300,
+              // height: 85,
+              margin: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              decoration: UIStyle.boxShadowBasic(16),
+              child: Text(itemList[index].reportName),
+            ),
+            onTap: (){    //분석 페이지로 이동
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => ReportPage(),
+                settings: RouteSettings(
+                  arguments: PgData(
+                    pgSn: itemList[index].reportDiv,
+                    pgData: itemList[index].reportName,),
+                ),
+              ));
+            },
+          );;
+        }),
+      ),
+    );
+  }
+
+}
+
+

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -25,24 +26,26 @@ import 'package:rassi_assist/models/tr_rassi/tr_rassi01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi11.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi12.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi14.dart';
-import 'package:rassi_assist/models/tr_rassi/tr_rassi15.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleNode.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleRoot.dart';
+import 'package:rassi_assist/ui/home/home_tile/home_tile_hot_theme.dart';
+import 'package:rassi_assist/ui/market/home_market_kos_chart.dart';
+import 'package:rassi_assist/ui/market/related_news_page.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_all_page.dart';
-import 'package:rassi_assist/ui/market/home_market_kos_chart.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_time_line_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main/base_page.dart';
 
-/// 2022.04.20 - JY
+/// 2024.06
 /// 마켓뷰 (sliver)
-class SliverMarketWidget extends StatefulWidget {
+class SliverMarketNewWidget extends StatefulWidget {
   static const routeName = '/page_market_sliver';
   static const String TAG = "[SliverMarketWidget]";
   static const String TAG_NAME = '홈_마켓뷰';
@@ -50,14 +53,13 @@ class SliverMarketWidget extends StatefulWidget {
 
   static final GlobalKey<SliverMarketWidgetState> globalKey = GlobalKey();
 
-  SliverMarketWidget({Key? key}) : super(key: globalKey);
+  SliverMarketNewWidget({Key? key}) : super(key: globalKey);
 
   @override
   State<StatefulWidget> createState() => SliverMarketWidgetState();
 }
 
-class SliverMarketWidgetState extends State<SliverMarketWidget>
-    with TickerProviderStateMixin {
+class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerProviderStateMixin {
   var appGlobal = AppGlobal();
 
   late SharedPreferences _prefs;
@@ -68,6 +70,13 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
   Color _kosdaqColor = Colors.grey;
   Index01 _index01 = defIndex01;
 
+  final List<Feature01> _listFeature = [
+    Feature01(title: '실시간 특징주 발생'),
+    Feature01(title: '52주 신고가'),
+    Feature01(title: '상한가/하한가'),
+    Feature01(title: '손바뀜 종목'),
+  ];
+
   // 오늘의 이슈
   String _issueDate = "";
   List<Issue03> _issueList = []; //오늘의 이슈
@@ -77,8 +86,8 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
 
   List<Rassi11> _pickTagList = []; //이 시간 PICK
   List<Rassi12> _reportList = []; //분석리포트
-  final List<TagNew> _hidingTagList = []; //숨어있는 정보 태그
-  final List<TagNew> _rapidTagList = []; //빠른 정보 태그
+  // final List<TagNew> _hidingTagList = []; //숨어있는 정보 태그
+  // final List<TagNew> _rapidTagList = []; //빠른 정보 태그
   List<Rassiro> _newsList = [];
   final List<Rassi14> _relayList = []; // AI가 찾은 추천정보 > 관련된 최근 소식
 
@@ -100,7 +109,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(SliverMarketWidget.TAG_NAME);
+    CustomFirebaseClass.logEvtScreenView(SliverMarketNewWidget.TAG_NAME);
     _loadPrefData().then(
       (_) {
         _fetchPosts(
@@ -154,201 +163,168 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
         ),
         SliverList(
           delegate: SliverChildListDelegate([
-            _setMarketIndex(),
             _setPrTop(),
-
-            Container(
-              color: RColor.bgWeakGrey,
-              height: 12,
-            ),
 
             //오늘의 이슈
             _setTodayIssueBubble(),
 
             _setRassiDeskBanner(),
+            const SizedBox(height: 25),
 
-            //이 시간 PICK
+            //오늘 시장은
+            _setSubTitleMore('오늘 시장은', '+더보기', _showSheetMarketChart),
+            _setMarketIndex(),
+            const SizedBox(height: 25),
+
+            //오늘의 특징주 빠르게 보기
+            _setSubTitleMore('오늘의 특징주 빠르게 보기', '', () {}),
+            _setFeatureStocks(),
+
+            CommonView.setDivideLine,
+
+            //이 시간 핫 테마
+            const HomeTileHotTheme(),
+
+            //이 시간 PICK -> 이 시간 AI속보
             _setCurrentPick(),
 
             _setPrHigh(),
-            const SizedBox(
-              height: 25.0,
-            ),
+            const SizedBox(height: 25),
 
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _setSubTitle('이 시간 AI속보', ''),
-                  InkWell(
-                    child: const Padding(
-                      padding: EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: Text(
-                        '+더보기',
-                        style: TStyle.commonPurple14,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NewsListPage(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+            //실시간 AI속보
+            _setSubTitleMore('실시간 속보', '+더보기', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NewsListPage(),
+                ),
+              );
+            }),
             _setNewsList(),
-            const SizedBox(
-              height: 25.0,
-            ),
+            const SizedBox(height: 25),
 
-            Container(
-              color: RColor.bgWeakGrey,
-              height: 12,
-            ),
-
-            //_setMoreButton('+이 시간 AI속보', 'news', ' 더보기'), > _더보기 추가로 인해 삭제
+            CommonView.setDivideLine,
 
             //AI 가 찾은 추천 정보
             _setRecomInfo(),
+            const SizedBox(height: 10),
 
-            Padding(
-              padding: const EdgeInsets.only(left: 10, top: 0),
-              child: _setSubTitle('관련된 최근 소식', ''),
-            ),
-            _setRelayNews(),
             //관련 ai속보 더보기 버튼
-            const SizedBox(
-              height: 10.0,
-            ),
             Visibility(
               visible: _relayMoreBtnShow,
               child: CommonView.setBasicMoreRoundBtnView(
                 [
                   Text(
-                    "+ 관련 AI속보",
+                    "",
                     style: TStyle.puplePlainStyle(),
                   ),
                   const Text(
-                    " 더보기",
+                    "관련 속보와 종목 모두 보기",
                     style: TStyle.commonSTitle,
                   ),
                 ],
                 () {
-                  pageNum++;
-                  _requestRassi14();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RelatedNewsPage(),
+                      settings: RouteSettings(
+                        arguments: PgData(pgData: _aiSelectType),
+                      ),
+                    ),
+                  );
                 },
               ),
             ),
+            const SizedBox(height: 25),
 
-            const SizedBox(
-              height: 25.0,
-            ),
-
-            Container(
-              color: RColor.bgWeakGrey,
-              height: 12,
-            ),
+            CommonView.setDivideLine,
 
             _setPrMid(),
 
-            //AI 분석리포트
+            //분석리포트
             _setAnlReport(),
 
-            Container(
-              color: RColor.bgWeakGrey,
-              height: 12,
-            ),
+            CommonView.setDivideLine,
+            const SizedBox(height: 10),
 
-            //AI의 추천 태그
-            _setHidingTag(),
-            _setRapidTag(),
-            const SizedBox(
-              height: 10.0,
-            ),
             _setPrLow(),
 
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(
-                  top: 25, left: 15, right: 15, bottom: 5),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: UIStyle.boxRoundLine6bgColor(
-                Colors.white,
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  const Text(
-                    'AI가 분석하는 모든 태그\n분류를 확인해 보세요',
-                    style: TStyle.defaultTitle,
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  CommonView.setBasicMoreRoundBtnView(
-                    [
-                      Text(
-                        "→ 태그",
-                        style: TStyle.puplePlainStyle(),
-                      ),
-                      const Text(
-                        " 전체보기",
-                        style: TStyle.commonSTitle,
-                      ),
-                    ],
-                    () {
-                      basePageState.callPageRouteUP(
-                        NewsTagAllPage(),
-                      );
-                    },
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(
-              height: 30.0,
-            ),
+            _setNewsAllTagBtn(),
+            const SizedBox(height: 30),
           ]),
         ),
       ],
     );
   }
 
-  //시장 지수
+  // 오늘의 이슈(버블차트)
+  Widget _setTodayIssueBubble() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 25.0),
+      //color: RColor.bgWeakGrey,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _setSubTitle(RString.tl_today_issues, '이슈와 관련 종목을 한눈에'),
+              Text(
+                _issueDate,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
+          if (_bubbleWidgetList.isNotEmpty)
+            SizedBox(
+              width: double.infinity,
+              height: 300,
+              child: Stack(
+                children: _bubbleWidgetList,
+              ),
+            ),
+          CommonView.setBasicMoreRoundBtnView(
+            [
+              Text(
+                "+ 날짜별 이슈",
+                style: TStyle.puplePlainStyle(),
+              ),
+              const Text(
+                " 모두보기",
+                style: TStyle.commonSTitle,
+              ),
+            ],
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const IssueListPage(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _bubbleChartAniStart() async {
+    for (final controller in _bubbleChartAniControllerList) {
+      await Future.delayed(
+          const Duration(
+            milliseconds: 200,
+          ), () async {
+        if (mounted) {
+          controller.forward();
+        }
+      });
+    }
+  }
+
+  // 시장 지수
   Widget _setMarketIndex() {
     return InkWell(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          useRootNavigator: true,
-          isScrollControlled: true,
-          builder: (context) => Container(
-            height: MediaQuery.of(context).size.height -
-                AppGlobal().deviceStatusBarHeight,
-            decoration: const BoxDecoration(
-              color: Colors.transparent,
-              /*borderRadius: new BorderRadius.only(
-                topLeft: const Radius.circular(20.0),
-                topRight: const Radius.circular(20.0),
-              ),*/
-            ),
-            child: const HomeMarketKosChartPage(),
-          ),
-        );
-      },
+      onTap: () => _showSheetMarketChart,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       child: Visibility(
@@ -356,9 +332,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
         child: SizedBox(
           height: 150,
           child: (_index01.marketTimeDiv == 'N') ||
-                  (_index01.marketTimeDiv == 'B' &&
-                      _index01.kosdaq.isEmpty() &&
-                      _index01.kospi.isEmpty())
+                  (_index01.marketTimeDiv == 'B' && _index01.kosdaq.isEmpty() && _index01.kospi.isEmpty())
               ? const Column(
                   children: [
                     SizedBox(
@@ -525,67 +499,81 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
     );
   }
 
-  //오늘의 이슈(버블차트)
-  Widget _setTodayIssueBubble() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 25.0),
-      //color: RColor.bgWeakGrey,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _setSubTitle(RString.tl_today_issues, '이슈와 관련 종목을 한눈에'),
-              Text(
-                _issueDate,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
-          ),
-          if (_bubbleWidgetList.isNotEmpty)
-            SizedBox(
-              width: double.infinity,
-              height: 300,
-              child: Stack(
-                children: _bubbleWidgetList,
-              ),
-            ),
-          CommonView.setBasicMoreRoundBtnView(
-            [
-              Text(
-                "+ 날짜별 이슈",
-                style: TStyle.puplePlainStyle(),
-              ),
-              const Text(
-                " 모두보기",
-                style: TStyle.commonSTitle,
-              ),
-            ],
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const IssueListPage(),
-                ),
-              );
-            },
-          ),
-        ],
+  // 시장 지수 상세페이지
+  void _showSheetMarketChart() {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height - AppGlobal().deviceStatusBarHeight,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+          /*borderRadius: new BorderRadius.only(
+                topLeft: const Radius.circular(20.0),
+                topRight: const Radius.circular(20.0),
+              ),*/
+        ),
+        child: const HomeMarketKosChartPage(),
       ),
     );
   }
 
-  void _bubbleChartAniStart() async {
-    for (final controller in _bubbleChartAniControllerList) {
-      await Future.delayed(
-          const Duration(
-            milliseconds: 200,
-          ), () async {
-        if (mounted) {
-          controller.forward();
-        }
-      });
-    }
+  // 오늘의 특징주 보기
+  Widget _setFeatureStocks() {
+    return Container(
+      width: double.infinity,
+      color: Colors.grey.shade50,
+      child: ListView.builder(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _listFeature.length,
+          itemBuilder: (context, index) {
+            return Container(
+              width: double.infinity,
+              height: 55,
+              margin: const EdgeInsets.only(left: 15.0, right: 15.0, top: 17.0),
+              alignment: Alignment.centerLeft,
+              decoration: UIStyle.boxRoundFullColor10c(RColor.greyBox_f5f5f5),
+              child: InkWell(
+                splashColor: Colors.deepPurpleAccent.withAlpha(30),
+                child: Container(
+                  width: double.infinity,
+                  height: 53,
+                  padding: const EdgeInsets.all(15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: FittedBox(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _listFeature[index].title,
+                            style: TStyle.content16,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      const ImageIcon(
+                        AssetImage('images/main_my_icon_arrow.png'),
+                        size: 20,
+                        // color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  // if (_listFeature[index].linkType == 'URL') {
+                  //   commonLaunchURL(item.linkPage);
+                  // }
+                },
+              ),
+            );
+          }),
+    );
   }
 
   // 라씨데스크 배너
@@ -681,7 +669,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
     );
   }
 
-  //이 시간 PICK
+  // 이 시간 PICK -> 이 시간 헤드라인
   Widget _setCurrentPick() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 25.0),
@@ -689,7 +677,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '이 시간 PICK',
+            '이 시간 헤드라인',
             style: TStyle.commonTitle,
           ),
           Container(
@@ -709,10 +697,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
                   width: double.infinity,
                   decoration: UIStyle.boxRoundLine6(),
                   child: TileRassi11N(
-                      index,
-                      _pickTagList[index],
-                      RColor.issueBack[index % 6],
-                      RColor.issueRelay[index % 6]),
+                      index, _pickTagList[index], RColor.issueBack[index % 6], RColor.issueRelay[index % 6]),
                 );
               },
             ),
@@ -722,7 +707,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
     );
   }
 
-  // 이 시간 AI 속보
+  // 실시간 속보
   Widget _setNewsList() {
     return Container(
       width: double.infinity,
@@ -739,7 +724,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
     );
   }
 
-  //AI 가 찾은 추천정보
+  // AI 가 찾은 추천정보
   Widget _setRecomInfo() {
     double margin = (MediaQuery.of(context).size.width / 6) + (10 / 3);
 
@@ -776,16 +761,12 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
                           height: 80,
                           margin: const EdgeInsets.only(left: 15),
                           // padding: const EdgeInsets.all(15),
-                          decoration: _bSelectA
-                              ? UIStyle.boxBtnSelected()
-                              : UIStyle.boxRoundLine6(),
+                          decoration: _bSelectA ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
                           child: Center(
                             child: Text(
                               '장중투자자\n동향',
                               textAlign: TextAlign.center,
-                              style: _bSelectA
-                                  ? TStyle.btnTextWht15
-                                  : TStyle.commonSTitle,
+                              style: _bSelectA ? TStyle.btnTextWht15 : TStyle.commonSTitle,
                             ),
                           ),
                         ),
@@ -808,22 +789,17 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
                           height: 80,
                           margin: const EdgeInsets.only(left: 15),
                           // padding: const EdgeInsets.all(15),
-                          decoration: _bSelectB
-                              ? UIStyle.boxBtnSelected()
-                              : UIStyle.boxRoundLine6(),
+                          decoration: _bSelectB ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
                           child: Center(
                             child: Text(
                               '큰손매매',
-                              style: _bSelectB
-                                  ? TStyle.btnTextWht15
-                                  : TStyle.commonSTitle,
+                              style: _bSelectB ? TStyle.btnTextWht15 : TStyle.commonSTitle,
                             ),
                           ),
                         ),
                         onTap: () {
                           setState(() {
                             _alignment = Alignment.center;
-
                             _bSelectA = false;
                             _bSelectB = true;
                             _bSelectC = false;
@@ -840,22 +816,17 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
                           height: 80,
                           margin: const EdgeInsets.only(left: 15),
                           // padding: const EdgeInsets.all(15),
-                          decoration: _bSelectC
-                              ? UIStyle.boxBtnSelected()
-                              : UIStyle.boxRoundLine6(),
+                          decoration: _bSelectC ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
                           child: Center(
                             child: Text(
                               '시장핫종목',
-                              style: _bSelectC
-                                  ? TStyle.btnTextWht15
-                                  : TStyle.commonSTitle,
+                              style: _bSelectC ? TStyle.btnTextWht15 : TStyle.commonSTitle,
                             ),
                           ),
                         ),
                         onTap: () {
                           setState(() {
                             _alignment = Alignment.centerRight;
-
                             _bSelectA = false;
                             _bSelectB = false;
                             _bSelectC = true;
@@ -871,8 +842,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
                 Container(
                   width: double.infinity,
                   //color: Colors.redAccent,
-                  margin:
-                      EdgeInsets.only(left: margin - 20, right: margin - 35),
+                  margin: EdgeInsets.only(left: margin - 20, right: margin - 35),
                   padding: EdgeInsets.zero,
                   child: AnimatedAlign(
                     alignment: _alignment,
@@ -914,129 +884,95 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
     );
   }
 
-  //관련된 최근 소식(뉴스)
-  Widget _setRelayNews() {
-    return ListView.builder(
-        physics: const ScrollPhysics(),
-        padding: EdgeInsets.zero,
-        shrinkWrap: true,
-        itemCount: _relayList.length,
-        itemBuilder: (context, index) {
-          return TileRassi14(_relayList[index]);
-        });
-  }
-
-  //AI속보의 분석리포트
+  // 분석리포트
   Widget _setAnlReport() {
+
+    List<List<Rassi12>> tempList = [];
+    if(_reportList.isNotEmpty) {
+      int dSize = 4;
+      tempList = List.generate(
+        (_reportList.length / dSize).ceil(),
+        (index) => _reportList.sublist(
+            index * dSize,
+            (index * dSize + dSize > _reportList.length)
+                ? _reportList.length
+                : index * dSize + dSize),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 25.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.only(top: 10, left: 10, right: 10),
+            padding: EdgeInsets.only(left: 10),
             child: Text(
-              'AI속보의 분석리포트',
+              '분석 리포트',
               style: TStyle.defaultTitle,
             ),
           ),
+
           Container(
             width: double.infinity,
-            height: 120,
-            color: Colors.grey.shade50,
-            child: ListView.builder(
-                padding: EdgeInsets.zero,
-                scrollDirection: Axis.horizontal,
-                itemCount: _reportList.length,
-                itemBuilder: (context, index) {
-                  return TileRassi12(
-                      _reportList[index], RColor.assistBack[index % 6]);
-                }),
-          )
+            height: 270,
+            margin: const EdgeInsets.only(top: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Swiper(
+              controller: SwiperController(),
+              pagination: CommonSwiperPagenation.getNormalSpWithMargin(8.0, 250, Colors.black),
+              loop: false,
+              autoplay: false,
+              onIndexChanged: (int index) {},
+              itemCount: tempList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return TileSwpRassi12(tempList[index]);
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 
-  //숨어 있는 정보를 찾으시나요?
-  Widget _setHidingTag() {
-    return Visibility(
-      visible: _hidingTagList.isNotEmpty,
+  // 모든 태그를 확인해 보세요
+  Widget _setNewsAllTagBtn() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 25, left: 15, right: 15, bottom: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: UIStyle.boxRoundLine6bgColor(
+        Colors.white,
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 25, left: 10, right: 10),
-            child: Text(
-              'AI의 추천 태그',
-              style: TStyle.defaultTitle,
-            ),
+          const SizedBox(
+            height: 15,
           ),
-          Container(
-            width: double.infinity,
-            margin:
-                const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: UIStyle.boxRoundLine6bgColor(
-              Colors.white,
-            ),
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 15,
-                ),
-                const Text(
-                  '숨어 있는 정보를 찾으시나요?',
-                  style: TStyle.defaultTitle,
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Wrap(
-                  spacing: 7.0,
-                  alignment: WrapAlignment.center,
-                  children: List.generate(_hidingTagList.length,
-                      (index) => TileChipTag(_hidingTagList[index])),
-                ),
-              ],
-            ),
-          )
+          const Text(
+            'AI가 분석하는 모든 태그\n분류를 확인해 보세요',
+            style: TStyle.defaultTitle,
+          ),
+          const SizedBox(height: 15),
+          CommonView.setBasicMoreRoundBtnView(
+            [
+              Text(
+                "→ 태그",
+                style: TStyle.puplePlainStyle(),
+              ),
+              const Text(
+                " 전체보기",
+                style: TStyle.commonSTitle,
+              ),
+            ],
+            () {
+              basePageState.callPageRouteUP(
+                NewsTagAllPage(),
+              );
+            },
+          ),
+          const SizedBox(height: 15),
         ],
-      ),
-    );
-  }
-
-  //빠른 정보를 찾으시나요?
-  Widget _setRapidTag() {
-    return Visibility(
-      visible: _rapidTagList.isNotEmpty,
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(top: 25, left: 15, right: 15, bottom: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: UIStyle.boxRoundLine6bgColor(
-          Colors.white,
-        ),
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 15,
-            ),
-            const Text(
-              '빠른 정보를 찾으시나요?',
-              style: TStyle.defaultTitle,
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            Wrap(
-              spacing: 7.0,
-              alignment: WrapAlignment.center,
-              children: List.generate(_rapidTagList.length,
-                  (index) => TileChipTag(_rapidTagList[index])),
-            )
-          ],
-        ),
       ),
     );
   }
@@ -1046,7 +982,10 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
     return Visibility(
       visible: prTOP,
       child: SizedBox(
-          width: double.infinity, height: 110, child: CardProm02(_listPrTop)),
+        width: double.infinity,
+        height: 110,
+        child: CardProm02(_listPrTop),
+      ),
     );
   }
 
@@ -1074,7 +1013,10 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
     return Visibility(
       visible: prMID,
       child: SizedBox(
-          width: double.infinity, height: 110, child: CardProm02(_listPrMid)),
+        width: double.infinity,
+        height: 110,
+        child: CardProm02(_listPrMid),
+      ),
     );
   }
 
@@ -1083,11 +1025,40 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
     return Visibility(
       visible: prLOW,
       child: SizedBox(
-          width: double.infinity, height: 110, child: CardProm02(_listPrLow)),
+        width: double.infinity,
+        height: 110,
+        child: CardProm02(_listPrLow),
+      ),
     );
   }
 
-  //소항목 타이틀
+  // 소항목 타이틀
+  Widget _setSubTitleMore(String title, String moreTxt, void Function() onTap) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, top: 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TStyle.defaultTitle,
+          ),
+          InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 15),
+              child: Text(
+                moreTxt,
+                style: TStyle.commonPurple14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 소항목 타이틀
   Widget _setSubTitle(String title, String subTitle) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -1109,7 +1080,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
   }
 
   void _requestRassi14() {
-    DLog.d(SliverMarketWidget.TAG, '_requestRassi14() pageNum : $pageNum');
+    DLog.d(SliverMarketNewWidget.TAG, '_requestRassi14() pageNum : $pageNum');
     _fetchPosts(
         TR.RASSI14,
         jsonEncode(<String, String>{
@@ -1135,7 +1106,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
 
   //convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
-    DLog.d(SliverMarketWidget.TAG, '$trStr $json');
+    DLog.d(SliverMarketNewWidget.TAG, '$trStr $json');
 
     // var url = Uri.parse(Net.TR_BASE_android + trStr); //NOTE ***[TEST]***
     var url = Uri.parse(Net.TR_BASE + trStr);
@@ -1150,7 +1121,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      DLog.d(SliverMarketWidget.TAG, 'ERR : TimeoutException (12 seconds)');
+      DLog.d(SliverMarketNewWidget.TAG, 'ERR : TimeoutException (12 seconds)');
       if (mounted) {
         CommonPopup.instance.showDialogNetErr(context);
       }
@@ -1159,7 +1130,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
 
   // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
   void _parseTrData(String trStr, final http.Response response) {
-    DLog.d(SliverMarketWidget.TAG, response.body);
+    DLog.d(SliverMarketNewWidget.TAG, response.body);
 
     if (trStr == TR.PROM02) {
       //탭이동을 홈으로 초기화(setState 필요)
@@ -1190,45 +1161,6 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
       }
 
       _fetchPosts(
-          TR.INDEX01,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-          }));
-    } else if (trStr == TR.INDEX01) {
-      final TrIndex01 resData = TrIndex01.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS) {
-        _index01 = resData.retData;
-
-        Kospi kospi = resData.retData.kospi;
-        Kosdaq kosdaq = resData.retData.kosdaq;
-
-        if (kospi.fluctuationRate.contains('-')) {
-          _kospiSub =
-              '▼${kospi.indexFluctuation.replaceAll('-', '')}  ${kospi.fluctuationRate}%';
-          _kospiColor = RColor.sigSell;
-        } else if (kospi.fluctuationRate == '0.00') {
-          _kospiSub = '${kospi.indexFluctuation}  ${kospi.fluctuationRate}%';
-        } else {
-          _kospiSub = '▲${kospi.indexFluctuation}  +${kospi.fluctuationRate}%';
-          _kospiColor = RColor.sigBuy;
-        }
-
-        if (kosdaq.fluctuationRate.contains('-')) {
-          _kosdaqSub =
-              '▼${kosdaq.indexFluctuation.replaceAll('-', '')}   ${kosdaq.fluctuationRate}%';
-          _kosdaqColor = RColor.sigSell;
-        } else if (kosdaq.fluctuationRate == '0.00') {
-          _kosdaqSub = '${kosdaq.indexFluctuation}  ${kosdaq.fluctuationRate}%';
-        } else {
-          _kosdaqSub =
-              '▲${kosdaq.indexFluctuation}   +${kosdaq.fluctuationRate}%';
-          _kosdaqColor = RColor.sigBuy;
-        }
-      } else {
-        _index01 = defIndex01;
-      }
-      setState(() {});
-      _fetchPosts(
           TR.ISSUE03,
           jsonEncode(<String, String>{
             'userId': _userId,
@@ -1251,9 +1183,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
 
         _issueDate = '$month/$day';
         _issueList.sort(
-          (a, b) => double.parse(b.avgFluctRate)
-              .abs()
-              .compareTo(double.parse(a.avgFluctRate).abs()),
+          (a, b) => double.parse(b.avgFluctRate).abs().compareTo(double.parse(a.avgFluctRate).abs()),
         );
 
         List<CustomBubbleNode> listNodes = [];
@@ -1385,7 +1315,10 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
           ),
           radius: null,
           //size: Size((AppGlobal().deviceWidth), AppGlobal().isTablet ? 300 : AppGlobal().deviceWidth - (AppGlobal().deviceWidth * 0.15),),
-          size: Size((AppGlobal().deviceWidth - (AppGlobal().deviceWidth / 20)), 300,),
+          size: Size(
+            (AppGlobal().deviceWidth - (AppGlobal().deviceWidth / 20)),
+            300,
+          ),
           stretchFactor: 2,
         ).nodes.fold([], (result, node) {
           return result
@@ -1398,9 +1331,7 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
                 height: node.radius! * 2,
                 child: ScaleTransition(
                   scale: Tween(begin: 0.0, end: 1.0).animate(
-                    CurvedAnimation(
-                        parent: _bubbleChartAniControllerList[node.index],
-                        curve: Curves.elasticOut),
+                    CurvedAnimation(parent: _bubbleChartAniControllerList[node.index], curve: Curves.elasticOut),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(node.radius! * 2),
@@ -1412,12 +1343,10 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
                         height: node.radius! * 2,
                         decoration: BoxDecoration(
                           border: node.options?.border ?? const Border(),
-                          color: node.options?.color ??
-                              RColor.purpleBgBasic_dbdbff,
+                          color: node.options?.color ?? RColor.purpleBgBasic_dbdbff,
                           shape: BoxShape.circle,
                         ),
-                        child:
-                            Center(child: node.options?.child ?? Container()),
+                        child: Center(child: node.options?.child ?? Container()),
                       ),
                     ),
                   ),
@@ -1427,9 +1356,48 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
         });
 
         _bubbleWidgetList.addAll(bubbleWidgetList);
-
         setState(() {});
       }
+
+      _fetchPosts(
+          TR.INDEX01,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+          }));
+    }
+
+    //시장 인덱스
+    else if (trStr == TR.INDEX01) {
+      final TrIndex01 resData = TrIndex01.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        _index01 = resData.retData;
+
+        Kospi kospi = resData.retData.kospi;
+        Kosdaq kosdaq = resData.retData.kosdaq;
+
+        if (kospi.fluctuationRate.contains('-')) {
+          _kospiSub = '▼${kospi.indexFluctuation.replaceAll('-', '')}  ${kospi.fluctuationRate}%';
+          _kospiColor = RColor.sigSell;
+        } else if (kospi.fluctuationRate == '0.00') {
+          _kospiSub = '${kospi.indexFluctuation}  ${kospi.fluctuationRate}%';
+        } else {
+          _kospiSub = '▲${kospi.indexFluctuation}  +${kospi.fluctuationRate}%';
+          _kospiColor = RColor.sigBuy;
+        }
+
+        if (kosdaq.fluctuationRate.contains('-')) {
+          _kosdaqSub = '▼${kosdaq.indexFluctuation.replaceAll('-', '')}   ${kosdaq.fluctuationRate}%';
+          _kosdaqColor = RColor.sigSell;
+        } else if (kosdaq.fluctuationRate == '0.00') {
+          _kosdaqSub = '${kosdaq.indexFluctuation}  ${kosdaq.fluctuationRate}%';
+        } else {
+          _kosdaqSub = '▲${kosdaq.indexFluctuation}   +${kosdaq.fluctuationRate}%';
+          _kosdaqColor = RColor.sigBuy;
+        }
+      } else {
+        _index01 = defIndex01;
+      }
+      setState(() {});
 
       _fetchPosts(
           TR.RASSI01,
@@ -1438,7 +1406,10 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
             'pageNo': '0',
             'pageItemSize': '3',
           }));
-    } else if (trStr == TR.RASSI01) {
+    }
+
+    //라씨로 일반 뉴스
+    else if (trStr == TR.RASSI01) {
       final TrRassi01 resData = TrRassi01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _newsList = resData.listData;
@@ -1476,34 +1447,6 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
       }
 
       _fetchPosts(
-          TR.RASSI15,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-            'selectDiv': 'ALL',
-          }));
-    }
-
-    //추천 태그
-    else if (trStr == TR.RASSI15) {
-      _hidingTagList.clear();
-      final TrRassi15 resData = TrRassi15.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS) {
-        if (resData.listData.isNotEmpty) {
-          for (int i = 0; i < resData.listData.length; i++) {
-            if (resData.listData[i].tagDiv == 'H') {
-              //숨은 정보
-              _hidingTagList.add(resData.listData[i]);
-            } else if (resData.listData[i].tagDiv == 'S') {
-              //빠른 정보
-              _rapidTagList.add(resData.listData[i]);
-            }
-          }
-        }
-
-        setState(() {});
-      }
-
-      _fetchPosts(
           TR.RASSI14,
           jsonEncode(<String, String>{
             'userId': _userId,
@@ -1530,5 +1473,31 @@ class SliverMarketWidgetState extends State<SliverMarketWidget>
         _relayMoreBtnShow = false;
       }
     }
+  }
+}
+
+//임시 특징주 객체
+class Feature01 {
+  final String noticeSn;
+  final String title;
+  final String linkType;
+  final String linkPage;
+  final String regDttm;
+
+  Feature01({
+    this.noticeSn = '',
+    this.title = '',
+    this.linkType = '',
+    this.linkPage = '',
+    this.regDttm = '',
+  });
+
+  factory Feature01.fromJson(Map<String, dynamic> json) {
+    return Feature01(
+        noticeSn: json['noticeSn'] ?? '',
+        title: json['title'] ?? '',
+        linkType: json['linkType'] ?? '',
+        linkPage: json['linkPage'] ?? '',
+        regDttm: json['regDttm'] ?? '');
   }
 }

@@ -8,6 +8,7 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/home/sliver_home_page.dart';
+import 'package:rassi_assist/ui/home/sliver_market_new.dart';
 import 'package:rassi_assist/ui/home/sliver_market_page.dart';
 import 'package:rassi_assist/ui/home/sliver_signal_page.dart';
 import 'package:rassi_assist/ui/home/sliver_stock_catch.dart';
@@ -406,13 +407,19 @@ class SliverHomeTabWidgetState extends State<SliverHomeTabWidget> with SingleTic
           strokeWidth: 2.0,
           displacement: 120,
           onRefresh: () async {
-            if (SliverMarketWidget.globalKey.currentState != null) {
+/*            if (SliverMarketWidget.globalKey.currentState != null) {
               var childCurrentState = SliverMarketWidget.globalKey.currentState;
+              childCurrentState?.reload();
+              await Future.delayed(const Duration(milliseconds: 1000));
+            }*/
+            if (SliverMarketNewWidget.globalKey.currentState != null) {
+              var childCurrentState = SliverMarketNewWidget.globalKey.currentState;
               childCurrentState?.reload();
               await Future.delayed(const Duration(milliseconds: 1000));
             }
           },
-          child: SliverMarketWidget(),
+          // child: SliverMarketWidget(),
+          child: SliverMarketNewWidget(),
         ),
       ],
     );
