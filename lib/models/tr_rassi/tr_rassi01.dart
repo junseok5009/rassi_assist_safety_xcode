@@ -30,7 +30,7 @@ class TrRassi01 {
   }
 }
 
-//화면구성 (홈_홈)
+//화면구성 (마켓뷰)
 class TileRassi01 extends StatelessWidget {
   final Rassiro item;
 
@@ -50,15 +50,7 @@ class TileRassi01 extends StatelessWidget {
           )
         : Container(
             width: double.infinity,
-            margin: const EdgeInsets.only(
-              left: 15.0,
-              right: 15.0,
-              top: 10.0,
-            ),
             alignment: Alignment.centerLeft,
-            decoration: UIStyle.boxRoundLine6bgColor(
-              Colors.white,
-            ),
             child: InkWell(
               splashColor: Colors.deepPurpleAccent.withAlpha(30),
               child: Container(
@@ -69,24 +61,28 @@ class TileRassi01 extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      TStyle.getDtTimeFormat(item.issueDttm),
-                      style: TStyle.commonSPurple,
-                    ),
-                    const SizedBox(
-                      height: 3,
-                    ),
-                    Text(
                       item.title,
-                      style: TStyle.subTitle,
+                      style: TStyle.defaultContent,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
                     ),
+                    const SizedBox(height: 3),
+                    Text(
+                      TStyle.getDtTimeFormat(item.issueDttm),
+                      style: TStyle.contentGrey12,
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      color: Colors.black12,
+                      height: 1.2,
+                    )
                   ],
                 ),
               ),
               onTap: () {
                 basePageState.callPageRouteNews(
-                  NewsViewer(),
+                  const NewsViewer(),
                   PgNews(
                     stockCode: '',
                     stockName: '',
@@ -158,7 +154,7 @@ class TileRassi01ListItemView extends StatelessWidget {
               dynamic result = await Navigator.push(
                 context,
                 CustomNvRouteClass.createRouteData(
-                  NewsViewer(),
+                  const NewsViewer(),
                   RouteSettings(
                     arguments: PgNews(
                       stockCode: '',

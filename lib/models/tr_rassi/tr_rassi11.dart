@@ -47,30 +47,26 @@ class Rassi11 {
 
   Rassi11({
     this.newsSn = '',
-      this.title = '',
-      this.newsCrtDate = '',
-      this.newsKeyword = '',
-      this.issueDttm = '',
-      this.elapsedTmTx = '',
-      this.imageUrl = '',
-      this.viewLinkYn = '',
-      this.totalPageSize = '',
-      this.currentPageNo = '',
-      this.listTag = const [],
-      this.listStock = const [],
+    this.title = '',
+    this.newsCrtDate = '',
+    this.newsKeyword = '',
+    this.issueDttm = '',
+    this.elapsedTmTx = '',
+    this.imageUrl = '',
+    this.viewLinkYn = '',
+    this.totalPageSize = '',
+    this.currentPageNo = '',
+    this.listTag = const [],
+    this.listStock = const [],
   });
 
   factory Rassi11.fromJson(Map<String, dynamic> json) {
     var listT = json['list_Tag'] as List<dynamic>?;
     List<Tag> rtList;
-    listT == null
-        ? rtList = []
-        : rtList = listT.map((e) => Tag.fromJson(e)).toList();
+    listT == null ? rtList = [] : rtList = listT.map((e) => Tag.fromJson(e)).toList();
     var listS = json['list_Stock'] as List<dynamic>?;
     List<Stock> rtListS;
-    listS == null
-        ? rtListS = []
-        : rtListS = listS.map((e) => Stock.fromJson(e)).toList();
+    listS == null ? rtListS = [] : rtListS = listS.map((e) => Stock.fromJson(e)).toList();
 
     return Rassi11(
       newsSn: json['newsSn'] ?? '',
@@ -94,6 +90,112 @@ class Rassi11 {
   }
 }
 
+class TileRassi11 extends StatelessWidget {
+  final Rassi11 item;
+
+  const TileRassi11(this.item, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _setTagList(),
+              Text(
+                item.elapsedTmTx,
+                style: TStyle.contentGrey14,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            item.title,
+            style: TStyle.defaultContent,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.start,
+          ),
+
+          _setStockList(context, item.listStock),
+          Container(
+            color: Colors.black12,
+            height: 1.2,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _setTagList() {
+    return Visibility(
+      visible: item.listTag.isNotEmpty,
+      child: Wrap(
+        spacing: 7.0,
+        alignment: WrapAlignment.start,
+        children: List.generate(
+          item.listTag.length,
+          (index) => InkWell(
+            child: Text(
+              '#${item.listTag[index].tagName}',
+              style: const TextStyle(
+                fontSize: 14,
+                color: RColor.bgSignal,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onTap: () {
+              //태그 리스트로 이동
+              basePageState.callPageRouteNews(
+                NewsTagPage(),
+                PgNews(tagCode: item.listTag[index].tagCode, tagName: item.listTag[index].tagName),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _setStockList(BuildContext context, List<Stock> listStk) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      width: double.infinity,
+      child: Wrap(
+        spacing: 7.0,
+        alignment: WrapAlignment.start,
+        children: List.generate(
+          listStk.length,
+          (index) => InkWell(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
+              decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
+              child: Text(
+                TStyle.getLimitString(listStk[index].stockName, 7),
+                style: TStyle.subTitle,
+              ),
+            ),
+            onTap: () {
+              //종목홈으로 이동
+              basePageState.goStockHomePage(
+                listStk[index].stockCode,
+                listStk[index].stockName,
+                Const.STK_INDEX_HOME,
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// 접을수 있는 위젯
 class TileRassi11N extends StatelessWidget {
   final appGlobal = AppGlobal();
   final Rassi11 item;
@@ -241,11 +343,8 @@ class TileRassi11N extends StatelessWidget {
                 onTap: () {
                   //태그 리스트로 이동
                   //굳이 아래에서 올라오는 뷰는 필요없음
-                  basePageState.callPageRouteNews(
-                      NewsTagPage(),
-                      PgNews(
-                          tagCode: item.listTag[index].tagCode,
-                          tagName: item.listTag[index].tagName));
+                  basePageState.callPageRouteNews(NewsTagPage(),
+                      PgNews(tagCode: item.listTag[index].tagCode, tagName: item.listTag[index].tagName));
                 },
               ),
             ),

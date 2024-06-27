@@ -1092,14 +1092,18 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
 
     // 오늘의 이슈
     else if (trStr == TR.ISSUE03) {
-      final TrIssue03 resData = TrIssue03.fromJson(jsonDecode(response.body));
-      _listIssue03.clear();
-      if (resData.retCode == RT.SUCCESS) {
-        List<Issue03> list = resData.listData;
+      try {
+        final TrIssue03 resData = TrIssue03.fromJson(jsonDecode(response.body));
+        _listIssue03.clear();
+        if (resData.retCode == RT.SUCCESS) {
+          List<Issue03> list = resData.listData;
 
-        setState(() {
-          _listIssue03.addAll(list);
-        });
+          setState(() {
+            _listIssue03.addAll(list);
+          });
+        }
+      } catch(e) {
+        DLog.d(SliverHomeWidget.TAG, '[** Error **] parse issue03: $e');
       }
 
       _fetchPosts(
