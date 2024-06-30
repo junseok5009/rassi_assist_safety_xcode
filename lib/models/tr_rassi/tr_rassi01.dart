@@ -55,7 +55,7 @@ class TileRassi01 extends StatelessWidget {
               splashColor: Colors.deepPurpleAccent.withAlpha(30),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(14.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -10,7 +10,6 @@ import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
 import 'package:rassi_assist/ui/news/news_viewer.dart';
 
-
 /// 2021.03.08
 /// AI가 찾은 추천 정보 조회 (rassi11 obj 공유할수도 있을듯)
 class TrRassi14 {
@@ -23,7 +22,7 @@ class TrRassi14 {
     this.retCode = '',
     this.retMsg = '',
     this.listData = const [],
-    this.listTag = const []
+    this.listTag = const [],
   });
 
   factory TrRassi14.fromJson(Map<String, dynamic> json) {
@@ -56,16 +55,16 @@ class Rassi14 {
 
   Rassi14({
     this.newsSn = '',
-      this.title = '',
-      this.newsCrtDate = '',
-      this.issueDttm = '',
-      this.elapsedTmTx = '',
-      this.imageUrl = '',
-      this.viewLinkYn = '',
-      this.totalPageSize = '',
-      this.currentPageNo = '',
-      this.listTag = const [],
-      this.listStock = const [],
+    this.title = '',
+    this.newsCrtDate = '',
+    this.issueDttm = '',
+    this.elapsedTmTx = '',
+    this.imageUrl = '',
+    this.viewLinkYn = '',
+    this.totalPageSize = '',
+    this.currentPageNo = '',
+    this.listTag = const [],
+    this.listStock = const [],
   });
 
   factory Rassi14.fromJson(Map<String, dynamic> json) {
@@ -114,19 +113,19 @@ class TileRassi14 extends StatelessWidget {
     return Container(
       width: double.infinity,
       //height: 115,
-      margin: const EdgeInsets.only(
-        left: 10.0,
-        right: 10.0,
-        top: 10.0,
-      ),
+      margin: const EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0),
       alignment: Alignment.centerLeft,
-      decoration: UIStyle.boxRoundLine6(),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _setNewsInfo(tagName),
           _setRelayInfo(context, item.listStock),
+          const SizedBox(height: 7),
+          Container(
+            color: Colors.black12,
+            height: 1.2,
+          ),
         ],
       ),
     );
@@ -155,16 +154,14 @@ class TileRassi14 extends StatelessWidget {
                 ),
                 Text(
                   item.elapsedTmTx,
-                  style: TStyle.textSGrey,
+                  style: TStyle.purpleThinStyle(),
                 ),
               ],
             ),
-            const SizedBox(
-              height: 4,
-            ),
+            const SizedBox(height: 4),
             Text(
               item.title,
-              style: TStyle.content15,
+              style: TStyle.content16,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -173,7 +170,7 @@ class TileRassi14 extends StatelessWidget {
       ),
       onTap: () {
         basePageState.callPageRouteNews(
-          NewsViewer(),
+          const NewsViewer(),
           PgNews(
             stockCode: '',
             stockName: '',
@@ -187,11 +184,7 @@ class TileRassi14 extends StatelessWidget {
 
   Widget _setRelayInfo(BuildContext context, List<Stock> listStk) {
     return Container(
-      padding: const EdgeInsets.only(
-        left: 10,
-        bottom: 10,
-        top: 6,
-      ),
+      padding: const EdgeInsets.only(left: 10, bottom: 10, top: 6),
       child: Wrap(
         spacing: 7.0,
         alignment: WrapAlignment.start,
@@ -259,18 +252,48 @@ class TileChip14 extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
           side: const BorderSide(color: Colors.white),
         ),
-          label: Text(
-            '#${item.tagName}',
-            style: const TextStyle(
-              color: RColor.mainColor,
-            ),
+        label: Text(
+          '#${item.tagName}',
+          style: const TextStyle(
+            color: RColor.mainColor,
           ),
-          backgroundColor: RColor.bgWeakBora,
+        ),
+        backgroundColor: RColor.bgWeakBora,
       ),
       onTap: () {
-        //굳이 아래에서 올라오는 뷰는 필요없음
-        basePageState.callPageRouteNews(NewsTagPage(),
-            PgNews(tagCode: item.tagCode, tagName: item.tagName));
+        basePageState.callPageRouteNews(
+          NewsTagPage(),
+          PgNews(tagCode: item.tagCode, tagName: item.tagName),
+        );
+      },
+    );
+  }
+}
+
+//화면구성
+class TileTag14 extends StatelessWidget {
+  final TagEvent item;
+
+  TileTag14(this.item);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      child: Container(
+        padding: const EdgeInsets.all(3),
+        child: Text(
+          '#${item.tagName}',
+          style: const TextStyle(
+            fontSize: 14,
+            color: RColor.mainColor,
+          ),
+        ),
+      ),
+      onTap: () {
+        basePageState.callPageRouteNews(
+          NewsTagPage(),
+          PgNews(tagCode: item.tagCode, tagName: item.tagName),
+        );
       },
     );
   }

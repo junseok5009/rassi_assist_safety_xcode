@@ -9,10 +9,8 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
+import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/pg_news.dart';
-import 'package:rassi_assist/models/rassiro.dart';
-import 'package:rassi_assist/models/tr_rassi/tr_rassi06.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi14.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
@@ -45,6 +43,7 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
   String typeTitle = '';
 
   bool isNoData = false;
+  final List<TagEvent> _recomTagList = [];
   final List<Rassi14> _relayList = [];
   late ScrollController _scrollController;
   int pageNum = 0;
@@ -67,9 +66,9 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
       }
       args = ModalRoute.of(context)!.settings.arguments as PgData;
       selectType = args.pgData;
-      if(selectType == 'INVESTOR') typeTitle = '장중 투자자 동향';
-      if(selectType == 'AGENCY') typeTitle = '큰손 매매';
-      if(selectType == 'HOT_STOCK') typeTitle = '시장 핫종목';
+      if (selectType == 'INVESTOR') typeTitle = '장중 투자자 동향';
+      if (selectType == 'AGENCY') typeTitle = '큰손 매매';
+      if (selectType == 'HOT_STOCK') typeTitle = '시장 핫종목';
 
       _requestData();
     });
@@ -114,30 +113,65 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
 
   Widget _setLayout() {
     return Scaffold(
+      backgroundColor: RColor.bgBasic_fdfdfd,
       appBar: CommonAppbar.basic(
         buildContext: context,
         title: typeTitle,
         elevation: 1,
       ),
       body: SafeArea(
-        child: Stack(
+        child: ListView(
+          controller: _scrollController,
           children: [
-            ListView.builder(
-              controller: _scrollController,
-              scrollDirection: Axis.vertical,
-              itemCount: _relayList.length,
-              itemBuilder: (context, index) {
-                return TileRassi14(_relayList[index]);
-              },
-            ),
-            Visibility(
-              visible: isNoData,
-              child: Container(
-                margin: const EdgeInsets.only(top: 40.0),
-                width: double.infinity,
-                alignment: Alignment.topCenter,
-                child: const Text('해당 태그 관련 뉴스는 아직 발생되지 않았습니다.'),
+            //관련 태그 리스트
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              color: const Color(0xffF5F5F5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('관련태그', style: TStyle.content15,),
+                  const SizedBox(height: 3),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Wrap(
+                      spacing: 8.0,
+                      alignment: WrapAlignment.start,
+                      children: List.generate(
+                        _recomTagList.length,
+                            (index) => TileTag14(
+                          _recomTagList[index],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
               ),
+            ),
+
+            //관련 속보와 종목
+            Stack(
+              children: [
+                ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount: _relayList.length,
+                  itemBuilder: (context, index) {
+                    return TileRassi14(_relayList[index]);
+                  },
+                ),
+                Visibility(
+                  visible: isNoData,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 40.0),
+                    width: double.infinity,
+                    alignment: Alignment.topCenter,
+                    child: const Text('해당 태그 관련 뉴스는 아직 발생되지 않았습니다.'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -146,15 +180,15 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
   }
 
   _requestData() {
-    if(selectType.isNotEmpty) {
+    if (selectType.isNotEmpty) {
       _fetchPosts(
-        TR.RASSI14,
-        jsonEncode(<String, String>{
-          'userId': _userId,
-          'selectDiv': selectType,
-          'pageNo': pageNum.toString(),
-          'pageItemSize': pageSize,
-        }));
+          TR.RASSI14,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'selectDiv': selectType,
+            'pageNo': pageNum.toString(),
+            'pageItemSize': pageSize,
+          }));
     }
   }
 
@@ -164,10 +198,10 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
       final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+            url,
+            body: json,
+            headers: Net.headers,
+          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       if (_bYetDispose) _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
@@ -183,24 +217,19 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
     DLog.d(RelatedNewsPage.TAG, response.body);
 
     if (trStr == TR.RASSI14) {
-      // _relayList.clear();
       final TrRassi14 resData = TrRassi14.fromJson(jsonDecode(response.body));
       isNoData = true;
       if (resData.retCode == RT.SUCCESS) {
         isNoData = false;
+        if (pageNum == 0) {
+          _recomTagList.clear();
+          _recomTagList.addAll(resData.listTag);
+          _relayList.clear();
+        }
         _relayList.addAll(resData.listData);
       }
       setState(() {});
     }
 
-    if (trStr == TR.RASSI06) {
-      final TrRassi06 resData = TrRassi06.fromJson(jsonDecode(response.body));
-      isNoData = true;
-      if (resData.retCode == RT.SUCCESS) {
-        isNoData = false;
-        // newsList.addAll(resData.listData);
-      }
-      setState(() {});
-    }
   }
 }
