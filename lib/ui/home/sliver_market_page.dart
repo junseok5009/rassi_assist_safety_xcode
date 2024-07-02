@@ -19,7 +19,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
 import 'package:rassi_assist/models/rassiro.dart';
 import 'package:rassi_assist/models/tr_index01.dart';
-import 'package:rassi_assist/models/tr_issue03.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue03.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi11.dart';

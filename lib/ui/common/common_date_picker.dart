@@ -7,10 +7,8 @@ import 'package:rassi_assist/common/const.dart';
       플루터에서 사용하는 날짜 선택 하는 클래스 입니다.
    */
 class CommonDatePicker {
-
   // 연도는 현재 연도 디폴트, 월만 선택, 사용자는 년도 선택가능 >> 즉, 년/월만 선택하기
-  static Future<DateTime> showYearMonthPicker(
-      BuildContext context, DateTime initDateTime) async {
+  static Future<DateTime?> showYearMonthPicker(BuildContext context, DateTime initDateTime) async {
     return await showMonthPicker(
       context: context,
       initialDate: initDateTime,
@@ -19,7 +17,7 @@ class CommonDatePicker {
       headerTextColor: Colors.black,
       selectedMonthTextColor: Colors.white,
       unselectedMonthTextColor: Colors.black,
-      selectedMonthBackgroundColor: RColor.mainColor,
+      selectedMonthBackgroundColor: Colors.black,
       locale: const Locale('ko', 'KR'),
       cancelWidget: const Text(
         '취소',
@@ -41,14 +39,13 @@ class CommonDatePicker {
       if (date != null) {
         return date;
       } else {
-        return DateTime.now();
+        return null;
       }
     });
   }
 
   // 년도만 선택가능함
-  static Future<DateTime> showYearPicker(
-      BuildContext context, DateTime initDateTime) async {
+  static Future<DateTime> showYearPicker(BuildContext context, DateTime initDateTime) async {
     final dateFormat = DateFormat('yyyy');
     late DateTime returnDateTime;
 
@@ -77,7 +74,7 @@ class CommonDatePicker {
               child: YearPicker(
                 firstDate: DateTime(DateTime.now().year - 10, 1),
                 lastDate: DateTime(DateTime.now().year + 2, 1),
-                initialDate: initDateTime,
+                //initialDate: initDateTime,
                 selectedDate: initDateTime,
                 currentDate: initDateTime,
                 onChanged: (DateTime dateTime) {

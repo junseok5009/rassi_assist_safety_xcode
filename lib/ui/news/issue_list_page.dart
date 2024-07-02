@@ -11,7 +11,7 @@ import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/tr_issue02.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue02.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

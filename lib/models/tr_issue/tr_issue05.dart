@@ -10,16 +10,12 @@ class TrIssue05 {
   TrIssue05({this.retCode = '', this.retMsg = '', this.listData});
 
   factory TrIssue05.fromJson(Map<String, dynamic> json) {
-    List<Issue05>? rtList;
-    if(json['retData'] != null) {
-      var list = json['retData']['list_Issue'] as List;
-      list == null ? rtList = null : rtList = list.map((i) => Issue05.fromJson(i)).toList();
-    }
-
+    var jsonData = json['retData'];
+    var jsonList = json['retData']['list_Issue'];
     return TrIssue05(
         retCode: json['retCode'],
         retMsg: json['retMsg'],
-        listData: rtList
+        listData: jsonData == null || jsonList == null ? [] : (jsonList as List).map((i) => Issue05.fromJson(i)).toList(),
     );
   }
 }

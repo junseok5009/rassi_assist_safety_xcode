@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:rassi_assist/common/d_log.dart';
 
 import 'CustomBubbleNode.dart';
 import 'CustomBubbleNodeBase.dart';
@@ -26,7 +25,7 @@ class CustomBubbleRoot {
     required this.root,
     required this.size,
     this.radius,
-    this.stretchFactor = 1.0,
+    this.stretchFactor = 1,
   })  : assert(root.children != null && root.children!.isNotEmpty),
         assert(size.width > 0 && size.height > 0) {
     root.x = size.width / 2;
@@ -38,48 +37,55 @@ class CustomBubbleRoot {
         ..eachAfter(_packChildren(0.5))
         ..eachBefore(_translateChild(1));
     } else {
-      //DLog.e('CustomBubbleRoot first !! root.radius : ${root.radius} / _radiusLeaf(_defaultRadius) : ${_radiusLeaf(_defaultRadius)}');
-      /*root.leaves.asMap().forEach((key, value) {
-        _radiusLeaf(
-              (p0) {
-            return sqrt(p0.value);
-          },
-        );
-        DLog.e('${}');
-      });*/
-
       root
         ..leaves.forEach(_radiusLeaf(_defaultRadius))
         ..eachAfter(_packChildren(1, 0))
-        /*..eachAfter(
-          (CustomBubbleNode node) {
-            DLog.e(
-                '1 eachAfter root.radius : ${root.radius} / _packChildren radius > : ${(_packChildren(1, 0) as CustomBubbleNode).radius}');
-            return root;
-          },
-        )*/
-        ..eachAfter(_packChildren(root.radius! / min(size.width, size.height),),)
-        /*..eachAfter(
-          (p0) {
-            DLog.e('2 eachAfter root.radius : ${root.radius}');
-            return _packChildren(root.radius! / min(size.width, size.height));
-          },
-        )*/
+        ..eachAfter(
+          _packChildren(
+            root.radius! / min(size.width, size.height),
+          ),
+        )
         ..eachBefore(
           _translateChild(
             min(size.width, size.height) / (2 * root.radius!),
           ),
         );
-      //_translateChild(15));
-      DLog.e('CustomBubbleRoot \n root.radius : ${root.radius} \n'
-          'min(size.width, size.height) : ${min(size.width, size.height)} \n'
-          'root.radius : ${root.radius} \n'
-          'min(size.width, size.height) / (2 * root.radius!) : ${min(size.width, size.height) / (2 * root.radius!)}');
     }
+
+    // 추가
+    //_adjustBubbleSizes();
   }
 
-  Function(CustomBubbleNode) _radiusLeaf(
-      double Function(CustomBubbleNode)? radius) {
+  void _adjustBubbleSizes() {
+    // Find the bounds of the current bubble chart
+    double minX = double.infinity;
+    double maxX = double.negativeInfinity;
+    double minY = double.infinity;
+    double maxY = double.negativeInfinity;
+
+    root.eachAfter((CustomBubbleNode node) {
+      minX = min(minX, node.x! - node.radius!);
+      maxX = max(maxX, node.x! + node.radius!);
+      minY = min(minY, node.y! - node.radius!);
+      maxY = max(maxY, node.y! + node.radius!);
+    });
+
+    // Calculate current width and height
+    double currentWidth = maxX - minX;
+    double currentHeight = maxY - minY;
+
+    // Calculate scale factor to fit within size
+    double scaleFactor = min(size.width / currentWidth, size.height / currentHeight);
+
+    // Adjust bubble sizes and positions
+    root.eachAfter((CustomBubbleNode node) {
+      node.x = (node.x! - minX) * scaleFactor;
+      node.y = (node.y! - minY) * scaleFactor;
+      node.radius = node.radius! * scaleFactor;
+    });
+  }
+
+  Function(CustomBubbleNode) _radiusLeaf(double Function(CustomBubbleNode)? radius) {
     return (CustomBubbleNode node) {
       if (node.children == null) {
         //DLog.e('_radiusLeaf max(0, radius!(node) : ${max(0, radius!(node))}');
@@ -321,12 +327,10 @@ class CustomBubbleRoot {
   }
 
   CustomBubbleNodeBase _encloseBasis1(CustomBubbleNodeBase a) {
-    return CustomBubbleNodeBase(
-        x: a.x, y: a.y, radius: a.radius, index: a.index);
+    return CustomBubbleNodeBase(x: a.x, y: a.y, radius: a.radius, index: a.index);
   }
 
-  CustomBubbleNodeBase _encloseBasis2(
-      CustomBubbleNodeBase a, CustomBubbleNodeBase b) {
+  CustomBubbleNodeBase _encloseBasis2(CustomBubbleNodeBase a, CustomBubbleNodeBase b) {
     var x1 = a.x!;
     var y1 = a.y!;
     var r1 = a.radius!;
@@ -349,8 +353,7 @@ class CustomBubbleRoot {
     );
   }
 
-  CustomBubbleNodeBase _encloseBasis3(
-      CustomBubbleNodeBase a, CustomBubbleNodeBase b, CustomBubbleNodeBase c) {
+  CustomBubbleNodeBase _encloseBasis3(CustomBubbleNodeBase a, CustomBubbleNodeBase b, CustomBubbleNodeBase c) {
     var x1 = a.x!;
     var y1 = a.y!;
     var r1 = a.radius!;
@@ -377,8 +380,7 @@ class CustomBubbleRoot {
     var dA = xb * xb + yb * yb - 1;
     var dB = 2 * (r1 + xa * xb + ya * yb);
     var dC = xa * xa + ya * ya - r1 * r1;
-    var r =
-        -(dA != 0 ? (dB + sqrt(dB * dB - 4 * dA * dC)) / (2 * dA) : dC / dB);
+    var r = -(dA != 0 ? (dB + sqrt(dB * dB - 4 * dA * dC)) / (2 * dA) : dC / dB);
     return CustomBubbleNodeBase(
       x: x1 + xa + xb * r,
       y: y1 + ya + yb * r,
@@ -396,8 +398,7 @@ class CustomBubbleRoot {
 
     // If we get here then B must have at least one element.
     for (var i = 0; i < dB.length; ++i) {
-      if (_enclosesNot(p, dB[i]) &&
-          _enclosesWeakAll(_encloseBasis2(dB[i], p), dB)) {
+      if (_enclosesNot(p, dB[i]) && _enclosesWeakAll(_encloseBasis2(dB[i], p), dB)) {
         return [dB[i], p];
       }
     }

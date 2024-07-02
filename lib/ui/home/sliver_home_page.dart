@@ -20,7 +20,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_issue03.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue03.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock11.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_push01.dart';

@@ -47,6 +47,7 @@ import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_page.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/test/halflayer/test_half_layer_main.dart';
+import 'package:rassi_assist/ui/test/today_issue_timeline_page.dart';
 import 'package:rassi_assist/ui/test/test_1_page.dart';
 import 'package:rassi_assist/ui/test/test_event_popup_page.dart';
 import 'package:rassi_assist/ui/test/test_image_fit.dart';

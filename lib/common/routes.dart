@@ -51,6 +51,7 @@ import 'package:rassi_assist/ui/sub/stk_catch_top.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/test/notification_setting.dart';
 import 'package:rassi_assist/ui/test/test_page.dart';
+import 'package:rassi_assist/ui/test/today_issue_timeline_page.dart';
 import 'package:rassi_assist/ui/test/web_chart.dart';
 import 'package:rassi_assist/ui/user/community_page.dart';
 import 'package:rassi_assist/ui/user/terms_page.dart';
@@ -96,6 +97,9 @@ final routes = {
     BuildContext context,
   ) =>
       const AgentNoLinkSignUpPage(),
+
+  // (오늘의) 이슈 타임라인
+  TodayIssueTimelinePage.routeName: (BuildContext context) => const TodayIssueTimelinePage(),
 
   MyPage.routeName: (BuildContext context) => MyPage(),
   KeyboardPage.routeName: (BuildContext context) => const KeyboardPage(),

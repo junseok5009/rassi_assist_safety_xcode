@@ -1,19 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:card_swiper/card_swiper.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/routes.dart';
-import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -21,7 +17,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
 import 'package:rassi_assist/models/rassiro.dart';
 import 'package:rassi_assist/models/tr_index01.dart';
-import 'package:rassi_assist/models/tr_issue03.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue09.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi11.dart';
@@ -30,16 +26,13 @@ import 'package:rassi_assist/models/tr_rassi/tr_rassi14.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
-import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleNode.dart';
-import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleRoot.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_hot_theme.dart';
+import 'package:rassi_assist/ui/home/home_tile/home_tile_today_issue.dart';
 import 'package:rassi_assist/ui/market/home_market_kos_chart.dart';
 import 'package:rassi_assist/ui/market/related_news_page.dart';
-import 'package:rassi_assist/ui/news/issue_list_page.dart';
-import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_all_page.dart';
-import 'package:rassi_assist/ui/sub/rassi_desk_time_line_page.dart';
+import 'package:rassi_assist/ui/test/today_issue_timeline_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main/base_page.dart';
@@ -60,7 +53,7 @@ class SliverMarketNewWidget extends StatefulWidget {
   State<StatefulWidget> createState() => SliverMarketWidgetState();
 }
 
-class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerProviderStateMixin {
+class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
   var appGlobal = AppGlobal();
 
   late SharedPreferences _prefs;
@@ -71,19 +64,14 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
   Color _kosdaqColor = Colors.grey;
   Index01 _index01 = defIndex01;
 
+  Issue09 _issue09 = Issue09();
+
   final List<Feature01> _listFeature = [
     Feature01(title: '실시간 특징주 발생'),
     Feature01(title: '52주 신고가'),
     Feature01(title: '상한가/하한가'),
     Feature01(title: '손바뀜 종목'),
   ];
-
-  // 오늘의 이슈
-  String _issueDate = "";
-  List<Issue03> _issueList = []; //오늘의 이슈
-  bool _isStartAnimation = false;
-  final List<AnimationController> _bubbleChartAniControllerList = [];
-  final List<Widget> _bubbleWidgetList = [];
 
   List<Rassi11> _pickTagList = []; //이 시간 PICK
   List<Rassi12> _reportList = []; //분석리포트
@@ -103,7 +91,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
   final List<Prom02> _listPrMid = [];
   final List<Prom02> _listPrLow = [];
 
-
   @override
   void initState() {
     super.initState();
@@ -111,12 +98,11 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
     _loadPrefData().then(
       (_) {
         _fetchPosts(
-          TR.PROM02,
+          TR.ISSUE09,
           jsonEncode(
             <String, String>{
               'userId': _userId,
-              'viewPage': LD.market_page,
-              'promoDiv': '',
+              'issueDate': TStyle.getTodayString(),
             },
           ),
         );
@@ -128,23 +114,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_isStartAnimation && _bubbleWidgetList.isNotEmpty) {
-          setState(() {
-            _isStartAnimation = true;
-            _bubbleChartAniStart();
-          });
-        }
-      });
     }
-  }
-
-  @override
-  void dispose() {
-    for (var element in _bubbleChartAniControllerList) {
-      element.dispose();
-    }
-    super.dispose();
   }
 
   Future<void> _loadPrefData() async {
@@ -165,8 +135,10 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
             delegate: SliverChildListDelegate([
               _setPrTop(),
 
+              const SizedBox(height: 10),
               //오늘의 이슈
-              _setTodayIssueBubble(),
+              if(_issue09.listData.isNotEmpty)HomeTileTodayIssue(issue09: _issue09,),
+              const SizedBox(height: 30),
 
               _setTimelineBanner(),
 
@@ -224,69 +196,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
         ],
       ),
     );
-  }
-
-  // 오늘의 이슈(버블차트)
-  Widget _setTodayIssueBubble() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 25.0),
-      //color: RColor.bgWeakGrey,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _setSubTitle(RString.tl_today_issues, '이슈와 관련 종목을 한눈에'),
-              Text(
-                _issueDate,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
-          ),
-          if (_bubbleWidgetList.isNotEmpty)
-            SizedBox(
-              width: double.infinity,
-              height: 300,
-              child: Stack(
-                children: _bubbleWidgetList,
-              ),
-            ),
-          CommonView.setBasicMoreRoundBtnView(
-            [
-              Text(
-                "+ 날짜별 이슈",
-                style: TStyle.puplePlainStyle(),
-              ),
-              const Text(
-                " 모두보기",
-                style: TStyle.commonSTitle,
-              ),
-            ],
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const IssueListPage(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _bubbleChartAniStart() async {
-    for (final controller in _bubbleChartAniControllerList) {
-      await Future.delayed(
-          const Duration(
-            milliseconds: 200,
-          ), () async {
-        if (mounted) {
-          controller.forward();
-        }
-      });
-    }
   }
 
   // 시장 지수
@@ -493,7 +402,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
       children: [
         _setSubTitleMore('오늘의 특징주 빠르게 보기', '', () {}),
         const SizedBox(height: 10),
-
         SizedBox(
           width: double.infinity,
           child: ListView.builder(
@@ -553,7 +461,9 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
   // 타임라인 배너
   Widget _setTimelineBanner() {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.pushNamed(context, TodayIssueTimelinePage.routeName);
+      },
       child: Container(
         width: double.infinity,
         height: AppGlobal().isTablet ? 150 : 130,
@@ -904,27 +814,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
     );
   }
 
-  // 소항목 타이틀
-  Widget _setSubTitle(String title, String subTitle) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Text(
-          title,
-          style: TStyle.defaultTitle,
-        ),
-        const SizedBox(
-          width: 5.0,
-        ),
-        Text(
-          subTitle,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-      ],
-    );
-  }
-
   void _requestRassi14() {
     DLog.d(SliverMarketNewWidget.TAG, '_requestRassi14() pageNum : $pageNum');
     _fetchPosts(
@@ -939,12 +828,11 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
 
   reload() {
     _fetchPosts(
-      TR.PROM02,
+      TR.ISSUE09,
       jsonEncode(
         <String, String>{
           'userId': _userId,
-          'viewPage': LD.market_page,
-          'promoDiv': '',
+          'issueDate': TStyle.getTodayString(),
         },
       ),
     );
@@ -978,7 +866,26 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(SliverMarketNewWidget.TAG, response.body);
 
-    if (trStr == TR.PROM02) {
+    // NOTE 날짜의 이슈(버블차트 이슈)
+    if (trStr == TR.ISSUE09) {
+      final TrIssue09 resData = TrIssue09.fromJson(jsonDecode(response.body));
+      if(resData.retCode == RT.SUCCESS){
+        _issue09 = resData.retData;
+        setState(() { });
+      }
+      _fetchPosts(
+        TR.PROM02,
+        jsonEncode(
+          <String, String>{
+            'userId': _userId,
+            'viewPage': LD.market_page,
+            'promoDiv': '',
+          },
+        ),
+      );
+    }
+
+    else if (trStr == TR.PROM02) {
       //탭이동을 홈으로 초기화(setState 필요)
       Provider.of<PageNotifier>(context, listen: false).setPageData(0);
       _listPrTop.clear();
@@ -1004,205 +911,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> with TickerPr
           if (_listPrMid.isNotEmpty) prMID = true;
           if (_listPrLow.isNotEmpty) prLOW = true;
         });
-      }
-
-      _fetchPosts(
-          TR.ISSUE03,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-            'issueDate': '',
-          }));
-    }
-
-    //이슈 지정일 조회
-    else if (trStr == TR.ISSUE03) {
-      final TrIssue03 resData = TrIssue03.fromJson(jsonDecode(response.body));
-      if (resData.retCode == RT.SUCCESS) {
-        _issueList = resData.listData;
-        _bubbleChartAniControllerList.clear();
-
-        String month = resData.listData[0].issueDttm.substring(4, 6);
-        String day = resData.listData[0].issueDttm.substring(6, 8);
-
-        if (month[0] == '0') month = month[1];
-        if (day[0] == '0') day = day[1];
-
-        _issueDate = '$month/$day';
-        _issueList.sort(
-          (a, b) => double.parse(b.avgFluctRate).abs().compareTo(double.parse(a.avgFluctRate).abs()),
-        );
-
-        List<CustomBubbleNode> listNodes = [];
-        TextStyle tStyle;
-        Color? bgColor;
-        Color txtColor = Colors.white;
-        String name = '';
-        double minValue = 0;
-        FontWeight fontWeight = FontWeight.bold;
-        double padding = 0;
-
-        for (int i = 0; i < _issueList.length; i++) {
-          txtColor = Colors.white;
-          Issue03 item = _issueList[i];
-          num value = double.parse(item.avgFluctRate);
-          /*if(value > 1){
-            value = value.round().toDouble();
-          }*/
-          //최대값 찾기 > 최대값의 1/15이 최소값임
-          if (i == 0) {
-            minValue = (double.parse((value.abs() / 15).toStringAsFixed(2)));
-            //DLog.d(SliverMarketWidget.TAG, 'minValue : $minValue');
-          }
-          fontWeight = FontWeight.w700;
-          padding = 10;
-          if (value > 3) {
-            bgColor = RColor.bubbleChartStrongRed;
-            padding = 2.0 * value;
-          } else if (value > 1) {
-            bgColor = RColor.bubbleChartRed;
-            padding = 3.0 * value;
-            fontWeight = FontWeight.w600;
-          } else if (value > 0.1) {
-            bgColor = RColor.bubbleChartWeakRed;
-            padding = 10.0 * value;
-            fontWeight = FontWeight.w400;
-            txtColor = RColor.bubbleChartTxtColorRed;
-          } else if (value > -0.1) {
-            bgColor = RColor.bubbleChartGrey;
-            value = value.abs();
-            padding = 7;
-            fontWeight = FontWeight.w400;
-            txtColor = const Color(0xff8a8a8a);
-          } else if (value > -1) {
-            bgColor = RColor.bubbleChartWeakBlue;
-            value = value.abs();
-            padding = 10.0 * value;
-            fontWeight = FontWeight.w400;
-            txtColor = RColor.bubbleChartTxtColorBlue;
-          } else if (value > -5) {
-            bgColor = RColor.bubbleChartBlue;
-            value = value.abs();
-            padding = 3.0 * value;
-            fontWeight = FontWeight.w600;
-          } else if (value <= -5) {
-            bgColor = RColor.bubbleChartStrongBlue;
-            value = value.abs();
-            padding = 2.0 * value;
-          } else {
-            bgColor = RColor.bubbleChartGrey;
-            value = value.abs();
-            padding = 12;
-            fontWeight = FontWeight.w400;
-            txtColor = const Color(0xff8a8a8a);
-          }
-          if (value.abs() < minValue) {
-            value = minValue;
-          }
-          tStyle = TextStyle(
-            fontWeight: fontWeight,
-            fontSize: 20,
-            color: txtColor,
-          );
-          name = item.keyword.replaceAll(' ', '\n');
-          /*if (name.length == 4 || name.length == 5) {
-            name = '${name.substring(0, 2)}\n${name.substring(2, 4)}';
-          }*/
-
-          CustomBubbleNode customBubbleNode = CustomBubbleNode.leaf(
-            value: value,
-            index: i,
-            options: CustomBubbleOptions(
-              color: bgColor,
-              onTap: () {
-                CustomFirebaseClass.logEvtTodayIssue(
-                  item.keyword,
-                );
-                Navigator.push(
-                  context,
-                  CustomNvRouteClass.createRouteData(
-                    const IssueViewer(),
-                    RouteSettings(
-                      arguments: PgData(
-                        userId: '',
-                        pgSn: item.newsSn,
-                        pgData: item.issueSn,
-                      ),
-                    ),
-                  ),
-                );
-              },
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: Padding(
-                  padding: EdgeInsets.all(padding),
-                  child: AutoSizeText(
-                    name,
-                    style: tStyle,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                  ),
-                ),
-              ),
-            ),
-          );
-          listNodes.add(customBubbleNode);
-          _bubbleChartAniControllerList.add(
-            AnimationController(
-              duration: Duration(milliseconds: 2000 + 300 * i),
-              vsync: this,
-            ),
-          );
-        }
-
-        List<Widget> bubbleWidgetList = CustomBubbleRoot(
-          root: CustomBubbleNode.node(
-            children: listNodes,
-            padding: 2,
-          ),
-          radius: null,
-          //size: Size((AppGlobal().deviceWidth), AppGlobal().isTablet ? 300 : AppGlobal().deviceWidth - (AppGlobal().deviceWidth * 0.15),),
-          size: Size(
-            (AppGlobal().deviceWidth - (AppGlobal().deviceWidth / 20)),
-            300,
-          ),
-          stretchFactor: 2,
-        ).nodes.fold([], (result, node) {
-          return result
-            ..add(
-              Positioned(
-                key: node.key,
-                top: node.y! - node.radius!,
-                left: node.x! - node.radius!,
-                width: node.radius! * 2,
-                height: node.radius! * 2,
-                child: ScaleTransition(
-                  scale: Tween(begin: 0.0, end: 1.0).animate(
-                    CurvedAnimation(parent: _bubbleChartAniControllerList[node.index], curve: Curves.elasticOut),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(node.radius! * 2),
-                    child: InkResponse(
-                      borderRadius: BorderRadius.circular(node.radius! * 2),
-                      onTap: node.options?.onTap,
-                      child: Container(
-                        width: node.radius! * 2,
-                        height: node.radius! * 2,
-                        decoration: BoxDecoration(
-                          border: node.options?.border ?? const Border(),
-                          color: node.options?.color ?? RColor.purpleBgBasic_dbdbff,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(child: node.options?.child ?? Container()),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-        });
-
-        _bubbleWidgetList.addAll(bubbleWidgetList);
-        setState(() {});
       }
 
       _fetchPosts(

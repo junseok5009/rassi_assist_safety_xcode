@@ -18,13 +18,10 @@ class TrIssue03 {
   TrIssue03({this.retCode='', this.retMsg='', this.listData = const []});
 
   factory TrIssue03.fromJson(Map<String, dynamic> json) {
-    // var retData = json['retData'];
-    // String strData = "$retData";
-    // print(retData);
-    var list = json['retData']['list_Issue'] as List;
-    List<Issue03> rtList = list.map((i) => Issue03.fromJson(i)).toList();
+    var jsonList = json['retData']['list_Issue'];
     return TrIssue03(
-        retCode: json['retCode'], retMsg: json['retMsg'], listData: rtList);
+        retCode: json['retCode'], retMsg: json['retMsg'], listData: jsonList == null ? [] : (jsonList as List).map((i) => Issue03.fromJson(i)).toList(),
+    );
   }
 }
 
@@ -38,7 +35,7 @@ class Issue03 {
   final String stockCode;
   final String stockName;
   final List<Stock> listStock;
-  final String avgFluctRate;
+  String avgFluctRate;
   final String issueStatus;
 
   Issue03({
@@ -56,21 +53,19 @@ class Issue03 {
   });
 
   factory Issue03.fromJson(Map<String, dynamic> json) {
-    var listStock = json['list_Stock'] as List;
-    List<Stock> stkList =
-        listStock?.map((e) => Stock.fromJson(e))?.toList() ?? [];
+    var jsonList = json['list_Stock'];
     return Issue03(
-      newsSn: json['newsSn'],
-      issueDttm: json['issueDttm'],
-      issueSn: json['issueSn'],
-      keyword: json['keyword'],
-      title: json['title'],
+      newsSn: json['newsSn'] ?? '',
+      issueDttm: json['issueDttm'] ?? '',
+      issueSn: json['issueSn'] ?? '',
+      keyword: json['keyword'] ?? '',
+      title: json['title'] ?? '',
       content: json['content'] ?? '',
       stockCode: json['stockCode'] ?? '',
       stockName: json['stockName'] ?? '',
       avgFluctRate: json['avgFluctRate'] ?? '0',
-      listStock: stkList,
-      issueStatus: json['issueStatus'],
+      listStock: jsonList == null ? [] : (jsonList as List).map((e) => Stock.fromJson(e)).toList(),
+      issueStatus: json['issueStatus'] ?? '',
     );
   }
 }

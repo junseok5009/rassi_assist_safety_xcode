@@ -1867,16 +1867,23 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                     dataSource: _signalChartDataList,
                     xValueMapper: (item, index) => item.dateTime,
                     yValueMapper: (item, index) => int.tryParse(item.tradePrc) ?? 0,
-                    pointColorMapper: (ChartData data, _) => const Color(0xffCBCBCB),
+                    //pointColorMapper: (ChartData data, _) => const Color(0xffCBCBCB),
                     onRendererCreated: (controller) => _chartSeriesController = controller,
                     borderWidth: 1.4,
                     borderColor: _recentSignalDataFlag.isEmpty
                         ? const Color(0xffCBCBCB)
                         : _recentSignalDataFlag == 'B'
-                        ? const Color(0xfffddbdb)
-                        : (_recentSignalDataFlag == 'S')
-                        ? const Color(0xffe1e0e0)
-                        : const Color(0xffCBCBCB),
+                            ? const Color(0xfffddbdb)
+                            : (_recentSignalDataFlag == 'S')
+                                ? const Color(0xffe1e0e0)
+                                : const Color(0xffCBCBCB),
+                    color: _recentSignalDataFlag.isEmpty
+                        ? const Color(0xffffffff)
+                        : _recentSignalDataFlag == 'B'
+                            ? const Color(0xffFFECEC)
+                            : _recentSignalDataFlag == 'S'
+                                ? const Color(0xffEFEFEF)
+                                : const Color(0xffffffff),
                     enableTooltip: false,
                     animationDelay: 100,
                     animationDuration: 2000,
@@ -1889,7 +1896,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       image: AssetImage('images/icon_arrow_signal_chart_dn.png'),
                     ),
                     initialIsVisible: true,
-                    gradient: LinearGradient(
+                    /*gradient: LinearGradient(
                       colors: [
                         if (_recentSignalDataFlag.isEmpty)
                           const Color(0xffffffff)
@@ -1904,16 +1911,15 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                         else if (_recentSignalDataFlag == 'B')
                           const Color(0xffFFECEC)
                         else if (_recentSignalDataFlag == 'S')
-                            const Color(0xffEFEFEF)
-                          else
-                            const Color(0xffffffff),
+                          const Color(0xffEFEFEF)
+                        else
+                          const Color(0xffffffff),
                       ],
-                       stops: const [
+                      stops: const [
                         0,
                         0,
                       ],
-
-                    ),
+                    ),*/
                   ),
                 if (_signalChartDataList.isNotEmpty)
                   LineSeries<ChartData, DateTime>(
@@ -1922,6 +1928,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                     yValueMapper: (item, index) => int.tryParse(item.tradePrc) ?? 0,
                     width: 0,
                     color: Colors.transparent,
+
                     markerSettings: const MarkerSettings(
                       isVisible: true,
                       borderWidth: 0,
@@ -1931,7 +1938,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       image: AssetImage('images/icon_arrow_signal_chart_up.png'),
                     ),
                   ),
-
               ],
             ),
           ),
@@ -2094,6 +2100,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         balAmt = mData.balanceAmt;
         _signalChartDataList.addAll(mData.listChart);
         _recentSignalDataFlag = _findRecentSignalData;
+        await Future.delayed(const Duration(milliseconds: 100));
         setState(() {
           SchedulerBinding.instance.addPostFrameCallback((_) {
             _chartSeriesController?.isVisible = true;

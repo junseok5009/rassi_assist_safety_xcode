@@ -9,7 +9,6 @@ class TrIssue07 {
 
   factory TrIssue07.fromJson(Map<String, dynamic> json) {
     var list = json['retData'] as List;
-    print(list.runtimeType);
     List<Issue07> rtList = list.map((i) => Issue07.fromJson(i)).toList();
 
     return TrIssue07(

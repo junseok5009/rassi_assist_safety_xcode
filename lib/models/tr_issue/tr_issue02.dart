@@ -13,15 +13,12 @@ class TrIssue02 {
   TrIssue02({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrIssue02.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List?;
-    List<IssueList> rtList;
-    if (list == null)
-      rtList = [];
-    else
-      rtList = list.map((i) => IssueList.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrIssue02(
-        retCode: json['retCode'], retMsg: json['retMsg'], listData: rtList);
+        retCode: json['retCode'],
+        retMsg: json['retMsg'],
+        listData: jsonList == null ? [] : (jsonList as List).map((i) => IssueList.fromJson(i)).toList(),
+    );
   }
 }
 
@@ -32,16 +29,10 @@ class IssueList {
   IssueList({this.issueDate='', this.listIssue = const []});
 
   factory IssueList.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Issue'] as List;
-    List<Issue02> rtList;
-    if (list == null)
-      rtList = [];
-    else
-      rtList = list.map((i) => Issue02.fromJson(i)).toList();
-
+    var jsonList = json['list_Issue'];
     return IssueList(
       issueDate: json['issueDate'],
-      listIssue: rtList,
+      listIssue: jsonList == null ? [] : (jsonList as List).map((i) => Issue02.fromJson(i)).toList(),
     );
   }
 }
@@ -62,7 +53,7 @@ class Issue02 {
   factory Issue02.fromJson(Map<String, dynamic> json) {
     return Issue02(
       newsSn: json['newsSn'],
-      issueDate: json['issueDate'],
+      issueDate: json['issueDate'] ?? '',
       issueSn: json['issueSn'],
       keyword: json['keyword'],
     );

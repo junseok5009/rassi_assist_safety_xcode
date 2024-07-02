@@ -15,8 +15,8 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_issue04.dart';
-import 'package:rassi_assist/models/tr_issue05.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue04.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue05.dart';
 import 'package:rassi_assist/ui/tiles/tile_stock_status.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -627,11 +627,8 @@ class IssueDetailState extends State<IssueDetailWidget> {
     } else if (trStr == TR.ISSUE05) {
       final TrIssue05 resData = TrIssue05.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        if (_issueList != null) {
-          _issueList.addAll(resData.listData as Iterable<Issue05>);
-
-          setState(() {});
-        }
+        _issueList.addAll(resData.listData as Iterable<Issue05>);
+        setState(() {});
       }
     }
   }

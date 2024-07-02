@@ -18,7 +18,7 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest24.dart';
-import 'package:rassi_assist/models/tr_issue06.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue06.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi04.dart';
 import 'package:rassi_assist/models/tr_shome/tr_shome07.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal01.dart';

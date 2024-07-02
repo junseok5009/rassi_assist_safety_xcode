@@ -29,9 +29,9 @@ class CustomBubbleNode extends CustomBubbleNodeBase {
     this.padding = 0,
     this.options,
   }) : super(index: 0){
-    this.children = children ?? [];
-    this.padding = padding;
-    for (var child in this.children!) {
+    children = children ?? [];
+    padding = padding;
+    for (var child in children!) {
       _value += child.value;
       child.parent = this;
     }

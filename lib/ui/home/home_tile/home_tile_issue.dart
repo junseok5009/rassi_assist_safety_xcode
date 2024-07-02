@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue03.dart';
 
 import '../../../common/const.dart';
 import '../../../common/strings.dart';
 import '../../../common/tstyle.dart';
 import '../../../models/none_tr/stock/stock.dart';
 import '../../../models/pg_data.dart';
-import '../../../models/tr_issue03.dart';
 import '../../main/base_page.dart';
 import '../../news/issue_list_page.dart';
 import '../../news/issue_viewer.dart';
@@ -205,7 +205,7 @@ class TileIssue03N extends StatelessWidget {
                 horizontal: 15,
                 vertical: 4,
               ),
-              decoration: UIStyle.roundBtnBox(statusColor!),
+              decoration: UIStyle.roundBtnBox(statusColor),
               child: Text(
                 statusText,
                 style: const TextStyle(
