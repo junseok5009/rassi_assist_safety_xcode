@@ -23,11 +23,13 @@ import 'package:rassi_assist/models/tr_rassi/tr_rassi01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi11.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi12.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi14.dart';
+import 'package:rassi_assist/models/tr_rassi/tr_rassi18.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_hot_theme.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_today_issue.dart';
+import 'package:rassi_assist/ui/market/headline_now_page.dart';
 import 'package:rassi_assist/ui/market/home_market_kos_chart.dart';
 import 'package:rassi_assist/ui/market/related_news_page.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
@@ -66,12 +68,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
   Issue09 _issue09 = Issue09();
 
-  final List<Feature01> _listFeature = [
-    Feature01(title: '실시간 특징주 발생'),
-    Feature01(title: '52주 신고가'),
-    Feature01(title: '상한가/하한가'),
-    Feature01(title: '손바뀜 종목'),
-  ];
+  List<MenuDiv> _listFeature = [];
 
   List<Rassi11> _pickTagList = []; //이 시간 PICK
   List<Rassi12> _reportList = []; //분석리포트
@@ -137,7 +134,10 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
               const SizedBox(height: 10),
               //오늘의 이슈
-              if(_issue09.listData.isNotEmpty)HomeTileTodayIssue(issue09: _issue09,),
+              if (_issue09.listData.isNotEmpty)
+                HomeTileTodayIssue(
+                  issue09: _issue09,
+                ),
               const SizedBox(height: 30),
 
               _setTimelineBanner(),
@@ -152,6 +152,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
               //오늘의 특징주 빠르게 보기
               _setFeatureStocks(),
+              const SizedBox(height: 25),
 
               CommonView.setDivideLine,
 
@@ -429,7 +430,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
                             child: FittedBox(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                _listFeature[index].title,
+                                _setFeatureText(_listFeature[index]),
                                 style: TStyle.content16,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -440,15 +441,12 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
                           const ImageIcon(
                             AssetImage('images/main_my_icon_arrow.png'),
                             size: 20,
-                            // color: Colors.grey,
                           ),
                         ],
                       ),
                     ),
                     onTap: () {
-                      // if (_listFeature[index].linkType == 'URL') {
-                      //   commonLaunchURL(item.linkPage);
-                      // }
+                      // 각 list 화면으로 이동
                     },
                   ),
                 );
@@ -456,6 +454,19 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
         )
       ],
     );
+  }
+  String _setFeatureText(MenuDiv item) {
+    var content = '';
+    if(item.content.isEmpty) {
+      content = '종목이 없습니다.';
+    } else {
+      content = item.content;
+    }
+    if (item.menuDiv == 'REAL') return '실시간 특징주 발생 $content';
+    if (item.menuDiv == 'WEEK52') return '52주 신고가 돌파 $content';
+    if (item.menuDiv == 'LIMIT') return '상한가 발생 $content';
+    if (item.menuDiv == 'CHANGE') return '손바뀜 종목 $content';
+    return '';
   }
 
   // 타임라인 배너
@@ -499,7 +510,14 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
   Widget _setCurrentHeadline() {
     return Column(
       children: [
-        _setSubTitleMore('이시간 헤드라인', '', () {}),
+        _setSubTitleMore('이시간 헤드라인', '더보기', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HeadlineNowPage(),
+            ),
+          );
+        }),
         const SizedBox(height: 10),
         SizedBox(
           width: double.infinity,
@@ -869,9 +887,9 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
     // NOTE 날짜의 이슈(버블차트 이슈)
     if (trStr == TR.ISSUE09) {
       final TrIssue09 resData = TrIssue09.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS){
+      if (resData.retCode == RT.SUCCESS) {
         _issue09 = resData.retData;
-        setState(() { });
+        setState(() {});
       }
       _fetchPosts(
         TR.PROM02,
@@ -883,9 +901,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
           },
         ),
       );
-    }
-
-    else if (trStr == TR.PROM02) {
+    } else if (trStr == TR.PROM02) {
       //탭이동을 홈으로 초기화(setState 필요)
       Provider.of<PageNotifier>(context, listen: false).setPageData(0);
       _listPrTop.clear();
@@ -954,6 +970,21 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
       setState(() {});
 
       _fetchPosts(
+          TR.RASSI18,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+          }));
+    }
+
+    //특징주 빠르게 보기
+    else if (trStr == TR.RASSI18) {
+      final TrRassi18 resData = TrRassi18.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        _listFeature = resData.listData;
+        setState(() {});
+      }
+
+      _fetchPosts(
           TR.RASSI01,
           jsonEncode(<String, String>{
             'userId': _userId,
@@ -975,10 +1006,12 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
           TR.RASSI11,
           jsonEncode(<String, String>{
             'userId': _userId,
+            'pageNo': '0',
+            'pageItemSize': '5',
           }));
     }
 
-    //라씨로 PICK
+    //이 시간 헤드라인 (라씨로 PICK)
     else if (trStr == TR.RASSI11) {
       final TrRassi11 resData = TrRassi11.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
@@ -1027,31 +1060,5 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
         _relayMoreBtnShow = false;
       }
     }
-  }
-}
-
-//임시 특징주 객체
-class Feature01 {
-  final String noticeSn;
-  final String title;
-  final String linkType;
-  final String linkPage;
-  final String regDttm;
-
-  Feature01({
-    this.noticeSn = '',
-    this.title = '',
-    this.linkType = '',
-    this.linkPage = '',
-    this.regDttm = '',
-  });
-
-  factory Feature01.fromJson(Map<String, dynamic> json) {
-    return Feature01(
-        noticeSn: json['noticeSn'] ?? '',
-        title: json['title'] ?? '',
-        linkType: json['linkType'] ?? '',
-        linkPage: json['linkPage'] ?? '',
-        regDttm: json['regDttm'] ?? '');
   }
 }
