@@ -3,8 +3,8 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
-import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tag_info.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
@@ -43,7 +43,7 @@ class Rassi11 {
   final String totalPageSize;
   final String currentPageNo;
   final List<Tag> listTag;
-  final List<Stock> listStock;
+  final List<StockData> listStock;
 
   Rassi11({
     this.newsSn = '',
@@ -65,8 +65,8 @@ class Rassi11 {
     List<Tag> rtList;
     listT == null ? rtList = [] : rtList = listT.map((e) => Tag.fromJson(e)).toList();
     var listS = json['list_Stock'] as List<dynamic>?;
-    List<Stock> rtListS;
-    listS == null ? rtListS = [] : rtListS = listS.map((e) => Stock.fromJson(e)).toList();
+    List<StockData> rtListS;
+    listS == null ? rtListS = [] : rtListS = listS.map((e) => StockData.fromJson(e)).toList();
 
     return Rassi11(
       newsSn: json['newsSn'] ?? '',
@@ -141,12 +141,16 @@ class TileRassi11 extends StatelessWidget {
         children: List.generate(
           item.listTag.length,
           (index) => InkWell(
-            child: Text(
-              '#${item.listTag[index].tagName}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: RColor.bgSignal,
-                fontWeight: FontWeight.w600,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+              decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
+              child: Text(
+                '#${item.listTag[index].tagName}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: RColor.mainColor,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
             onTap: () {
@@ -162,7 +166,7 @@ class TileRassi11 extends StatelessWidget {
     );
   }
 
-  Widget _setStockList(BuildContext context, List<Stock> listStk) {
+  Widget _setStockList(BuildContext context, List<StockData> listStk) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       width: double.infinity,
@@ -173,12 +177,29 @@ class TileRassi11 extends StatelessWidget {
           listStk.length,
           (index) => InkWell(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
-              decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
-              child: Text(
-                TStyle.getLimitString(listStk[index].stockName, 7),
-                style: TStyle.subTitle,
+              padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+              // decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    TStyle.getLimitString(listStk[index].stockName, 7),
+                    style: TStyle.contentGrey14,
+                  ),
+                  const SizedBox(width: 4,),
+                  Text(
+                    TStyle.getPercentString(TStyle.getFixedNum(listStk[index].fluctuationRate)),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: TStyle.getMinusPlusColor(
+                        listStk[index].fluctuationRate,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+
             ),
             onTap: () {
               //종목홈으로 이동
@@ -280,7 +301,7 @@ class TileRassi11N extends StatelessWidget {
     );
   }
 
-  Widget _bottomDesc(BuildContext context, List<Stock> listStk) {
+  Widget _bottomDesc(BuildContext context, List<StockData> listStk) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       width: double.infinity,
