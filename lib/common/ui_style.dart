@@ -384,10 +384,10 @@ class UIStyle {
   //BOX 선택된 버튼 상태(마켓뷰)
   static BoxDecoration boxBtnSelected() {
     return BoxDecoration(
-      color: RColor.purpleBasic_6565ff,
+      // color: RColor.purpleBasic_6565ff,
       border: Border.all(
-        color: RColor.lineGrey,
-        width: 1,
+        color: Colors.black54,
+        width: 1.3,
       ),
       borderRadius: const BorderRadius.all(Radius.circular(10.0)),
     );

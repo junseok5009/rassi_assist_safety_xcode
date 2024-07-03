@@ -199,7 +199,6 @@ class TileRassi11 extends StatelessWidget {
                   ),
                 ],
               ),
-
             ),
             onTap: () {
               //종목홈으로 이동

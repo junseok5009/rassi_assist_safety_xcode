@@ -3,6 +3,7 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tag_info.dart';
@@ -51,7 +52,7 @@ class Rassi14 {
   final String totalPageSize;
   final String currentPageNo;
   final List<Tag> listTag;
-  final List<Stock> listStock;
+  final List<StockData> listStock;
 
   Rassi14({
     this.newsSn = '',
@@ -71,7 +72,7 @@ class Rassi14 {
     var listT = json['list_Tag'] as List;
     List<Tag> rtList = listT.map((e) => Tag.fromJson(e)).toList();
     var listS = json['list_Stock'] as List;
-    List<Stock> rtListS = listS.map((e) => Stock.fromJson(e)).toList();
+    List<StockData> rtListS = listS.map((e) => StockData.fromJson(e)).toList();
 
     return Rassi14(
       newsSn: json['newsSn'] ?? '',
@@ -144,21 +145,33 @@ class TileRassi14 extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                Container(
+                  padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+                  decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
+                  child: Text(
+                    tagName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: RColor.mainColor,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+/*                Text(
                   tagName,
                   style: const TextStyle(
                     fontSize: 14,
                     color: RColor.bgSignal,
                     fontWeight: FontWeight.w600,
                   ),
-                ),
+                ),*/
                 Text(
                   item.elapsedTmTx,
                   style: TStyle.purpleThinStyle(),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
               item.title,
               style: TStyle.content16,
@@ -182,7 +195,7 @@ class TileRassi14 extends StatelessWidget {
     );
   }
 
-  Widget _setRelayInfo(BuildContext context, List<Stock> listStk) {
+  Widget _setRelayInfo(BuildContext context, List<StockData> listStk) {
     return Container(
       padding: const EdgeInsets.only(left: 10, bottom: 10, top: 6),
       child: Wrap(
@@ -192,11 +205,27 @@ class TileRassi14 extends StatelessWidget {
             listStk.length,
             (index) => InkWell(
                   child: Container(
-                    padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
-                    decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
-                    child: Text(
-                      TStyle.getLimitString(listStk[index].stockName, 7),
-                      style: TStyle.subTitle,
+                    padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                    // decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          TStyle.getLimitString(listStk[index].stockName, 7),
+                          style: TStyle.contentGrey14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          TStyle.getPercentString(TStyle.getFixedNum(listStk[index].fluctuationRate)),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: TStyle.getMinusPlusColor(
+                              listStk[index].fluctuationRate,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   onTap: () {
@@ -217,11 +246,13 @@ class TagEvent {
   final String tagCode;
   final String tagName;
   final String tagEvent;
+  final String content;
 
   TagEvent({
     this.tagCode = '',
     this.tagName = '',
     this.tagEvent = '',
+    this.content = '',
   });
 
   factory TagEvent.fromJson(Map<String, dynamic> json) {
@@ -229,12 +260,48 @@ class TagEvent {
       tagCode: json['tagCode'],
       tagName: json['tagName'],
       tagEvent: json['tagEvent'] ?? '',
+      content: json['content'] ?? '',
     );
   }
 
   @override
   String toString() {
     return '$tagCode|$tagName';
+  }
+}
+
+//마켓뷰 화면구성
+class TileTagStock extends StatelessWidget {
+  final TagEvent item;
+
+  TileTagStock(this.item);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '#${item.tagName}',
+              style: TStyle.content16,
+            ),
+            Text(
+              item.content,
+              style: TStyle.contentGrey14,
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        basePageState.callPageRouteNews(
+          NewsTagPage(),
+          PgNews(tagCode: item.tagCode, tagName: item.tagName),
+        );
+      },
+    );
   }
 }
 

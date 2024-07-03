@@ -170,7 +170,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
               //실시간 속보
               _setNewsList(),
-              const SizedBox(height: 25),
+              const SizedBox(height: 15),
 
               CommonView.setDivideLine,
 
@@ -605,52 +605,54 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
             );
           }),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 25),
 
         //태그 리스트
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           width: double.infinity,
-          child: Wrap(
-            spacing: 7.0,
-            alignment: WrapAlignment.start,
-            children: List.generate(
-              _recomTagList.length,
-              (index) => TileChip14(
-                _recomTagList[index],
-              ),
-            ),
-          ),
+          child: ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              scrollDirection: Axis.vertical,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _recomTagList.length,
+              itemBuilder: (context, index) {
+                return TileTagStock(_recomTagList[index]);
+              }),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 25),
 
         //관련 ai속보 더보기 버튼
         Visibility(
-          visible: _relayMoreBtnShow,
-          child: CommonView.setBasicMoreRoundBtnView(
-            [
-              Text(
-                "",
-                style: TStyle.puplePlainStyle(),
-              ),
-              const Text(
-                "관련 속보와 종목 모두 보기",
-                style: TStyle.commonSTitle,
-              ),
-            ],
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RelatedNewsPage(),
-                  settings: RouteSettings(
-                    arguments: PgData(pgData: _aiSelectType),
+            visible: _relayMoreBtnShow,
+            child: InkWell(
+              child: Container(
+                width: double.infinity,
+                height: 42,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: UIStyle.boxRoundLine6bgColor(Colors.white),
+                child: const Center(
+                  child: Text(
+                    "관련 속보와 종목 모두 보기",
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
                   ),
                 ),
-              );
-            },
-          ),
-        ),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RelatedNewsPage(),
+                    settings: RouteSettings(
+                      arguments: PgData(pgData: _aiSelectType),
+                    ),
+                  ),
+                );
+              },
+            )),
       ],
     );
   }
@@ -658,12 +660,12 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
   Widget _buildRecomButton(String label, bool bSelect) {
     return Container(
       margin: const EdgeInsets.only(right: 10),
-      decoration: bSelect ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine6(),
+      decoration: bSelect ? UIStyle.boxBtnSelected() : UIStyle.boxRoundLine10c(RColor.lineGrey),
       child: Center(
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: bSelect ? TStyle.btnTextWht15 : TStyle.commonSTitle,
+          style: bSelect ? TStyle.subTitle : TStyle.contentGrey14,
         ),
       ),
     );
