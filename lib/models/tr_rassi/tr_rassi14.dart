@@ -157,14 +157,6 @@ class TileRassi14 extends StatelessWidget {
                     ),
                   ),
                 ),
-/*                Text(
-                  tagName,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: RColor.bgSignal,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),*/
                 Text(
                   item.elapsedTmTx,
                   style: TStyle.purpleThinStyle(),

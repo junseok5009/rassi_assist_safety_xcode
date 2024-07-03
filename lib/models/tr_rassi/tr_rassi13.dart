@@ -4,8 +4,8 @@ import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
-import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tag_info.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/news/news_viewer.dart';
@@ -18,12 +18,7 @@ class TrRassi13 {
   final List<Rassi13> listData;
   final String reportDesc;
 
-  TrRassi13({
-    this.retCode = '',
-    this.retMsg = '',
-    this.listData = const [],
-    this.reportDesc = ''
-  });
+  TrRassi13({this.retCode = '', this.retMsg = '', this.listData = const [], this.reportDesc = ''});
 
   factory TrRassi13.fromJson(Map<String, dynamic> json) {
     var rlist = json['retData']['list_Rassiro'] as List;
@@ -47,32 +42,28 @@ class Rassi13 {
   final String imageUrl;
   final String viewLinkYn;
   final List<Tag> listTag;
-  final List<Stock> listStock;
+  final List<StockData> listStock;
 
   Rassi13({
     this.newsSn = '',
-      this.title = '',
-      this.newsCrtDate = '',
-      this.issueDttm = '',
-      this.elapsedTmTx = '',
-      this.imageUrl = '',
-      this.viewLinkYn = '',
-      this.listTag = const [],
-      this.listStock = const [],
+    this.title = '',
+    this.newsCrtDate = '',
+    this.issueDttm = '',
+    this.elapsedTmTx = '',
+    this.imageUrl = '',
+    this.viewLinkYn = '',
+    this.listTag = const [],
+    this.listStock = const [],
   });
 
   factory Rassi13.fromJson(Map<String, dynamic> json) {
     var listT = json['list_Tag'] as List?;
     List<Tag> rtList;
-    listT == null
-        ? rtList = []
-        : rtList = listT.map((e) => Tag.fromJson(e)).toList();
+    listT == null ? rtList = [] : rtList = listT.map((e) => Tag.fromJson(e)).toList();
 
     var listS = json['list_Stock'] as List?;
-    List<Stock> rsList;
-    listS == null
-        ? rsList = []
-        : rsList = listS.map((e) => Stock.fromJson(e)).toList();
+    List<StockData> rsList;
+    listS == null ? rsList = [] : rsList = listS.map((e) => StockData.fromJson(e)).toList();
 
     return Rassi13(
       newsSn: json['newsSn'] ?? '',
@@ -96,7 +87,7 @@ class Rassi13 {
 //화면구성
 class TileChipStock extends StatelessWidget {
   final appGlobal = AppGlobal();
-  final Stock item;
+  final StockData item;
 
   TileChipStock(
     this.item,
@@ -196,20 +187,19 @@ class TileRassi13 extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: 110,
-      margin: const EdgeInsets.only(
-        left: 10.0,
-        right: 10.0,
-        top: 10.0,
-      ),
+      margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
       alignment: Alignment.centerLeft,
-      decoration: UIStyle.boxRoundLine6(),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _setReportInfo(tagName),
           _setRelayInfo(context, item.listStock),
+          const SizedBox(height: 7),
+          Container(
+            color: Colors.black12,
+            height: 1.2,
+          ),
         ],
       ),
     );
@@ -226,19 +216,25 @@ class TileRassi13 extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  tagName,
-                  style: TStyle.commonSPurple,
+                Container(
+                  padding: const EdgeInsets.fromLTRB(6, 3, 6, 3),
+                  decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
+                  child: Text(
+                    tagName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: RColor.mainColor,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
                 ),
                 Text(
                   item.elapsedTmTx,
-                  style: TStyle.textSGrey,
+                  style: TStyle.purpleThinStyle(),
                 ),
               ],
             ),
-            const SizedBox(
-              height: 4,
-            ),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -246,18 +242,14 @@ class TileRassi13 extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.title,
-                    style: TStyle.contentSBLK,
+                    style: TStyle.content16,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Visibility(
                   visible: reportDiv == '0' &&
-                      int.parse(DateTime.now()
-                              .difference(DateTime.parse(item.newsCrtDate))
-                              .inDays
-                              .toString()) ==
-                          0,
+                      int.parse(DateTime.now().difference(DateTime.parse(item.newsCrtDate)).inDays.toString()) == 0,
                   child: Image.asset(
                     'images/main_icon_new_red_small.png',
                     height: 18,
@@ -276,7 +268,7 @@ class TileRassi13 extends StatelessWidget {
           stockName = item.listStock[0].stockName;
         }
         basePageState.callPageRouteNews(
-          NewsViewer(),
+          const NewsViewer(),
           PgNews(
               stockCode: stockCode,
               stockName: stockName,
@@ -288,9 +280,9 @@ class TileRassi13 extends StatelessWidget {
     );
   }
 
-  Widget _setRelayInfo(BuildContext context, List<Stock> listStk) {
+  Widget _setRelayInfo(BuildContext context, List<StockData> listStk) {
     return Container(
-      padding: const EdgeInsets.only(left: 10, bottom: 10),
+      padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
       child: Wrap(
         spacing: 7.0,
         alignment: WrapAlignment.start,
@@ -298,13 +290,38 @@ class TileRassi13 extends StatelessWidget {
             listStk.length,
             (index) => InkWell(
                   child: Container(
+                    padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                    // decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          TStyle.getLimitString(listStk[index].stockName, 7),
+                          style: TStyle.contentGrey14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          TStyle.getPercentString(TStyle.getFixedNum(listStk[index].fluctuationRate)),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: TStyle.getMinusPlusColor(
+                              listStk[index].fluctuationRate,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  /*  Container(
                     padding: const EdgeInsets.all(1),
-                    color: RColor.bgWeakGrey,
+                    // color: RColor.bgWeakGrey,
                     child: Text(
                       TStyle.getLimitString(listStk[index].stockName, 7),
                       style: TStyle.puplePlainStyle(),
                     ),
-                  ),
+                  ),*/
                   onTap: () {
                     //종목홈으로 이동
                     basePageState.goStockHomePage(

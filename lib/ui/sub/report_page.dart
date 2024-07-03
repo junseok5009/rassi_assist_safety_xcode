@@ -2,23 +2,24 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi13.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 /// 2021.03.09
 /// 2022.07.14 - JS reportDiv 0 : 증권사 리포트 추가로 인한 수정
+/// 2024.07 - 마켓뷰 개편에 따른 디자인 변경
 /// 분석리포트
 class ReportPage extends StatelessWidget {
   static const routeName = '/page_report';
@@ -29,21 +30,22 @@ class ReportPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 0,
           backgroundColor: RColor.deepStat,
           elevation: 0,
         ),
-        body: ReportWidget(),
+        body: const ReportWidget(),
       ),
     );
   }
 }
 
 class ReportWidget extends StatefulWidget {
+  const ReportWidget({super.key});
+
   @override
   State<StatefulWidget> createState() => ReportState();
 }
@@ -60,18 +62,19 @@ class ReportState extends State<ReportWidget> {
 
   int pageNum = 0;
   final List<Rassi13> _repList = [];
-  final List<Stock> _recentList = [];
+  final List<StockData> _recentList = [];
 
   @override
   void initState() {
     super.initState();
-    FirebaseAnalytics.instance.setCurrentScreen(
-      screenName: ReportPage.TAG_NAME,
-      screenClassOverride: ReportPage.TAG_NAME,
-    );
+    CustomFirebaseClass.logEvtScreenView(ReportPage.TAG_NAME);
 
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 400), () {
+      args = ModalRoute.of(context)!.settings.arguments as PgData;
+      repDiv = args.pgSn; //report div
+      repName = args.pgData; //report name
+
       DLog.d(ReportPage.TAG, "delayed user id : $_userId");
       if (_userId != '') {
         _fetchPosts(
@@ -104,18 +107,12 @@ class ReportState extends State<ReportWidget> {
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    repDiv = args.pgSn; //report div
-    repName = args.pgData; //report name
-
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: RColor.bgAiReport,
-        title: Text(
-          repName,
-          style: TStyle.btnTextWht16,
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
+      backgroundColor: RColor.bgBasic_fdfdfd,
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: repName,
+        elevation: 1,
       ),
       body: ListView(
         children: [
@@ -128,13 +125,10 @@ class ReportState extends State<ReportWidget> {
               return TileRassi13(_repList[index], repDiv);
             },
           ),
-          const SizedBox(
-            height: 15,
-          ),
+          const SizedBox(height: 15),
+
           _setMoreButton('+ 관련 AI속보', '더보기'),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -142,30 +136,22 @@ class ReportState extends State<ReportWidget> {
 
   //마켓뷰 헤더
   Widget _setPageHeader() {
-    return Column(
-      children: [
-        Stack(
-          children: [
-            Image.asset(
-              'images/rassibs_bg_mb.png',
-              fit: BoxFit.cover,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      color: const Color(0xffF5F5F5),
+      child: Column(
+        children: [
+          Container(
+            child: Text(
+              repDesc,
+              style: TStyle.content16,
             ),
-            Container(
-              margin: const EdgeInsets.only(top: 20, left: 15, right: 15),
-              child: Text(
-                repDesc,
-                style: TStyle.btnTextWht13,
-              ),
-            ),
-          ],
-        ),
+          ),
 
-        _setRecentStock(),
-        _setRecentReport(), // 증권사 리포트 추가
-        const SizedBox(
-          height: 10.0,
-        ),
-      ],
+          // _setRecentStock(), //최근 관련 종목
+          _setRecentReport(), // 증권사 리포트 추가
+        ],
+      ),
     );
   }
 
@@ -175,7 +161,7 @@ class ReportState extends State<ReportWidget> {
       visible: _recentList != null && _recentList.length > 0 && repDiv != '0',
       child: Container(
         padding: const EdgeInsets.only(bottom: 15),
-        color: RColor.bgAiReport,
+        // color: RColor.bgAiReport,
         child: Container(
           width: double.infinity,
           margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
@@ -183,21 +169,16 @@ class ReportState extends State<ReportWidget> {
           decoration: UIStyle.boxRoundLine6(),
           child: Column(
             children: [
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               const Text(
                 '최근 관련 종목',
                 style: TStyle.commonTitle,
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               Wrap(
                 spacing: 7.0,
                 alignment: WrapAlignment.center,
-                children: List.generate(_recentList.length,
-                    (index) => TileChipStock(_recentList[index])),
+                children: List.generate(_recentList.length, (index) => TileChipStock(_recentList[index])),
               )
             ],
           ),
@@ -220,22 +201,18 @@ class ReportState extends State<ReportWidget> {
           decoration: UIStyle.boxRoundLine6(),
           child: Column(
             children: [
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               const Text(
                 '주목 리포트',
                 style: TStyle.commonTitle,
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _repList.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return  TileChipReport(_repList[index], repDiv);
+                  return TileChipReport(_repList[index], repDiv);
                 },
               ),
             ],
@@ -271,9 +248,7 @@ class ReportState extends State<ReportWidget> {
                     title,
                     style: TStyle.subTitle,
                   ),
-                  const SizedBox(
-                    width: 4.0,
-                  ),
+                  const SizedBox(width: 4),
                   Text(
                     subText,
                     style: TStyle.textMGrey,
@@ -334,27 +309,20 @@ class ReportState extends State<ReportWidget> {
                     height: 60,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
+                  const SizedBox(height: 5),
                   const Padding(
-                    padding:
-                        EdgeInsets.only(top: 20, left: 10, right: 10),
+                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,
                     ),
                   ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
+                  const SizedBox(height: 25),
                   const Text(
                     RString.err_network,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
+                  const SizedBox(height: 30),
                   MaterialButton(
                     child: Center(
                       child: Container(
@@ -419,8 +387,7 @@ class ReportState extends State<ReportWidget> {
 
           if (pageNum == 0) {
             for (int i = 0; i < rassiList.length; i++) {
-              if (rassiList[i].listStock != null &&
-                  rassiList[i].listStock.length > 0) {
+              if (rassiList[i].listStock != null && rassiList[i].listStock.length > 0) {
                 _recentList.addAll(rassiList[i].listStock);
               }
             }
