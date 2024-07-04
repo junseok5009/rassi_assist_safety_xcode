@@ -141,11 +141,22 @@ class ReportState extends State<ReportWidget> {
       color: const Color(0xffF5F5F5),
       child: Column(
         children: [
-          Container(
-            child: Text(
-              repDesc,
-              style: TStyle.content16,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                decoration: UIStyle.boxRoundFullColor8c(RColor.mainColor),
+                child: const Text('TIP', style: TStyle.btnTextWht12,),
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  repDesc,
+                  style: TStyle.content12,
+                ),
+              ),
+            ],
           ),
 
           // _setRecentStock(), //최근 관련 종목

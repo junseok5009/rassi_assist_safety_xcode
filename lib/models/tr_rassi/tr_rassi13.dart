@@ -216,7 +216,9 @@ class TileRassi13 extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
+                Visibility(
+                  visible: tagName.isNotEmpty,
+                  child: Container(
                   padding: const EdgeInsets.fromLTRB(6, 3, 6, 3),
                   decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
                   child: Text(
@@ -227,7 +229,7 @@ class TileRassi13 extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                ),
+                ),),
                 Text(
                   item.elapsedTmTx,
                   style: TStyle.purpleThinStyle(),

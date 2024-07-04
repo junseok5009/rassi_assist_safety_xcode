@@ -117,71 +117,88 @@ class TileSwpRassi12 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 270,
-      margin: const EdgeInsets.only(left: 10, right: 8),
-      child: GridView.count(
-        physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 1.0,
-        crossAxisCount: 2,
-        children: List<Widget>.generate(itemList.length, (index) {
-          return InkWell(
-            child: Container(
-              // width: 300,
-              // height: 85,
-              margin: const EdgeInsets.all(8.0),
-              padding: const EdgeInsets.all(15),
-              decoration: UIStyle.boxShadowBasic(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
+    return LayoutBuilder(
+      builder: (context, constraints){
+        double gridViewHeight = 380; // 고정된 GridView 높이
+        double gridViewWidth = constraints.maxWidth; // 현재 사용 가능한 너비
+        int crossAxisCount = 2; // 가로로 표시할 아이템 수
+
+        // 각 아이템의 너비 계산
+        double itemWidth = gridViewWidth / crossAxisCount;
+        // 각 아이템의 높이 계산 (GridView 높이의 절반)
+        double itemHeight = gridViewHeight / 2;
+
+        // childAspectRatio 계산
+        double aspectRatio = itemWidth / itemHeight;
+
+        return Container(
+          width: double.infinity,
+          height: 270,
+          margin: const EdgeInsets.only(left: 10, right: 8),
+          child: GridView.count(
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: aspectRatio,
+            crossAxisCount: 2,
+            children: List<Widget>.generate(itemList.length, (index) {
+              return InkWell(
+                child: Container(
+                  // width: 300,
+                  // height: 85,
+                  margin: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(15),
+                  decoration: UIStyle.boxShadowBasic(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        itemList[index].reportName,
-                        style: TStyle.commonTitle,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            itemList[index].reportName,
+                            style: TStyle.commonTitle,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            itemList[index].reportDesc,
+                            maxLines: 3,
+                            style: TStyle.content15,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 5),
                       Text(
-                        itemList[index].reportDesc,
-                        maxLines: 3,
-                        style: TStyle.content15,
+                        itemList[index].tagName,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                          color: RColor.mainColor,
+                        ),
                       ),
                     ],
                   ),
-                  Text(
-                    itemList[index].tagName,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                      color: RColor.mainColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            onTap: () {
-              //분석 페이지로 이동
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReportPage(),
-                    settings: RouteSettings(
-                      arguments: PgData(
-                        pgSn: itemList[index].reportDiv,
-                        pgData: itemList[index].reportName,
-                      ),
-                    ),
-                  ));
-            },
-          );
-          ;
-        }),
-      ),
+                ),
+                onTap: () {
+                  //분석 페이지로 이동
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ReportPage(),
+                        settings: RouteSettings(
+                          arguments: PgData(
+                            pgSn: itemList[index].reportDiv,
+                            pgData: itemList[index].reportName,
+                          ),
+                        ),
+                      ));
+                },
+              );
+              ;
+            }),
+          ),
+        );
+      },
     );
   }
+
 }
