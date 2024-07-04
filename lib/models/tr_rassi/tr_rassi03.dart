@@ -1,4 +1,4 @@
-import 'package:rassi_assist/models/none_tr/stock/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/opinion.dart';
 import 'package:rassi_assist/models/tag_info.dart';
 
@@ -19,8 +19,8 @@ class TrRassi03 {
   }
 }
 
-const defaultObj = Rassi03(newsDiv: '', issueDttm: '', title: '',
-    content: '', listTag: [], listStock: [], listOpinion: []);
+const defaultObj =
+    Rassi03(newsDiv: '', issueDttm: '', title: '', content: '', listTag: [], listStock: [], listOpinion: []);
 
 class Rassi03 {
   final String newsDiv;
@@ -28,7 +28,7 @@ class Rassi03 {
   final String title;
   final String content;
   final List<Tag> listTag;
-  final List<Stock> listStock;
+  final List<StockData> listStock;
   final List<Opinion> listOpinion;
 
   const Rassi03({
@@ -43,12 +43,12 @@ class Rassi03 {
 
   factory Rassi03.fromJson(Map<String, dynamic> json) {
     List<Tag> rtTagList;
-    List<Stock> rtStkList;
+    List<StockData> rtStkList;
     List<Opinion> rtOpnList;
     var listT = json['list_Tag'] as List<dynamic>?;
     listT == null ? rtTagList = [] : rtTagList = listT.map((i) => Tag.fromJson(i)).toList();
     var listS = json['list_Stock'] as List<dynamic>?;
-    listS == null ? rtStkList = [] : rtStkList = listS.map((i) => Stock.fromJson(i)).toList();
+    listS == null ? rtStkList = [] : rtStkList = listS.map((i) => StockData.fromJson(i)).toList();
     var listO = json['list_Opinion'] as List<dynamic>?;
     listO == null ? rtOpnList = [] : rtOpnList = listO.map((i) => Opinion.fromJson(i)).toList();
 

@@ -114,14 +114,26 @@ class TileRassi11 extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text(
-            item.title,
-            style: TStyle.defaultContent,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.start,
+          InkWell(
+            onTap: () {
+              basePageState.callPageRouteNews(
+                const NewsViewer(),
+                PgNews(
+                  stockCode: '',
+                  stockName: '',
+                  newsSn: item.newsSn,
+                  createDate: item.newsCrtDate,
+                ),
+              );
+            },
+            child: Text(
+              item.title,
+              style: TStyle.defaultContent,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.start,
+            ),
           ),
-
           _setStockList(context, item.listStock),
           Container(
             color: Colors.black12,

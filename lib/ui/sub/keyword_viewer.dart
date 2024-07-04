@@ -10,6 +10,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/tr_kword02.dart';
@@ -49,7 +50,7 @@ class KeywordDetailState extends State<KeywordDetailWidget> {
   late PgData args;
 
   String _keyword = '';
-  List<Stock> _stkList = [];
+  List<StockData> _stkList = [];
 
   @override
   void initState() {

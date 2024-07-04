@@ -1,4 +1,5 @@
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 
 
 /// 2021.04.05
@@ -23,7 +24,7 @@ const defKWord02 = KWord02();
 
 class KWord02 {
   final String keyword;
-  final List<Stock> listData;
+  final List<StockData> listData;
 
   const KWord02({this.keyword = '', this.listData = const []});
 
@@ -31,7 +32,7 @@ class KWord02 {
     var list = json['list_Stock'] as List;
     return KWord02(
       keyword: json['keyword'],
-      listData: list == null ? <Stock>[] : list.map((e) => Stock.fromJson(e)).toList(),
+      listData: list == null ? <StockData>[] : list.map((e) => StockData.fromJson(e)).toList(),
     );
   }
 }

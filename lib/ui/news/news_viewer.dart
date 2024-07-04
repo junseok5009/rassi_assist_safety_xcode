@@ -13,6 +13,7 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/opinion.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
@@ -55,7 +56,7 @@ class NewsViewerState extends State<NewsViewer> {
   String _strDoc = '';
 
   List<Tag> _tagList = [];
-  List<Stock> _stkList = [];
+  List<StockData> _stkList = [];
   final List<Opinion> _opnList = [];
   bool _bRelatedTag = false;
   bool _bRelatedStock = false;
@@ -108,8 +109,9 @@ class NewsViewerState extends State<NewsViewer> {
     stkCode = args.stockCode;
     reportDiv = args.reportDiv;
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(Const.TEXT_SCALE_FACTOR),
+      ),
       child: _setLayout(),
     );
   }
@@ -117,7 +119,11 @@ class NewsViewerState extends State<NewsViewer> {
   Widget _setLayout() {
     return Scaffold(
       backgroundColor: RColor.bgBasic_fdfdfd,
-      appBar: CommonAppbar.simpleNoTitleWithExit(context, Colors.white, Colors.black,),
+      appBar: CommonAppbar.simpleNoTitleWithExit(
+        context,
+        Colors.white,
+        Colors.black,
+      ),
       body: SafeArea(
         child: ListView(
           children: [
@@ -148,18 +154,12 @@ class NewsViewerState extends State<NewsViewer> {
               ),
             ),
 
-            const SizedBox(
-              height: 15.0,
-            ),
+            const SizedBox(height: 15),
             _setRelatedTag(),
-            const SizedBox(
-              height: 15.0,
-            ),
+            const SizedBox(height: 15),
             _setRelatedStock(),
             //증권사 레포트 관련 종목 추가 // 22.07.13
-            const SizedBox(
-              height: 15.0,
-            ),
+            const SizedBox(height: 15),
             _setReportRelatedStock(),
           ],
         ),
@@ -173,23 +173,17 @@ class NewsViewerState extends State<NewsViewer> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
-            height: 15.0,
-          ),
+          const SizedBox(height: 15),
           Text(
             title,
             style: TStyle.title18,
           ),
-          const SizedBox(
-            height: 7.0,
-          ),
+          const SizedBox(height: 7),
           Text(
             TStyle.getDateFormat(nDate),
             style: TStyle.subTitle,
           ),
-          const SizedBox(
-            height: 15.0,
-          ),
+          const SizedBox(height: 15),
         ],
       ),
     );
@@ -217,9 +211,7 @@ class NewsViewerState extends State<NewsViewer> {
           _setSubTitle(
             "관련 태그",
           ),
-          const SizedBox(
-            height: 5.0,
-          ),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Wrap(
@@ -230,9 +222,13 @@ class NewsViewerState extends State<NewsViewer> {
                 (index) {
                   var item = _tagList[index];
                   return InkWell(
-                    child: Chip(
-                      label: Text(item.tagName),
-                      backgroundColor: RColor.isuBack[index % 6],
+                    child: Text(
+                      '#${item.tagName}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                        color: RColor.mainColor,
+                      ),
                     ),
                     onTap: () {
                       if (NewsTagPage.globalKey.currentState == null) {
@@ -267,15 +263,19 @@ class NewsViewerState extends State<NewsViewer> {
             height: 5.0,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 2,
-              physics: const NeverScrollableScrollPhysics(),
-              scrollDirection: Axis.vertical,
-              childAspectRatio: 2,
-              children: List.generate(
-                  _stkList.length, (index) => TileStock(_stkList[index])),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _stkList.length,
+                itemBuilder: (context, index) {
+                  return TileStock(_stkList[index]);
+                },
+              ),
             ),
           ),
         ],
@@ -388,27 +388,20 @@ class NewsViewerState extends State<NewsViewer> {
                     height: 60,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
+                  const SizedBox(height: 5),
                   const Padding(
-                    padding:
-                        EdgeInsets.only(top: 20, left: 10, right: 10),
+                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,
                     ),
                   ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
+                  const SizedBox(height: 25),
                   const Text(
                     RString.err_network,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
+                  const SizedBox(height: 30),
                   MaterialButton(
                     child: Center(
                       child: Container(
