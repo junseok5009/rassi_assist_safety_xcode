@@ -4,63 +4,33 @@ import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_news.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
 
+import '../../common/ui_style.dart';
 
 class NewsTagAllPage extends StatelessWidget {
-  //const NewsTagAllPage({Key? key}) : super(key: key);
   static const String TAG_NAME = '라씨로_태그_전체보기';
+
+  const NewsTagAllPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _setCustomAppBar(),
-      /* AppBar(toolbarHeight: 0,
-        backgroundColor: RColor.deepStat, elevation: 0,),*/
-      body: SafeArea(child: NewsTagAllPageWidget()),
-    );
-  }
-
-  // 타이틀바(AppBar)
-  PreferredSizeWidget _setCustomAppBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(55),
-      child: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'AI속보 태그 전체보기',
-          style: TStyle.commonTitle,
-        ),
-        /*    Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('AI속보 태그 전체보기', style: TStyle.commonTitle,),
-            const SizedBox(width: 55.0,),
-          ],
-        ),*/
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: Colors.white,
-        toolbarHeight: 50,
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: 'AI속보 태그 전체보기',
         elevation: 1,
       ),
+      body: const SafeArea(child: NewsTagAllPageWidget()),
     );
-  }
-}
-
-class TagAllModel {
-  String tagName;
-  String tagInfo;
-  String tagCode;
-
-  TagAllModel({this.tagName = '', this.tagInfo = '', this.tagCode = ''});
-
-  @override
-  String toString() {
-    return '$tagName|$tagInfo|$tagCode';
   }
 }
 
 class NewsTagAllPageWidget extends StatefulWidget {
+  const NewsTagAllPageWidget({super.key});
+
   List<List<TagAllModel>> initData() {
     final List<List<TagAllModel>> vListListTagAllModel = [];
 
@@ -124,8 +94,7 @@ class NewsTagAllPageWidget extends StatefulWidget {
   State<NewsTagAllPageWidget> createState() => _NewsTagAllPageWidgetState(initData());
 }
 
-class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget>
-    with TickerProviderStateMixin {
+class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget> with TickerProviderStateMixin {
   final List<List<TagAllModel>> _listListTagAllModel;
   late TabController tabController;
   List<TagAllModel> _listTagAllModel = [];
@@ -133,7 +102,7 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget>
   _NewsTagAllPageWidgetState(this._listListTagAllModel);
 
   final Decoration _btnDecorationOn = const BoxDecoration(
-    color: RColor.mainColor,
+    color: Colors.black87,
     borderRadius: BorderRadius.all(Radius.circular(30.0)),
   );
 
@@ -154,7 +123,7 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget>
     CustomFirebaseClass.logEvtScreenView(NewsTagAllPage.TAG_NAME);
     _listTagAllModel = _listListTagAllModel[0];
     tabController = TabController(length: 6, vsync: this);
-    tabController.addListener((){
+    tabController.addListener(() {
       if (_clickIndex != tabController.index) {
         setState(() {
           _clickIndex = tabController.index;
@@ -168,30 +137,39 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        //physics: NeverScrollableScrollPhysics(),
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            color: RColor.bgWeakGrey,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 14,
-                ),
-                _makeBtnViews(),
-                const SizedBox(
-                  height: 14,
-                ),
-              ],
-            ),
+          _setPageHeader(),
+          Column(
+            children: [
+              const SizedBox(height: 14),
+              _makeBtnViews(),
+              const SizedBox(height: 14),
+            ],
           ),
-          _makeTagViews(),
+          _makeTagListViews(),
+        ],
+      ),
+    );
+  }
+
+  Widget _setPageHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      color: const Color(0xffF5F5F5),
+      child: const Column(
+        children: [
+          Text(
+            '관심 키워드를 눌러 해당 키워드에 AI속보의 태그를 확인해 보세요.',
+            style: TStyle.content14,
+          )
         ],
       ),
     );
   }
 
   Widget _makeBtnViews() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -237,40 +215,35 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget>
         break;
     }
 
-
-
     return Container(
       padding: const EdgeInsets.fromLTRB(30, 14, 30, 14),
-      decoration:
-      _clickIndex == vIndex ? _btnDecorationOn : _btnDecorationOff,
+      decoration: _clickIndex == vIndex ? _btnDecorationOn : _btnDecorationOff,
       child: Text(
         _title,
-        //textAlign: TextAlign.center,
         style: TextStyle(
           color: _clickIndex == vIndex ? Colors.white : Colors.black,
           fontSize: 15,
         ),
       ),
     );
-
   }
 
-  Widget _makeTagViews() {
+  Widget _makeTagListViews() {
     return Expanded(
-      child: ListView.separated(
-        itemBuilder: (context, index) {
-          return _makeTagTile(index);
-        },
-        separatorBuilder: (context, index) {
-          return const Divider(
-            thickness: 1.4,
-            color: RColor.lineGrey,
-          );
-        },
+      child: ListView.builder(
+
+        // separatorBuilder: (context, index) {
+        //   return const Divider(
+        //     thickness: 1.4,
+        //     color: RColor.lineGrey,
+        //   );
+        // },
         shrinkWrap: true,
         scrollDirection: Axis.vertical,
         itemCount: _listTagAllModel.length,
-        // physics: ScrollPhysics(),
+        itemBuilder: (context, index) {
+          return _makeTagTile(index);
+        },
       ),
     );
   }
@@ -279,32 +252,38 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget>
     return InkWell(
       onTap: () {
         basePageState.callPageRouteNews(
-            NewsTagPage(),
-            PgNews(
-                tagCode: _listTagAllModel[vIndex].tagCode,
-                tagName: _listTagAllModel[vIndex].tagName));
+          NewsTagPage(),
+          PgNews(tagCode: _listTagAllModel[vIndex].tagCode, tagName: _listTagAllModel[vIndex].tagName),
+        );
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(
-              left: 20,
-              top: 6,
-            ),
-            child: Text(
-              '#${_listTagAllModel[vIndex].tagName}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 16,
-                color: RColor.mainColor,
+            padding: const EdgeInsets.only(left: 20, top: 15),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+              decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
+              child: Text(
+                '#${_listTagAllModel[vIndex].tagName}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: RColor.mainColor,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
+            // child: Text(
+            //   '#${_listTagAllModel[vIndex].tagName}',
+            //   textAlign: TextAlign.center,
+            //   style: const TextStyle(
+            //     fontWeight: FontWeight.w500,
+            //     fontSize: 16,
+            //     color: RColor.mainColor,
+            //   ),
+            // ),
           ),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 20),
             child: Text(
@@ -312,11 +291,29 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget>
               style: TStyle.content15,
             ),
           ),
-          const SizedBox(
-            height: 6,
+          const SizedBox(height: 15),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              color: Colors.black12,
+              height: 1.2,
+            ),
           ),
         ],
       ),
     );
+  }
+}
+
+class TagAllModel {
+  String tagName;
+  String tagInfo;
+  String tagCode;
+
+  TagAllModel({this.tagName = '', this.tagInfo = '', this.tagCode = ''});
+
+  @override
+  String toString() {
+    return '$tagName|$tagInfo|$tagCode';
   }
 }

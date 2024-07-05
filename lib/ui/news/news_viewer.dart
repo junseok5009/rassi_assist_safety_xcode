@@ -192,7 +192,7 @@ class NewsViewerState extends State<NewsViewer> {
   //소항목 타이틀
   Widget _setSubTitle(String subTitle) {
     return Container(
-      margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
+      margin: const EdgeInsets.only(left: 15, right: 15, top: 10),
       alignment: Alignment.centerLeft,
       child: Text(
         subTitle,
@@ -213,9 +213,9 @@ class NewsViewerState extends State<NewsViewer> {
           ),
           const SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Wrap(
-              spacing: 7.0,
+              spacing: 5.0,
               alignment: WrapAlignment.start,
               children: List.generate(
                 _tagList.length,

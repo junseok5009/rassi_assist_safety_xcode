@@ -44,6 +44,7 @@ class NewsTagPageState extends State<NewsTagPage> {
   late ScrollController _scrollController;
   int pageNum = 0;
   String pageSize = '10';
+  String pageTitle = ''; //'태그별 AI 속보 리스트';
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String? deviceModel = '';
@@ -63,6 +64,7 @@ class NewsTagPageState extends State<NewsTagPage> {
       args = ModalRoute.of(context)!.settings.arguments as PgNews;
       tagCode = args.tagCode;
       tagName = args.tagName;
+      pageTitle = tagName;
 
       requestData();
     });
@@ -107,9 +109,10 @@ class NewsTagPageState extends State<NewsTagPage> {
 
   Widget _setLayout() {
     return Scaffold(
+      backgroundColor: RColor.bgBasic_fdfdfd,
       appBar: CommonAppbar.basic(
         buildContext: context,
-        title: '태그별 AI 속보 리스트',
+        title: pageTitle,
         elevation: 1,
       ),
       body: SafeArea(

@@ -154,7 +154,7 @@ class TileRassi11 extends StatelessWidget {
           item.listTag.length,
           (index) => InkWell(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+              padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
               decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
               child: Text(
                 '#${item.listTag[index].tagName}',

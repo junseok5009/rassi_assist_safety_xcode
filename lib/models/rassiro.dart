@@ -78,16 +78,10 @@ class TileRassiroList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 80,
-      margin: const EdgeInsets.only(
-        left: 15.0,
-        right: 15.0,
-        top: 10.0,
-      ),
+      // height: 80,
+      margin: const EdgeInsets.only(left: 15.0, right: 15.0, top: 10.0),
       alignment: Alignment.centerLeft,
-      decoration: UIStyle.boxRoundLine6bgColor(
-        Colors.white,
-      ),
+      // decoration: UIStyle.boxRoundLine6bgColor(Colors.white),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
         child: Container(
@@ -104,15 +98,21 @@ class TileRassiroList extends StatelessWidget {
                   children: [
                     Text(
                       TStyle.getDateTdFormat(item.issueDttm),
-                      style: TStyle.commonSPurple,
+                      style: TStyle.purpleThinStyle(),
                     ),
                     const SizedBox(
-                      height: 4,
+                      height: 4
                     ),
                     Text(
                       item.title,
+                      style: TStyle.content16,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 12),
+                      color: Colors.black12,
+                      height: 1.2,
                     ),
                   ],
                 ),

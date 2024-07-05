@@ -166,13 +166,16 @@ class TileSwpRassi12 extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Text(
-                        itemList[index].tagName,
-                        maxLines: 1,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14,
-                          color: RColor.mainColor,
+                      Visibility(
+                        visible: itemList[index].tagName.isNotEmpty,
+                        child: Text(
+                          '#${itemList[index].tagName}',
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: RColor.mainColor,
+                          ),
                         ),
                       ),
                     ],
