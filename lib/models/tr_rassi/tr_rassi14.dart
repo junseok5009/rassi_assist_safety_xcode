@@ -105,7 +105,7 @@ class TileRassi14 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String tagName;
-    if (item.listTag != null && item.listTag.length > 0) {
+    if (item.listTag != null && item.listTag.isNotEmpty) {
       tagName = '#${item.listTag[0].tagName}';
     } else {
       tagName = '';
