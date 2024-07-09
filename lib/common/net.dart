@@ -268,6 +268,7 @@ class TR {
   static const RASSI15 = "TR_RASSI15";
   static const RASSI16 = "TR_RASSI16";
   static const RASSI17 = "TR_RASSI17";
+  static const RASSI18 = "TR_RASSI18";
 
   static const SIGNAL01 = "TR_SIGNAL01"; //매매신호 상태
   static const SIGNAL02 = "TR_SIGNAL02"; //매매신호 성과

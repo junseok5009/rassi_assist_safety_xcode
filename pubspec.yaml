@@ -70,6 +70,7 @@ dependencies:
   animated_flip_counter: ^0.2.6
   flutter_native_splash: ^2.2.9
   flutter_phone_direct_caller: ^2.1.1
+  table_calendar: ^3.1.2
   #google_tag_manager: ^0.1.0
   #js: ^0.6.3
 
