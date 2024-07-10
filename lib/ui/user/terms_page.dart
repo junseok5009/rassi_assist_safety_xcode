@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
@@ -121,13 +122,16 @@ class TermsState extends State<TermsWidget> {
       ),
       onTap: () {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const WebPage(),
-              settings: RouteSettings(
-                arguments: PgData(pgData: termsUrl),
+          context,
+          CustomNvRouteClass.createRouteData(
+            const WebPage(),
+            RouteSettings(
+              arguments: PgData(
+                pgData: termsUrl,
               ),
-            ));
+            ),
+          ),
+        );
       },
     );
   }

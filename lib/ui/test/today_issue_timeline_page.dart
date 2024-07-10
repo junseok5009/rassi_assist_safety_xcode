@@ -4,6 +4,7 @@ import 'dart:ui' as duTextDirection;
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/common_class.dart';
@@ -13,11 +14,14 @@ import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
+import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/tr_index/tr_index02.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue03.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue08.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue09.dart';
+import 'package:rassi_assist/models/tr_rassi/tr_rassi19.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_date_picker.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
@@ -49,7 +53,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
   final String _todayStrYyyyMmDd = TStyle.getTodayString(); // 오늘 날짜 yyyymmdd
   final List<Issue08> _listIssue08 = []; // 날짜 리스트
   String _selectStrYyyyMmDd = TStyle.getTodayString();
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _bottomSheetScrollController = ScrollController();
 
   // 버블
   final List<Widget> _bubbleWidgetList = [];
@@ -61,12 +65,40 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
   int _timeLapselastDataIndex = 0;
   final List<Issue09TimeLapse> _bubbleTimeLapseList = [];
 
+  // 코스피 코스닥
+  Index02 _index02 = const Index02();
+
+  // 이슈 종목 리스트 PageNo
+  int _pageNo = 0;
+  int _totalPageSize = 0;
+  final List<Rassi19Rassiro> _listRassiroData = [];
+  final ScrollController _rassiroListScrollController = ScrollController();
+
+  bool _isFaVisible = true;
+
   @override
   void initState() {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
       TodayIssueTimelinePage.TAG_NAME,
     );
+    _rassiroListScrollController.addListener(() {
+      if (_rassiroListScrollController.hasClients && _rassiroListScrollController.position.atEdge) {
+        bool isTop = _rassiroListScrollController.position.pixels == 0;
+        if (!isTop) {
+          _checkAndRequestTrRassi19();
+        }
+      }
+      if (_rassiroListScrollController.position.userScrollDirection == ScrollDirection.forward && !_isFaVisible) {
+        setState(() {
+          _isFaVisible = true;
+        });
+      } else if (_rassiroListScrollController.position.userScrollDirection == ScrollDirection.reverse && _isFaVisible) {
+        setState(() {
+          _isFaVisible = false;
+        });
+      }
+    });
     _loadPrefData().then((value) {
       _requestIssue08(issueDate: _todayStrYyyyMmDd);
     });
@@ -81,7 +113,8 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _bottomSheetScrollController.dispose();
+    _rassiroListScrollController.dispose();
     for (var element in _bubbleChartAniControllerList) {
       element.dispose();
     }
@@ -123,8 +156,12 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                 )
               ],
             ),
-            child: Container(
-              height: AppGlobal().isTablet ? 130 : 110,
+            child: AnimatedContainer(
+              width: double.infinity,
+              height: _isFaVisible ? 100 : 0,
+              duration: const Duration(
+                milliseconds: 300,
+              ),
               padding: const EdgeInsets.all(15),
               margin: EdgeInsets.only(
                 bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom,
@@ -133,7 +170,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                 //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${_selectStrYyyyMmDd.substring(5, 6)}월',
+                    '${_selectStrYyyyMmDd.substring(4, 6)}월',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -144,12 +181,13 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                     onPressed: () async {
                       await CommonDatePicker.showYearMonthPicker(context, DateTime.parse(_listIssue08.last.issueDate))
                           .then((value) {
-                        if(value != null){
+                        if (value != null) {
                           DateTime selectMonthLastDateTime = DateTime(
                             value.year,
                             value.month + 1,
                             0,
                           );
+
                           if (!_isNetworkDo) {
                             _requestIssue08(issueDate: DateFormat('yyyyMMdd').format(selectMonthLastDateTime));
                           }
@@ -184,7 +222,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                       itemCount: _listIssue08.length,
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
-                      controller: _scrollController,
+                      controller: _bottomSheetScrollController,
                     ),
                   ),
                   IconButton(
@@ -199,6 +237,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         dateTime = dateTime.add(
                           const Duration(days: 1),
                         );
+                        //commonShowToastCenter('dateTime : ${dateTime.toString()}');
                         _requestIssue08(issueDate: DateFormat('yyyyMMdd').format(dateTime));
                       }
                     },
@@ -214,59 +253,172 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
         onClosing: () {},
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: RichText(
-                      //textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                        children: [
-                          TextSpan(
-                            text:
-                            '${_selectStrYyyyMmDd.substring(5, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일 이슈는 총 ',
-                          ),
-                          TextSpan(
-                            text: _listIssue08.isEmpty ? '' : _listIssue08.last.issueCount,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: '개 발생되었습니다.',
-                          ),
-                        ],
+        child: Padding(
+          padding: const EdgeInsets.only(
+            bottom: 20,
+          ),
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                controller: _rassiroListScrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+
+
+
+                    // 코스피 코스닥 지수
+                    _kosIndexView,
+
+                    // 타이틀 - 이슈는?
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: Text(
+                        '이슈는?',
+                        style: TStyle.defaultTitle,
                       ),
                     ),
-                  ),
-                  _bubbleChartView,
-                  _bubbleTimeLapseList.isEmpty && !_isNetworkDo
-                      ? CommonView.setNoDataTextView(200, '이슈 데이터가 없습니다.')
-                      : _bubbleTimeLapseView,
-                ],
-              ),
-            ),
-            Visibility(
-              visible: _isNetworkDo,
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.black.withOpacity(0.1),
-                alignment: Alignment.center,
-                child: Image.asset(
-                  'images/gif_ios_loading_large.gif',
-                  height: 20,
+
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: UIStyle.boxRoundFullColor6c(
+                        RColor.greyBox_f5f5f5,
+                      ),
+                      child: RichText(
+                        //textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.black,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: '${_selectStrYyyyMmDd.substring(4, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일에 총 ',
+                            ),
+                            TextSpan(
+                              text: _listIssue08.isEmpty ? '' : _listIssue08.last.issueCount,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const TextSpan(
+                              text: '개 이슈가 발생되었습니다.',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(
+                      height: 0,
+                    ),
+
+                    // 버블 차트
+                    _bubbleChartView,
+
+                    // 타임랩스
+                    _bubbleTimeLapseList.isEmpty && !_isNetworkDo
+                        ? CommonView.setNoDataTextView(200, '이슈 데이터가 없습니다.')
+                        : _bubbleTimeLapseView,
+
+                    //MarketTileTodayMarket(index02: _index02),
+
+                    const SizedBox(
+                      height: 30,
+                    ),
+
+                    // 타이틀 - 특징주 종목들은?
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: Text(
+                        '특징주 종목들은?',
+                        style: TStyle.defaultTitle,
+                      ),
+                    ),
+
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: UIStyle.boxRoundFullColor6c(
+                        RColor.greyBox_f5f5f5,
+                      ),
+                      child: RichText(
+                        //textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.black,
+                          ),
+                          children: [
+                            TextSpan(
+                              text:
+                                  '${_selectStrYyyyMmDd.substring(4, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일 특징주는 총 ',
+                            ),
+                            TextSpan(
+                              text: '??',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const TextSpan(
+                              text: '종목입니다.',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    ListView.builder(
+                      //controller: _rassiroListScrollController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _listRassiroData.length,
+                      itemBuilder: (context, index) => Rassi19TimeLineRealItemWidget(
+                        item: _listRassiroData[index],
+                      ),
+                      shrinkWrap: true,
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              Visibility(
+                visible: _isNetworkDo,
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.grey.withOpacity(0.1),
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'images/gif_ios_loading_large.gif',
+                    height: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -294,51 +446,211 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
           borderRadius: const BorderRadius.all(Radius.circular(40)),
           color: isSelectedDate ? Colors.black : null,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _listIssue08[index].weekday,
-              style: isSelectedDate
-                  ? const TextStyle(
-                color: Colors.white,
-                //fontSize: 15,
-              )
-                  : const TextStyle(
-                //fontSize: 15,
-                color: RColor.greyBasic_8c8c8c,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _listIssue08[index].weekday,
+                style: isSelectedDate
+                    ? const TextStyle(
+                        color: Colors.white,
+                        //fontSize: 15,
+                      )
+                    : const TextStyle(
+                        //fontSize: 15,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
               ),
-            ),
-            const SizedBox(
-              height: 2,
-            ),
-            Text(
-              _listIssue08[index].issueDate.substring(
-                6,
+              const SizedBox(
+                height: 2,
               ),
-              style: isSelectedDate
-                  ? const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
-              )
-                  : const TextStyle(
-                fontSize: 18,
+              Text(
+                _listIssue08[index].issueDate.substring(
+                      6,
+                    ),
+                style: isSelectedDate
+                    ? const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                      )
+                    : const TextStyle(
+                        fontSize: 18,
+                      ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget get _kosIndexView {
+    return Visibility(
+      visible: _index02.baseDate.isNotEmpty && _index02.kospi.fluctuationRate.isNotEmpty && _index02.kosdaq.fluctuationRate.isNotEmpty,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 타이틀 - [날짜] 시장은?
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 10,
+            ),
+            child: Text(
+              '${_selectStrYyyyMmDd.substring(4, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일 시장은?',
+              style: TStyle.defaultTitle,
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 10,
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            decoration: UIStyle.boxRoundFullColor6c(
+              RColor.greyBox_f5f5f5,
+            ),
+            child: Text(
+              '코스피는 ${_index02.kospi.fluctuationRate}% ${_index02.kospi.fluctuationRate.contains('-') ? '하락' : '상승'}, '
+                  '코스닥은 ${_index02.kosdaq.fluctuationRate}% ${_index02.kosdaq.fluctuationRate.contains('-') ? '하락' : '상승'}'
+                  '하였습니다.',
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 10,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('images/icon_event_chart_0.png'),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '코스피',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '${TStyle.getMoneyPoint(_index02.kospi.priceIndex)}',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  TStyle.getTriangleStringWithMoneyPoint(_index02.kospi.indexFluctuation),
+                                  style: TextStyle(
+                                    //fontSize: 14,
+                                    color: TStyle.getMinusPlusColor(_index02.kospi.fluctuationRate),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  TStyle.getPercentString(
+                                    _index02.kospi.fluctuationRate,
+                                  ),
+                                  style: TextStyle(
+                                    //fontSize: 12,
+                                    color: TStyle.getMinusPlusColor(_index02.kospi.fluctuationRate),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('images/icon_event_chart_0.png'),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '코스닥',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '${TStyle.getMoneyPoint(_index02.kosdaq.priceIndex)}',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  TStyle.getTriangleStringWithMoneyPoint(_index02.kosdaq.indexFluctuation),
+                                  style: TextStyle(
+                                    //fontSize: 14,
+                                    color: TStyle.getMinusPlusColor(_index02.kosdaq.fluctuationRate),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  TStyle.getPercentString(
+                                    _index02.kosdaq.fluctuationRate,
+                                  ),
+                                  style: TextStyle(
+                                    //fontSize: 12,
+                                    color: TStyle.getMinusPlusColor(_index02.kosdaq.fluctuationRate),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget get _bubbleChartView {
     if (_bubbleWidgetList.isEmpty) return const SizedBox();
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      //height: (AppGlobal().deviceWidth - (AppGlobal().deviceWidth / 10)),
       height: (AppGlobal().deviceWidth),
-      //color: Colors.yellow,
       child: Stack(
         children: _bubbleWidgetList,
       ),
@@ -347,52 +659,72 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
 
   Widget get _bubbleTimeLapseView {
     if (_bubbleTimeLapseList.isEmpty) return const SizedBox();
-    return Center(
-      child: SfSliderTheme(
-        data: const SfSliderThemeData(
-          activeTrackHeight: 15,
-          activeDividerColor: RColor.grey_c8cace,
-          activeTrackColor: RColor.greyBox_dcdfe2,
-          activeDividerRadius: 2.5,
-          thumbColor: Color(0xffABB0BB),
-          inactiveTrackHeight: 15,
-          //inactiveDividerColor: RColor.bubbleChartGrey,
-          inactiveTrackColor: RColor.greyBox_dcdfe2,
-          inactiveDividerRadius: 0,
+    return Row(
+      children: [
+        const SizedBox(
+          width: 20,
         ),
-        child: SfSlider(
-          min: 0,
-          max: _bubbleTimeLapseList.length - 1,
-          value: _selectTimeLapseIndex,
-          interval: 1,
-          stepSize: 1,
-          showDividers: true,
-          thumbShape: _SfThumbShape(bubbleTimeLapseList: _bubbleTimeLapseList),
-          onChanged: (dynamic newValue) async {
-            DLog.e('newValue : $newValue');
-            if (newValue > _timeLapselastDataIndex) {
-              commonShowToast('미래 데이터 입니다.');
-            } else {
-              _selectTimeLapseIndex = (newValue as double).toInt();
-              await _setbubbleNode();
-              setState(() {});
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
-                  _isStartBubbleAnimation = true;
-                  _bubbleChartAniStart().then(
-                        (_) => _isStartBubbleAnimation = false,
-                  );
+        Image.asset(
+          'images/icon_time_lapse_clock_grey.png',
+          width: 20,
+        ),
+        Expanded(
+          //width: double.infinity,
+          //color: Colors.green,
+          child: SfSliderTheme(
+            data: SfSliderThemeData(
+              overlayColor: RColor.greyBox_dcdfe2.withOpacity(0.5),
+              overlayRadius: 20,
+              activeTrackHeight: 15,
+              activeDividerColor: RColor.grey_c8cace,
+              activeTrackColor: RColor.greyBox_dcdfe2,
+              activeDividerRadius: 2.5,
+              //tickOffset: Offset(10,0),
+              thumbColor: const Color(0xffABB0BB),
+              inactiveTrackHeight: 15,
+              //inactiveDividerColor: RColor.bubbleChartGrey,
+              inactiveTrackColor: RColor.greyBox_dcdfe2,
+              inactiveDividerRadius: 0,
+            ),
+            child: SfSlider(
+              min: 0,
+              max: _bubbleTimeLapseList.length - 1,
+              value: _selectTimeLapseIndex,
+              interval: 1,
+              stepSize: 1,
+              showDividers: true,
+              thumbShape: _SfThumbShape(bubbleTimeLapseList: _bubbleTimeLapseList),
+              onChanged: (dynamic newValue) async {
+                //DLog.e('newValue : $newValue');
+                if (newValue > _timeLapselastDataIndex) {
+                } else {
+                  _selectTimeLapseIndex = (newValue as double).toInt();
+                  if (_bubbleTimeLapseList[_selectTimeLapseIndex].listData.isEmpty) {
+                    //commonShowToastCenter('_bubbleTimeLapseList[_selectTimeLapseIndex].listData : ${_bubbleTimeLapseList[_selectTimeLapseIndex].listData.length}');
+                  } else {
+                    //commonShowToastCenter('_bubbleTimeLapseList[_selectTimeLapseIndex].listData.length : ${_bubbleTimeLapseList[_selectTimeLapseIndex].listData.length}');
+                    await _setBubbleNode();
+                    setState(() {});
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
+                        _isStartBubbleAnimation = true;
+                        _bubbleChartAniStart().then(
+                          (_) => _isStartBubbleAnimation = false,
+                        );
+                      }
+                    });
+                  }
                 }
-              });
-            }
-          },
+              },
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
   /// make function
-  Future<void> _setbubbleNode() async {
+  Future<void> _setBubbleNode() async {
     for (var element in _bubbleChartAniControllerList) {
       element.dispose();
     }
@@ -402,7 +734,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
     List<Issue03> issueList = _bubbleTimeLapseList[_selectTimeLapseIndex].listData;
 
     issueList.sort(
-          (a, b) => double.parse(b.avgFluctRate).abs().compareTo(double.parse(a.avgFluctRate).abs()),
+      (a, b) => double.parse(b.avgFluctRate).abs().compareTo(double.parse(a.avgFluctRate).abs()),
     );
 
     List<CustomBubbleNode> listNodes = [];
@@ -413,6 +745,8 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
     double minValue = 0;
     FontWeight fontWeight = FontWeight.bold;
     double padding = 0;
+
+    bool isAllSameValue = issueList.every((val1) => val1.avgFluctRate == issueList.first.avgFluctRate);
 
     for (int i = 0; i < issueList.length; i++) {
       txtColor = Colors.white;
@@ -524,14 +858,11 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
         children: listNodes,
         padding: 1,
       ),
-      //radius: (p0) => 10,
-      //size: Size((AppGlobal().deviceWidth), AppGlobal().isTablet ? 300 : AppGlobal().deviceWidth - (AppGlobal().deviceWidth * 0.15),),
       size: Size(
         (AppGlobal().deviceWidth),
-        //300,
         (AppGlobal().deviceWidth),
       ),
-      stretchFactor: 1,
+      stretchFactor: isAllSameValue ? 0.5 : 1,
     ).nodes.fold([], (result, node) {
       return result
         ..add(
@@ -598,6 +929,25 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
     return;
   }
 
+  _checkAndRequestTrRassi19() {
+    if (_pageNo < _totalPageSize) {
+      _fetchPosts(
+        TR.RASSI19,
+        jsonEncode(
+          <String, String>{
+            'userId': _userId,
+            'menuDiv': 'REAL',
+            'tradeDate': _selectStrYyyyMmDd,
+            'pageNo': '$_pageNo',
+            'pageItemSize': '10',
+          },
+        ),
+      );
+    } else{
+      commonShowToast('더 이상 내용이 없습니다.');
+    }
+  }
+
   /// NetWork
   _requestIssue08({required String issueDate}) {
     _fetchPosts(
@@ -647,6 +997,11 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
       if (resData.retCode == RT.SUCCESS && resData.listData.isNotEmpty) {
         _listIssue08.addAll(resData.listData);
         _selectStrYyyyMmDd = _listIssue08.last.issueDate;
+
+        _listRassiroData.clear();
+        _pageNo = 0;
+        _totalPageSize = 0;
+
         _fetchPosts(
           TR.ISSUE09,
           jsonEncode(
@@ -681,25 +1036,75 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
           }
         }
         if (_bubbleTimeLapseList.isNotEmpty) {
-          await _setbubbleNode();
-          setState(() {
-            _isNetworkDo = false;
-          });
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_scrollController.position.pixels < _scrollController.position.maxScrollExtent) {
-              _scrollController.animateTo(
-                _scrollController.position.maxScrollExtent + 20,
-                duration: const Duration(seconds: 1),
-                curve: Curves.fastOutSlowIn,
-              );
-            }
-            if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
-              _isStartBubbleAnimation = true;
-              _bubbleChartAniStart().then(
-                    (_) => _isStartBubbleAnimation = false,
-              );
-            }
-          });
+          await _setBubbleNode();
+        }
+      }
+      _fetchPosts(
+          TR.INDEX02,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'tradeDate': _selectStrYyyyMmDd,
+          }));
+    }
+
+    //코스피 코스닥 지수
+    else if (trStr == TR.INDEX02) {
+      final TrIndex02 resData = TrIndex02.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        _index02 = resData.retData;
+      } else {
+        _index02 = const Index02();
+      }
+
+      _fetchPosts(
+        TR.RASSI19,
+        jsonEncode(
+          <String, String>{
+            'userId': _userId,
+            'menuDiv': 'REAL',
+            'tradeDate': _selectStrYyyyMmDd,
+            'pageNo': '$_pageNo',
+            'pageItemSize': '10',
+          },
+        ),
+      ).then((value) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_bottomSheetScrollController.position.pixels < _bottomSheetScrollController.position.maxScrollExtent) {
+            _bottomSheetScrollController.animateTo(
+              _bottomSheetScrollController.position.maxScrollExtent + 20,
+              duration: const Duration(seconds: 1),
+              curve: Curves.fastOutSlowIn,
+            );
+          }
+          if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
+            _isStartBubbleAnimation = true;
+            _bubbleChartAniStart().then(
+              (_) => _isStartBubbleAnimation = false,
+            );
+          }
+        });
+      });
+    } else if (trStr == TR.RASSI19) {
+      // NOTE 해당 날짜의 특징주 리스트
+      final TrRassi19 resData = TrRassi19.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        Rassi19 rassi19 = resData.retData;
+        if (_pageNo != 0) {
+          _listRassiroData.removeLast();
+        }
+        _pageNo++;
+        _totalPageSize = int.parse(rassi19.totalPageSize);
+        if (rassi19.listRassiro.isNotEmpty) {
+          _listRassiroData.addAll(
+            rassi19.listRassiro,
+          );
+          if (_pageNo < _totalPageSize) {
+            _listRassiroData.add(Rassi19Rassiro());
+          }
+        }
+      } else {
+        if (_pageNo == 0) {
+          _listRassiroData.clear();
         }
       }
       setState(() {
@@ -710,21 +1115,21 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
 }
 
 class _SfThumbShape extends SfThumbShape {
-
   final List<Issue09TimeLapse> bubbleTimeLapseList;
+
   _SfThumbShape({required this.bubbleTimeLapseList});
 
   @override
   void paint(PaintingContext context, Offset center,
       {required RenderBox parentBox,
-        required RenderBox? child,
-        required SfSliderThemeData themeData,
-        SfRangeValues? currentValues,
-        dynamic currentValue,
-        required Paint? paint,
-        required Animation<double> enableAnimation,
-        required duTextDirection.TextDirection textDirection,
-        required SfThumb? thumb}) {
+      required RenderBox? child,
+      required SfSliderThemeData themeData,
+      SfRangeValues? currentValues,
+      dynamic currentValue,
+      required Paint? paint,
+      required Animation<double> enableAnimation,
+      required duTextDirection.TextDirection textDirection,
+      required SfThumb? thumb}) {
     final double radius = getPreferredSize(themeData).width / 2;
     final bool hasThumbStroke = themeData.thumbStrokeColor != null &&
         themeData.thumbStrokeColor != Colors.transparent &&
@@ -749,7 +1154,7 @@ class _SfThumbShape extends SfThumbShape {
       paint = Paint();
       paint.isAntiAlias = true;
       paint.color =
-      ColorTween(begin: themeData.disabledThumbColor, end: themeData.thumbColor).evaluate(enableAnimation)!;
+          ColorTween(begin: themeData.disabledThumbColor, end: themeData.thumbColor).evaluate(enableAnimation)!;
     }
 
     context.canvas.drawCircle(center, radius, paint);
@@ -766,12 +1171,12 @@ class _SfThumbShape extends SfThumbShape {
           themeData.thumbStrokeWidth! > radius ? radius / 2 : radius - themeData.thumbStrokeWidth! / 2, strokePaint);
     }
 
-
-
     // "문구영역" 텍스트를 원 아래에 추가
-    String time =  bubbleTimeLapseList[currentValue as int].timeLapse;
+    String time = bubbleTimeLapseList[currentValue as int].timeLapse;
     final TextSpan span = TextSpan(
-      text: '${time.substring(0,2)}:${time.substring(2,)}',
+      text: '${time.substring(0, 2)}:${time.substring(
+        2,
+      )}',
       style: const TextStyle(
         color: RColor.greyMore_999999,
         fontSize: 14.0,
@@ -784,9 +1189,5 @@ class _SfThumbShape extends SfThumbShape {
     );
     tp.layout();
     tp.paint(context.canvas, Offset(center.dx - tp.width / 2, center.dy + radius + 5));
-
-
-
-
   }
 }

@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
@@ -58,7 +57,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
   bool _beforeOpening = false; // 08 ~ 09 Y
   bool _beforeChart = false; // 09 ~ 09 : 20 Y
   bool _isSignalInfo = false; // true : 매매신호, false : 현재가
+
   bool _isFaVisible = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -83,6 +84,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
   void dispose() {
     _pocketProvider.removeListener(reload);
     _appGlobal.isSignalInfo = false;
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -110,21 +112,17 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
       },
       child: Scaffold(
         backgroundColor: RColor.bgBasic_fdfdfd,
-        body: CustomScrollView(
-          slivers: [
-            SliverOverlapInjector(
-              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-            ),
-            SliverToBoxAdapter(
-              child: Container(
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20.0,
                   vertical: 10.0,
                 ),
-                margin: const EdgeInsets.only(
-                  top: 5,
-                ),
                 color: RColor.bgBasic_fdfdfd,
+                margin: const EdgeInsets.only(top: 55), //color: Colors.red,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -154,37 +152,37 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                             children: [
                               _isSignalInfo
                                   ? Row(
-                                      children: [
-                                        Image.asset(
-                                          'images/icon_pocket_my_select_dn.png',
-                                          height: 16,
-                                        ),
-                                        const Text(
-                                          ' 매매신호 ',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: RColor.greyBasicStrong_666666,
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : Row(
-                                      children: [
-                                        Image.asset(
-                                          'images/icon_pocket_my_select_up.png',
-                                          height: 16,
-                                        ),
-                                        const Text(
-                                          ' 현재가 ',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: RColor.greyBasicStrong_666666,
-                                          ),
-                                        ),
-                                      ],
+                                children: [
+                                  Image.asset(
+                                    'images/icon_pocket_my_select_dn.png',
+                                    height: 16,
+                                  ),
+                                  const Text(
+                                    ' 매매신호 ',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: RColor.greyBasicStrong_666666,
                                     ),
+                                  ),
+                                ],
+                              )
+                                  : Row(
+                                children: [
+                                  Image.asset(
+                                    'images/icon_pocket_my_select_up.png',
+                                    height: 16,
+                                  ),
+                                  const Text(
+                                    ' 현재가 ',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: RColor.greyBasicStrong_666666,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                           onTap: () {
@@ -198,146 +196,60 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   ],
                 ),
               ),
-            ),
-            SliverFillRemaining(
-              child: Stack(
-                children: [
-                  Provider.of<UserInfoProvider>(context, listen: false).is3StockUser()
-                      ? _set3StockUserListWidget()
-                      : _setStockListWidget(),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
+              if (Provider.of<UserInfoProvider>(context, listen: false).is3StockUser())
+                AnimatedBuilder(
+                  animation: _scrollController,
+                  builder: (BuildContext context, Widget? child) {
+                    return AnimatedContainer(
                       width: double.infinity,
-                      //height: _isFaVisible ? 50 : 0,
-                      height: 50,
-                      //duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 10,
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                       ),
-                      //color: Colors.white,
+                      margin: const EdgeInsets.only(
+                        bottom: 10,
+                      ),
+                      duration: const Duration(milliseconds: 250),
+                      height: !_scrollController.hasClients || (_scrollController.hasClients && _scrollController.position.pixels <= 10 ) ? 40 : 0,
+                      child: child,
+                    );
+                  },
+                  child: InkWell(
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    onTap: () {
+                      // 3종목 알림 설정
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PocketThreeStockSettingPage(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      //height: ,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                      ),
+                      decoration: UIStyle.boxRoundFullColor8c(
+                        RColor.greyBox_f5f5f5,
+                      ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () async {
-                                int nowPocketListIndex = _pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn);
-                                if(nowPocketListIndex == -1){
-                                  commonShowToast('에러\n앱을 종료 후 다시 기동하여 주십시오.');
-                                }else if(nowPocketListIndex == 0){
-                                  commonShowToast('처음 포켓입니다.');
-                                }else{
-                                  _pocket = _pocketProvider.getPocketList[nowPocketListIndex-1];
-                                  await reload(changePocketSn: _pocket.pktSn);
-                                }
-                              },
-                              child: Container(
-                                decoration: UIStyle.boxRoundLine6bgColor(
-                                  RColor.bgBasic_fdfdfd,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    RotatedBox(
-                                      quarterTurns: 1,
-                                      child: Image.asset(
-                                        'images/icon_arrow_down.png',
-                                        height: 8,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    const Text('이전포켓'),
-                                  ],
-                                ),
-                              ),
-                            ),
+                          Image.asset(
+                            'images/icon_change_circle_black.png',
+                            height: 18,
                           ),
                           const SizedBox(
-                            width: 10,
+                            width: 5,
                           ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () async {
-                                int nowPocketListIndex = _pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn);
-                                if(nowPocketListIndex == -1){
-                                  commonShowToast('에러\n앱을 종료 후 다시 기동하여 주십시오.');
-                                }else if(nowPocketListIndex == _pocketProvider.getPocketList.length -1){
-                                  commonShowToast('마지막 포켓입니다.');
-                                }else{
-                                  _pocket = _pocketProvider.getPocketList[nowPocketListIndex+1];
-                                  await reload(changePocketSn: _pocket.pktSn);
-                                }
-                              },
-                              child: Container(
-                                decoration: UIStyle.boxRoundLine6bgColor(
-                                  RColor.bgBasic_fdfdfd,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    RotatedBox(
-                                      quarterTurns: 3,
-                                      child: Image.asset(
-                                        'images/icon_arrow_down.png',
-                                        height: 8,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    const Text('다음포켓'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                basePageState.callPageRouteUP(
-                                  SearchPage(
-                                    landWhere: SearchPage.addPocketLayer,
-                                    pocketSn: _pocket.pktSn,
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                decoration: UIStyle.boxRoundLine6bgColor(
-                                  RColor.bgBasic_fdfdfd,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      'images/icon_add_circle_black.png',
-                                      height: 16,
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    const Text(
-                                      '추가',
-                                      style: TextStyle(
-                                          //fontSize: 14,
-                                          ),
-                                    ),
-                                  ],
-                                ),
+                          const Flexible(
+                            child: Text(
+                              'AI매매신호를 이용할 3종목을 변경하고 싶다면?',
+                              style: TextStyle(
+                                fontSize: 14,
                               ),
                             ),
                           ),
@@ -345,18 +257,203 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                       ),
                     ),
                   ),
-                ],
+                ),
+              /*InkWell(
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  onTap: () {
+                    // 3종목 알림 설정
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PocketThreeStockSettingPage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 38,
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                    ),
+                    decoration: UIStyle.boxRoundFullColor8c(
+                      RColor.greyBox_f5f5f5,
+                    ),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'images/icon_change_circle_black.png',
+                          height: 18,
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        const Flexible(
+                          child: Text(
+                            'AI매매신호를 이용할 3종목을 변경하고 싶다면?',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),*/
+              Expanded(
+                child: /*Provider.of<UserInfoProvider>(context, listen: false).is3StockUser()
+                    ? _set3StockUserListWidget()
+                    : */_setStockListWidget(),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+        bottomNavigationBar: AnimatedContainer(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 15,
+          ),
+          margin: const EdgeInsets.only(
+            bottom: 2,
+          ),
+          duration: const Duration(milliseconds: 250),
+          height: _isFaVisible ? 50 : 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () async {
+                    int nowPocketListIndex = _pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn);
+                    if (nowPocketListIndex == -1) {
+                      commonShowToast('에러\n앱을 종료 후 다시 기동하여 주십시오.');
+                    } else if (nowPocketListIndex == 0) {
+                      commonShowToast('처음 포켓입니다.');
+                    } else {
+                      _pocket = _pocketProvider.getPocketList[nowPocketListIndex - 1];
+                      await reload(changePocketSn: _pocket.pktSn);
+                    }
+                  },
+                  child: Container(
+                    decoration: UIStyle.boxRoundLine6bgColor(
+                      RColor.bgBasic_fdfdfd,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        RotatedBox(
+                          quarterTurns: 1,
+                          child: Image.asset(
+                            'images/icon_arrow_down.png',
+                            height: 8,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        const Text('이전포켓'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () async {
+                    int nowPocketListIndex = _pocketProvider.getPocketListIndexByPocketSn(_pocket.pktSn);
+                    if (nowPocketListIndex == -1) {
+                      commonShowToast('에러\n앱을 종료 후 다시 기동하여 주십시오.');
+                    } else if (nowPocketListIndex == _pocketProvider.getPocketList.length - 1) {
+                      commonShowToast('마지막 포켓입니다.');
+                    } else {
+                      _pocket = _pocketProvider.getPocketList[nowPocketListIndex + 1];
+                      await reload(changePocketSn: _pocket.pktSn);
+                    }
+                  },
+                  child: Container(
+                    decoration: UIStyle.boxRoundLine6bgColor(
+                      RColor.bgBasic_fdfdfd,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        RotatedBox(
+                          quarterTurns: 3,
+                          child: Image.asset(
+                            'images/icon_arrow_down.png',
+                            height: 8,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        const Text('다음포켓'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    basePageState.callPageRouteUP(
+                      SearchPage(
+                        landWhere: SearchPage.addPocketLayer,
+                        pocketSn: _pocket.pktSn,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    decoration: UIStyle.boxRoundLine6bgColor(
+                      RColor.bgBasic_fdfdfd,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'images/icon_add_circle_black.png',
+                          height: 16,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        const Text(
+                          '추가',
+                          style: TextStyle(
+                            //fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _set3StockUserListWidget() {
+/*  Widget _set3StockUserListWidget() {
     return NestedScrollView(
-      floatHeaderSlivers: true,
+      //controller: _scrollController,
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         SliverAppBar(
           floating: true,
@@ -409,20 +506,129 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
           ),
         ),
       ],
-      body: _setStockListWidget(),
+      body: Container(
+        color: Colors.yellow.withOpacity(0.2),
+        child: ListView.builder(
+          controller: _scrollController,
+          itemCount: _stkList.length,
+          shrinkWrap: true,
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+              margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20, index == _stkList.length - 1 ? 20 : 0),
+              child: Ink(
+                width: double.infinity,
+                decoration: UIStyle.boxShadowBasic(16),
+                child: InkWell(
+                  highlightColor: Colors.black.withOpacity(0.05),
+                  splashColor: Colors.black.withOpacity(0.07),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(16),
+                  ),
+                  child: Container(
+                    height: 86,
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        //종목명, 종목코드
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _stkList[index].stockName,
+                                style: TStyle.commonTitle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(
+                                height: 4,
+                              ),
+                              Text(
+                                _stkList[index].stockCode,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: RColor.greyBasic_8c8c8c,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(
+                          width: 5,
+                        ),
+
+                        if (_isSignalInfo)
+                          if (Provider.of<UserInfoProvider>(context, listen: false).isPremiumUser())
+                            _setRateCircleText(_stkList[index])
+                          else if (Provider.of<UserInfoProvider>(context, listen: false).is3StockUser() &&
+                              _stkList[index].signalYn == 'Y')
+                            _setRateCircleText(_stkList[index])
+                          else
+                            _setNoPremiumBlockView()
+                        else if (_beforeOpening)
+                          _setBeforeOpening(_stkList[index])
+                        else if (_beforeChart)
+                          _setBeforeChart(_stkList[index])
+                        else
+                          _setStockInfoText(_stkList[index]),
+                      ],
+                    ),
+                  ),
+                  onTap: () async {
+                    if (_stkList[index].tradingHaltYn != 'T') {
+                      basePageState.goStockHomePage(
+                        _stkList[index].stockCode,
+                        _stkList[index].stockName,
+                        _isSignalInfo ? Const.STK_INDEX_SIGNAL : Const.STK_INDEX_HOME,
+                      );
+                    }
+                  },
+                  onLongPress: () async {
+                    if (!_isSignalInfo) {
+                      String result = await CommonPopup.instance
+                          .showDialogCustomConfirm(context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
+                      if (result == CustomNvRouteResult.landing && context.mounted) {
+                        String result = await Provider.of<PocketProvider>(context, listen: false).deleteStock(
+                          Stock(
+                            stockName: _stkList[index].stockName,
+                            stockCode: _stkList[index].stockCode,
+                          ),
+                          _pocket.pktSn,
+                        );
+                        if (context.mounted) {
+                          if (result == CustomNvRouteResult.refresh) {
+                          } else if (result == CustomNvRouteResult.fail) {
+                            CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+                          } else {
+                            CommonPopup.instance.showDialogBasic(context, '안내', result);
+                          }
+                        }
+                      }
+                    }
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
-  }
+  }*/
 
   Widget _setStockListWidget() {
     if (_stkList.isEmpty) {
       return _setEmptyView();
     }
     return ListView.builder(
-      physics: const RangeMaintainingScrollPhysics(),
+      controller: _scrollController,
       itemCount: _stkList.length,
+      shrinkWrap: true,
       itemBuilder: (BuildContext context, int index) {
         return Container(
-          margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20, index == _stkList.length - 1 ? 75 : 0),
+          margin: EdgeInsets.fromLTRB(20, index == 0 ? 5 : 15, 20, index == _stkList.length - 1 ? 20 : 0),
           child: Ink(
             width: double.infinity,
             decoration: UIStyle.boxShadowBasic(16),
@@ -479,9 +685,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     else if (_beforeOpening)
                       _setBeforeOpening(_stkList[index])
                     else if (_beforeChart)
-                      _setBeforeChart(_stkList[index])
-                    else
-                      _setStockInfoText(_stkList[index]),
+                        _setBeforeChart(_stkList[index])
+                      else
+                        _setStockInfoText(_stkList[index]),
                   ],
                 ),
               ),
@@ -497,7 +703,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               onLongPress: () async {
                 if (!_isSignalInfo) {
                   String result =
-                      await CommonPopup.instance.showDialogCustomConfirm(context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
+                  await CommonPopup.instance.showDialogCustomConfirm(context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
                   if (result == CustomNvRouteResult.landing && context.mounted) {
                     String result = await Provider.of<PocketProvider>(context, listen: false).deleteStock(
                       Stock(
@@ -508,8 +714,6 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     );
                     if (context.mounted) {
                       if (result == CustomNvRouteResult.refresh) {
-                        /*Provider.of<StockInfoProvider>(context, listen: false)
-                            .postRequest(stkCode);*/
                       } else if (result == CustomNvRouteResult.fail) {
                         CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
                       } else {
@@ -565,8 +769,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     text: item.fluctuationAmt.contains('-')
                         ? '▼ '
                         : (double.tryParse(item.fluctuationAmt) ?? 0) == 0
-                            ? '- '
-                            : '▲ ',
+                        ? '- '
+                        : '▲ ',
                     style: TextStyle(
                       color: TStyle.getMinusPlusColor(item.fluctuationAmt),
                       fontSize: (double.tryParse(item.fluctuationAmt) ?? 0) == 0 ? 16 : 10,
@@ -984,7 +1188,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
           }
         },
         child: Container(
-          decoration: UIStyle.boxRoundLine6(),
+          decoration: UIStyle.boxRoundLine6bgColor(
+            Colors.white,
+          ),
           padding: const EdgeInsets.symmetric(
             horizontal: 8,
             vertical: 6,
@@ -1038,15 +1244,15 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
     try {
       final http.Response response = await http
           .post(
-            url,
-            body: json,
-            headers: Net.headers,
-          )
+        url,
+        body: json,
+        headers: Net.headers,
+      )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
       return true;
     } on TimeoutException catch (_) {
-      if(mounted) CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
       return false;
     }
   }
@@ -1060,14 +1266,18 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
         _stkList.clear();
         _stkList.addAll(pock08.stkList);
         _timeInfo =
-            '${TStyle.getDateDivFormat(pock08.tradeDate)} ${TStyle.getTimeFormat(pock08.tradeTime)} ${pock08.timeDivTxt}';
+        '${TStyle.getDateDivFormat(pock08.tradeDate)} ${TStyle.getTimeFormat(pock08.tradeTime)} ${pock08.timeDivTxt}';
         _beforeOpening = pock08.beforeOpening == 'Y';
         _beforeChart = pock08.beforeChart == 'Y';
         if (_beforeOpening || _beforeChart) {
           _timeInfo = '';
         }
-        _isFaVisible = true;
         setState(() {});
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(0, duration: const Duration(seconds: 1), curve: Curves.fastEaseInToSlowEaseOut);
+          }
+        });
       }
     }
   }

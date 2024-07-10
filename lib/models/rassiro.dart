@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tag_info.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
 import 'package:rassi_assist/ui/news/news_viewer.dart';
-import 'package:rassi_assist/ui/web/only_web_view.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 
 import '../common/custom_nv_route_class.dart';
 
@@ -234,8 +235,13 @@ class TileRassiroFeatureList extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            CustomNvRouteClass.createRoute(
-              OnlyWebViewPage(title: '', url: item.linkUrl),
+            CustomNvRouteClass.createRouteData(
+              const WebPage(),
+              RouteSettings(
+                arguments: PgData(
+                  pgData: item.linkUrl,
+                ),
+              ),
             ),
           );
         },

@@ -658,8 +658,9 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                   }).toList();
                 },
                 touchTooltipData: LineTouchTooltipData(
-                  tooltipBgColor: Colors.transparent,
+                  //tooltipBgColor: Colors.transparent,
                   //tooltipRoundedRadius: 8,
+
                   tooltipPadding: EdgeInsets.zero,
                   getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
                     return lineBarsSpot.map((lineBarSpot) {

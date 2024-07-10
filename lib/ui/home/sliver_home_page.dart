@@ -888,15 +888,17 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
   }
 
   void _openWebView(String desUrl) {
-    DLog.d(SliverHomeWidget.TAG, desUrl);
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const WebPage(),
-          settings: RouteSettings(
-            arguments: PgData(pgData: desUrl),
+      context,
+      CustomNvRouteClass.createRouteData(
+        const WebPage(),
+        RouteSettings(
+          arguments: PgData(
+            pgData: desUrl,
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   navigateRefreshPay() async {

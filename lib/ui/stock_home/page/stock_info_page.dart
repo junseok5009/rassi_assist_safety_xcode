@@ -11,7 +11,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_shome/tr_shome04.dart';
 import 'package:rassi_assist/models/tr_shome/tr_shome07.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_company_overview_page.dart';
-import 'package:rassi_assist/ui/web/only_web_view.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../common/custom_firebase_class.dart';
@@ -726,11 +726,15 @@ class _StockInfoPageState extends State<StockInfoPage> {
           ),
           InkWell(
             onTap: () {
-              Navigator.pop(context);
               Navigator.push(
                 context,
-                CustomNvRouteClass.createRoute(
-                  OnlyWebViewPage(title: '', url: 'https://m.thinkpool.com/item/$_stkCode/chart'),
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: 'https://m.thinkpool.com/item/$_stkCode/chart',
+                    ),
+                  ),
                 ),
               );
             },

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -89,6 +90,7 @@ class PayPremiumState extends State<PayPremiumPage> {
     super.initState();
     _isAgent = Provider.of<UserInfoProvider>(context, listen: false).getUser04.agentData.agentCode.isNotEmpty;
     CustomFirebaseClass.logEvtScreenView(PayPremiumPage.TAG_NAME + (_isAgent ? '_에이전트 : ' : ''));
+    CustomFirebaseClass.logEvtPaySelect(payType: 'premium${_isAgent ? '_에이전트' : ''}');
     if (_isAgent) {
       setState(() {
         _listDivPayment[0] = true;
@@ -861,13 +863,16 @@ class PayPremiumState extends State<PayPremiumPage> {
             ),
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WebPage(),
-                    settings: RouteSettings(
-                      arguments: PgData(pgData: Net.AGREE_TERMS),
+                context,
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: Net.AGREE_TERMS,
                     ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
           const SizedBox(
@@ -880,13 +885,16 @@ class PayPremiumState extends State<PayPremiumPage> {
             ),
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WebPage(),
-                    settings: RouteSettings(
-                      arguments: PgData(pgData: Net.AGREE_POLICY_INFO),
+                context,
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: Net.AGREE_POLICY_INFO,
                     ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
         ],

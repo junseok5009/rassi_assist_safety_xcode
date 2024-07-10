@@ -348,7 +348,8 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
         AppGlobal().isAlreadyPromotionProductPayUser = purchasedHistoryItemList!.any((purchasedHistoryItem) =>
             promotionProductList
                 .any((promotionProduct) => promotionProduct.productId == purchasedHistoryItem.productId));
-        DLog.e('${IntroPage.TAG} / AppGlobal().isAlreadyPromotionProductPayUser : ${AppGlobal().isAlreadyPromotionProductPayUser}');
+        DLog.e(
+            '${IntroPage.TAG} / AppGlobal().isAlreadyPromotionProductPayUser : ${AppGlobal().isAlreadyPromotionProductPayUser}');
       } catch (err) {
         DLog.e('err1 : ${err.toString()}');
       }

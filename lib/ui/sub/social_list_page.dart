@@ -10,11 +10,12 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_sns/tr_sns03.dart';
 import 'package:rassi_assist/models/tr_sns/tr_sns04.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/web/only_web_view.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2021.02.15 - JY
@@ -190,10 +191,12 @@ class SocialListPageState extends State<SocialListPage> {
                                       onTap: () {
                                         Navigator.push(
                                           context,
-                                          CustomNvRouteClass.createRoute(
-                                            OnlyWebViewPage(
-                                              title: '',
-                                              url: subList[index].linkUrl,
+                                          CustomNvRouteClass.createRouteData(
+                                            const WebPage(),
+                                            RouteSettings(
+                                              arguments: PgData(
+                                                pgData: subList[index].linkUrl,
+                                              ),
                                             ),
                                           ),
                                         );

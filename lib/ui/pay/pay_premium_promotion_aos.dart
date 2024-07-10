@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -184,6 +185,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
         }
     }
     CustomFirebaseClass.logEvtScreenView(TAG_NAME);
+    CustomFirebaseClass.logEvtPaySelect(payType: pageCode);
   }
 
   Future<void> _loadPrefData() async {
@@ -588,13 +590,16 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
             ),
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WebPage(),
-                    settings: RouteSettings(
-                      arguments: PgData(pgData: Net.AGREE_TERMS),
+                context,
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: Net.AGREE_TERMS,
                     ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
           const SizedBox(
@@ -607,13 +612,16 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionAosPage> {
             ),
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WebPage(),
-                    settings: RouteSettings(
-                      arguments: PgData(pgData: Net.AGREE_POLICY_INFO),
+                context,
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: Net.AGREE_POLICY_INFO,
                     ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
         ],

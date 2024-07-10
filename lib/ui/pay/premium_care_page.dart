@@ -12,8 +12,9 @@ import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_user/tr_user02.dart';
-import 'package:rassi_assist/ui/web/only_web_view.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/common_class.dart';
@@ -1226,10 +1227,13 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    CustomNvRouteClass.createRoute(
-                      const OnlyWebViewPage(
-                          title: '',
-                          url: 'https://www.thinkpool.com/policy/privacy'),
+                    CustomNvRouteClass.createRouteData(
+                      const WebPage(),
+                      RouteSettings(
+                        arguments: PgData(
+                          pgData: 'https://www.thinkpool.com/policy/privacy',
+                        ),
+                      ),
                     ),
                   );
                 },
@@ -1449,10 +1453,13 @@ class _PremiumCarePageState extends State<PremiumCarePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    CustomNvRouteClass.createRoute(
-                      const OnlyWebViewPage(
-                          title: '',
-                          url: 'https://www.thinkpool.com/policy/privacy'),
+                    CustomNvRouteClass.createRouteData(
+                      const WebPage(),
+                      RouteSettings(
+                        arguments: PgData(
+                          pgData: 'https://www.thinkpool.com/policy/privacy',
+                        ),
+                      ),
                     ),
                   );
                 },

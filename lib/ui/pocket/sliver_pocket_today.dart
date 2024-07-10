@@ -1,15 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock11.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/pocket/pocket_tile/tile_pocket_today_sub.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
@@ -17,13 +19,11 @@ import 'package:skeleton_loader/skeleton_loader.dart';
 import '../../common/const.dart';
 import '../../common/d_log.dart';
 import '../../common/net.dart';
-import '../../common/strings.dart';
 import '../../common/ui_style.dart';
 import '../../models/none_tr/app_global.dart';
 import '../../models/none_tr/stock/stock_pkt_chart.dart';
 import '../../models/tr_pock/tr_pock10.dart';
 import '../common/common_popup.dart';
-import '../common/common_view.dart';
 import '../main/base_page.dart';
 
 /// 2023.10
@@ -49,9 +49,10 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
   bool _isLoading = true;
   Pock10 _pock10 = Pock10.emptyWithSelectDiv('');
   Pock11 _pock11 =
-      Pock11(upCnt: '', downCnt: '', issueCnt: '', sigBuyCnt: '', sigSellCnt: '', supplyCnt: '', chartCnt: '');
-  late ScrollController _scrollController;
-  bool _showBottomBoard = false;
+  Pock11(upCnt: '', downCnt: '', issueCnt: '', sigBuyCnt: '', sigSellCnt: '', supplyCnt: '', chartCnt: '');
+
+  bool _isFaVisible = true;
+  final ScrollController _scrollController = ScrollController();
 
   int _currentTabIndex = 0; // 현재 탭뷰 인덱스
   late TabController _tabController;
@@ -106,23 +107,6 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
     _loadPrefData().then((_) {
       initPage();
     });
-
-    _scrollController = ScrollController();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels == 0) {
-        if (!_showBottomBoard) {
-          setState(() {
-            _showBottomBoard = true;
-          });
-        }
-      } else {
-        if (_showBottomBoard) {
-          setState(() {
-            _showBottomBoard = false;
-          });
-        }
-      }
-    });
   }
 
   @override
@@ -142,74 +126,244 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomSheet: _showBottomBoard ? _setBottomCountBoard(context) : null,
-      backgroundColor: RColor.bgBasic_fdfdfd,
-      body: CustomScrollView(
-        slivers: [
-          SliverOverlapInjector(
-            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-          ),
-          SliverToBoxAdapter(
-            child: Center(
-              child: TabBar(
-                padding: const EdgeInsets.all(15),
-                labelPadding: EdgeInsets.zero,
-                isScrollable: true,
-                indicatorColor: Colors.transparent,
-                controller: _tabController,
-                splashFactory: NoSplash.splashFactory,
-                tabs: _makeTabs(),
-              ),
-            ),
-          ),
-          SliverFillRemaining(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  children: [
-                    // const SizedBox(height: 5.0,),
-                    Container(
-                      margin: const EdgeInsets.only(
-                        bottom: 10,
-                      ),
-                      child: (() {
-                        if (_isLoading) {
-                          return _loadingView();
-                        } else {
-                          if (_pock10.beforeOpening == 'Y' && _pock10.selectDiv != 'IS') {
-                          return _itemBaseContainer(
-                            CommonView.setNoDataTextView(
-                              80,
-                              '장 시작 전 입니다.',
-                            ),
-                          );
-                        } else if (_pock10.isEmpty()) {
-                          // if (_stockCount == 0) {
-                          //   return _setAddStockView();
-                          // } else {
-                          return _itemBaseContainer(
-                            CommonView.setNoDataTextView(
-                              80,
-                              _pock10.getEmptyTitle(),
-                            ),
-                          );
-                          // }
-                        } else {
-                          return _setPocketStatusList();
-                        }
-                        }
-                      })(),
-                    ),
-                  ],
+    return NotificationListener<UserScrollNotification>(
+      onNotification: (notification) {
+        if (notification.direction == ScrollDirection.forward && !_isFaVisible) {
+          setState(() {
+            _isFaVisible = true;
+          });
+        } else if (notification.direction == ScrollDirection.reverse && _isFaVisible) {
+          setState(() {
+            _isFaVisible = false;
+          });
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: RColor.bgBasic_fdfdfd,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15.0,
                 ),
-                // children: ,
+                color: Colors.transparent,
+                margin: const EdgeInsets.only(top: 60), //color: Colors.red,
+                child: TabBar(
+                  padding: const EdgeInsets.all(10),
+                  labelPadding: EdgeInsets.zero,
+                  isScrollable: true,
+                  indicatorColor: Colors.transparent,
+                  controller: _tabController,
+                  splashFactory: NoSplash.splashFactory,
+                  tabs: _makeTabs(),
+                ),
               ),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    //bottom: _isBottomScroll ? 15 : 0,
+                    bottom: 5,
+                  ),
+                  child: (() {
+                    if (_isLoading) {
+                      return _listWidgetParent(itemCount: 1, listItemWidget: _loadingView());
+                    } else {
+                      if (_pock10.beforeOpening == 'Y' && _pock10.selectDiv != 'IS') {
+                        return _listWidgetParent(
+                            itemCount: 1,
+                            listItemWidget: _itemBaseContainer(
+                              0,
+                              CommonView.setNoDataTextView(
+                                80,
+                                '장 시작 전 입니다.',
+                              ),
+                            ));
+                      } else if (_pock10.isEmpty()) {
+                        return _listWidgetParent(
+                            itemCount: 1,
+                            listItemWidget: _itemBaseContainer(
+                              0,
+                              CommonView.setNoDataTextView(
+                                80,
+                                _pock10.getEmptyTitle(),
+                              ),
+                            ));
+                      } else {
+                        return _setPocketStatusList();
+                      }
+                    }
+                  })(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: AnimatedContainer(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                spreadRadius: 0,
+                blurRadius: 10,
+                offset: const Offset(0, 2), //changes position of shadow
+              )
+            ],
+          ),
+          duration: const Duration(milliseconds: 250),
+          height: _isFaVisible ? 70 : 0,
+          child: SingleChildScrollView(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                //상승
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '상승',
+                          style: TStyle.content14,
+                        ),
+                        Text(
+                          _pock11.upCnt,
+                          style: TStyle.commonTitle,
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      _tabController.animateTo(Const.PKT_TODAY_UP);
+                    },
+                  ),
+                ),
+
+                //하락
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '하락',
+                          style: TStyle.content14,
+                        ),
+                        Text(
+                          _pock11.downCnt,
+                          style: TStyle.commonTitle,
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      _tabController.animateTo(Const.PKT_TODAY_DN);
+                    },
+                  ),
+                ),
+
+                //매매신호
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '매매신호',
+                          style: TStyle.content14,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _pock11.sigBuyCnt,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: RColor.sigBuy,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              _pock11.sigSellCnt,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: RColor.sigSell,
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                    onTap: () {
+                      _tabController.animateTo(Const.PKT_TODAY_TS);
+                    },
+                  ),
+                ),
+
+                //이슈
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '이슈',
+                          style: TStyle.content14,
+                        ),
+                        Text(
+                          _pock11.issueCnt,
+                          style: TStyle.commonTitle,
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      _tabController.animateTo(Const.PKT_TODAY_IS);
+                    },
+                  ),
+                ),
+
+                //특이사항
+                Expanded(
+                  child: InkWell(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '특이사항',
+                          style: TStyle.content14,
+                        ),
+                        Text(
+                          '${(int.tryParse(_pock11.chartCnt) ?? 0) + (int.tryParse(_pock11.supplyCnt) ?? 0)}',
+                          style: TStyle.commonTitle,
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      if ((int.tryParse(_pock11.supplyCnt) ?? 0) == 0 && (int.tryParse(_pock11.chartCnt) ?? 0) != 0) {
+                        _tabController.animateTo(Const.PKT_TODAY_CH);
+                      } else {
+                        _tabController.animateTo(Const.PKT_TODAY_SP);
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -277,175 +431,14 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
     return tabs;
   }
 
-  //Today 하단 각 항목 카운팅
-  Widget _setBottomCountBoard(BuildContext context) {
-    return Container(
-      height: 73,
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            spreadRadius: 0,
-            blurRadius: 10,
-            offset: const Offset(0, 2), //changes position of shadow
-          )
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          //상승
-          InkWell(
-            child: Column(
-              children: [
-                const Text(
-                  '상승',
-                  style: TStyle.content14,
-                ),
-                Text(
-                  _pock11.upCnt,
-                  style: TStyle.commonTitle,
-                ),
-              ],
-            ),
-            onTap: () {
-              _tabController.animateTo(Const.PKT_TODAY_UP);
-            },
-          ),
-
-          //하락
-          InkWell(
-            child: Column(
-              children: [
-                const Text(
-                  '하락',
-                  style: TStyle.content14,
-                ),
-                Text(
-                  _pock11.downCnt,
-                  style: TStyle.commonTitle,
-                ),
-              ],
-            ),
-            onTap: () {
-              _tabController.animateTo(Const.PKT_TODAY_DN);
-            },
-          ),
-
-          //매매신호
-          InkWell(
-            child: Column(
-              children: [
-                const Text(
-                  '매매신호',
-                  style: TStyle.content14,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _pock11.sigBuyCnt,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                        color: RColor.sigBuy,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      _pock11.sigSellCnt,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                        color: RColor.sigSell,
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-            onTap: () {
-              _tabController.animateTo(Const.PKT_TODAY_TS);
-            },
-          ),
-
-          //이슈
-          InkWell(
-            child: Column(
-              children: [
-                const Text(
-                  '이슈',
-                  style: TStyle.content14,
-                ),
-                Text(
-                  _pock11.issueCnt,
-                  style: TStyle.commonTitle,
-                ),
-              ],
-            ),
-            onTap: () {
-              _tabController.animateTo(Const.PKT_TODAY_IS);
-            },
-          ),
-
-          //특이사항
-          InkWell(
-            child: Column(
-              children: [
-                const Text(
-                  '특이사항',
-                  style: TStyle.content14,
-                ),
-                Text(
-                  '${(int.tryParse(_pock11.chartCnt) ?? 0) + (int.tryParse(_pock11.supplyCnt) ?? 0)}',
-                  style: TStyle.commonTitle,
-                ),
-              ],
-            ),
-            onTap: () {
-              if ((int.tryParse(_pock11.supplyCnt) ?? 0) == 0 && (int.tryParse(_pock11.chartCnt) ?? 0) != 0) {
-                _tabController.animateTo(Const.PKT_TODAY_CH);
-              } else {
-                _tabController.animateTo(Const.PKT_TODAY_SP);
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 데이터 없음 + 회원이 포켓에 등록한 종목이 0개 > 종목을 추가해 보세요
-  Widget _setAddStockView() {
-    return Container(
-      margin: const EdgeInsets.only(top: 20.0),
-      width: double.infinity,
-      alignment: Alignment.topCenter,
-      child: Column(
-        children: [
-          Image.asset(
-            'images/main_item_icon_no1.png',
-            height: 35,
-          ),
-          const SizedBox(
-            height: 20.0,
-          ),
-          const Text(
-            RString.tl_suggest_add_stock,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+  Widget _listWidgetParent({required int itemCount, required Widget listItemWidget}) {
+    return ListView.builder(
+      controller: _scrollController,
+      shrinkWrap: true,
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        return listItemWidget;
+      },
     );
   }
 
@@ -462,25 +455,23 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
       itemCnt = _pock10.sdList.length;
     }
     return ListView.builder(
-      // addAutomaticKeepAlives: true,
+      controller: _scrollController,
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      scrollDirection: Axis.vertical,
-      padding: EdgeInsets.zero,
       itemCount: itemCnt,
       itemBuilder: (context, index) {
         return _itemBaseContainer(
+          index,
           _selectMyPocketTile(index),
         );
       },
     );
   }
 
-  Widget _itemBaseContainer(Widget child) {
+  Widget _itemBaseContainer(int index, Widget child) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(
-        top: 15.0,
+      margin: EdgeInsets.only(
+        top: index == 0 ? 0 : 15,
       ),
       decoration: UIStyle.boxRoundFullColor16c(
         RColor.greyBox_f5f5f5,
@@ -490,32 +481,27 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
   }
 
   Widget _loadingView() {
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: 15,
-      ),
-      child: MediaQuery.removePadding(
-        context: context,
-        removeTop: true,
-        child: SkeletonLoader(
-          items: 1,
-          period: const Duration(seconds: 2),
-          highlightColor: const Color(
-            0xffffffff,
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: SkeletonLoader(
+        items: 1,
+        period: const Duration(seconds: 2),
+        highlightColor: const Color(
+          0xffffffff,
+        ),
+        baseColor: RColor.greyBox_f5f5f5,
+        direction: SkeletonDirection.ltr,
+        builder: Container(
+          width: double.infinity,
+          height: 80,
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          decoration: UIStyle.boxRoundFullColor16c(
+            RColor.greyBox_f5f5f5,
           ),
-          baseColor: RColor.greyBox_f5f5f5,
-          direction: SkeletonDirection.ltr,
-          builder: Container(
-            width: double.infinity,
-            height: 80,
-            margin: EdgeInsets.zero,
-            padding: EdgeInsets.zero,
-            decoration: UIStyle.boxRoundFullColor16c(
-              RColor.greyBox_f5f5f5,
-            ),
-            child: const SizedBox(
-              height: 0,
-            ),
+          child: const SizedBox(
+            height: 0,
           ),
         ),
       ),
@@ -619,17 +605,28 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
           'userId': _userId,
         },
       ),
-    );
-
-    _fetchPosts(
-      TR.POCK10,
-      jsonEncode(
-        <String, String>{
-          'userId': _userId,
-          'selectDiv': _tabSelectDiv[_currentTabIndex],
-        },
-      ),
-    );
+    ).then((_){
+      _fetchPosts(
+        TR.POCK10,
+        jsonEncode(
+          <String, String>{
+            'userId': _userId,
+            'selectDiv': _tabSelectDiv[_currentTabIndex],
+          },
+        ),
+      ).then((__){
+        if(!_isFaVisible){
+          setState(() {
+            _isFaVisible = true;
+          });
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(0, duration: const Duration(seconds: 1), curve: Curves.fastEaseInToSlowEaseOut);
+          }
+        });
+      });
+    });
   }
 
   reload() {
@@ -637,30 +634,19 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
     _requestTrPocketToday();
   }
 
-  void _navigatorResultCheck(dynamic result) {
-    if (result == 'cancel') {
-      DLog.w('*** navigete cancel ***');
-    } else {
-      DLog.w('*** navigateRefresh');
-      _requestTrPocketToday();
-    }
-  }
-
   Future<void> _fetchPosts(String trStr, String json) async {
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
       final http.Response response = await http
           .post(
-            url,
-            body: json,
-            headers: Net.headers,
-          )
+        url,
+        body: json,
+        headers: Net.headers,
+      )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -686,14 +672,8 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
     } else if (trStr == TR.POCK11) {
       final TrPock11 resData = TrPock11.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _pock11 = resData.retData!;
-        setState(() {
-/*          _scrollController.animateTo(
-            0.0,
-            duration: const Duration(milliseconds: 10),
-            curve: Curves.easeInOut,);*/
-          if (!_showBottomBoard) _showBottomBoard = true;
-        });
+        _pock11 = resData.retData;
+        setState(() {});
       }
     }
   }

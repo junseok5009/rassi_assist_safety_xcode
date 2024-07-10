@@ -481,7 +481,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
           alignment: Alignment.center,
           child: LineChart(
             LineChartData(
-              lineTouchData: LineTouchData(
+              lineTouchData: const LineTouchData(
                 enabled: false,
               ),
               extraLinesData: ExtraLinesData(horizontalLines: [
@@ -502,12 +502,12 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                   belowBarData: BarAreaData(
                     show: false,
                   ),
-                  dotData: FlDotData(show: false),
+                  dotData: const FlDotData(show: false),
                 ),
               ],
               minY: widget.chartItem.chartYAxisMin,
               //maxY: 10,
-              titlesData: FlTitlesData(
+              titlesData: const FlTitlesData(
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: false,
@@ -529,13 +529,15 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                   ),
                 ),
               ),
-              gridData: FlGridData(
+              gridData: const FlGridData(
                 show: false,
               ),
               borderData: FlBorderData(show: false),
             ),
-            swapAnimationDuration: const Duration(milliseconds: 180),
-            swapAnimationCurve: Curves.fastLinearToSlowEaseIn,
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.linear,
+            //swapAnimationDuration: const Duration(milliseconds: 180),
+            //swapAnimationCurve: Curves.fastLinearToSlowEaseIn,
             //swapAnimationCurve: Curves.linear, // Optional
           ),
         ),

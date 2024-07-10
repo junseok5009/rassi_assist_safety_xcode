@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +8,11 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/tr_qna02.dart';
 import 'package:rassi_assist/models/tr_qna03.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/user/write_qna_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -77,8 +75,7 @@ class UserCenterState extends State<UserCenterWidget> {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
+      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
       child: _setLayout(),
     );
   }
@@ -219,16 +216,18 @@ class UserCenterState extends State<UserCenterWidget> {
 
   void _navigateRefreshData(BuildContext context, Widget instance) async {
     // final result = await Navigator.push(context, _createRoute(instance));
-    final result = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => instance));
+    final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => instance));
     if (result == 'cancel') {
       DLog.d(UserCenterPage.TAG, '*** navigete cancel ***');
     } else {
       DLog.d(UserCenterPage.TAG, '*** navigateRefresh');
-      // _fetchPosts(TR.USER04,
-      //     jsonEncode(<String, String>{
-      //       'userId': _userId,
-      //     }));
+      _fetchPosts(
+          TR.QNA02,
+          jsonEncode(<String, String>{
+            'userId': _userId,
+            'pageNo': pageNum.toString(),
+            'pageItemSize': '20',
+          }));
     }
   }
 
@@ -269,20 +268,16 @@ class UserCenterState extends State<UserCenterWidget> {
       spanList.add(
         TextSpan(
             text: answerStrList[1],
-            style: const TextStyle(
-                color: Colors.blue,
-                decoration: TextDecoration.underline),
+            style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
             recognizer: TapGestureRecognizer()
               ..onTap = () async {
                 //on tap code here, you can navigate to other page or URL
                 Uri uri = Uri.parse(
                   answerStrList[1],
                 );
-                var urlLaunchable = await canLaunchUrl(
-                    uri); //canLaunch is from url_launcher package
+                var urlLaunchable = await canLaunchUrl(uri); //canLaunch is from url_launcher package
                 if (urlLaunchable) {
-                  await launchUrl(
-                      uri); //launch is from url_launcher package to launch URL
+                  await launchUrl(uri); //launch is from url_launcher package to launch URL
                 } else {
                   DLog.e(answerStrList[1]);
                 }
@@ -404,144 +399,59 @@ class UserCenterState extends State<UserCenterWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       //재질문
-                      InkWell(
-                        child: Container(
-                          width: 100,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                              color: RColor.lineGrey,
-                              width: 0.7,
+                      Expanded(
+                        child: InkWell(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                color: RColor.lineGrey,
+                                width: 0.7,
+                              ),
+                              borderRadius: const BorderRadius.all(Radius.circular(10.0)),
                             ),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(10.0)),
+                            alignment: Alignment.center,
+                            child: const Text('재질문'),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Text('재질문'),
-                            ],
-                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _navigateRefreshData(context, const WriteQnaPage());
+                          },
                         ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _navigateRefreshData(context, const WriteQnaPage());
-                        },
                       ),
                       const SizedBox(
                         width: 20,
                       ),
 
                       //문제해결
-                      InkWell(
-                        child: Container(
-                          width: 100,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                              color: RColor.lineGrey,
-                              width: 0.7,
+                      Expanded(
+                        child: InkWell(
+                          child: Container(
+                            height: 40,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                color: RColor.lineGrey,
+                                width: 0.7,
+                              ),
+                              borderRadius: const BorderRadius.all(Radius.circular(10.0)),
                             ),
-                            borderRadius: const BorderRadius.all(
-                                Radius.circular(10.0)),
+                            child: const Text('문제해결'),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Text('문제해결'),
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _fetchPosts(
-                              TR.QNA04,
-                              jsonEncode(<String, String>{
-                                'userId': _userId,
-                                'qnaSn': qItem.qnaSn,
-                              }));
-                        },
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  //네트워크 에러 알림
-  void _showDialogNetErr() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset(
-                    'images/rassibs_img_infomation.png',
-                    height: 60,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
-                  const Padding(
-                    padding:
-                        EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text(
-                      '안내',
-                      style: TStyle.commonTitle,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 25.0,
-                  ),
-                  const Text(
-                    RString.err_network,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 30.0,
-                  ),
-                  InkWell(
-                    child: Container(
-                      width: 140,
-                      height: 36,
-                      decoration: UIStyle.roundBtnStBox(),
-                      child: const Center(
-                        child: Text(
-                          '확인',
-                          style: TStyle.btnTextWht15,
-                          
+                          onTap: () {
+                            Navigator.pop(context);
+                            _fetchPosts(
+                                TR.QNA04,
+                                jsonEncode(<String, String>{
+                                  'userId': _userId,
+                                  'qnaSn': qItem.qnaSn,
+                                }));
+                          },
                         ),
                       ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    ],
                   ),
                 ],
               ),
@@ -567,10 +477,7 @@ class UserCenterState extends State<UserCenterWidget> {
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
       DLog.d(UserCenterPage.TAG, 'ERR : TimeoutException (12 seconds)');
-      _showDialogNetErr();
-    } on SocketException catch (_) {
-      DLog.d(UserCenterPage.TAG, 'ERR : SocketException');
-      _showDialogNetErr();
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

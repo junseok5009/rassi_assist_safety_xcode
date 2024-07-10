@@ -468,7 +468,11 @@ class MyPageState extends State<MyPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        _isPremium ? '전체제공' : _isUpgradeable ? '3종목 제공' : '미제공',
+                        _isPremium
+                            ? '전체제공'
+                            : _isUpgradeable
+                                ? '3종목 제공'
+                                : '미제공',
                         style: TStyle.content17T,
                       ),
                     ],
@@ -767,7 +771,8 @@ class MyPageState extends State<MyPage> {
   //웹브라우저 호출
   Widget _setBoxBtnUrl(String title, String strUrl) {
     return InkWell(
-      splashColor: Colors.deepPurpleAccent.withAlpha(30),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: Container(
         width: double.infinity,
         height: 55,
@@ -875,7 +880,7 @@ class MyPageState extends State<MyPage> {
                       ),
                       onTap: () {
                         Navigator.pop(context);
-                        String strUrl = 'http://pf.kakao.com/_swxiLxb/chat';
+                        String strUrl = 'http://pf.kakao.com/_uxeSqG/chat';
                         Platform.isIOS ? commonLaunchURL(strUrl) : commonLaunchUrlApp(strUrl);
                       },
                     ),

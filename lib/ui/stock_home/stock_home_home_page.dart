@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -73,7 +72,6 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
 
   // 유저정보
   String _userId = "";
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   // static value
   String stkName = '';
@@ -211,25 +209,6 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
       ],
       child: Scaffold(
         backgroundColor: Colors.white,
-        key: _scaffoldKey,
-        bottomSheet: _showBottomSheet
-            ? BottomSheet(
-                builder: (context) => SafeArea(
-                  child: Container(
-                    margin: EdgeInsets.only(
-                      bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom,
-                    ),
-                    child: _setAddPocket(),
-                  ),
-                ),
-                onClosing: () {
-                  setState(() {
-                    _showBottomSheet = false;
-                  });
-                },
-                enableDrag: false,
-              )
-            : null,
         body: SafeArea(
           child: CustomScrollView(
             controller: _scrollController,
@@ -292,8 +271,6 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
 
                     //공시
                     _setDisclos(),
-
-                    _setAddPocket(),
                   ],
                 ),
               )
@@ -1721,105 +1698,6 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
     } else {
       return const SizedBox();
     }
-  }
-
-  // AI매매신호에서 지금 보고 있는 종목의 .. 배너
-  Widget _setAddPocket() {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _showBottomSheet = false;
-        });
-        StockHomeTab.globalKey.currentState!.funcTabMove(Const.STK_INDEX_SIGNAL);
-      },
-      child: Container(
-        height: AppGlobal().isTablet ? 130 : 110,
-        color: RColor.mainColor,
-        padding: const EdgeInsets.all(15),
-        child: Row(
-          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              flex: 7,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /*AutoSizeText(
-                      '$stkName의 AI매매신호를 확인해 보세요',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        height: 1.2,
-                      ),
-                    ),*/
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AutoSizeText(
-                          '$stkName의',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            //fontSize: 17,
-                            height: 1.2,
-                          ),
-                        ),
-                        const Text(
-                          'AI매매신호를 확인해 보세요',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            height: 1.2,
-                            //fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(20),
-                        ),
-                        border: Border.all(
-                          width: 1.2,
-                          color: Colors.white,
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                      ),
-                      child: const Text(
-                        '바로가기',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Flexible(
-              flex: 3,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 2,
-                  ),
-                  child: Image.asset('images/icon_stock_home_home_banner2.png'),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   //서브 항목 타이틀

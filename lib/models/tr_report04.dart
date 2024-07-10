@@ -40,21 +40,12 @@ class Report04 {
     this.listReport = const [],
   });
 
-  // Report04.empty() {
-  //   totalPageSize = '';
-  //   currentPageNo = '';
-  //   listReport = [];
-  // }
-
   factory Report04.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Report'] as List;
-    List<Report04Report> dataList = list == null
-        ? []
-        : list.map((i) => Report04Report.fromJson(i)).toList();
+    var jsonList = json['list_Report'];
     return Report04(
       totalPageSize: json['totalPageSize'] ?? '',
       currentPageNo: json['currentPageNo'] ?? '',
-      listReport: dataList,
+      listReport: jsonList == null ? [] : (jsonList as List).map((i) => Report04Report.fromJson(i)).toList(),
     );
   }
 }
@@ -102,7 +93,7 @@ class Report04Report {
 
 class TileReport04ListItemView extends StatelessWidget {
   //const TileReport04ListItemView({Key? key}) : super(key: key);
-  TileReport04ListItemView(this.item);
+  const TileReport04ListItemView(this.item, {super.key});
 
   final Report04Report item;
 
@@ -145,7 +136,7 @@ class TileReport04ListItemView extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          TStyle.getDateDivFormat3(item.issueDate),
+                          TStyle.getDateSlashFormat1(item.issueDate),
                           style: TStyle.newBasicGreyS15,
                         ),
                         const SizedBox(

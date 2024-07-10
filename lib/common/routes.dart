@@ -40,7 +40,6 @@ import 'package:rassi_assist/ui/signal/signal_top_page.dart';
 import 'package:rassi_assist/ui/signal/signal_wait_stock.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_company_overview_page.dart';
 import 'package:rassi_assist/ui/stock_home/stock_home_tab.dart';
-import 'package:rassi_assist/ui/sub/ai_version_page.dart';
 import 'package:rassi_assist/ui/sub/condition_page.dart';
 import 'package:rassi_assist/ui/sub/notification_list.dart';
 import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
@@ -51,16 +50,14 @@ import 'package:rassi_assist/ui/sub/stk_catch_top.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/test/notification_setting.dart';
 import 'package:rassi_assist/ui/test/test_page.dart';
+import 'package:rassi_assist/ui/test/today_feature_stock_list_page.dart';
 import 'package:rassi_assist/ui/test/today_issue_timeline_page.dart';
-import 'package:rassi_assist/ui/test/web_chart.dart';
 import 'package:rassi_assist/ui/user/community_page.dart';
 import 'package:rassi_assist/ui/user/terms_page.dart';
 import 'package:rassi_assist/ui/user/user_center_page.dart';
 import 'package:rassi_assist/ui/user/user_info_page.dart';
 import 'package:rassi_assist/ui/user/write_qna_page.dart';
 import 'package:rassi_assist/ui/web/web_page.dart';
-import 'package:rassi_assist/ui/web/web_viewer.dart';
-
 import '../ui/sub/trade_intro_page.dart';
 
 final routes = {
@@ -92,7 +89,6 @@ final routes = {
   ) =>
       const StockCompanyOverviewPage(),
 
-  // 종목홈_챗GPT기업개요
   AgentNoLinkSignUpPage.routeName: (
     BuildContext context,
   ) =>
@@ -100,6 +96,8 @@ final routes = {
 
   // (오늘의) 이슈 타임라인
   TodayIssueTimelinePage.routeName: (BuildContext context) => const TodayIssueTimelinePage(),
+
+  TodayFeatureStockListPage.routeName: (BuildContext context) => const TodayFeatureStockListPage(),
 
   MyPage.routeName: (BuildContext context) => MyPage(),
   KeyboardPage.routeName: (BuildContext context) => const KeyboardPage(),
@@ -152,9 +150,7 @@ final routes = {
   IssueListPage.routeName: (BuildContext context) => const IssueListPage(),
 
   WebPage.routeName: (BuildContext context) => const WebPage(),
-  WebViewer.routeName: (BuildContext context) => const WebViewer(),
   TermsPage.routeName: (BuildContext context) => TermsPage(),
-  AiVersionPage.routeName: (BuildContext context) => const AiVersionPage(),
   UserInfoPage.routeName: (BuildContext context) => const UserInfoPage(),
   CommunityPage.routeName: (BuildContext context) => CommunityPage(),
   UserCenterPage.routeName: (BuildContext context) => const UserCenterPage(),
@@ -171,7 +167,6 @@ final routes = {
   InAppPurchase.routeName: (BuildContext context) => const InAppPurchase(),
 
   TestPage.routeName: (BuildContext context) => TestPage(),
-  WebChartPage.routeName: (BuildContext context) => const WebChartPage(),
   // TestChart.routeName: (BuildContext context) => TestChart(),
   // EChartPage.routeName: (BuildContext context) => EChartPage(),
 };

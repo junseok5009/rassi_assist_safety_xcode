@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -166,6 +167,7 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
           }
         }
         CustomFirebaseClass.logEvtScreenView(TAG_NAME);
+        CustomFirebaseClass.logEvtPaySelect(payType: pageCode);
         _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
         _curProd = _prefs.getString(Const.PREFS_CUR_PROD) ?? '';
         if (_userId == '') {
@@ -466,13 +468,16 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
             ),
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WebPage(),
-                    settings: RouteSettings(
-                      arguments: PgData(pgData: Net.AGREE_TERMS),
+                context,
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: Net.AGREE_TERMS,
                     ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
           const SizedBox(
@@ -485,13 +490,16 @@ class PayPremiumPromotionState extends State<PayPremiumPromotionPage> {
             ),
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WebPage(),
-                    settings: RouteSettings(
-                      arguments: PgData(pgData: Net.AGREE_POLICY_INFO),
+                context,
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: Net.AGREE_POLICY_INFO,
                     ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
         ],

@@ -16,7 +16,7 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_notifier.dart';
 import 'package:rassi_assist/models/rassiro.dart';
-import 'package:rassi_assist/models/tr_index01.dart';
+import 'package:rassi_assist/models/tr_index/tr_index02.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue09.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi01.dart';
@@ -28,12 +28,14 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/home/home_tile/home_tile_hot_theme.dart';
-import 'package:rassi_assist/ui/home/home_tile/home_tile_today_issue.dart';
+import 'package:rassi_assist/ui/home/market_tile/market_tile_today_issue.dart';
+import 'package:rassi_assist/ui/home/market_tile/market_tile_today_market.dart';
 import 'package:rassi_assist/ui/market/headline_now_page.dart';
 import 'package:rassi_assist/ui/market/home_market_kos_chart.dart';
 import 'package:rassi_assist/ui/market/related_news_page.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_all_page.dart';
+import 'package:rassi_assist/ui/test/today_feature_stock_list_page.dart';
 import 'package:rassi_assist/ui/test/today_issue_timeline_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,13 +62,8 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
   late SharedPreferences _prefs;
   String _userId = "";
-  String _kospiSub = "";
-  Color _kospiColor = Colors.grey;
-  String _kosdaqSub = "";
-  Color _kosdaqColor = Colors.grey;
-  Index01 _index01 = defIndex01;
-
-  Issue09 _issue09 = Issue09();
+  Index02 _index02 = const Index02();
+  Issue09 _issue09 = const Issue09();
 
   List<MenuDiv> _listFeature = [];
 
@@ -135,7 +132,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
               const SizedBox(height: 10),
               //오늘의 이슈
               if (_issue09.listData.isNotEmpty)
-                HomeTileTodayIssue(
+                MarketTileTodayIssue(
                   issue09: _issue09,
                 ),
               const SizedBox(height: 30),
@@ -147,7 +144,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
               //오늘 시장은
               _setSubTitleMore('오늘 시장은', '더보기', _showSheetMarketChart),
-              _setMarketIndex(),
+              MarketTileTodayMarket(index02: _index02),
               const SizedBox(height: 25),
 
               //오늘의 특징주 빠르게 보기
@@ -195,184 +192,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
             ]),
           ),
         ],
-      ),
-    );
-  }
-
-  // 시장 지수
-  Widget _setMarketIndex() {
-    return InkWell(
-      onTap: () => _showSheetMarketChart,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      child: Visibility(
-        visible: !_index01.isEmpty(),
-        child: SizedBox(
-          height: 150,
-          child: (_index01.marketTimeDiv == 'N') ||
-                  (_index01.marketTimeDiv == 'B' && _index01.kosdaq.isEmpty() && _index01.kospi.isEmpty())
-              ? const Column(
-                  children: [
-                    SizedBox(
-                      height: 50,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Text(
-                                '코스피',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Text(
-                                '코스닥',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          '장 시작 전 입니다.',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                )
-              : Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text(
-                            '코스피',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          Text(
-                            _index01.kospi.priceIndex,
-                            style: const TextStyle(
-                              //공통 타이틀 (bold)
-                              fontWeight: FontWeight.w600,
-                              fontSize: 24,
-                              color: Color(0xff111111),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          Text(
-                            _kospiSub,
-                            style: TextStyle(
-                              color: _kospiColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          Text(
-                            _index01.marketTimeDiv == "B"
-                                ? "${TStyle.getMonthDayString()} 개장전 예상지수"
-                                : _index01.marketTimeDiv == "O"
-                                    ? "${TStyle.getMonthDayString()} ${TStyle.getTimeFormat(_index01.baseTime)}"
-                                    : _index01.marketTimeDiv == "C"
-                                        ? "${TStyle.getMonthDayString()} 장마감"
-                                        : '',
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text(
-                            '코스닥',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          Text(
-                            _index01.kosdaq.priceIndex,
-                            style: const TextStyle(
-                              //공통 타이틀 (bold)
-                              fontWeight: FontWeight.w600,
-                              fontSize: 24,
-                              color: Color(0xff111111),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          Text(
-                            _kosdaqSub,
-                            style: TextStyle(
-                              color: _kosdaqColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          Text(
-                            _index01.marketTimeDiv == "B"
-                                ? "${TStyle.getMonthDayString()} 개장전 예상지수"
-                                : _index01.marketTimeDiv == "O"
-                                    ? "${TStyle.getMonthDayString()} ${TStyle.getTimeFormat(_index01.baseTime)}"
-                                    : _index01.marketTimeDiv == "C"
-                                        ? "${TStyle.getMonthDayString()} 장마감"
-                                        : '',
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-        ),
       ),
     );
   }
@@ -446,7 +265,11 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
                       ),
                     ),
                     onTap: () {
-                      // 각 list 화면으로 이동
+                      Navigator.pushNamed(
+                        context,
+                        TodayFeatureStockListPage.routeName,
+                        arguments: _listFeature[index].menuDiv,
+                      );
                     },
                   ),
                 );
@@ -455,9 +278,10 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
       ],
     );
   }
+
   String _setFeatureText(MenuDiv item) {
     var content = '';
-    if(item.content.isEmpty) {
+    if (item.content.isEmpty) {
       content = '종목이 없습니다.';
     } else {
       content = item.content;
@@ -932,42 +756,19 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
       }
 
       _fetchPosts(
-          TR.INDEX01,
+          TR.INDEX02,
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
     }
 
-    //시장 인덱스
-    else if (trStr == TR.INDEX01) {
-      final TrIndex01 resData = TrIndex01.fromJson(jsonDecode(response.body));
+    //코스피 코스닥 차트
+    else if (trStr == TR.INDEX02) {
+      final TrIndex02 resData = TrIndex02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _index01 = resData.retData;
-
-        Kospi kospi = resData.retData.kospi;
-        Kosdaq kosdaq = resData.retData.kosdaq;
-
-        if (kospi.fluctuationRate.contains('-')) {
-          _kospiSub = '▼${kospi.indexFluctuation.replaceAll('-', '')}  ${kospi.fluctuationRate}%';
-          _kospiColor = RColor.sigSell;
-        } else if (kospi.fluctuationRate == '0.00') {
-          _kospiSub = '${kospi.indexFluctuation}  ${kospi.fluctuationRate}%';
-        } else {
-          _kospiSub = '▲${kospi.indexFluctuation}  +${kospi.fluctuationRate}%';
-          _kospiColor = RColor.sigBuy;
-        }
-
-        if (kosdaq.fluctuationRate.contains('-')) {
-          _kosdaqSub = '▼${kosdaq.indexFluctuation.replaceAll('-', '')}   ${kosdaq.fluctuationRate}%';
-          _kosdaqColor = RColor.sigSell;
-        } else if (kosdaq.fluctuationRate == '0.00') {
-          _kosdaqSub = '${kosdaq.indexFluctuation}  ${kosdaq.fluctuationRate}%';
-        } else {
-          _kosdaqSub = '▲${kosdaq.indexFluctuation}   +${kosdaq.fluctuationRate}%';
-          _kosdaqColor = RColor.sigBuy;
-        }
+        _index02 = resData.retData;
       } else {
-        _index01 = defIndex01;
+        _index02 = const Index02();
       }
       setState(() {});
 

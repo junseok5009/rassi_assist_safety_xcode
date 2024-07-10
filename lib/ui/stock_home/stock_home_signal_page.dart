@@ -112,6 +112,8 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   ChartSeriesController<ChartData, DateTime>? _chartSeriesController;
   String _recentSignalDataFlag = '';
 
+  late ChartAxis _xAxis;
+
   @override
   void initState() {
     _zoomPanBehavior = ZoomPanBehavior(
@@ -153,6 +155,35 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         }
       }
     });
+    _xAxis = DateTimeCategoryAxis(
+      plotOffset: 10,
+      interval: 7,
+      axisBorderType: AxisBorderType.withoutTopAndBottom,
+      axisLine: const AxisLine(
+        width: 1,
+        color: Colors.black,
+      ),
+      majorGridLines: const MajorGridLines(
+        width: 0,
+      ),
+      majorTickLines: const MajorTickLines(
+        width: 1,
+        color: Colors.black,
+      ),
+      desiredIntervals: 1,
+      edgeLabelPlacement: EdgeLabelPlacement.shift,
+      labelPlacement: LabelPlacement.onTicks,
+      axisLabelFormatter: (axisLabelRenderArgs) {
+        return ChartAxisLabel(
+          _signalChartDataList.isEmpty || _signalChartDataList.length - 1 < axisLabelRenderArgs.value.toInt()
+              ? ''
+              : TStyle.getDateSlashFormat1(_signalChartDataList[axisLabelRenderArgs.value.toInt()].tradeDate),
+          const TextStyle(
+            fontSize: 10,
+          ),
+        );
+      },
+    );
     _loadPrefData().then((_) => {
           varWantKeepAlive = true,
           if (_userId != '')
@@ -219,8 +250,14 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                     },
                     child: Container(
                       width: double.infinity,
-                      height: AppGlobal().isTablet ? 130 : 110,
-                      color: const Color(0xd9a064e0),
+                      height: AppGlobal().isTablet ? 80 : 60,
+                      decoration: const BoxDecoration(
+                        color: Color(0xd9a064e0),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(15),
+                          topRight: Radius.circular(15),
+                        ),
+                      ),
                       margin: EdgeInsets.only(
                         bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom,
                       ),
@@ -230,74 +267,20 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Flexible(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  '나의 종목 포켓에 등록된 종목입니다.',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 4,
-                                ),
-                                const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '보유중이시라면 회원님을 위한',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      '매도신호를 받아보세요!',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 6,
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(20),
-                                    ),
-                                    border: Border.all(
-                                      width: 0.8,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 1,
-                                  ),
-                                  child: const Text(
-                                    '나의 종목 포켓으로 이동',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                          const Flexible(
+                            child: Text(
+                              '나의 포켓에 추가된 종목입니다.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                           Align(
                             alignment: Alignment.centerRight,
                             child: Image.asset(
-                              'images/icon_stock_home_signal_banner1.png',
-                              width: 55,
+                              'images/icon_bag_check_wh.png',
+                              width: 24,
                             ),
                           ),
                         ],
@@ -312,106 +295,59 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                   enableDrag: false,
                 )
               : BottomSheet(
-                  builder: (bsContext) => InkWell(
-                    onTap: () {
-                      setState(() {
-                        _showBottomSheet = false;
-                      });
-                      StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: AppGlobal().isTablet ? 130 : 110,
-                      color: RColor.lightSell_2e70ff,
-                      margin:
-                          EdgeInsets.only(bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 25,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'MY 종목에 추가해 보세요.',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 4,
-                                ),
-                                const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'AI매매신호, AI속보, 종목 이슈 알짜 정보를',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      '바로 확인 하실 수 있습니다.',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 6,
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(20),
-                                    ),
-                                    border: Border.all(
-                                      width: 0.8,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 1,
-                                  ),
-                                  child: const Text(
-                                    '바로가기',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Image.asset(
-                              'images/icon_stock_home_signal_banner1.png',
-                              width: 55,
-                            ),
-                          ),
-                        ],
-                      ),
+        builder: (bsContext) => InkWell(
+          onTap: () {
+            setState(() {
+              _showBottomSheet = false;
+            });
+            StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
+          },
+          child: Container(
+            width: double.infinity,
+            height: AppGlobal().isTablet ? 80 : 60,
+            decoration: const BoxDecoration(
+              color: RColor.lightSell_2e70ff,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+              ),
+            ),
+            margin:
+            EdgeInsets.only(bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 25,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Flexible(
+                  child: Text(
+                    '나의 포켓에 종목을 추가해 보세요.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      //fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
-                  onClosing: () {
-                    setState(() {
-                      _showBottomSheet = false;
-                    });
-                  },
-                  enableDrag: false,
-                )
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Image.asset(
+                    'images/icon_bag_plus_wh.png',
+                    width: 24,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        onClosing: () {
+          setState(() {
+            _showBottomSheet = false;
+          });
+        },
+        enableDrag: false,
+      )
           : null,
       body: SafeArea(
         child: CustomScrollView(
@@ -1009,7 +945,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
           ),
         ),
       ),
-      onTap: () {
+      onTap: () async {
         //기본 사용자일 경우에는 결제 페이지로 / 프리미엄 사용자일 경우에는 종목 등록
         if (_appGlobal.isFreeUser) {
           Navigator.push(
@@ -1020,7 +956,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
           );
         } else {
           //종목 등록 안내
-          _showDialogReg();
+          await StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
         }
       },
     );
@@ -1403,248 +1339,79 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
   Widget _setPockBanner() {
     return Provider.of<StockInfoProvider>(context, listen: false).getIsMyStock
         ? InkWell(
-            onTap: () {
-              // [포켓 > 나의포켓 > 포켓선택]
-              basePageState.goPocketPage(Const.PKT_INDEX_MY,
-                  pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
-              Navigator.popUntil(
-                context,
-                ModalRoute.withName(BasePage.routeName),
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              height: AppGlobal().isTablet ? 130 : 110,
-              color: const Color(0xd9a064e0),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 25,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '나의 종목 포켓에 등록된 종목입니다.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '보유중이시라면 회원님을 위한',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              '매도신호를 받아보세요!',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 6,
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(20),
-                            ),
-                            border: Border.all(
-                              width: 0.8,
-                              color: Colors.white,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 1,
-                          ),
-                          child: const Text(
-                            '나의 종목 포켓으로 이동',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Image.asset(
-                      'images/icon_stock_home_signal_banner1.png',
-                      width: 55,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        : InkWell(
-            onTap: () {
-              StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
-            },
-            child: Container(
-              width: double.infinity,
-              height: AppGlobal().isTablet ? 130 : 110,
-              color: RColor.lightSell_2e70ff,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 25,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'MY 종목에 추가해 보세요.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'AI매매신호, AI속보, 종목 이슈 알짜 정보를',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              '바로 확인 하실 수 있습니다.',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 6,
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(20),
-                            ),
-                            border: Border.all(
-                              width: 0.8,
-                              color: Colors.white,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 1,
-                          ),
-                          child: const Text(
-                            '바로가기',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Image.asset(
-                      'images/icon_stock_home_signal_banner1.png',
-                      width: 55,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-  }
-
-  //종목추가 안내 다이얼로그
-  void _showDialogReg() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext buildContext) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(
-                    Icons.close,
-                    color: Colors.black,
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
+      onTap: () {
+        // [포켓 > 나의포켓 > 포켓선택]
+        basePageState.goPocketPage(Const.PKT_INDEX_MY,
+            pktSn: Provider.of<StockInfoProvider>(context, listen: false).getPockSn);
+        Navigator.popUntil(
+          context,
+          ModalRoute.withName(BasePage.routeName),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        height: AppGlobal().isTablet ? 80 : 60,
+        color: const Color(0xd9a064e0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 25,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Flexible(
+              child: Text(
+                '나의 포켓에 추가된 종목입니다.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
                 ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const Text(
-                    '나의 종목으로 등록하시고,\nAI매매신호를 실시간으로 받아보세요.',
-                    style: TStyle.content14,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 7.0,
-                  ),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        margin: const EdgeInsets.only(top: 20.0),
-                        padding: const EdgeInsets.symmetric(vertical: 7.0),
-                        decoration: UIStyle.roundBtnStBox(),
-                        child: const Center(
-                          child: Text(
-                            '확인',
-                            style: TStyle.btnTextWht16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(buildContext);
-                      StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
-                    },
-                  ),
-                ],
               ),
             ),
-          );
-        });
+            Align(
+              alignment: Alignment.centerRight,
+              child: Image.asset(
+                'images/icon_bag_check_wh.png',
+                width: 24,
+              ),
+            ),
+          ],
+        ),
+      ),
+    )
+        : InkWell(
+      onTap: () {
+        StockHomeTab.globalKey.currentState!.showAddStockLayerAndResult();
+      },
+      child: Container(
+        width: double.infinity,
+        height: AppGlobal().isTablet ? 80 : 60,
+        color: RColor.lightSell_2e70ff,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 25,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Flexible(
+              child: Text(
+                '나의 포켓에 종목을 추가해 보세요.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Image.asset(
+                'images/icon_bag_plus_wh.png',
+                width: 24,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   //매매신호 Status
@@ -1703,7 +1470,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
     if (_signalChartDataList.isEmpty) return const SizedBox();
     return Container(
       width: double.infinity,
-      height: 230,
+      height: 200,
       margin: const EdgeInsets.all(
         10,
       ),
@@ -1711,7 +1478,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         children: [
           Container(
             width: double.infinity,
-            height: 230,
+            height: 200,
             padding: const EdgeInsets.all(5),
             child: SfCartesianChart(
               plotAreaBorderWidth: 0,
@@ -1753,13 +1520,14 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       //y: '89%'
                     ),
               ],*/
-              primaryXAxis: DateTimeCategoryAxis(
+              primaryXAxis: _xAxis,
+              /*primaryXAxis: DateTimeCategoryAxis(
                 // https://www.syncfusion.com/forums/175539/xaxis-disappears-when-pinching-out
                 plotOffset: 10,
-                initialVisibleMinimum: _signalChartDataList.length > 36
+                */ /*initialVisibleMinimum: _signalChartDataList.length > 36
                     ? _signalChartDataList[_signalChartDataList.length - 35].dateTime
                     : _signalChartDataList.first.dateTime,
-                initialVisibleMaximum: _signalChartDataList.last.dateTime,
+                initialVisibleMaximum: _signalChartDataList.last.dateTime,*/ /*
                 interval: 7,
                 axisBorderType: AxisBorderType.withoutTopAndBottom,
                 axisLine: const AxisLine(
@@ -1786,7 +1554,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                     ),
                   );
                 },
-              ),
+              ),*/
               primaryYAxis: NumericAxis(
                 axisLine: const AxisLine(
                   width: 0,
@@ -1798,7 +1566,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                 majorTickLines: const MajorTickLines(
                   width: 0,
                 ),
-                plotOffset: 10,
+                plotOffset: 0,
                 placeLabelsNearAxisLine: false,
                 decimalPlaces: 0,
                 axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
@@ -1867,7 +1635,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                     dataSource: _signalChartDataList,
                     xValueMapper: (item, index) => item.dateTime,
                     yValueMapper: (item, index) => int.tryParse(item.tradePrc) ?? 0,
-                    //pointColorMapper: (ChartData data, _) => const Color(0xffCBCBCB),
                     onRendererCreated: (controller) => _chartSeriesController = controller,
                     borderWidth: 1.4,
                     borderColor: _recentSignalDataFlag.isEmpty
@@ -1886,7 +1653,7 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                                 : const Color(0xffffffff),
                     enableTooltip: false,
                     animationDelay: 100,
-                    animationDuration: 2000,
+                    animationDuration: 1500,
                     markerSettings: const MarkerSettings(
                       isVisible: true,
                       borderWidth: 0,
@@ -1896,30 +1663,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                       image: AssetImage('images/icon_arrow_signal_chart_dn.png'),
                     ),
                     initialIsVisible: true,
-                    /*gradient: LinearGradient(
-                      colors: [
-                        if (_recentSignalDataFlag.isEmpty)
-                          const Color(0xffffffff)
-                        else if (_recentSignalDataFlag == 'B')
-                          const Color(0xffFFECEC)
-                        else if (_recentSignalDataFlag == 'S')
-                          const Color(0xffEFEFEF)
-                        else
-                          const Color(0xffffffff),
-                        if (_recentSignalDataFlag.isEmpty)
-                          const Color(0xffffffff)
-                        else if (_recentSignalDataFlag == 'B')
-                          const Color(0xffFFECEC)
-                        else if (_recentSignalDataFlag == 'S')
-                          const Color(0xffEFEFEF)
-                        else
-                          const Color(0xffffffff),
-                      ],
-                      stops: const [
-                        0,
-                        0,
-                      ],
-                    ),*/
                   ),
                 if (_signalChartDataList.isNotEmpty)
                   LineSeries<ChartData, DateTime>(
@@ -1928,7 +1671,6 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
                     yValueMapper: (item, index) => int.tryParse(item.tradePrc) ?? 0,
                     width: 0,
                     color: Colors.transparent,
-
                     markerSettings: const MarkerSettings(
                       isVisible: true,
                       borderWidth: 0,
@@ -2103,6 +1845,8 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         await Future.delayed(const Duration(milliseconds: 100));
         setState(() {
           SchedulerBinding.instance.addPostFrameCallback((_) {
+            //_chartSeriesController?.seriesRenderer.
+            _zoomPanBehavior.zoomToSingleAxis(_xAxis, 0.99, 0.15);
             _chartSeriesController?.isVisible = true;
             _chartSeriesController?.animate();
           });

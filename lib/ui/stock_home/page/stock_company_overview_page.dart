@@ -104,15 +104,6 @@ class StockCompanyOverviewPage extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  /*Navigator.push(
-                    context,
-                    CustomNvRouteClass.createRoute(
-                      OnlyWebViewPage(
-                          title: '',
-                          url: shome07stockContent.linkUrl),
-                    ),
-                  );*/
-
                   Navigator.push(
                     context,
                     Platform.isAndroid

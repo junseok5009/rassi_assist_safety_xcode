@@ -25,7 +25,7 @@ import 'package:rassi_assist/ui/stock_home/page/result_analyze_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_disclos_list_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_issue_page.dart';
 import 'package:rassi_assist/ui/stock_home/stock_home_tab.dart';
-import 'package:rassi_assist/ui/web/only_web_view.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -397,7 +397,7 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView> 
                           ],
                           stops: const [
                             0,
-                            0.9,
+                            1,
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -658,10 +658,12 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView> 
                           // 시세특이
                           Navigator.push(
                             context,
-                            CustomNvRouteClass.createRoute(
-                              OnlyWebViewPage(
-                                title: '',
-                                url: 'https://m.thinkpool.com/item/$_stockCode/chart',
+                            CustomNvRouteClass.createRouteData(
+                              const WebPage(),
+                              RouteSettings(
+                                arguments: PgData(
+                                  pgData: 'https://m.thinkpool.com/item/$_stockCode/chart',
+                                ),
                               ),
                             ),
                           );
@@ -988,10 +990,12 @@ class StockHomeHomeTileEventViewState extends State<StockHomeHomeTileEventView> 
                                 // 시세특이
                                 Navigator.push(
                                   context,
-                                  CustomNvRouteClass.createRoute(
-                                    OnlyWebViewPage(
-                                      title: '',
-                                      url: 'https://m.thinkpool.com/item/$_stockCode/chart',
+                                  CustomNvRouteClass.createRouteData(
+                                    const WebPage(),
+                                    RouteSettings(
+                                      arguments: PgData(
+                                        pgData: 'https://m.thinkpool.com/item/$_stockCode/chart',
+                                      ),
                                     ),
                                   ),
                                 );

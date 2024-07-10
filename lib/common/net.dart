@@ -204,6 +204,7 @@ class TR {
   static const PROM01 = "TR_PROM01"; //관리자 추천 상품
   static const PROM02 = "TR_PROM02"; //상품 홍보/안내
   static const INDEX01 = "TR_INDEX01"; //오늘 지수(KOSPI, KOSDAQ)
+  static const INDEX02 = "TR_INDEX02"; //오늘 지수(KOSPI, KOSDAQ)
   static const SHOME01 = "TR_SHOME01"; //종목 정보 조회
   static const SHOME02 = "TR_SHOME02"; //종목 타임라인
   static const SHOME03 = "TR_SHOME03"; //종목 최근 7일간 종목소식
@@ -269,6 +270,7 @@ class TR {
   static const RASSI16 = "TR_RASSI16";
   static const RASSI17 = "TR_RASSI17";
   static const RASSI18 = "TR_RASSI18";
+  static const RASSI19 = "TR_RASSI19";
 
   static const SIGNAL01 = "TR_SIGNAL01"; //매매신호 상태
   static const SIGNAL02 = "TR_SIGNAL02"; //매매신호 성과

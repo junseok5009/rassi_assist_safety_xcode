@@ -70,7 +70,6 @@ class _AgentNoLinkSignUpPageState extends State<AgentNoLinkSignUpPage> {
     _loadPrefData().then((_) {
       Future.delayed(Duration.zero, () async {
         _userJoinInfo = ModalRoute.of(context)?.settings.arguments as UserJoinInfo;
-
         if (_userJoinInfo.pgType == 'SSGOLLA') {
           _strPhone = _userJoinInfo.phone;
           _phoneController.text = _userJoinInfo.phone;
@@ -89,6 +88,14 @@ class _AgentNoLinkSignUpPageState extends State<AgentNoLinkSignUpPage> {
     _phoneController.dispose();
     _authController.dispose();
     super.dispose();
+  }
+
+
+  @override
+  void setState(VoidCallback fn) {
+    if(mounted){
+      super.setState(fn);
+    }
   }
 
   Future<void> _loadPrefData() async {

@@ -36,13 +36,43 @@ class RassiDeskTimeLinePage extends StatefulWidget {
   State<RassiDeskTimeLinePage> createState() => _RassiDeskTimeLinePageState();
 }
 
-class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
-    with TickerProviderStateMixin {
+class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage> with TickerProviderStateMixin {
   late SharedPreferences _prefs;
   String _userId = '';
   String _nowHourMinute = '0000';
 
   final List<RassiroNewsDdInfo> _listRassiroNewsDdInfo = [];
+
+  final List<GlobalKey> _listGlobalKeys = [
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+  ]; // 키 생성
+  final List<String> _listCompareTimes1 = [
+    '0000',
+    '0830',
+    '0900',
+    '1000',
+    '1400',
+    '1600',
+    '1830',
+    '2000',
+  ];
+  final List<String> _listCompareTimes2 = [
+    '0829',
+    '0859',
+    '0959',
+    '1359',
+    '1559',
+    '1829',
+    '1959',
+    '2400',
+  ];
 
   @override
   void initState() {
@@ -59,10 +89,9 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
         });
   }
 
-
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -208,206 +237,211 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
       return Container();
     }
     var item = _listRassiroNewsDdInfo[index];
-    return TimelineTile(
-      alignment: TimelineAlign.start,
-      isLast: index == _listRassiroNewsDdInfo.length - 1 ? true : false,
-      beforeLineStyle: LineStyle(
-        color: isOn ? RColor.mainColor : RColor.new_basic_line_grey,
-        thickness: 1,
-      ),
-      afterLineStyle: LineStyle(
-        color: isNow
-            ? RColor.new_basic_line_grey
-            : isOn
-                ? RColor.mainColor
-                : RColor.new_basic_line_grey,
-        thickness: 1,
-      ),
-      indicatorStyle: IndicatorStyle(
-        width: 22,
-        height: 13,
-        drawGap: false,
-        color: isOn ? RColor.mainColor : RColor.new_basic_line_grey,
-        indicator: Container(
-          width: 2,
-          height: 2,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isOn ? RColor.mainColor : RColor.new_basic_line_grey,
+    return Container(
+      key: _listGlobalKeys[index],
+      child: TimelineTile(
+        alignment: TimelineAlign.start,
+        isLast: index == _listRassiroNewsDdInfo.length - 1 ? true : false,
+        beforeLineStyle: LineStyle(
+          color: isOn ? RColor.mainColor : RColor.new_basic_line_grey,
+          thickness: 1,
+        ),
+        afterLineStyle: LineStyle(
+          color: isNow
+              ? RColor.new_basic_line_grey
+              : isOn
+                  ? RColor.mainColor
+                  : RColor.new_basic_line_grey,
+          thickness: 1,
+        ),
+        indicatorStyle: IndicatorStyle(
+          width: 22,
+          height: 13,
+          drawGap: false,
+          color: isOn ? RColor.mainColor : RColor.new_basic_line_grey,
+          indicator: Container(
+            width: 2,
+            height: 2,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isOn ? RColor.mainColor : RColor.new_basic_line_grey,
+            ),
           ),
         ),
-      ),
-      endChild: InkWell(
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        onTap: () {
-          if (!isOn) {
-            CommonPopup.instance.showDialogMsg(context, '정보 발생 전 입니다.');
-          } else {
-            if (item.contentDiv == 'MKT2' || item.contentDiv == 'MKT') {
-              basePageState.callPageRouteNews(
-                  NewsTagSumPage(), PgNews(tagCode: '', tagName: ''));
-            } else if (item.contentDiv == 'ISS') {
-              basePageState.callPageRoute(const IssueListPage());
-            } else if (item.contentDiv == 'STK') {
-              basePageState.callPageRouteNews(
-                  NewsTagPage(), PgNews(tagCode: 'USRTAG', tagName: '실시간특징주'));
-            } else if (item.contentDiv == 'SNS') {
-              Navigator.pushNamed(context, SocialListPage.routeName,
-                  arguments: PgData(pgSn: ''));
-            } else if (item.contentDiv == 'BRF2') {
-              basePageState.callPageRoute(const RassiDeskPage());
-            } else if (item.contentDiv == 'SCH') {
-              basePageState.callPageRouteUP(
-                const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
-              );
+        endChild: InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            if (!isOn) {
+              CommonPopup.instance.showDialogMsg(context, '정보 발생 전 입니다.');
+            } else {
+              if (item.contentDiv == 'MKT2' || item.contentDiv == 'MKT') {
+                basePageState.callPageRouteNews(NewsTagSumPage(), PgNews(tagCode: '', tagName: ''));
+              } else if (item.contentDiv == 'ISS') {
+                basePageState.callPageRoute(const IssueListPage());
+              } else if (item.contentDiv == 'STK') {
+                basePageState.callPageRouteNews(NewsTagPage(), PgNews(tagCode: 'USRTAG', tagName: '실시간특징주'));
+              } else if (item.contentDiv == 'SNS') {
+                Navigator.pushNamed(context, SocialListPage.routeName, arguments: PgData(pgSn: ''));
+              } else if (item.contentDiv == 'BRF2') {
+                basePageState.callPageRoute(const RassiDeskPage());
+              } else if (item.contentDiv == 'SCH') {
+                basePageState.callPageRouteUP(
+                  const SearchPage(
+                    landWhere: SearchPage.goStockHome,
+                    pocketSn: '',
+                  ),
+                );
+              }
             }
-          }
-        },
-        child: Container(
-          margin: const EdgeInsets.only(
-            left: 10,
-            top: 20,
-            bottom: 20,
-          ),
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-            color: isNow
-                ? RColor.mainColor
-                : isOn
-                    ? RColor.yonbora3
-                    : Colors.white,
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 8,
-                offset: const Offset(0, 4), //changes position of shadow
-              )
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  index == 0 || index == _listRassiroNewsDdInfo.length - 1 ? const SizedBox() : _setTextTime(index, isOn, isNow),
-                  Text(
-                    item.displaySubject,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: isNow ? Colors.white : Colors.black,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Visibility(
-                    visible: isNow,
-                    child: Row(
-                      children: [
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        Image.asset(
-                          'images/icon_now.png',
-                          height: 22,
-                          fit: BoxFit.contain,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 6,
-              ),
-              Text(
-                item.displayTitle,
-                style: TextStyle(
-                  color: isNow ? Colors.white : Colors.black,
-                  fontSize: 15,
-                ),
-              ),
-              const SizedBox(
-                height: 6,
-              ),
-              if (!isOn)
-                const Text(
-                  '종목분석중',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: RColor.mainColor,
-                  ),
+          },
+          child: Container(
+            margin: const EdgeInsets.only(
+              left: 10,
+              top: 20,
+              bottom: 20,
+            ),
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: isNow
+                  ? RColor.mainColor
+                  : isOn
+                      ? RColor.yonbora3
+                      : Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4), //changes position of shadow
                 )
-              else if (item.listItem.isEmpty)
-                item.contentDiv == 'SNS'
-                    ? Text(
-                        '소셜 폭발 종목 확인하기',
-                        style: TextStyle(
-                          color: isNow ? RColor.orange : RColor.mainColor,
-                          fontSize: 13,
-                        ),
-                      )
-                    : const SizedBox()
-              else
-                Wrap(
-                  spacing: 10.0,
-                  alignment: WrapAlignment.center,
-                  children: List.generate(
-                    item.listItem.length > 2 ? 2 : item.listItem.length,
-                    (index) {
-                      return InkWell(
-                        child: Text(
-                          '#${item.listItem[index].itemName}',
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    index == 0 || index == _listRassiroNewsDdInfo.length - 1
+                        ? const SizedBox()
+                        : _setTextTime(index, isOn, isNow),
+                    Text(
+                      item.displaySubject,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: isNow ? Colors.white : Colors.black,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Visibility(
+                      visible: isNow,
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Image.asset(
+                            'images/icon_now.png',
+                            height: 22,
+                            fit: BoxFit.contain,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 6,
+                ),
+                Text(
+                  item.displayTitle,
+                  style: TextStyle(
+                    color: isNow ? Colors.white : Colors.black,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(
+                  height: 6,
+                ),
+                if (!isOn)
+                  const Text(
+                    '종목분석중',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: RColor.mainColor,
+                    ),
+                  )
+                else if (item.listItem.isEmpty)
+                  item.contentDiv == 'SNS'
+                      ? Text(
+                          '소셜 폭발 종목 확인하기',
                           style: TextStyle(
                             color: isNow ? RColor.orange : RColor.mainColor,
                             fontSize: 13,
                           ),
-                        ),
-                        onTap: () {
-                          if (item.contentDiv == 'ISS') {
-                            basePageState.callPageRouteUpData(
-                                IssueViewer(),
-                                PgData(
-                                    userId: '',
-                                    pgSn: item.listItem[index].itemCode));
-                          }
-                          /*else if (item.contentDiv == 'RPT') {
-                            // 증권사 리포트로
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReportPage(),
-                                settings: RouteSettings(
-                                  arguments: PgData(
-                                    pgSn: '0',
-                                    pgData: '증권사 리포트',
+                        )
+                      : const SizedBox()
+                else
+                  Wrap(
+                    spacing: 10.0,
+                    alignment: WrapAlignment.center,
+                    children: List.generate(
+                      item.listItem.length > 2 ? 2 : item.listItem.length,
+                      (index) {
+                        return InkWell(
+                          child: Text(
+                            '#${item.listItem[index].itemName}',
+                            style: TextStyle(
+                              color: isNow ? RColor.orange : RColor.mainColor,
+                              fontSize: 13,
+                            ),
+                          ),
+                          onTap: () {
+                            if (item.contentDiv == 'ISS') {
+                              basePageState.callPageRouteUpData(
+                                  IssueViewer(), PgData(userId: '', pgSn: item.listItem[index].itemCode));
+                            }
+                            /*else if (item.contentDiv == 'RPT') {
+                              // 증권사 리포트로
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ReportPage(),
+                                  settings: RouteSettings(
+                                    arguments: PgData(
+                                      pgSn: '0',
+                                      pgData: '증권사 리포트',
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          } */ /*else if (item.contentDiv == 'BRF') {
-                            // 웹뷰로 띄우기
-                          } */
-                          else if (item.contentDiv == 'SCH') {
-                            basePageState.callPageRouteUP(
-                              const SearchPage(landWhere: SearchPage.goStockHome, pocketSn: '',),
-                            );
-                          } else {
-                            // 종목홈으로
-                            basePageState.goStockHomePage(
-                              item.listItem[index].itemCode,
-                              item.listItem[index].itemName,
-                              Const.STK_INDEX_HOME,
-                            );
-                          }
-                        },
-                      );
-                    },
+                              );
+                            } */ /*else if (item.contentDiv == 'BRF') {
+                              // 웹뷰로 띄우기
+                            } */
+                            else if (item.contentDiv == 'SCH') {
+                              basePageState.callPageRouteUP(
+                                const SearchPage(
+                                  landWhere: SearchPage.goStockHome,
+                                  pocketSn: '',
+                                ),
+                              );
+                            } else {
+                              // 종목홈으로
+                              basePageState.goStockHomePage(
+                                item.listItem[index].itemCode,
+                                item.listItem[index].itemName,
+                                Const.STK_INDEX_HOME,
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -449,7 +483,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
     bool isOn = _nowHourMinute.compareTo('1000') >= 0;
     bool isNow = false;
     if (isOn) {
-      isNow = '1030'.compareTo(_nowHourMinute) >= 0;
+      isNow = '1359'.compareTo(_nowHourMinute) >= 0;
     }
     return _setTimeLineTile(3, isNow, isOn);
   }
@@ -459,7 +493,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
     bool isOn = _nowHourMinute.compareTo('1400') >= 0;
     bool isNow = false;
     if (isOn) {
-      isNow = '1430'.compareTo(_nowHourMinute) >= 0;
+      isNow = '1559'.compareTo(_nowHourMinute) >= 0;
     }
     return _setTimeLineTile(4, isNow, isOn);
   }
@@ -469,7 +503,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
     bool isOn = _nowHourMinute.compareTo('1600') >= 0;
     bool isNow = false;
     if (isOn) {
-      isNow = '1700'.compareTo(_nowHourMinute) >= 0;
+      isNow = '1829'.compareTo(_nowHourMinute) >= 0;
     }
     return _setTimeLineTile(5, isNow, isOn);
   }
@@ -479,7 +513,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
     bool isOn = _nowHourMinute.compareTo('1830') >= 0;
     bool isNow = false;
     if (isOn) {
-      isNow = '2200'.compareTo(_nowHourMinute) >= 0;
+      isNow = '1959'.compareTo(_nowHourMinute) >= 0;
     }
     return _setTimeLineTile(6, isNow, isOn);
   }
@@ -496,7 +530,9 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
 
   Widget _setTextTime(int timeIndex, isOn, isNow) {
     return Container(
-      margin: const EdgeInsets.only(right: 5,),
+      margin: const EdgeInsets.only(
+        right: 5,
+      ),
       padding: const EdgeInsets.symmetric(
         horizontal: 5,
         vertical: 0,
@@ -564,5 +600,22 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage>
       } else {}
     }
     setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _listGlobalKeys.asMap().forEach((key, value) {
+        bool isOn = _nowHourMinute.compareTo(_listCompareTimes1[key]) >= 0;
+        bool isNow = false;
+        if (isOn) {
+          isNow = _listCompareTimes2[key].compareTo(_nowHourMinute) >= 0;
+          if (isNow) {
+            Scrollable.ensureVisible(
+              _listGlobalKeys[key].currentContext!,
+              alignment: 0.5,
+              curve: Curves.fastEaseInToSlowEaseOut,
+              duration: const Duration(milliseconds: 500),
+            );
+          }
+        }
+      });
+    });
   }
 }

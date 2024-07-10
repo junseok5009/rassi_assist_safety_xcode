@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:rassi_assist/common/d_log.dart';
 
@@ -136,6 +138,20 @@ class CustomFirebaseClass{
       name: 'click_today_issue',
       parameters: <String, dynamic>{
         'keyword': keyword,
+      },
+    );
+  }
+
+  // 결제페이지 - paySelect
+  static Future<void> logEvtPaySelect({
+    required String payType,
+  }) async {
+    DLog.e('[logEvtPaySelect] payType : $payType');
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'pay_select',
+      parameters: <String, dynamic>{
+        'pay_type': payType,
+        'platform': Platform.isAndroid ? 'AOS' : Platform.isIOS ? 'IOS' : 'ETC',
       },
     );
   }

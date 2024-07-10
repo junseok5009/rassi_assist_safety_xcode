@@ -47,14 +47,13 @@ import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_page.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/test/halflayer/test_half_layer_main.dart';
-import 'package:rassi_assist/ui/test/today_issue_timeline_page.dart';
-import 'package:rassi_assist/ui/test/test_1_page.dart';
 import 'package:rassi_assist/ui/test/test_event_popup_page.dart';
 import 'package:rassi_assist/ui/test/test_image_fit.dart';
 import 'package:rassi_assist/ui/test/test_image_full_page.dart';
 import 'package:rassi_assist/ui/test/test_webview.dart';
-import 'package:rassi_assist/ui/test/web_chart.dart';
+import 'package:rassi_assist/ui/test/today_feature_stock_list_page.dart';
 import 'package:rassi_assist/ui/user/user_info_page.dart';
+import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/net.dart';
@@ -470,17 +469,16 @@ class TestState extends State<TestWidget> {
             child: Container(
               padding: const EdgeInsets.all(5),
               color: Colors.redAccent[100],
-              child: const Text(
-                'test1\npage',
+              child: const AutoSizeText(
+                'TodayFeatureStockListPage',
                 style: TStyle.subTitle,
               ),
             ),
             onTap: () {
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                CustomNvRouteClass.createRoute(
-                  const Test1Page(),
-                ),
+                TodayFeatureStockListPage.routeName,
+                arguments: 'CHANGE',
               );
             },
           ),
@@ -543,11 +541,15 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () {
-              Navigator.pushNamed(
+              Navigator.push(
                 context,
-                WebChartPage.routeName,
-                arguments: PgData(
-                  pgData: 'https://kiwoom.thinkpool.com?svcJoin=SS&customNo=999999905',
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: 'https://kiwoom.thinkpool.com?svcJoin=SS&customNo=999999905',
+                    ),
+                  ),
                 ),
               );
             },
@@ -564,11 +566,15 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () {
-              Navigator.pushNamed(
+              Navigator.push(
                 context,
-                WebChartPage.routeName,
-                arguments: PgData(
-                  pgData: 'https://kiwoom.thinkpool.com/my-stock?svcJoin=SS&customNo=999999905',
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: 'https://kiwoom.thinkpool.com/my-stock?svcJoin=SS&customNo=999999905',
+                    ),
+                  ),
                 ),
               );
             },
@@ -585,17 +591,20 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () {
-              Navigator.pushNamed(
+              Navigator.push(
                 context,
-                WebChartPage.routeName,
-                arguments: PgData(
-                  pgData: 'https://kiwoom.thinkpool.com/market-view?svcJoin=SS&customNo=999999905',
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: 'https://kiwoom.thinkpool.com/market-view?svcJoin=SS&customNo=999999905',
+                    ),
+                  ),
                 ),
               );
             },
           ),
         ),
-        _setAButton('웹뷰', WebChartPage.routeName, Colors.blueAccent[100]!),
         Builder(
           builder: (context) => InkWell(
             child: Container(
@@ -607,11 +616,15 @@ class TestState extends State<TestWidget> {
               ),
             ),
             onTap: () {
-              Navigator.pushNamed(
+              Navigator.push(
                 context,
-                WebChartPage.routeName,
-                arguments: PgData(
-                  pgData: 'https://kiwoom.thinkpool.com/',
+                CustomNvRouteClass.createRouteData(
+                  const WebPage(),
+                  RouteSettings(
+                    arguments: PgData(
+                      pgData: 'https://kiwoom.thinkpool.com/',
+                    ),
+                  ),
                 ),
               );
             },

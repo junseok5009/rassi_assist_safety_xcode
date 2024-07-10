@@ -18,26 +18,19 @@ import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
-class HomeTileTodayIssue extends StatefulWidget {
-  const HomeTileTodayIssue({
+class MarketTileTodayIssue extends StatefulWidget {
+  const MarketTileTodayIssue({
     super.key,
     required this.issue09,
   });
 
-  //: super(key: globalKey);
-
-  //static final GlobalKey<HomeTileTodayIssueState> globalKey = GlobalKey();
-
-  // divIndex = 0 : 홈_마켓뷰
-  // divIndex = 1 : 오늘의 이슈 타임라인
-
   final Issue09 issue09;
 
   @override
-  State<HomeTileTodayIssue> createState() => HomeTileTodayIssueState();
+  State<MarketTileTodayIssue> createState() => MarketTileTodayIssueState();
 }
 
-class HomeTileTodayIssueState extends State<HomeTileTodayIssue> with TickerProviderStateMixin {
+class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerProviderStateMixin {
   final List<Widget> _bubbleWidgetList = [];
   final List<AnimationController> _bubbleChartAniControllerList = [];
   bool _isStartBubbleAnimation = false;
@@ -56,7 +49,7 @@ class HomeTileTodayIssueState extends State<HomeTileTodayIssue> with TickerProvi
       _timeLapselastDataIndex = _selectTimeLapseIndex = 0;
     }
     if (widget.issue09.listData.isNotEmpty) {
-      _setbubbleNode().then((value) {
+      _setBubbleNode().then((value) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
             _isStartBubbleAnimation = true;
@@ -107,8 +100,8 @@ class HomeTileTodayIssueState extends State<HomeTileTodayIssue> with TickerProvi
       //height: (AppGlobal().deviceWidth - (AppGlobal().deviceWidth / 10)),
       height: (AppGlobal().deviceWidth),
       margin: const EdgeInsets.symmetric(vertical: 10),
-      //color: Colors.green,
       child: Stack(
+        alignment: Alignment.center,
         children: _bubbleWidgetList,
       ),
     );
@@ -143,7 +136,7 @@ class HomeTileTodayIssueState extends State<HomeTileTodayIssue> with TickerProvi
               //commonShowToast('미래 데이터 입니다.');
             } else {
               _selectTimeLapseIndex = (newValue as double).toInt();
-              await _setbubbleNode();
+              await _setBubbleNode();
               setState(() {});
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
@@ -183,8 +176,7 @@ class HomeTileTodayIssueState extends State<HomeTileTodayIssue> with TickerProvi
   }
 
   /// make function
-  Future<void> _setbubbleNode() async {
-    //await _disposeAniControllerList();
+  Future<void> _setBubbleNode() async {
     for (var element in _bubbleChartAniControllerList) {
       element.dispose();
     }
@@ -206,10 +198,17 @@ class HomeTileTodayIssueState extends State<HomeTileTodayIssue> with TickerProvi
     FontWeight fontWeight = FontWeight.bold;
     double padding = 0;
 
+    /* TEST
+    issueList.asMap().forEach((key, value) {
+      issueList[key].avgFluctRate = '0.1';
+    });*/
+    bool isAllSameValue = issueList.every((val1) => val1.avgFluctRate == issueList.first.avgFluctRate);
+
     for (int i = 0; i < issueList.length; i++) {
       txtColor = Colors.white;
       Issue03 item = issueList[i];
       num value = double.parse(item.avgFluctRate);
+
       //최대값 찾기 > 최대값의 1/15이 최소값임
       if (i == 0) {
         minValue = (double.parse((value.abs() / 15).toStringAsFixed(2)));
@@ -316,17 +315,11 @@ class HomeTileTodayIssueState extends State<HomeTileTodayIssue> with TickerProvi
         children: listNodes,
         padding: 1,
       ),
-      //radius: (p0) => 10,
-      //size: Size((AppGlobal().deviceWidth), AppGlobal().isTablet ? 300 : AppGlobal().deviceWidth - (AppGlobal().deviceWidth * 0.15),),
       size: Size(
-        //https://stackoverflow.com/questions/41558368/how-can-i-layout-widgets-based-on-the-size-of-the-parent
-        //상위 위젯 (컨테이너) 의 width를 가져와서 bubblechart의 width로 넣어야해.
-        //아님 bubblechart의 width를 infinity로 하고, 높이를 버블차트의 width를 가져와서 설정해도
-        (AppGlobal().deviceWidth) - 0,
-        //300,
-        (AppGlobal().deviceWidth) - 0,
+        (AppGlobal().deviceWidth),
+        (AppGlobal().deviceWidth),
       ),
-      stretchFactor: 1,
+      stretchFactor: isAllSameValue ? 0.5 : 1,
     ).nodes.fold([], (result, node) {
       return result
         ..add(
@@ -381,18 +374,6 @@ class HomeTileTodayIssueState extends State<HomeTileTodayIssue> with TickerProvi
         }
       });
     });
-
-    /*for (final controller in _bubbleChartAniControllerList) {
-      await Future.delayed(
-          const Duration(
-            milliseconds: 200,
-          ), () async {
-        if (mounted) {
-          controller.forward();
-          //_bubbleChartAniControllerList.remove(value);
-        }
-      });
-    }*/
     return;
   }
 }

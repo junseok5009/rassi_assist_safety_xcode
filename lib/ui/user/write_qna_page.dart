@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
@@ -426,7 +427,7 @@ class WriteQnaState extends State<WriteQnaWidget> {
       final TrQna01 resData = TrQna01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         commonShowToast('1:1문의글이 등록 되었습니다.');
-        Navigator.pop(context);
+        Navigator.pop(context, CustomNvRouteResult.refresh);
       } else {
         commonShowToast('1:1문의글 등록에 실패했습니다.');
       }

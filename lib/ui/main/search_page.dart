@@ -13,7 +13,6 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_search/tr_search02.dart';
 import 'package:rassi_assist/models/tr_search/tr_search05.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
@@ -21,9 +20,7 @@ import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_layer.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
-import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/sub/trade_intro_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2023.11.29
