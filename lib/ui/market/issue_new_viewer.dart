@@ -193,7 +193,10 @@ class IssueNewViewerState extends State<IssueNewViewer> {
             MaterialPageRoute(
               builder: (context) => const IssueCalendarPage(),
               settings: RouteSettings(
-                arguments: PgData(pgData: _issueSn),
+                arguments: PgData(
+                  pgData: _issueSn,
+                  data: _keyword,
+                ),
               ),
             ),
           );
@@ -273,7 +276,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
             ],
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 15),
         ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _stkList.length ~/ (10 * _stkListPageNum) > 0 ? 10 * _stkListPageNum : _stkList.length,

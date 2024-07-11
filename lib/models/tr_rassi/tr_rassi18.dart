@@ -17,7 +17,7 @@ class TrRassi18 {
   TrRassi18({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrRassi18.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
+    var list = json['retData'] == null ? [] : (json['retData'] as List);
     List<MenuDiv> rtList = list.map((i) => MenuDiv.fromJson(i)).toList();
 
     return TrRassi18(

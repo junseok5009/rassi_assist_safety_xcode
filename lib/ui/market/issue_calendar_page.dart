@@ -38,21 +38,29 @@ class IssueCalendarState extends State<IssueCalendarPage> {
   late PgData args;
 
   String _issueSn = '';
+  String _keyword = '';
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   final DateTime _focusedDay = DateTime.now();
+  final DateTime _firstDay = DateTime.now().subtract(Duration(days: 365));
+  final DateTime _lastDay = DateTime.now().add(Duration(days: 365));
   DateTime? _selectedDay;
   late Map<DateTime, List<Issue05>> eventSource;
   late LinkedHashMap<DateTime, List<Issue05>> mapIssueEvent;
 
   final List<Issue05> _issueList = [];
+  late ScrollController _scrollController;
   int pageNum = 0;
+  String pageSize = '10';
+
 
   @override
   void initState() {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
-      IssueCalendarPage.TAG_NAME,
+      IssueCalendarPage.TAG_NAME
     );
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
 
     eventSource = {};
     _updateCalendar();
@@ -61,16 +69,26 @@ class IssueCalendarState extends State<IssueCalendarPage> {
       Future.delayed(Duration.zero, () {
         args = ModalRoute.of(context)!.settings.arguments as PgData;
         _issueSn = args.pgData;
+        _keyword = args.data;
         // if (_themeCode.isEmpty) {
         //   Navigator.pop(context);
         // }
         if (_userId != '') {
           _fetchPosts(
+              TR.ISSUE02,
+              jsonEncode(<String, String>{
+                'userId': _userId,
+                'issueMonth': '202407',
+                'selectDiv': 'NEW',
+                'issueSn': _issueSn,
+              }));
+
+          _fetchPosts(
               TR.ISSUE05,
               jsonEncode(<String, String>{
                 'userId': _userId,
                 'issueSn': _issueSn,
-                'pageNo': '0',
+                'pageNo': pageNum.toString(),
                 'pageItemSize': '10',
               }));
         }
@@ -83,6 +101,22 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     if (mounted) {
       super.setState(fn);
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  //리스트뷰 하단 리스너
+  _scrollListener() {
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
+      //리스트뷰 하단 도착 / 새로운 데이터 요청
+      pageNum = pageNum + 1;
+      _requestData();
+    } else {}
   }
 
   Future<void> _loadPrefData() async {
@@ -110,10 +144,13 @@ class IssueCalendarState extends State<IssueCalendarPage> {
       ),
       body: SafeArea(
         child: ListView(
+          controller: _scrollController,
           children: [
-            _setSubTitle('이슈 캘린더'),
+
+            _setSubTitle('$_keyword 이슈 캘린더'),
             _setIssueCalendar(),
             const SizedBox(height: 25),
+
             _setSubTitle('이슈 히스토리'),
             const SizedBox(height: 15),
             ListView.builder(
@@ -142,6 +179,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         locale: 'ko-KR',
         calendarFormat: _calendarFormat,
         availableGestures: AvailableGestures.horizontalSwipe,
+        daysOfWeekHeight: 20,
         headerStyle: const HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
@@ -238,7 +276,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     });
 
     setState(() {
-      eventSource = convertedMap;
+      eventSource.addAll(convertedMap); /* = convertedMap;*/
       _updateCalendar();
     });
   }
@@ -248,13 +286,13 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     String flucStr = '';
     Color flucColor = Colors.grey;
     if (item.avgFluctRate.contains('-')) {
-      flucStr = '하락';
+      flucStr = '⬇ 하락';
       flucColor = RColor.sigSell;
     } else if (item.avgFluctRate == '0.00') {
       flucStr = '보합';
       flucColor = Colors.grey;
     } else {
-      flucStr = '상승';
+      flucStr = '⬆ 상승';
       flucColor = RColor.sigBuy;
     }
 
@@ -281,7 +319,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
                 ),
 
                 Container(
-                  padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
+                  padding: const EdgeInsets.fromLTRB(5, 2, 7, 2),
                   decoration: BoxDecoration(
                     color: flucColor,
                     borderRadius: const BorderRadius.all(Radius.circular(4)),
@@ -339,11 +377,14 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     );
   }
 
-  void _requestIssue05(String type) {
+  void _requestData() {
     _fetchPosts(
         TR.ISSUE05,
         jsonEncode(<String, String>{
           'userId': _userId,
+          'issueSn': _issueSn,
+          'pageNo': pageNum.toString(),
+          'pageItemSize': '10',
         }));
   }
 
@@ -404,18 +445,5 @@ class IssueCalendarState extends State<IssueCalendarPage> {
       },
     );
   }
-}
 
-class CalendarEvent {
-  String title;
-  bool complete;
-  String issueSn;
-  String issueDttm;
-
-  // String avgFluctRate;
-
-  CalendarEvent(this.title, this.complete, this.issueSn, this.issueDttm);
-
-  @override
-  String toString() => title;
 }
