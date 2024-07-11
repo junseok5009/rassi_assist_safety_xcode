@@ -70,9 +70,7 @@ class TileRelatedStock extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.clip,
                       ),
-                      const SizedBox(
-                        width: 4,
-                      ),
+                      const SizedBox(width: 4),
                       Text(
                         item.stockCode,
                         style: TStyle.contentGrey12,
@@ -115,9 +113,7 @@ class TileRelatedStock extends StatelessWidget {
           visible: isIssue,
           child: Column(
             children: [
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
               Container(
                 height: 20,
                 child: ListView.separated(
@@ -125,9 +121,7 @@ class TileRelatedStock extends StatelessWidget {
                   itemCount: item.listKeyword.length > 3 ? 3 : item.listKeyword.length,
                   scrollDirection: Axis.horizontal,
                   separatorBuilder: (BuildContext bContext, int index) {
-                    return const SizedBox(
-                      width: 10,
-                    );
+                    return const SizedBox(width: 10);
                   },
                   itemBuilder: (BuildContext bContext, int index) {
                     return InkWell(

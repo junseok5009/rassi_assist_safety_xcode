@@ -29,12 +29,13 @@ class Issue05 {
   final String issueSn;
   final String keyword;
   final String imageUrl;
+  final String avgFluctRate;
 
   Issue05({
     this.newsSn = '', this.issueDttm = '',
     this.title = '', this.content = '',
     this.issueSn = '', this.keyword = '',
-    this.imageUrl = ''
+    this.imageUrl = '', this.avgFluctRate = '',
   });
 
   factory Issue05.fromJson(Map<String, dynamic> json) {
@@ -43,9 +44,10 @@ class Issue05 {
       issueDttm: json['issueDttm'],
       title: json['title'],
       content: json['content'],
-      issueSn: json['issueSn'],
-      keyword: json['keyword'],
-      imageUrl: json['imageUrl'],
+      issueSn: json['issueSn'] ?? '',
+      keyword: json['keyword'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      avgFluctRate: json['avgFluctRate'] ?? '',
     );
   }
 }

@@ -14,6 +14,7 @@ import 'package:rassi_assist/models/tr_issue/tr_issue09.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleNode.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleRoot.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -276,7 +277,8 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
             Navigator.push(
               context,
               CustomNvRouteClass.createRouteData(
-                const IssueViewer(),
+                const IssueNewViewer(),
+                // const IssueViewer(),
                 RouteSettings(
                   arguments: PgData(
                     userId: '',

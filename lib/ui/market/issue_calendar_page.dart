@@ -1,9 +1,8 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 
-import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
@@ -11,7 +10,6 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -43,6 +41,8 @@ class IssueCalendarState extends State<IssueCalendarPage> {
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   final DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  late Map<DateTime, List<Issue05>> eventSource;
+  late LinkedHashMap<DateTime, List<Issue05>> mapIssueEvent;
 
   final List<Issue05> _issueList = [];
   int pageNum = 0;
@@ -53,6 +53,10 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     CustomFirebaseClass.logEvtScreenView(
       IssueCalendarPage.TAG_NAME,
     );
+
+    eventSource = {};
+    _updateCalendar();
+
     _loadPrefData().then((value) {
       Future.delayed(Duration.zero, () {
         args = ModalRoute.of(context)!.settings.arguments as PgData;
@@ -110,7 +114,6 @@ class IssueCalendarState extends State<IssueCalendarPage> {
             _setSubTitle('이슈 캘린더'),
             _setIssueCalendar(),
             const SizedBox(height: 25),
-
             _setSubTitle('이슈 히스토리'),
             const SizedBox(height: 15),
             ListView.builder(
@@ -137,10 +140,8 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         lastDay: DateTime.utc(2024, 8, 31),
         focusedDay: DateTime.now(),
         locale: 'ko-KR',
-        // focusedDay: _focusedDay,
         calendarFormat: _calendarFormat,
         availableGestures: AvailableGestures.horizontalSwipe,
-
         headerStyle: const HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
@@ -148,41 +149,115 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         calendarStyle: const CalendarStyle(
           outsideDaysVisible: false,
         ),
-        // selectedDayPredicate: (day) {
-        //   // Use `selectedDayPredicate` to determine which day is currently selected.
-        //   // If this returns true, then `day` will be marked as selected.
-        //
-        //   // Using `isSameDay` is recommended to disregard
-        //   // the time-part of compared DateTime objects.
-        //   return isSameDay(_selectedDay, day);
-        // },
-        onDaySelected: (selectedDay, focusedDay) {
-          // if (!isSameDay(_selectedDay, selectedDay)) {
-          //   // Call `setState()` when updating the selected day
-          //   setState(() {
-          //     _selectedDay = selectedDay;
-          //     _focusedDay = focusedDay;
-          //   });
-          // }
-        },
-        onFormatChanged: (format) {
-          // if (_calendarFormat != format) {
-          //   // Call `setState()` when updating calendar format
-          //   setState(() {
-          //     _calendarFormat = format;
-          //   });
-          // }
-        },
-        onPageChanged: (focusedDay) {
-          // No need to call `setState()` here
-          // _focusedDay = focusedDay;
+        calendarBuilders: CalendarBuilders(
+          markerBuilder: (context, date, events) {
+            return Container();
+          },
+          defaultBuilder: (context, day, focusedDay) {
+            final events = _getEventsForDay(day);
+            return Container(
+              margin: const EdgeInsets.all(4.0),
+              alignment: Alignment.center,
+              decoration: events.isNotEmpty
+                  ? BoxDecoration(
+                      shape: BoxShape.circle,
+                      // color: Colors.blue.withOpacity(0.2),
+                      color: _getEventColor(events.first),
+                    )
+                  : null,
+              child: Text(
+                '${day.day}',
+                style: TextStyle(
+                  color: events.isNotEmpty ? Colors.white : Colors.black,
+                ),
+              ),
+            );
+          },
+          todayBuilder: (context, day, focusedDay) {
+            final events = _getEventsForDay(day);
+            return Container(
+              margin: const EdgeInsets.all(4.0),
+              alignment: Alignment.center,
+              decoration: events.isNotEmpty
+                  ? BoxDecoration(
+                shape: BoxShape.circle,
+                // color: Colors.blue.withOpacity(0.2),
+                color: _getEventColor(events.first),
+              )
+                  : null,
+              child: Text(
+                '${day.day}',
+                style: TextStyle(
+                  color: events.isNotEmpty ? Colors.white : Colors.black,
+                ),
+              ),
+            );
+          },
+        ),
+        eventLoader: (day) {
+          return _getEventsForDay(day);
         },
       ),
     );
   }
 
+  Color _getEventColor(Issue05 item) {
+    Color infoColor = Colors.grey;
+    if (item.avgFluctRate.contains('-')) {
+      infoColor = RColor.sigSell;
+    } else if (item.avgFluctRate == '0.00') {
+      infoColor = Colors.grey;
+    } else {
+      infoColor = RColor.sigBuy;
+    }
+
+    return infoColor;
+  }
+
+  List<Issue05> _getEventsForDay(DateTime day) {
+    return mapIssueEvent[day] ?? [];
+  }
+
+  void _updateCalendar() {
+    mapIssueEvent = LinkedHashMap<DateTime, List<Issue05>>(
+      equals: isSameDay,
+      hashCode: getHashCode,
+    )..addAll(eventSource);
+  }
+
+  int getHashCode(DateTime key) {
+    return key.day * 1000000 + key.month * 10000 + key.year;
+  }
+
+  // eventSource를 업데이트하고 events를 갱신하는 메서드
+  void updateEventSource(Map<String, List<Issue05>> newEventSource) {
+    Map<DateTime, List<Issue05>> convertedMap = {};
+    newEventSource.forEach((key, value) {
+      DateTime dateTime = DateTime.parse(key);
+      convertedMap[dateTime] = value;
+    });
+
+    setState(() {
+      eventSource = convertedMap;
+      _updateCalendar();
+    });
+  }
+
   //이슈 관련 히스토리
   Widget _setIssueItem(Issue05 item) {
+    String flucStr = '';
+    Color flucColor = Colors.grey;
+    if (item.avgFluctRate.contains('-')) {
+      flucStr = '하락';
+      flucColor = RColor.sigSell;
+    } else if (item.avgFluctRate == '0.00') {
+      flucStr = '보합';
+      flucColor = Colors.grey;
+    } else {
+      flucStr = '상승';
+      flucColor = RColor.sigBuy;
+    }
+
     return InkWell(
       highlightColor: Colors.transparent,
       child: Container(
@@ -193,6 +268,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   TStyle.getDateSlashFormat2(item.issueDttm),
@@ -201,6 +277,22 @@ class IssueCalendarState extends State<IssueCalendarPage> {
                     fontWeight: FontWeight.w400,
                     fontSize: 14,
                     color: RColor.greyBasic_8c8c8c,
+                  ),
+                ),
+
+                Container(
+                  padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
+                  decoration: BoxDecoration(
+                    color: flucColor,
+                    borderRadius: const BorderRadius.all(Radius.circular(4)),
+                  ),
+                  child: Text(
+                    flucStr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
@@ -252,8 +344,6 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         TR.ISSUE05,
         jsonEncode(<String, String>{
           'userId': _userId,
-          // 'themeCode': _themeCode,
-          'selectDiv': type, //SHORT: 단기강세TOP3, TREND: 추세주도주
         }));
   }
 
@@ -283,9 +373,49 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     if (trStr == TR.ISSUE05) {
       final TrIssue05 resData = TrIssue05.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        _issueList.addAll(resData.listData as Iterable<Issue05>);
-        setState(() {});
+        List<Issue05>? tmpList = resData.listData;
+        _issueList.addAll(tmpList as Iterable<Issue05>);
+        // _issueList.addAll(resData.listData as Iterable<Issue05>);
+
+        Map<String, List<Issue05>> groupedIssues = groupBy(
+          tmpList as Iterable<Issue05>,
+          (item) => item.issueDttm.substring(0, 8),
+        );
+
+        // groupedIssues.forEach((key, value) {
+        //   DLog.d(IssueCalendarPage.TAG, '$key: ${value.map((f) => f.title).toList()}');
+        // });
+
+        updateEventSource(groupedIssues);
       }
     }
   }
+
+  Map<K, List<T>> groupBy<T, K>(Iterable<T> items, K Function(T) key) {
+    return items.fold<Map<K, List<T>>>(
+      {},
+      (Map<K, List<T>> map, T element) {
+        K keyValue = key(element);
+        if (!map.containsKey(keyValue)) {
+          map[keyValue] = [];
+        }
+        map[keyValue]!.add(element);
+        return map;
+      },
+    );
+  }
+}
+
+class CalendarEvent {
+  String title;
+  bool complete;
+  String issueSn;
+  String issueDttm;
+
+  // String avgFluctRate;
+
+  CalendarEvent(this.title, this.complete, this.issueSn, this.issueDttm);
+
+  @override
+  String toString() => title;
 }
