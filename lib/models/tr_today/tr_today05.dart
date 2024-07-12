@@ -31,11 +31,6 @@ class Today05 {
     this.listRassiroNewsDdInfo = const [],
   });
 
-/*  Today05.empty() {
-    deskTitle = '';
-    listRassiroNewsDdInfo = [];
-  }*/
-
   bool isEmpty() {
     if (listRassiroNewsDdInfo.isEmpty) {
       return true;
@@ -45,12 +40,10 @@ class Today05 {
   }
 
   factory Today05.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Rassiro'] as List;
-    List<RassiroNewsDdInfo> itemList = [];
-    if (list != null) itemList = list.map((i) => RassiroNewsDdInfo.fromJson(i)).toList();
+    var jsonList = json['list_Rassiro'];
     return Today05(
       deskTitle: json['deskTitle'] ?? '',
-      listRassiroNewsDdInfo: itemList,
+      listRassiroNewsDdInfo: jsonList == null ? [] : (jsonList as List).map((i) => RassiroNewsDdInfo.fromJson(i)).toList(),
     );
   }
 }

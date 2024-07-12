@@ -43,6 +43,7 @@ import 'package:rassi_assist/ui/stock_home/stock_home_tab.dart';
 import 'package:rassi_assist/ui/sub/condition_page.dart';
 import 'package:rassi_assist/ui/sub/notification_list.dart';
 import 'package:rassi_assist/ui/sub/notification_setting_new.dart';
+import 'package:rassi_assist/ui/sub/rassi_desk_time_line_page.dart';
 import 'package:rassi_assist/ui/sub/report_page.dart';
 import 'package:rassi_assist/ui/sub/social_list_page.dart';
 import 'package:rassi_assist/ui/sub/stk_catch_big.dart';
@@ -94,8 +95,10 @@ final routes = {
   ) =>
       const AgentNoLinkSignUpPage(),
 
-  // (오늘의) 이슈 타임라인
-  TodayIssueTimelinePage.routeName: (BuildContext context) => const TodayIssueTimelinePage(),
+
+  TodayIssueTimelinePage.routeName: (BuildContext context) => const TodayIssueTimelinePage(), // (오늘의) 이슈 타임라인
+  RassiDeskTimeLinePage.routeName: (BuildContext context) => const RassiDeskTimeLinePage(), // 라씨데스크 타임라인
+
 
   TodayFeatureStockListPage.routeName: (BuildContext context) => const TodayFeatureStockListPage(),
 

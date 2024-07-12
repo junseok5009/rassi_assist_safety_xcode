@@ -77,7 +77,7 @@ dependencies:
 
   #차트
   fl_chart: ^0.68.0
-  flutter_echarts: ^2.5.0
+  flutter_echarts: ^2.3.0
   syncfusion_flutter_charts: ^26.1.41
 
   #syncfusion

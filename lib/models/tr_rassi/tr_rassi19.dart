@@ -30,9 +30,10 @@ class Rassi19 {
   final String menuDiv;
   final String totalPageSize;
   final String currentPageNo;
+  final String totalItemSize;
   final List<Rassi19Rassiro> listRassiro;
 
-  const Rassi19({this.menuDiv = '', this.totalPageSize = '', this.currentPageNo = '', this.listRassiro = const []});
+  const Rassi19({this.menuDiv = '', this.totalPageSize = '', this.currentPageNo = '', this.totalItemSize = '',this.listRassiro = const []});
 
   factory Rassi19.fromJson(Map<String, dynamic> json) {
     var jsonList = json['list_Rassiro'];
@@ -40,6 +41,7 @@ class Rassi19 {
       menuDiv: json['menuDiv'] ?? '',
       totalPageSize: json['totalPageSize'] ?? '0',
       currentPageNo: json['currentPageNo'] ?? '0',
+      totalItemSize: json['totalItemSize'] ?? '0',
       listRassiro: jsonList == null ? [] : (jsonList as List).map((e) => Rassi19Rassiro.fromJson(e)).toList(),
     );
   }

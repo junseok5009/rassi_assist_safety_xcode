@@ -1154,7 +1154,7 @@ class SliverHomeWidgetState extends State<SliverHomeWidget> {
       _listPrPopup.clear();
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
 
-      /*//테스트를 위한 데이터 입니다.
+      /* test 테스트를 위한 데이터 입니다.
       resData.retCode = RT.SUCCESS;
       resData.retData.add(Prom02(
         title: 'dd',

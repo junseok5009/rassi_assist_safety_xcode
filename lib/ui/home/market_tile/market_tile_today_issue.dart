@@ -15,7 +15,6 @@ import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleNode.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleRoot.dart';
 import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
-import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -110,48 +109,61 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
 
   Widget get _bubbleTimeLapseView {
     if (widget.issue09.listData.isEmpty) return const SizedBox();
-    return Center(
-      child: SfSliderTheme(
-        data: const SfSliderThemeData(
-          activeTrackHeight: 15,
-          activeDividerColor: RColor.grey_c8cace,
-          activeTrackColor: RColor.greyBox_dcdfe2,
-          activeDividerRadius: 2.5,
-          thumbColor: Color(0xffABB0BB),
-          inactiveTrackHeight: 15,
-          //inactiveDividerColor: RColor.bubbleChartGrey,
-          inactiveTrackColor: RColor.greyBox_dcdfe2,
-          inactiveDividerRadius: 0,
+    return Row(
+      children: [
+        const SizedBox(
+          width: 20,
         ),
-        child: SfSlider(
-          min: 0,
-          max: widget.issue09.listData.length - 1,
-          value: _selectTimeLapseIndex,
-          interval: 1,
-          stepSize: 1,
-          showDividers: true,
-          thumbShape: _SfThumbShape(bubbleTimeLapseList: widget.issue09.listData),
-          onChanged: (dynamic newValue) async {
-            //DLog.e('newValue : $newValue');
-            if (newValue > _timeLapselastDataIndex) {
-              //commonShowToast('미래 데이터 입니다.');
-            } else {
-              _selectTimeLapseIndex = (newValue as double).toInt();
-              await _setBubbleNode();
-              setState(() {});
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
-                  _isStartBubbleAnimation = true;
-                  _bubbleChartAniStart().then((_) async {
-                    _isStartBubbleAnimation = false;
-                    //await _disposeAniControllerList();
+        Image.asset(
+          'images/icon_time_lapse_clock_grey.png',
+          width: 20,
+        ),
+        Expanded(
+          child: SfSliderTheme(
+            data: SfSliderThemeData(
+              overlayColor: RColor.greyBox_dcdfe2.withOpacity(0.5),
+              overlayRadius: 20,
+              activeTrackHeight: 15,
+              activeDividerColor: RColor.grey_c8cace,
+              activeTrackColor: RColor.greyBox_dcdfe2,
+              activeDividerRadius: 2.5,
+              thumbColor: Color(0xffABB0BB),
+              inactiveTrackHeight: 15,
+              //inactiveDividerColor: RColor.bubbleChartGrey,
+              inactiveTrackColor: RColor.greyBox_dcdfe2,
+              inactiveDividerRadius: 0,
+            ),
+            child: SfSlider(
+              min: 0,
+              max: widget.issue09.listData.length - 1,
+              value: _selectTimeLapseIndex,
+              interval: 1,
+              stepSize: 1,
+              showDividers: true,
+              thumbShape: _SfThumbShape(bubbleTimeLapseList: widget.issue09.listData),
+              onChanged: (dynamic newValue) async {
+                //DLog.e('newValue : $newValue');
+                if (newValue > _timeLapselastDataIndex) {
+                  //commonShowToast('미래 데이터 입니다.');
+                } else {
+                  _selectTimeLapseIndex = (newValue as double).toInt();
+                  await _setBubbleNode();
+                  setState(() {});
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
+                      _isStartBubbleAnimation = true;
+                      _bubbleChartAniStart().then((_) async {
+                        _isStartBubbleAnimation = false;
+                        //await _disposeAniControllerList();
+                      });
+                    }
                   });
                 }
-              });
-            }
-          },
+              },
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -338,20 +350,23 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
                   curve: Curves.elasticOut,
                 ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(node.radius! * 2),
-                child: InkResponse(
-                  borderRadius: BorderRadius.circular(node.radius! * 2),
-                  onTap: node.options?.onTap,
-                  child: Container(
-                    width: node.radius! * 2,
-                    height: node.radius! * 2,
-                    decoration: BoxDecoration(
-                      border: node.options?.border ?? const Border(),
-                      color: node.options?.color ?? RColor.purpleBgBasic_dbdbff,
-                      shape: BoxShape.circle,
+              child: Material(
+                color: Colors.transparent,
+                child: Ink(
+                  decoration: BoxDecoration(
+                    border: node.options?.border ?? const Border(),
+                    color: node.options?.color ?? RColor.purpleBgBasic_dbdbff,
+                    shape: BoxShape.circle,
+                  ),
+                  child: InkWell(
+                    //highlightColor: Colors.white,
+                    borderRadius: BorderRadius.circular(node.radius! * 2),
+                    onTap: node.options?.onTap,
+                    child: SizedBox(
+                      width: node.radius! * 2,
+                      height: node.radius! * 2,
+                      child: Center(child: node.options?.child ?? Container()),
                     ),
-                    child: Center(child: node.options?.child ?? Container()),
                   ),
                 ),
               ),

@@ -71,6 +71,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
   // 이슈 종목 리스트 PageNo
   int _pageNo = 0;
   int _totalPageSize = 0;
+  String _totalItemSize = '0';
   final List<Rassi19Rassiro> _listRassiroData = [];
   final ScrollController _rassiroListScrollController = ScrollController();
 
@@ -335,72 +336,14 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         ? CommonView.setNoDataTextView(200, '이슈 데이터가 없습니다.')
                         : _bubbleTimeLapseView,
 
+                    _realStocksView,
                     //MarketTileTodayMarket(index02: _index02),
 
                     const SizedBox(
                       height: 30,
                     ),
 
-                    // 타이틀 - 특징주 종목들은?
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      child: Text(
-                        '특징주 종목들은?',
-                        style: TStyle.defaultTitle,
-                      ),
-                    ),
 
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      decoration: UIStyle.boxRoundFullColor6c(
-                        RColor.greyBox_f5f5f5,
-                      ),
-                      child: RichText(
-                        //textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
-                          ),
-                          children: [
-                            TextSpan(
-                              text:
-                                  '${_selectStrYyyyMmDd.substring(4, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일 특징주는 총 ',
-                            ),
-                            TextSpan(
-                              text: '??',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const TextSpan(
-                              text: '종목입니다.',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    ListView.builder(
-                      //controller: _rassiroListScrollController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _listRassiroData.length,
-                      itemBuilder: (context, index) => Rassi19TimeLineRealItemWidget(
-                        item: _listRassiroData[index],
-                      ),
-                      shrinkWrap: true,
-                    ),
                   ],
                 ),
               ),
@@ -718,6 +661,76 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               },
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget get _realStocksView{
+    if(_listRassiroData.isEmpty) return const SizedBox();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 타이틀 - 특징주 종목들은?
+        const SizedBox(height: 30,),
+        const Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
+          child: Text(
+            '특징주 종목들은?',
+            style: TStyle.defaultTitle,
+          ),
+        ),
+
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 8,
+          ),
+          decoration: UIStyle.boxRoundFullColor6c(
+            RColor.greyBox_f5f5f5,
+          ),
+          child: RichText(
+            //textAlign: TextAlign.center,
+            text: TextSpan(
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black,
+              ),
+              children: [
+                TextSpan(
+                  text:
+                  '${_selectStrYyyyMmDd.substring(4, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일 특징주는 총 ',
+                ),
+                TextSpan(
+                  text: _totalItemSize,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const TextSpan(
+                  text: '종목입니다.',
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        ListView.builder(
+          //controller: _rassiroListScrollController,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _listRassiroData.length,
+          itemBuilder: (context, index) => Rassi19TimeLineRealItemWidget(
+            item: _listRassiroData[index],
+          ),
+          shrinkWrap: true,
         ),
       ],
     );
@@ -1094,6 +1107,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
         }
         _pageNo++;
         _totalPageSize = int.parse(rassi19.totalPageSize);
+        _totalItemSize = rassi19.totalItemSize;
         if (rassi19.listRassiro.isNotEmpty) {
           _listRassiroData.addAll(
             rassi19.listRassiro,

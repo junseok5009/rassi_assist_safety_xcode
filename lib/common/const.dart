@@ -90,6 +90,7 @@ class RColor {
   static const greyBoxLine_c9c9c9 = Color(0xffC9C9C9);
   static const greyBox_dcdfe2 = Color(0xffDCDFE2); // 박스, 버튼 영역
   static const grey_c8cace = Color(0xffC8CACE); // 박스, 버튼 영역
+  static const grey_abb0bb = Color(0xffABB0BB);
 
   // 검은색
   static const blackTitle_141414 = Color(0xff141414);  // 타이틀 검은색

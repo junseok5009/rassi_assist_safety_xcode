@@ -44,7 +44,6 @@ class InappWebviewPage extends StatefulWidget {
       supportMultipleWindows: true,
       builtInZoomControls: true,
       useWideViewPort: true,
-
     ),
     ios: IOSInAppWebViewOptions(
       allowsInlineMediaPlayback: true,
@@ -81,7 +80,12 @@ class _InappWebviewPageState extends State<InappWebviewPage> {
         if (didPop) {
           return;
         } else {
-          Navigator.of(context).pop();
+          if (Platform.isAndroid) {
+            await _onBackKeyAos();
+          }
+          if (context.mounted) {
+            Navigator.pop(context);
+          }
         }
       },
       child: Scaffold(
@@ -186,16 +190,13 @@ class _InappWebviewPageState extends State<InappWebviewPage> {
   }
 
   Future<bool> _onBackKeyAos() async {
-    await _inAppWebViewController?.clearFocus();
-    //_inAppWebViewController.loadUrl(urlRequest: URLRequest(url: Uri.parse('')));
-    await _inAppWebViewController?.android?.pause();
-    await _inAppWebViewController?.stopLoading();
-    //await Future.delayed(const Duration(milliseconds: 2000), () {});
+    await _inAppWebViewController.clearFocus();
+    await _inAppWebViewController.android.pause();
+    await _inAppWebViewController.stopLoading();
     setState(() {
       _isOut = true;
     });
     await _checkFinishOutStatus();
-    DLog.e('_onBackKeyAos await finish soon return');
     return true;
   }
 

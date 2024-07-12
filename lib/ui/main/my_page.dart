@@ -1393,11 +1393,25 @@ class MyPageState extends State<MyPage> {
     //프로모션
     else if (trStr == TR.PROM02) {
       final TrProm02 resData = TrProm02.fromJson(jsonDecode(response.body));
+
+      // test 테스트를 위한 데이터 입니다.
+      /*resData.retCode = RT.SUCCESS;
+      resData.retData.add(Prom02(
+        title: 'test data',
+        viewPosition: 'TOP',
+        promoDiv: 'BANNER',
+        contentType: 'IMG',
+        linkType: 'URL',
+        linkPage: 'https://img.thinkpool.com/test_mrzzim/stock_event/index.html',
+        content: 'http://files.thinkpool.com/rassiPrm/tips_FFFAED.jpg',
+      ));*/
+
       if (resData.retCode == RT.SUCCESS) {
         _listPrTop.clear();
         _listPrHgh.clear();
         _listPrMid.clear();
         _listPrLow.clear();
+
         if (resData.retData.isNotEmpty) {
           for (int i = 0; i < resData.retData.length; i++) {
             Prom02 item = resData.retData[i];

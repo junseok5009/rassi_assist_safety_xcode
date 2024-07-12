@@ -11,8 +11,11 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 class MarketTileTodayMarket extends StatelessWidget {
   static String TAG = 'MarketTileTodayMarket';
+
   const MarketTileTodayMarket({super.key, required this.index02});
+
   final Index02 index02;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -48,17 +51,16 @@ class MarketTileTodayMarket extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: UIStyle.boxRoundFullColor25c(
-                          index02.marketTimeDiv == 'O'
-                              ? Colors.black : Colors.red,
+                          index02.marketTimeDiv == 'O' ? Colors.black : const Color(0xffABB0BB),
                         ),
                         child: Text(
                           index02.marketTimeDiv == 'B'
                               ? '예상'
                               : index02.marketTimeDiv == 'O'
-                              ? '장중'
-                              : index02.marketTimeDiv == 'C'
-                              ? '장마감'
-                              : '',
+                                  ? '장중'
+                                  : index02.marketTimeDiv == 'C'
+                                      ? '장마감'
+                                      : '',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.white,
@@ -81,6 +83,7 @@ class MarketTileTodayMarket extends StatelessWidget {
                           plotAreaBorderWidth: 0,
                           margin: EdgeInsets.zero,
                           primaryXAxis: const CategoryAxis(
+                            labelPlacement: LabelPlacement.onTicks,
                             borderWidth: 0,
                             axisLine: AxisLine(width: 0),
                             majorGridLines: MajorGridLines(width: 0),
@@ -88,7 +91,6 @@ class MarketTileTodayMarket extends StatelessWidget {
                               width: 0,
                             ),
                             plotOffset: 0,
-                            interval: 8,
                             labelStyle: TextStyle(
                               fontSize: 0,
                             ),
@@ -110,76 +112,102 @@ class MarketTileTodayMarket extends StatelessWidget {
                             ),
                             decimalPlaces: 0,
                             isVisible: index02.marketTimeDiv != 'B',
+                            minimum: index02.marketTimeDiv == 'B' ? 0 : null,
+                            maximum: index02.marketTimeDiv == 'B' ? 2 : null,
                           ),
                           enableAxisAnimation: false,
                           onMarkerRender: (markerArgs) {
-                            int lastTpItemIndex = index02.kospi.listKosChart.indexWhere(
-                                  (element) => element.ti.isEmpty,
-                            ) -
-                                1;
-                            if (markerArgs.pointIndex == 0 ||
-                                (lastTpItemIndex > 0 && lastTpItemIndex == markerArgs.pointIndex) ||
-                                (lastTpItemIndex < 0 &&
-                                    markerArgs.pointIndex == index02.kospi.listKosChart.length - 1)) {
+                            if (index02.marketTimeDiv == 'B') {
                               markerArgs.markerWidth = 6;
                               markerArgs.markerHeight = 6;
-                              markerArgs.color = index02.kospi.fluctuationRate.contains('-')
-                                  ? const Color(0xff9eb3ff)
-                                  : const Color(0xffFF9090);
-                              markerArgs.shape = DataMarkerType.circle;
+                              markerArgs.color = RColor.grey_abb0bb;
                             } else {
-                              markerArgs.markerWidth = 0;
-                              markerArgs.markerHeight = 0;
+                              int lastTpItemIndex = index02.kospi.listKosChart.indexWhere(
+                                    (element) => element.ti.isEmpty,
+                                  ) -
+                                  1;
+                              if (markerArgs.pointIndex == 0 ||
+                                  (lastTpItemIndex > 0 && lastTpItemIndex == markerArgs.pointIndex) ||
+                                  (lastTpItemIndex < 0 &&
+                                      markerArgs.pointIndex == index02.kospi.listKosChart.length - 1)) {
+                                markerArgs.markerWidth = 6;
+                                markerArgs.markerHeight = 6;
+                                markerArgs.color = index02.kospi.fluctuationRate.contains('-')
+                                    ? const Color(0xff9eb3ff)
+                                    : const Color(0xffFF9090);
+                                markerArgs.shape = DataMarkerType.circle;
+                              } else {
+                                markerArgs.markerWidth = 0;
+                                markerArgs.markerHeight = 0;
+                              }
                             }
                           },
                           series: [
-                            AreaSeries<Index02KosChart, String>(
-                              dataSource: index02.kospi.listKosChart,
-                              xValueMapper: (item, index) => item.tt,
-                              yValueMapper: (item, index) => double.tryParse(item.ti)?.round(),
-                              borderWidth: 1,
-                              borderColor: index02.kospi.fluctuationRate.contains('-')
-                                  ? const Color(0xff9eb3ff)
-                                  : const Color(0xffFF9090),
-                              gradient: LinearGradient(
-                                colors: [
-                                  if (index02.kospi.fluctuationRate.contains('-'))
-                                    const Color(0xffb4c3fa).withOpacity(0.4)
-                                  else
-                                    const Color(0xffeea0a0).withOpacity(0.4),
-                                  const Color(0xffffffff),
-                                ],
-                                stops: const [
-                                  0,
-                                  1,
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                              markerSettings: MarkerSettings(
-                                isVisible: true,
-                                color: index02.kospi.fluctuationRate.contains('-')
+                            if (index02.marketTimeDiv == 'B')
+                              LineSeries<int, int>(
+                                dataSource: const [0, 1],
+                                xValueMapper: (item, index) => index,
+                                yValueMapper: (item, index) => 1,
+                                color: RColor.grey_abb0bb,
+                                markerSettings: const MarkerSettings(
+                                  isVisible: true,
+                                  color: RColor.grey_abb0bb,
+                                  width: 0,
+                                  height: 0,
+                                  borderWidth: 0,
+                                  shape: DataMarkerType.circle,
+                                ),
+                                dashArray: const [2, 4],
+                                animationDuration: 1500,
+                              )
+                            else
+                              AreaSeries<Index02KosChart, String>(
+                                dataSource: index02.kospi.listKosChart,
+                                xValueMapper: (item, index) => item.tt,
+                                yValueMapper: (item, index) => double.tryParse(item.ti)?.round(),
+                                borderWidth: 1,
+                                borderColor: index02.kospi.fluctuationRate.contains('-')
                                     ? const Color(0xff9eb3ff)
                                     : const Color(0xffFF9090),
-                                width: 0,
-                                height: 0,
-                                borderWidth: 0,
-                                shape: DataMarkerType.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    if (index02.kospi.fluctuationRate.contains('-'))
+                                      const Color(0xffb4c3fa).withOpacity(0.4)
+                                    else
+                                      const Color(0xffeea0a0).withOpacity(0.4),
+                                    const Color(0xffffffff),
+                                  ],
+                                  stops: const [
+                                    0,
+                                    1,
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                                markerSettings: MarkerSettings(
+                                  isVisible: true,
+                                  color: index02.kospi.fluctuationRate.contains('-')
+                                      ? const Color(0xff9eb3ff)
+                                      : const Color(0xffFF9090),
+                                  width: 0,
+                                  height: 0,
+                                  borderWidth: 0,
+                                  shape: DataMarkerType.circle,
+                                ),
+                                borderDrawMode: BorderDrawMode.top,
+                                animationDuration: 1500,
+                                //animationDelay: 200,
+                                onRendererCreated: (ChartSeriesController controller) {
+                                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                                    controller.isVisible = true;
+                                    controller.animate();
+                                  });
+                                },
                               ),
-                              borderDrawMode: BorderDrawMode.top,
-                              animationDuration: 1500,
-                              //animationDelay: 200,
-                              onRendererCreated: (ChartSeriesController controller) {
-                                SchedulerBinding.instance.addPostFrameCallback((_) {
-                                  controller.isVisible = true;
-                                  controller.animate();
-                                });
-                              },
-                            ),
                           ],
                         ),
                       ),
-                      if (index02.marketTimeDiv == 'B')
+                      /*if (index02.marketTimeDiv == 'B')
                         Container(
                           alignment: Alignment.center,
                           color: RColor.bgBasic_fdfdfd,
@@ -190,7 +218,7 @@ class MarketTileTodayMarket extends StatelessWidget {
                             "${TStyle.getMonthDayString()}\n개장전 예상지수",
                             textAlign: TextAlign.center,
                           ),
-                        ),
+                        ),*/
                     ],
                   ),
                   Text(
@@ -256,16 +284,16 @@ class MarketTileTodayMarket extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: UIStyle.boxRoundFullColor25c(
-                          Colors.black,
+                          index02.marketTimeDiv == 'O' ? Colors.black : RColor.grey_abb0bb,
                         ),
                         child: Text(
                           index02.marketTimeDiv == 'B'
                               ? '예상'
                               : index02.marketTimeDiv == 'O'
-                              ? '장중'
-                              : index02.marketTimeDiv == 'C'
-                              ? '장마감'
-                              : '',
+                                  ? '장중'
+                                  : index02.marketTimeDiv == 'C'
+                                      ? '장마감'
+                                      : '',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.white,
@@ -278,22 +306,33 @@ class MarketTileTodayMarket extends StatelessWidget {
                     height: 5,
                   ),
                   Stack(
-                    alignment: Alignment.center,
+                    alignment: Alignment.topCenter,
                     children: [
-                      SizedBox(
+                      /*if (index02.marketTimeDiv == 'B')
+                        Container(
+                          color: RColor.bgBasic_fdfdfd,
+                          child: Text(
+                            "${TStyle.getMonthDayString()}\n개장전 예상지수",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12,),
+                          ),
+                        ),*/
+                      Container(
                         width: double.infinity,
                         height: 110,
+                        //color: Colors.red.withOpacity(0.2),
                         child: SfCartesianChart(
                           plotAreaBorderWidth: 0,
                           margin: EdgeInsets.zero,
                           primaryXAxis: const CategoryAxis(
+                            labelPlacement: LabelPlacement.onTicks,
+                            borderWidth: 0,
                             axisLine: AxisLine(width: 0),
                             majorGridLines: MajorGridLines(width: 0),
                             majorTickLines: MajorTickLines(
                               width: 0,
                             ),
                             plotOffset: 0,
-                            interval: 8,
                             labelStyle: TextStyle(
                               fontSize: 0,
                             ),
@@ -306,7 +345,8 @@ class MarketTileTodayMarket extends StatelessWidget {
                               width: 0,
                             ),
                             opposedPosition: true,
-                            rangePadding: ChartRangePadding.none,
+                            rangePadding:
+                                index02.marketTimeDiv == 'B' ? ChartRangePadding.none : ChartRangePadding.none,
                             majorGridLines: const MajorGridLines(width: 0),
                             plotOffset: 0,
                             labelStyle: const TextStyle(
@@ -314,80 +354,97 @@ class MarketTileTodayMarket extends StatelessWidget {
                             ),
                             decimalPlaces: 0,
                             isVisible: index02.marketTimeDiv != 'B',
+                            minimum:
+                                index02.marketTimeDiv == 'B' ? double.parse(index02.kosdaq.priceIndex) - 0.1 : null,
+                            maximum:
+                                index02.marketTimeDiv == 'B' ? double.parse(index02.kosdaq.priceIndex) + 0.1 : null,
                           ),
                           enableAxisAnimation: false,
                           onMarkerRender: (markerArgs) {
-                            int lastTpItemIndex = index02.kosdaq.listKosChart.indexWhere(
-                                  (element) => element.ti.isEmpty,
-                            ) -
-                                1;
-                            if (markerArgs.pointIndex == 0 ||
-                                (lastTpItemIndex > 0 && lastTpItemIndex == markerArgs.pointIndex) ||
-                                (lastTpItemIndex < 0 &&
-                                    markerArgs.pointIndex == index02.kosdaq.listKosChart.length - 1)) {
+                            if (index02.marketTimeDiv == 'B') {
                               markerArgs.markerWidth = 6;
                               markerArgs.markerHeight = 6;
-                              markerArgs.color = index02.kosdaq.fluctuationRate.contains('-')
-                                  ? const Color(0xff9eb3ff)
-                                  : const Color(0xffFF9090);
-                              markerArgs.shape = DataMarkerType.circle;
+                              markerArgs.color = RColor.grey_abb0bb;
+                              //markerArgs.shape = DataMarkerType.circle;
                             } else {
-                              markerArgs.markerWidth = 0;
-                              markerArgs.markerHeight = 0;
+                              int lastTpItemIndex = index02.kosdaq.listKosChart.indexWhere(
+                                    (element) => element.ti.isEmpty,
+                                  ) -
+                                  1;
+                              if (markerArgs.pointIndex == 0 ||
+                                  (lastTpItemIndex > 0 && lastTpItemIndex == markerArgs.pointIndex) ||
+                                  (lastTpItemIndex < 0 &&
+                                      markerArgs.pointIndex == index02.kosdaq.listKosChart.length - 1)) {
+                                markerArgs.markerWidth = 6;
+                                markerArgs.markerHeight = 6;
+                                markerArgs.color = index02.kosdaq.fluctuationRate.contains('-')
+                                    ? const Color(0xff9eb3ff)
+                                    : const Color(0xffFF9090);
+                                //markerArgs.shape = DataMarkerType.circle;
+                              } else {
+                                markerArgs.markerWidth = 0;
+                                markerArgs.markerHeight = 0;
+                              }
                             }
                           },
                           series: [
-                            AreaSeries<Index02KosChart, String>(
-                              dataSource: index02.kosdaq.listKosChart,
-                              xValueMapper: (item, index) => item.tt,
-                              yValueMapper: (item, index) => double.tryParse(item.ti)?.round(),
-                              borderWidth: 1,
-                              borderColor: index02.kosdaq.fluctuationRate.contains('-')
-                                  ? const Color(0xff9eb3ff)
-                                  : const Color(0xffFF9090),
-                              gradient: LinearGradient(
-                                colors: [
-                                  if (index02.kosdaq.fluctuationRate.contains('-'))
-                                    const Color(0xffb4c3fa).withOpacity(0.4)
-                                  else
-                                    const Color(0xffeea0a0).withOpacity(0.4),
-                                  const Color(0xffffffff),
-                                ],
-                                stops: const [
-                                  0,
-                                  1,
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                              markerSettings: MarkerSettings(
-                                isVisible: true,
-                                color: index02.kosdaq.fluctuationRate.contains('-')
+                            if (index02.marketTimeDiv == 'B')
+                              LineSeries<Index02KosStruct, int>(
+                                dataSource: [index02.kosdaq, index02.kosdaq],
+                                xValueMapper: (item, index) => index,
+                                yValueMapper: (item, index) => double.tryParse(item.priceIndex),
+                                color: RColor.grey_abb0bb,
+                                markerSettings: const MarkerSettings(
+                                  isVisible: true,
+                                  color: RColor.grey_abb0bb,
+                                  width: 0,
+                                  height: 0,
+                                  borderWidth: 0,
+                                  shape: DataMarkerType.circle,
+                                ),
+                                dashArray: const [2, 4],
+                                animationDuration: 1500,
+                              )
+                            else
+                              AreaSeries<Index02KosChart, String>(
+                                dataSource: index02.kosdaq.listKosChart,
+                                xValueMapper: (item, index) => item.tt,
+                                yValueMapper: (item, index) => double.tryParse(item.ti)?.round(),
+                                borderWidth: 1,
+                                borderColor: index02.kosdaq.fluctuationRate.contains('-')
                                     ? const Color(0xff9eb3ff)
                                     : const Color(0xffFF9090),
-                                width: 0,
-                                height: 0,
-                                borderWidth: 0,
-                                shape: DataMarkerType.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    if (index02.kosdaq.fluctuationRate.contains('-'))
+                                      const Color(0xffb4c3fa).withOpacity(0.4)
+                                    else
+                                      const Color(0xffeea0a0).withOpacity(0.4),
+                                    const Color(0xffffffff),
+                                  ],
+                                  stops: const [
+                                    0,
+                                    1,
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                                markerSettings: MarkerSettings(
+                                  isVisible: true,
+                                  color: index02.kosdaq.fluctuationRate.contains('-')
+                                      ? const Color(0xff9eb3ff)
+                                      : const Color(0xffFF9090),
+                                  width: 0,
+                                  height: 0,
+                                  borderWidth: 0,
+                                  shape: DataMarkerType.circle,
+                                ),
+                                borderDrawMode: BorderDrawMode.top,
+                                animationDuration: 1500,
                               ),
-                              borderDrawMode: BorderDrawMode.top,
-                              animationDuration: 1500,
-                            ),
                           ],
                         ),
                       ),
-                      if (index02.marketTimeDiv == 'B')
-                        Container(
-                          alignment: Alignment.center,
-                          color: RColor.bgBasic_fdfdfd,
-                          margin: const EdgeInsets.only(
-                            bottom: 28,
-                          ),
-                          child: Text(
-                            "${TStyle.getMonthDayString()}\n개장전 예상지수",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
                     ],
                   ),
                   Text(

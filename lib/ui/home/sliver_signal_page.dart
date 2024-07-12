@@ -1415,7 +1415,7 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
         _listPrMid.clear();
         _listPrLow.clear();
 
-        /*//테스트를 위한 데이터 입니다.
+        /* test 테스트를 위한 데이터 입니다.
         resData.retData.add(Prom02(
           title: 'dd',
           viewPosition: 'TOP',

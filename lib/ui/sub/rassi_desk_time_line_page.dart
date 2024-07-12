@@ -29,6 +29,7 @@ import '../news/news_tag_sum_page.dart';
 
 class RassiDeskTimeLinePage extends StatefulWidget {
   const RassiDeskTimeLinePage({Key? key}) : super(key: key);
+  static const routeName = '/rassi_desk_timeline';
   static const String TAG = "[RassiDeskTimeLinePage]";
   static const String TAG_NAME = '라씨데스크_타임라인';
 
@@ -607,6 +608,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage> with Tick
         if (isOn) {
           isNow = _listCompareTimes2[key].compareTo(_nowHourMinute) >= 0;
           if (isNow) {
+            DLog.e('isNow index : $key');
             Scrollable.ensureVisible(
               _listGlobalKeys[key].currentContext!,
               alignment: 0.5,

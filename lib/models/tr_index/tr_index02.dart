@@ -21,7 +21,7 @@ class TrIndex02 {
 class Index02 {
   final String baseDate;
   final String baseTime;
-  final String marketTimeDiv; // N : 장 시작전, B: 장전, O:장중, C:장마감
+  final String marketTimeDiv; // N : 장 시작전, B: 예상(장전), O:장중, C:장마감
   final Index02KosStruct kospi;
   final Index02KosStruct kosdaq;
 
@@ -38,6 +38,7 @@ class Index02 {
       baseDate: json['baseDate'] ?? '',
       baseTime: json['baseTime'] ?? '',
       marketTimeDiv: json['marketTimeDiv'] ?? '',
+      //marketTimeDiv: 'B',
       kospi: json['stru_Kospi'] == null ? const Index02KosStruct() : Index02KosStruct.fromJson(json['stru_Kospi']),
       kosdaq: json['stru_Kosdaq'] == null ? const Index02KosStruct() : Index02KosStruct.fromJson(json['stru_Kosdaq']),
     );

@@ -116,7 +116,6 @@
 
                 <!-- Redirect URI, "kakao${YOUR_NATIVE_APP_KEY}://oauth" 형식 -->
                 <data android:scheme="kakao9581feb9ceb27a4206e30b1d02ed446f" android:host="oauth"/>
-                <data android:host="rassiassist.page.link" android:scheme="https" />
             </intent-filter>
         </activity>
 
