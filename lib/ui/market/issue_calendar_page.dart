@@ -3,8 +3,10 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
@@ -40,9 +42,10 @@ class IssueCalendarState extends State<IssueCalendarPage> {
   String _issueSn = '';
   String _keyword = '';
   final CalendarFormat _calendarFormat = CalendarFormat.month;
-  final DateTime _focusedDay = DateTime.now();
-  final DateTime _firstDay = DateTime.now().subtract(Duration(days: 365));
-  final DateTime _lastDay = DateTime.now().add(Duration(days: 365));
+  DateTime _focusedDay = DateTime.now();
+
+  late DateTime _firstDay;
+  late DateTime _lastDay;
   DateTime? _selectedDay;
   late Map<DateTime, List<Issue05>> eventSource;
   late LinkedHashMap<DateTime, List<Issue05>> mapIssueEvent;
@@ -62,6 +65,11 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
 
+    _lastDay = _focusedDay.lastDayOfMonth();
+    // DLog.d(IssueCalendarPage.TAG, _lastDay.toString());
+    _firstDay = DateTime(_lastDay.year - 1, _lastDay.month, 1);
+    // DLog.d(IssueCalendarPage.TAG, _firstDay.toString());
+
     eventSource = {};
     _updateCalendar();
 
@@ -78,7 +86,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
               TR.ISSUE02,
               jsonEncode(<String, String>{
                 'userId': _userId,
-                'issueMonth': '202407',
+                'issueMonth': TStyle.getYearMonthString(),
                 'selectDiv': 'NEW',
                 'issueSn': _issueSn,
               }));
@@ -115,7 +123,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
-      _requestData();
+      _requestIssue05();
     } else {}
   }
 
@@ -173,8 +181,8 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: TableCalendar(
-        firstDay: DateTime.utc(2024, 4, 16),
-        lastDay: DateTime.utc(2024, 8, 31),
+        firstDay: _firstDay,
+        lastDay: _lastDay,
         focusedDay: DateTime.now(),
         locale: 'ko-KR',
         calendarFormat: _calendarFormat,
@@ -193,48 +201,48 @@ class IssueCalendarState extends State<IssueCalendarPage> {
           },
           defaultBuilder: (context, day, focusedDay) {
             final events = _getEventsForDay(day);
-            return Container(
-              margin: const EdgeInsets.all(4.0),
-              alignment: Alignment.center,
-              decoration: events.isNotEmpty
-                  ? BoxDecoration(
-                      shape: BoxShape.circle,
-                      // color: Colors.blue.withOpacity(0.2),
-                      color: _getEventColor(events.first),
-                    )
-                  : null,
-              child: Text(
-                '${day.day}',
-                style: TextStyle(
-                  color: events.isNotEmpty ? Colors.white : Colors.black,
-                ),
-              ),
-            );
+            return _setIssueDays(events, '${day.day}');
           },
           todayBuilder: (context, day, focusedDay) {
             final events = _getEventsForDay(day);
-            return Container(
-              margin: const EdgeInsets.all(4.0),
-              alignment: Alignment.center,
-              decoration: events.isNotEmpty
-                  ? BoxDecoration(
-                shape: BoxShape.circle,
-                // color: Colors.blue.withOpacity(0.2),
-                color: _getEventColor(events.first),
-              )
-                  : null,
-              child: Text(
-                '${day.day}',
-                style: TextStyle(
-                  color: events.isNotEmpty ? Colors.white : Colors.black,
-                ),
-              ),
-            );
+            return _setIssueDays(events, '${day.day}');
           },
         ),
         eventLoader: (day) {
           return _getEventsForDay(day);
         },
+        onPageChanged: (focusedDay){
+          _focusedDay = focusedDay;
+          DLog.d(IssueCalendarPage.TAG, 'Calendar page changed to ${focusedDay.month}/${focusedDay.year}');
+          _loadEventsForMonth(focusedDay);
+        },
+      ),
+    );
+  }
+
+  void _loadEventsForMonth(DateTime forcusedCal) {
+    DLog.d(IssueCalendarPage.TAG, 'Loading events for ${forcusedCal.month}/${forcusedCal.year}');
+    String yearMonth = forcusedCal.year.toString() + forcusedCal.month.toString().padLeft(2, '0');
+    DLog.d(IssueCalendarPage.TAG, yearMonth);
+    _requestIssue02(yearMonth);
+  }
+
+  Widget _setIssueDays(List<Issue05> events, String day) {
+    return Container(
+      margin: const EdgeInsets.all(4.0),
+      alignment: Alignment.center,
+      decoration: events.isNotEmpty
+          ? BoxDecoration(
+        shape: BoxShape.circle,
+        // color: Colors.blue.withOpacity(0.2),
+        color: _getEventColor(events.first),
+      )
+          : null,
+      child: Text(
+        day,
+        style: TextStyle(
+          color: events.isNotEmpty ? Colors.white : Colors.black,
+        ),
       ),
     );
   }
@@ -279,6 +287,10 @@ class IssueCalendarState extends State<IssueCalendarPage> {
       eventSource.addAll(convertedMap); /* = convertedMap;*/
       _updateCalendar();
     });
+  }
+
+  String dateTimeToString(DateTime date) {
+    return '${date.year}  ${date.month.toString().padLeft(2, '0')}  ${date.day}';
   }
 
   //이슈 관련 히스토리
@@ -377,7 +389,19 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     );
   }
 
-  void _requestData() {
+
+  void _requestIssue02(String yearMonth) {
+    _fetchPosts(
+        TR.ISSUE02,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'issueMonth': yearMonth,
+          'selectDiv': 'NEW',
+          'issueSn': _issueSn,
+        }));
+  }
+
+  void _requestIssue05() {
     _fetchPosts(
         TR.ISSUE05,
         jsonEncode(<String, String>{

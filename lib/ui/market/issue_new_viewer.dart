@@ -374,13 +374,12 @@ class IssueNewViewerState extends State<IssueNewViewer> {
     );
   }
 
-  void _requestTheme05(String type) {
+  void _requestIssue04(String type) {
     _fetchPosts(
-        TR.THEME05,
+        TR.ISSUE04,
         jsonEncode(<String, String>{
           'userId': _userId,
           // 'themeCode': _themeCode,
-          'selectDiv': type, //SHORT: 단기강세TOP3, TREND: 추세주도주
         }));
   }
 

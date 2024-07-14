@@ -26,13 +26,12 @@ class Issue04 {
   Issue04({this.issueInfo, this.stkList = const []});
 
   factory Issue04.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Stock'] as List;
-    // List<StockStatus>? rtList;
-    // list == null ? rtList = null : rtList = list.map((i) => StockStatus.fromJson(i)).toList();
+    var list = json['list_Stock'] == null ? [] : (json['list_Stock'] as List);
+    List<StockStatus> rtList = list.map((i) => StockStatus.fromJson(i)).toList();
 
     return Issue04(
       issueInfo: IssueInfo.fromJson(json['struct_Issue']),
-      stkList: list.map((i) => StockStatus.fromJson(i)).toList(),
+      stkList: rtList,
     );
   }
 }

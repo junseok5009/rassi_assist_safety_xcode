@@ -21,14 +21,15 @@ class TrRassi13 {
   TrRassi13({this.retCode = '', this.retMsg = '', this.listData = const [], this.reportDesc = ''});
 
   factory TrRassi13.fromJson(Map<String, dynamic> json) {
-    var rlist = json['retData']['list_Rassiro'] as List;
+    var rlist = json['retData']['list_Rassiro'] == null ? [] : (json['retData']['list_Rassiro'] as List);
     List<Rassi13> rtList = rlist.map((i) => Rassi13.fromJson(i)).toList();
+    var repDesc = json['retData']['reportDesc'] ?? '';
 
     return TrRassi13(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
       listData: rtList,
-      reportDesc: json['retData'] == null ? '' : json['retData']['reportDesc'],
+      reportDesc: repDesc,
     );
   }
 }

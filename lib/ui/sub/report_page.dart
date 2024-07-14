@@ -13,8 +13,12 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/pg_news.dart';
+import 'package:rassi_assist/models/tag_info.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi13.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/news/news_tag_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2021.03.09
@@ -63,6 +67,7 @@ class ReportState extends State<ReportWidget> {
   int pageNum = 0;
   final List<Rassi13> _repList = [];
   final List<StockData> _recentList = [];
+  final List<Tag> _tagList = [];
 
   @override
   void initState() {
@@ -126,7 +131,6 @@ class ReportState extends State<ReportWidget> {
             },
           ),
           const SizedBox(height: 15),
-
           _setMoreButton('+ 관련 AI속보', '더보기'),
           const SizedBox(height: 20),
         ],
@@ -141,13 +145,20 @@ class ReportState extends State<ReportWidget> {
       color: const Color(0xffF5F5F5),
       child: Column(
         children: [
+          //관련 태그
+          _setRelatedTags(),
+
+          //팁
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
                 decoration: UIStyle.boxRoundFullColor8c(RColor.mainColor),
-                child: const Text('TIP', style: TStyle.btnTextWht12,),
+                child: const Text(
+                  'TIP',
+                  style: TStyle.btnTextWht12,
+                ),
               ),
               const SizedBox(width: 7),
               Expanded(
@@ -159,40 +170,44 @@ class ReportState extends State<ReportWidget> {
             ],
           ),
 
-          // _setRecentStock(), //최근 관련 종목
           _setRecentReport(), // 증권사 리포트 추가
         ],
       ),
     );
   }
 
-  //최근 관련 종목
-  Widget _setRecentStock() {
+  //관련 태그 리스트
+  Widget _setRelatedTags() {
     return Visibility(
-      visible: _recentList != null && _recentList.length > 0 && repDiv != '0',
+      visible: _tagList.isNotEmpty,
       child: Container(
-        padding: const EdgeInsets.only(bottom: 15),
-        // color: RColor.bgAiReport,
-        child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          decoration: UIStyle.boxRoundLine6(),
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              const Text(
-                '최근 관련 종목',
-                style: TStyle.commonTitle,
+        width: double.infinity,
+        padding: const EdgeInsets.only(bottom: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('관련태그', style: TStyle.content15,),
+            const SizedBox(height: 5),
+            Wrap(
+              spacing: 7.0,
+              alignment: WrapAlignment.center,
+              children: List.generate(
+                _tagList.length,
+                (index) => InkWell(
+                  child: Text(
+                    '#${_tagList[index].tagName}',
+                    style: TStyle.purpleThinStyle(),
+                  ),
+                  onTap: (){
+                    basePageState.callPageRouteNews(
+                      NewsTagPage(),
+                      PgNews(tagCode: _tagList[index].tagCode, tagName: _tagList[index].tagName),
+                    );
+                  },
+                ),
               ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 7.0,
-                alignment: WrapAlignment.center,
-                children: List.generate(_recentList.length, (index) => TileChipStock(_recentList[index])),
-              )
-            ],
-          ),
+            )
+          ],
         ),
       ),
     );
@@ -234,10 +249,7 @@ class ReportState extends State<ReportWidget> {
   }
 
   //더보기 버튼
-  Widget _setMoreButton(
-    String title,
-    String subText,
-  ) {
+  Widget _setMoreButton(String title, String subText) {
     return Visibility(
       visible: true,
       child: Column(
@@ -392,9 +404,21 @@ class ReportState extends State<ReportWidget> {
       if (resData.retCode == RT.SUCCESS) {
         repDesc = resData.reportDesc;
 
-        if (resData.listData.length > 0) {
+        if (resData.listData.isNotEmpty) {
           List<Rassi13> rassiList = resData.listData;
           _repList.addAll(rassiList);
+
+          //상단 태그 리스트
+          List<Tag> tmpList = rassiList
+              .where((innerList) => innerList.listTag.isNotEmpty)
+              .expand((innerList) => innerList.listTag)
+              .toList();
+          for (Tag tmp in tmpList) {
+            if (!_tagList.any((item) => item.tagCode == tmp.tagCode)) {
+              _tagList.add(tmp);
+              DLog.d(ReportPage.TAG, tmp.toString());
+            }
+          }
 
           if (pageNum == 0) {
             for (int i = 0; i < rassiList.length; i++) {

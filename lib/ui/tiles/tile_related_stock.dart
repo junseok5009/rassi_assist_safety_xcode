@@ -115,7 +115,7 @@ class TileRelatedStock extends StatelessWidget {
             children: [
               const SizedBox(height: 5),
               Container(
-                height: 20,
+                height: 28,
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: item.listKeyword.length > 3 ? 3 : item.listKeyword.length,
@@ -129,10 +129,14 @@ class TileRelatedStock extends StatelessWidget {
                         IssueDetailState parent = context.findAncestorStateOfType<IssueDetailState>()!;
                         parent.cheangeIssue(item.listKeyword[index].newsSn);
                       },
-                      child: Text(
-                        '#${item.listKeyword[index].keyword}',
-                        style: TStyle.commonSPurple,
-                      ),
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+                        decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
+                        child: Text(
+                          '#${item.listKeyword[index].keyword}',
+                          style: TStyle.commonSPurple,
+                        ),
+                      )
                     );
                   },
                 ),
