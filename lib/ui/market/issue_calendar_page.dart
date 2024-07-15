@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -16,6 +15,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/tr_issue/tr_issue02n.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue05.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,29 +46,32 @@ class IssueCalendarState extends State<IssueCalendarPage> {
 
   late DateTime _firstDay;
   late DateTime _lastDay;
-  DateTime? _selectedDay;
-  late Map<DateTime, List<Issue05>> eventSource;
-  late LinkedHashMap<DateTime, List<Issue05>> mapIssueEvent;
+  late Map<DateTime, List<IssueDaily>> eventSource;
+  late LinkedHashMap<DateTime, List<IssueDaily>> mapIssueEvent;
 
   final List<Issue05> _issueList = [];
   late ScrollController _scrollController;
   int pageNum = 0;
   String pageSize = '10';
 
+  String _strMonth = '';
+  String _strIssDays = '0';
+  String _strRiseDays = '0';
+  String _strFallDays = '0';
 
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(
-      IssueCalendarPage.TAG_NAME
-    );
+    CustomFirebaseClass.logEvtScreenView(IssueCalendarPage.TAG_NAME);
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
 
     _lastDay = _focusedDay.lastDayOfMonth();
     // DLog.d(IssueCalendarPage.TAG, _lastDay.toString());
-    _firstDay = DateTime(_lastDay.year - 1, _lastDay.month, 1);
+    _firstDay = DateTime(_lastDay.year - 10, _lastDay.month, 1);
+
     // DLog.d(IssueCalendarPage.TAG, _firstDay.toString());
+    _strMonth = TStyle.getYearMonthString().substring(4, 6);
 
     eventSource = {};
     _updateCalendar();
@@ -154,11 +157,10 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         child: ListView(
           controller: _scrollController,
           children: [
-
             _setSubTitle('$_keyword 이슈 캘린더'),
+            _setMonthlySummary(),
             _setIssueCalendar(),
             const SizedBox(height: 25),
-
             _setSubTitle('이슈 히스토리'),
             const SizedBox(height: 15),
             ListView.builder(
@@ -176,6 +178,21 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     );
   }
 
+  Widget _setMonthlySummary() {
+    return Visibility(
+      visible: true,
+      child: Container(
+        margin: const EdgeInsets.all(15),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
+        child: Text(
+          '$_strMonth월에는 $_strIssDays번의 이슈가 발생하였으며, $_strRiseDays번 상승, $_strFallDays번 하락을 했습니다.',
+          style: TStyle.defaultContent,
+        ),
+      ),
+    );
+  }
+
   //이슈 캘린더
   Widget _setIssueCalendar() {
     return Container(
@@ -183,7 +200,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
       child: TableCalendar(
         firstDay: _firstDay,
         lastDay: _lastDay,
-        focusedDay: DateTime.now(),
+        focusedDay: _focusedDay,
         locale: 'ko-KR',
         calendarFormat: _calendarFormat,
         availableGestures: AvailableGestures.horizontalSwipe,
@@ -211,32 +228,35 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         eventLoader: (day) {
           return _getEventsForDay(day);
         },
-        onPageChanged: (focusedDay){
+        onPageChanged: (focusedDay) {
+          DLog.d(IssueCalendarPage.TAG, 'Calendar page focusedDay: $focusedDay');
           _focusedDay = focusedDay;
           DLog.d(IssueCalendarPage.TAG, 'Calendar page changed to ${focusedDay.month}/${focusedDay.year}');
+          _strMonth = focusedDay.month.toString();
           _loadEventsForMonth(focusedDay);
         },
       ),
     );
   }
 
-  void _loadEventsForMonth(DateTime forcusedCal) {
-    DLog.d(IssueCalendarPage.TAG, 'Loading events for ${forcusedCal.month}/${forcusedCal.year}');
-    String yearMonth = forcusedCal.year.toString() + forcusedCal.month.toString().padLeft(2, '0');
-    DLog.d(IssueCalendarPage.TAG, yearMonth);
+  void _loadEventsForMonth(DateTime datetime) {
+    _strMonth = datetime.month.toString();
+    // DLog.d(IssueCalendarPage.TAG, 'Loading events for ${forcusedCal.month}/${forcusedCal.year}');
+    String yearMonth = datetime.year.toString() + datetime.month.toString().padLeft(2, '0');
+    // DLog.d(IssueCalendarPage.TAG, yearMonth);
     _requestIssue02(yearMonth);
   }
 
-  Widget _setIssueDays(List<Issue05> events, String day) {
+  Widget _setIssueDays(List<IssueDaily> events, String day) {
     return Container(
       margin: const EdgeInsets.all(4.0),
       alignment: Alignment.center,
       decoration: events.isNotEmpty
           ? BoxDecoration(
-        shape: BoxShape.circle,
-        // color: Colors.blue.withOpacity(0.2),
-        color: _getEventColor(events.first),
-      )
+              shape: BoxShape.circle,
+              // color: Colors.blue.withOpacity(0.2),
+              color: _getEventColor(events.first),
+            )
           : null,
       child: Text(
         day,
@@ -247,11 +267,11 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     );
   }
 
-  Color _getEventColor(Issue05 item) {
+  Color _getEventColor(IssueDaily item) {
     Color infoColor = Colors.grey;
     if (item.avgFluctRate.contains('-')) {
       infoColor = RColor.sigSell;
-    } else if (item.avgFluctRate == '0.00') {
+    } else if (item.avgFluctRate == '0.00' || item.avgFluctRate.isEmpty) {
       infoColor = Colors.grey;
     } else {
       infoColor = RColor.sigBuy;
@@ -260,12 +280,12 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     return infoColor;
   }
 
-  List<Issue05> _getEventsForDay(DateTime day) {
+  List<IssueDaily> _getEventsForDay(DateTime day) {
     return mapIssueEvent[day] ?? [];
   }
 
   void _updateCalendar() {
-    mapIssueEvent = LinkedHashMap<DateTime, List<Issue05>>(
+    mapIssueEvent = LinkedHashMap<DateTime, List<IssueDaily>>(
       equals: isSameDay,
       hashCode: getHashCode,
     )..addAll(eventSource);
@@ -276,8 +296,8 @@ class IssueCalendarState extends State<IssueCalendarPage> {
   }
 
   // eventSource를 업데이트하고 events를 갱신하는 메서드
-  void updateEventSource(Map<String, List<Issue05>> newEventSource) {
-    Map<DateTime, List<Issue05>> convertedMap = {};
+  void updateEventSource(Map<String, List<IssueDaily>> newEventSource) {
+    Map<DateTime, List<IssueDaily>> convertedMap = {};
     newEventSource.forEach((key, value) {
       DateTime dateTime = DateTime.parse(key);
       convertedMap[dateTime] = value;
@@ -329,7 +349,6 @@ class IssueCalendarState extends State<IssueCalendarPage> {
                     color: RColor.greyBasic_8c8c8c,
                   ),
                 ),
-
                 Container(
                   padding: const EdgeInsets.fromLTRB(5, 2, 7, 2),
                   decoration: BoxDecoration(
@@ -389,7 +408,6 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     );
   }
 
-
   void _requestIssue02(String yearMonth) {
     _fetchPosts(
         TR.ISSUE02,
@@ -435,39 +453,46 @@ class IssueCalendarState extends State<IssueCalendarPage> {
   Future<void> _parseTrData(String trStr, final http.Response response) async {
     DLog.d(IssueCalendarPage.TAG, response.body);
 
-    if (trStr == TR.ISSUE05) {
+    if (trStr == TR.ISSUE02) {
+      final TrIssue02n resData = TrIssue02n.fromJson(jsonDecode(response.body));
+      if (resData.retCode == RT.SUCCESS) {
+        _strIssDays = resData.retData.issueDays;
+        _strRiseDays = resData.retData.riseDays;
+        _strFallDays = resData.retData.fallDays;
+
+        List<IssueDaily>? tmpList = resData.retData.listDaily;
+        Map<String, List<IssueDaily>> groupedIssues = {};
+        if (tmpList.isNotEmpty) {
+          for (IssueDaily tmp in tmpList) {
+            if (groupedIssues.containsKey(tmp.issueDate)) {
+              groupedIssues[tmp.issueDate]!.add(tmp);
+            } else {
+              groupedIssues[tmp.issueDate] = [tmp];
+            }
+          }
+        }
+        // groupedIssues.forEach((key, value) {
+        //   DLog.d(IssueCalendarPage.TAG, '$key: ${value.map((f) => f.title).toList()}');
+        // });
+
+        updateEventSource(groupedIssues);
+      } else {
+        _strIssDays = '0';
+        _strRiseDays = '0';
+        _strFallDays = '0';
+        setState(() {});
+      }
+    }
+    //
+    else if (trStr == TR.ISSUE05) {
       final TrIssue05 resData = TrIssue05.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         List<Issue05>? tmpList = resData.listData;
         _issueList.addAll(tmpList as Iterable<Issue05>);
         // _issueList.addAll(resData.listData as Iterable<Issue05>);
 
-        Map<String, List<Issue05>> groupedIssues = groupBy(
-          tmpList as Iterable<Issue05>,
-          (item) => item.issueDttm.substring(0, 8),
-        );
-
-        // groupedIssues.forEach((key, value) {
-        //   DLog.d(IssueCalendarPage.TAG, '$key: ${value.map((f) => f.title).toList()}');
-        // });
-
-        updateEventSource(groupedIssues);
+        setState(() {});
       }
     }
   }
-
-  Map<K, List<T>> groupBy<T, K>(Iterable<T> items, K Function(T) key) {
-    return items.fold<Map<K, List<T>>>(
-      {},
-      (Map<K, List<T>> map, T element) {
-        K keyValue = key(element);
-        if (!map.containsKey(keyValue)) {
-          map[keyValue] = [];
-        }
-        map[keyValue]!.add(element);
-        return map;
-      },
-    );
-  }
-
 }
