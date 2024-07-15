@@ -3,6 +3,7 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 
 import '../main/base_page.dart';
@@ -79,6 +80,7 @@ class TileRelatedStock extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 5),
                   Text(
                     item.bizOverview,
                     style: const TextStyle(
@@ -109,39 +111,33 @@ class TileRelatedStock extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 5),
         Visibility(
           visible: isIssue,
-          child: Column(
-            children: [
-              const SizedBox(height: 5),
-              Container(
-                height: 28,
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: item.listKeyword.length > 3 ? 3 : item.listKeyword.length,
-                  scrollDirection: Axis.horizontal,
-                  separatorBuilder: (BuildContext bContext, int index) {
-                    return const SizedBox(width: 10);
-                  },
-                  itemBuilder: (BuildContext bContext, int index) {
-                    return InkWell(
-                      onTap: () {
-                        IssueDetailState parent = context.findAncestorStateOfType<IssueDetailState>()!;
-                        parent.cheangeIssue(item.listKeyword[index].newsSn);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
-                        decoration: UIStyle.boxRoundLine25c(RColor.mainColor),
-                        child: Text(
-                          '#${item.listKeyword[index].keyword}',
-                          style: TStyle.commonSPurple,
-                        ),
-                      )
-                    );
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            width: double.infinity,
+            child: Wrap(
+              spacing: 7.0,
+              alignment: WrapAlignment.start,
+              children: List.generate(
+                item.listKeyword.length > 3 ? 3 : item.listKeyword.length,
+                (index) => InkWell(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+                    decoration: UIStyle.boxRoundLine25c(RColor.greyBasic_8c8c8c),
+                    child: Text(
+                      '#${item.listKeyword[index].keyword}',
+                      style: TStyle.content14,
+                    ),
+                  ),
+                  onTap: () {
+                    IssueNewViewerState parent = context.findAncestorStateOfType<IssueNewViewerState>()!;
+                    parent.changeIssue(item.listKeyword[index].newsSn);
                   },
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ],

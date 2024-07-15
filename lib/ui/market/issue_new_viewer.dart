@@ -20,7 +20,7 @@ import 'package:rassi_assist/ui/tiles/tile_related_stock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2024.07
-/// 이슈 상세보기
+/// 이슈 상세보기 (with 마켓뷰 개편)
 class IssueNewViewer extends StatefulWidget {
   static const routeName = '/page_issue_calendar';
   static const String TAG = "[IssueCalendarPage] ";
@@ -37,8 +37,6 @@ class IssueNewViewerState extends State<IssueNewViewer> {
   String _userId = "";
   late PgData args;
 
-  String _stkName = "";
-  String _stkCode = "";
   String _keyword = '';
   String _newsSn = '';
   String _issueSn = '';
@@ -60,8 +58,6 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         DLog.d(IssueNewViewer.TAG, "delayed user id : $_userId");
         args = ModalRoute.of(context)!.settings.arguments as PgData;
         if (_newsSn.isEmpty) {
-          _stkName = args.stockName;
-          _stkCode = args.stockCode;
           _newsSn = args.pgSn;
           _issueSn = args.pgData;
           _keyword = args.data;
@@ -374,15 +370,6 @@ class IssueNewViewerState extends State<IssueNewViewer> {
     );
   }
 
-  void _requestIssue04(String type) {
-    _fetchPosts(
-        TR.ISSUE04,
-        jsonEncode(<String, String>{
-          'userId': _userId,
-          // 'themeCode': _themeCode,
-        }));
-  }
-
   void _fetchPosts(String trStr, String json) async {
     DLog.d(IssueNewViewer.TAG, '$trStr $json');
 
@@ -413,6 +400,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         if (item != null) {
           DLog.d(IssueNewViewer.TAG, item.issueInfo.toString());
           _keyword = item.issueInfo!.keyword;
+          _issueSn = item.issueInfo!.issueSn;
           _issueTitle = item.issueInfo!.title;
           _issueDate = item.issueInfo!.issueDttm;
           _issueCont = item.issueInfo!.content;
@@ -421,5 +409,19 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         }
       }
     }
+  }
+
+  void changeIssue(vNewsSn) {
+    setState(() {
+      _newsSn = vNewsSn;
+      _issueSn = '';
+    });
+
+    _fetchPosts(
+        TR.ISSUE04,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'newsSn': _newsSn,
+        }));
   }
 }
