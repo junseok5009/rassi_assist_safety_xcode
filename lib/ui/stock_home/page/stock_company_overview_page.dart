@@ -108,10 +108,10 @@ class StockCompanyOverviewPage extends StatelessWidget {
                     context,
                     Platform.isAndroid
                         ? CustomNvRouteClass.createRouteSlow1(
-                            InappWebviewPage('${AppGlobal().stkName} 보고서', shome07stockContent.linkUrl),
+                            InappWebviewPage(title: '${AppGlobal().stkName} 보고서', url: shome07stockContent.linkUrl),
                           )
                         : CustomNvRouteClass.createRoute(
-                            InappWebviewPage('${AppGlobal().stkName} 보고서', shome07stockContent.linkUrl),
+                            InappWebviewPage(title: '${AppGlobal().stkName} 보고서', url: shome07stockContent.linkUrl),
                           ),
                   );
                 },

@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
@@ -122,7 +121,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                   vertical: 10.0,
                 ),
                 color: RColor.bgBasic_fdfdfd,
-                margin: const EdgeInsets.only(top: 55), //color: Colors.red,
+                margin: const EdgeInsets.only(top: 55),
+                //color: Colors.red,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -152,37 +152,37 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                             children: [
                               _isSignalInfo
                                   ? Row(
-                                children: [
-                                  Image.asset(
-                                    'images/icon_pocket_my_select_dn.png',
-                                    height: 16,
-                                  ),
-                                  const Text(
-                                    ' 매매신호 ',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: RColor.greyBasicStrong_666666,
-                                    ),
-                                  ),
-                                ],
-                              )
+                                      children: [
+                                        Image.asset(
+                                          'images/icon_pocket_my_select_dn.png',
+                                          height: 16,
+                                        ),
+                                        const Text(
+                                          ' 매매신호 ',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: RColor.greyBasicStrong_666666,
+                                          ),
+                                        ),
+                                      ],
+                                    )
                                   : Row(
-                                children: [
-                                  Image.asset(
-                                    'images/icon_pocket_my_select_up.png',
-                                    height: 16,
-                                  ),
-                                  const Text(
-                                    ' 현재가 ',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: RColor.greyBasicStrong_666666,
+                                      children: [
+                                        Image.asset(
+                                          'images/icon_pocket_my_select_up.png',
+                                          height: 16,
+                                        ),
+                                        const Text(
+                                          ' 현재가 ',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: RColor.greyBasicStrong_666666,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
                             ],
                           ),
                           onTap: () {
@@ -209,7 +209,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                         bottom: 10,
                       ),
                       duration: const Duration(milliseconds: 250),
-                      height: !_scrollController.hasClients || (_scrollController.hasClients && _scrollController.position.pixels <= 10 ) ? 40 : 0,
+                      height: !_scrollController.hasClients ||
+                              (_scrollController.hasClients && _scrollController.position.pixels <= 10)
+                          ? 40
+                          : 0,
                       child: child,
                     );
                   },
@@ -305,7 +308,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               Expanded(
                 child: /*Provider.of<UserInfoProvider>(context, listen: false).is3StockUser()
                     ? _set3StockUserListWidget()
-                    : */_setStockListWidget(),
+                    : */
+                    _setStockListWidget(),
               ),
             ],
           ),
@@ -409,6 +413,14 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               Expanded(
                 child: InkWell(
                   onTap: () {
+                    /*Navigator.push(context,
+                        CustomNvRouteClass.createRoute(
+                            SearchPage(
+                              landWhere: SearchPage.addPocketLayer,
+                              pocketSn: _pocket.pktSn,
+                            ),
+                        ),
+                    ).then();*/
                     basePageState.callPageRouteUP(
                       SearchPage(
                         landWhere: SearchPage.addPocketLayer,
@@ -436,8 +448,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                         const Text(
                           '추가',
                           style: TextStyle(
-                            //fontSize: 14,
-                          ),
+                              //fontSize: 14,
+                              ),
                         ),
                       ],
                     ),
@@ -685,9 +697,9 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     else if (_beforeOpening)
                       _setBeforeOpening(_stkList[index])
                     else if (_beforeChart)
-                        _setBeforeChart(_stkList[index])
-                      else
-                        _setStockInfoText(_stkList[index]),
+                      _setBeforeChart(_stkList[index])
+                    else
+                      _setStockInfoText(_stkList[index]),
                   ],
                 ),
               ),
@@ -703,7 +715,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
               onLongPress: () async {
                 if (!_isSignalInfo) {
                   String result =
-                  await CommonPopup.instance.showDialogCustomConfirm(context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
+                      await CommonPopup.instance.showDialogCustomConfirm(context, '알림', '선택하신 종목을\n삭제하시겠습니까?', '삭제하기');
                   if (result == CustomNvRouteResult.landing && context.mounted) {
                     String result = await Provider.of<PocketProvider>(context, listen: false).deleteStock(
                       Stock(
@@ -769,8 +781,8 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
                     text: item.fluctuationAmt.contains('-')
                         ? '▼ '
                         : (double.tryParse(item.fluctuationAmt) ?? 0) == 0
-                        ? '- '
-                        : '▲ ',
+                            ? '- '
+                            : '▲ ',
                     style: TextStyle(
                       color: TStyle.getMinusPlusColor(item.fluctuationAmt),
                       fontSize: (double.tryParse(item.fluctuationAmt) ?? 0) == 0 ? 16 : 10,
@@ -1244,10 +1256,10 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
     try {
       final http.Response response = await http
           .post(
-        url,
-        body: json,
-        headers: Net.headers,
-      )
+            url,
+            body: json,
+            headers: Net.headers,
+          )
           .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
       _parseTrData(trStr, response);
       return true;
@@ -1266,7 +1278,7 @@ class SliverPocketMyWidgetState extends State<SliverPocketMyWidget> {
         _stkList.clear();
         _stkList.addAll(pock08.stkList);
         _timeInfo =
-        '${TStyle.getDateDivFormat(pock08.tradeDate)} ${TStyle.getTimeFormat(pock08.tradeTime)} ${pock08.timeDivTxt}';
+            '${TStyle.getDateDivFormat(pock08.tradeDate)} ${TStyle.getTimeFormat(pock08.tradeTime)} ${pock08.timeDivTxt}';
         _beforeOpening = pock08.beforeOpening == 'Y';
         _beforeChart = pock08.beforeChart == 'Y';
         if (_beforeOpening || _beforeChart) {

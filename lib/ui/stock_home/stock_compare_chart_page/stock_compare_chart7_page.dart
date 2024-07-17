@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
@@ -95,9 +94,7 @@ class StockCompareChart7PageState extends State<StockCompareChart7Page> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      Navigator.of(context).pop(null);
-    } on SocketException catch (_) {
-      Navigator.of(context).pop(null);
+      if (mounted) Navigator.of(context).pop(null);
     }
   }
 
@@ -208,7 +205,7 @@ class StockCompareChart7PageState extends State<StockCompareChart7Page> {
       height: 240,
       child: Echarts(
         captureHorizontalGestures: true,
-        reloadAfterInit: true,
+        //reloadAfterInit: true,
         extraScript: '''
 
         ''',
@@ -324,9 +321,11 @@ class StockCompareChart7PageState extends State<StockCompareChart7Page> {
 
       tmpDataCategory += "'${item.stockName}',";
       if (amountData.contains("-")) {
-        tmpData += "{ value: $amountData, itemStyle: { color: '#398AFF' }, label: {fontSize: 10, fontWeight: 'bold'},},";
+        tmpData +=
+            "{ value: $amountData, itemStyle: { color: '#398AFF' }, label: {fontSize: 10, fontWeight: 'bold'},},";
       } else {
-        tmpData += "{ value: $amountData, itemStyle: { color: '#FD525A' }, label: {fontSize: 10, fontWeight: 'bold'},},";
+        tmpData +=
+            "{ value: $amountData, itemStyle: { color: '#FD525A' }, label: {fontSize: 10, fontWeight: 'bold'},},";
       }
       if (item.stockCode == _stockCode) {
         _highLightIndex = i;
@@ -360,28 +359,28 @@ class StockCompareChart7PageState extends State<StockCompareChart7Page> {
         padding: EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          var _item = alStock[index];
+          var item = alStock[index];
 
           if (selectDaysBoxIndex == 0) {
             // PBR
-            data = _item.fluctWeek1;
+            data = item.fluctWeek1;
           } else if (selectDaysBoxIndex == 1) {
             // PBR
-            data = _item.fluctMonth1;
+            data = item.fluctMonth1;
           } else if (selectDaysBoxIndex == 2) {
             // PBR
-            data = _item.fluctMonth3;
+            data = item.fluctMonth3;
           } else if (selectDaysBoxIndex == 3) {
             // PBR
-            data = _item.fluctMonth6;
+            data = item.fluctMonth6;
           } else if (selectDaysBoxIndex == 4) {
             // PBR
-            data = _item.fluctYear1;
+            data = item.fluctYear1;
           }
           if (data.isEmpty) {
             data = '0';
           }
-          if (_item.stockCode == _stockCode) {
+          if (item.stockCode == _stockCode) {
             stockNameStyle = TStyle.commonPurple14;
             stockDataStyle = TStyle.commonPurple14;
           } else {
@@ -400,7 +399,7 @@ class StockCompareChart7PageState extends State<StockCompareChart7Page> {
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        _item.stockName,
+                        item.stockName,
                         style: stockNameStyle,
                       ),
                     ),

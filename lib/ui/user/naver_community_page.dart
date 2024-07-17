@@ -88,7 +88,7 @@ class CommunityState extends State<NaverCommunityPageState> {
               InAppWebView(
                 initialOptions: _options,
                 initialUrlRequest: URLRequest(
-                  url: Uri.parse('${Net.NAVER_COMMUNITY_STK}$_stockCode/discuss'),
+                  url: WebUri.uri(UriData.fromString('${Net.NAVER_COMMUNITY_STK}$_stockCode/discuss').uri),
                 ),
                 onWebViewCreated: (controller) {
                   _webViewController = controller;

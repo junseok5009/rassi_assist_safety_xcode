@@ -106,16 +106,20 @@ class SignalAllState extends State<SignalAllPage> {
       appBar: CommonAppbar.basic(buildContext: context, title: '$_stkName AI매매신호 내역', elevation: 0),
       backgroundColor: RColor.bgBasic_fdfdfd,
       body: SafeArea(
-        child: ListView.builder(
-          controller: _scrollController,
-          itemCount: _listData.length + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return _setHeaderView();
-            } else {
-              return TileSignal07(_listData[index - 1]);
-            }
-          },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _setHeaderView(),
+              ListView.builder(
+                shrinkWrap: true,
+                controller: _scrollController,
+                itemCount: _listData.length,
+                itemBuilder: (context, index) {
+                  return TileSignal07(_listData[index]);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -290,7 +294,7 @@ class SignalAllState extends State<SignalAllPage> {
   Widget _setEChartView() {
     return Echarts(
       captureHorizontalGestures: true,
-      reloadAfterInit: true,
+      //reloadAfterInit: true,
       extraScript: '''
           var up = 'path://M286.031,265l-16.025,3L300,223l29.994,45-16.041-3-13.961,69Z';
           var down = 'path://M216.969,292l16.025-3L203,334l-29.994-45,16.041,3,13.961-69Z';

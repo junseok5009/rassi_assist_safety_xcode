@@ -50,7 +50,7 @@ class CommonAppbar{
         backgroundColor: Colors.white,
         title: Text(
           title,
-          style: TStyle.commonTitle,
+          style: TStyle.title18T,
         ),
         leading: InkWell(
           splashColor: Colors.transparent,
@@ -94,11 +94,7 @@ class CommonAppbar{
         ),
         title: Text(
           title,
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 16,
-            color: titleColor,
-          ),
+          style: TStyle.title18T,
         ),
         leading: InkWell(
           splashColor: Colors.transparent,
@@ -181,11 +177,7 @@ class CommonAppbar{
         ),
         title: Text(
           title,
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 16,
-            color: titleColor,
-          ),
+          style: TStyle.title18T,
         ),
         leading: InkWell(
           splashColor: Colors.transparent,
@@ -283,11 +275,7 @@ class CommonAppbar{
         ),
         title: Text(
           title,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-            color: titleColor,
-          ),
+          style: TStyle.title18T,
         ),
         leading: null,
         leadingWidth: 10,

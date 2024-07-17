@@ -3,12 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/common/custom_nv_route_result.dart';
+import 'package:rassi_assist/common/pocket_api_result.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/models/pocket.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
+import 'package:rassi_assist/models/pocket.dart';
 import 'package:rassi_assist/provider/pocket_provider.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/layer/add_pocket_layer.dart';
@@ -21,7 +21,7 @@ class AddStockLayer extends StatefulWidget {
   final String pocketSn;
   static final GlobalKey<AddStockLayerState> globalKey = GlobalKey();
 
-  AddStockLayer(this.stock, {this.pocketSn='', Key? key}) : super(key: globalKey);
+  AddStockLayer(this.stock, {this.pocketSn = '', Key? key}) : super(key: globalKey);
 
   @override
   State<AddStockLayer> createState() => AddStockLayerState();
@@ -45,14 +45,14 @@ class AddStockLayerState extends State<AddStockLayer> {
     CustomFirebaseClass.logEvtScreenView(
       '포켓에_종목추가_하기_레이어',
     );
-    if (widget.pocketSn != null && widget.pocketSn.isNotEmpty) {
+    if (widget.pocketSn.isNotEmpty) {
       _pocketSn = widget.pocketSn;
       int pocketListIndex = Provider.of<PocketProvider>(context, listen: false).getPocketListIndexByPocketSn(_pocketSn);
-      if(pocketListIndex > 2){
+      if (pocketListIndex > 2) {
         pocketListIndex -= 2;
       }
-      _controller =  ScrollController(initialScrollOffset: 40.0 * pocketListIndex);
-    }else{
+      _controller = ScrollController(initialScrollOffset: 40.0 * pocketListIndex);
+    } else {
       _controller = ScrollController();
     }
   }
@@ -73,8 +73,8 @@ class AddStockLayerState extends State<AddStockLayer> {
                 constraints: const BoxConstraints(),
                 iconSize: 24,
                 onPressed: () {
-                  if (context != null && context.mounted) {
-                    Navigator.pop(context, CustomNvRouteResult.cancel);
+                  if (context.mounted) {
+                    Navigator.pop(context, PocketApiResult.userCancelled());
                   }
                 },
               ),
@@ -97,16 +97,14 @@ class AddStockLayerState extends State<AddStockLayer> {
                     //physics: NeverScrollableScrollPhysics(),
                     controller: _controller,
                     itemCount: provider.getPocketList.length,
-                    itemBuilder: (context, index) => _setPocketListView(
-                        index, provider.getPocketList[index]),
+                    itemBuilder: (context, index) => _setPocketListView(index, provider.getPocketList[index]),
                   );
                 },
               ),
             ),
             InkWell(
               onTap: () {
-                var pocketProvider =
-                    Provider.of<PocketProvider>(context, listen: false);
+                var pocketProvider = Provider.of<PocketProvider>(context, listen: false);
                 if (AppGlobal().isPremium) {
                   if (pocketProvider.getPocketList.length >= 10) {
                     CommonPopup.instance.showDialogBasic(context, '알림', '생성 가능한 포켓의 개수는 최대 10개 입니다.');
@@ -118,8 +116,8 @@ class AddStockLayerState extends State<AddStockLayer> {
                 } else {
                   // 프리미엄 팝업
                   Navigator.pop(
-                      context,
-                      CustomNvRouteResult.landPremiumPopup,
+                    context,
+                    PocketApiResult.showPopupPremium(),
                   );
                 }
               },
@@ -160,12 +158,9 @@ class AddStockLayerState extends State<AddStockLayer> {
                 if (_pocketSn.isEmpty) {
                   commonShowToastCenter('포켓을 선택해 주십시오.');
                 } else {
-                  String result =
-                      await Provider.of<PocketProvider>(context, listen: false)
-                          .addStock(widget.stock, _pocketSn);
-                  if(mounted){
-                    Navigator.pop(context, result);
-                  }
+                  await Provider.of<PocketProvider>(context, listen: false).addStock(widget.stock, _pocketSn).then(
+                        (value) => Navigator.pop(context, value),
+                      );
                 }
               },
               child: Container(
@@ -223,9 +218,7 @@ class AddStockLayerState extends State<AddStockLayer> {
                       pocket.pktName,
                       style: TextStyle(
                         fontSize: 16,
-                        color: pocket.pktSn == _pocketSn
-                            ? RColor.mainColor
-                            : Colors.black,
+                        color: pocket.pktSn == _pocketSn ? RColor.mainColor : Colors.black,
                       ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -238,9 +231,7 @@ class AddStockLayerState extends State<AddStockLayer> {
                     '${pocket.stkList.length}/50',
                     style: TextStyle(
                       fontSize: 11,
-                      color: pocket.pktSn == _pocketSn
-                          ? RColor.mainColor
-                          : RColor.greyMore_999999,
+                      color: pocket.pktSn == _pocketSn ? RColor.mainColor : RColor.greyMore_999999,
                     ),
                   ),
                   const SizedBox(
@@ -250,9 +241,7 @@ class AddStockLayerState extends State<AddStockLayer> {
               ),
             ),
             Image.asset(
-              pocket.pktSn == _pocketSn
-                  ? 'images/icon_circle_check_y.png'
-                  : 'images/icon_circle_check_n.png',
+              pocket.pktSn == _pocketSn ? 'images/icon_circle_check_y.png' : 'images/icon_circle_check_n.png',
               fit: BoxFit.cover,
             ),
           ],

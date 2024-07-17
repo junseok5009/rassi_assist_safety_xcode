@@ -1,13 +1,16 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
+import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/custom/CustomBoxShadow.dart';
-import 'package:rassi_assist/ui/user/naver_community_page.dart';
+import 'package:rassi_assist/ui/web/inapp_webview_page.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../../common/const.dart';
@@ -331,9 +334,17 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                           ),
                         ),
                         onTap: () {
-                          basePageState.callPageRouteUpData(
-                            const NaverCommunityPage(),
-                            PgData(stockCode: AppGlobal().stkCode, stockName: AppGlobal().stkName),
+                          Navigator.push(
+                            context,
+                            Platform.isAndroid
+                                ? CustomNvRouteClass.createRouteSlow1(
+                                    InappWebviewPage(
+                                        title: '', url: '${Net.NAVER_COMMUNITY_STK}${AppGlobal().stkCode}/discuss'),
+                                  )
+                                : CustomNvRouteClass.createRoute(
+                                    InappWebviewPage(
+                                        title: '', url: '${Net.NAVER_COMMUNITY_STK}${AppGlobal().stkCode}/discuss'),
+                                  ),
                           );
                         },
                       ),
@@ -368,9 +379,8 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
                           basePageState.callPageRouteUpData(
                             const CommunityPage(),
                             PgData(
-                                userId: AppGlobal().userId,
                                 stockCode: AppGlobal().stkCode,
-                                stockName: AppGlobal().stkName),
+                            ),
                           );
                         },
                       ),

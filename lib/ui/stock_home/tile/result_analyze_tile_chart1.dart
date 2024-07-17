@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
@@ -12,9 +11,9 @@ import '../../../common/const.dart';
 import '../../../common/d_log.dart';
 import '../../../common/net.dart';
 import '../../../common/tstyle.dart';
-import '../../common/common_popup.dart';
 import '../../../models/none_tr/app_global.dart';
 import '../../../models/tr_search/tr_search10.dart';
+import '../../common/common_popup.dart';
 
 class ResultAnalyzeTileChart1 extends StatefulWidget {
   const ResultAnalyzeTileChart1({
@@ -24,8 +23,7 @@ class ResultAnalyzeTileChart1 extends StatefulWidget {
   final bool initIsQuart;
 
   @override
-  State<ResultAnalyzeTileChart1> createState() =>
-      _ResultAnalyzeTileChart1State();
+  State<ResultAnalyzeTileChart1> createState() => _ResultAnalyzeTileChart1State();
 }
 
 class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
@@ -76,7 +74,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -123,9 +121,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
   }
 
   Widget _setInfoView() {
-    if (_listData.isEmpty ||
-        _confirmSearch10Sales.tradeDate.isEmpty ||
-        _confirmSearch10Sales.sales.isEmpty) {
+    if (_listData.isEmpty || _confirmSearch10Sales.tradeDate.isEmpty || _confirmSearch10Sales.sales.isEmpty) {
       return const SizedBox();
     }
     return Container(
@@ -244,8 +240,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: TStyle.getMinusPlusColor(
-                                _confirmSearch10Sales.profitIncRateYoY),
+                            color: TStyle.getMinusPlusColor(_confirmSearch10Sales.profitIncRateYoY),
                           ),
                         ),
                       ],
@@ -273,8 +268,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
                   : Row(
                       children: [
                         Text(
-                          TStyle.getBillionUnitWithMoneyPointByDouble(
-                              _confirmSearch10Sales.netProfit),
+                          TStyle.getBillionUnitWithMoneyPointByDouble(_confirmSearch10Sales.netProfit),
                           style: TStyle.commonTitle,
                         ),
                         const SizedBox(
@@ -287,8 +281,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: TStyle.getMinusPlusColor(
-                                _confirmSearch10Sales.netIncRateYoY),
+                            color: TStyle.getMinusPlusColor(_confirmSearch10Sales.netIncRateYoY),
                           ),
                         ),
                       ],
@@ -723,8 +716,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
             child: const Center(
               child: Text(
                 '!',
-                style: TextStyle(
-                    fontSize: 18, color: RColor.new_basic_text_color_grey),
+                style: TextStyle(fontSize: 18, color: RColor.new_basic_text_color_grey),
               ),
             ),
           ),
@@ -733,8 +725,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
           ),
           Text(
             _isQuart ? "분기 실적이 없습니다." : "연간 실적이 없습니다.",
-            style: const TextStyle(
-                fontSize: 14, color: RColor.new_basic_text_color_grey),
+            style: const TextStyle(fontSize: 14, color: RColor.new_basic_text_color_grey),
           ),
         ],
       ),
@@ -834,8 +825,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
     } else if (column == 1) {
       value = _listDataTable[row].sales.isEmpty
           ? '-'
-          : TStyle.getBillionUnitWithMoneyPointByDouble(
-              _listDataTable[row].sales);
+          : TStyle.getBillionUnitWithMoneyPointByDouble(_listDataTable[row].sales);
       return SizedBox(
         height: 50,
         child: Column(
@@ -856,8 +846,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
     } else if (column == 2) {
       value = _listDataTable[row].salesProfit.isEmpty
           ? '-'
-          : TStyle.getBillionUnitWithMoneyPointByDouble(
-              _listDataTable[row].salesProfit);
+          : TStyle.getBillionUnitWithMoneyPointByDouble(_listDataTable[row].salesProfit);
       return SizedBox(
         height: 50,
         child: Column(
@@ -876,11 +865,9 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
         ),
       );
     } else if (column == 3) {
-      value = (_listDataTable[row].netProfit.isEmpty) ||
-              (_listDataTable[row].confirmYn == 'N' && value == '0')
+      value = (_listDataTable[row].netProfit.isEmpty) || (_listDataTable[row].confirmYn == 'N' && value == '0')
           ? '-'
-          : TStyle.getBillionUnitWithMoneyPointByDouble(
-              _listDataTable[row].netProfit);
+          : TStyle.getBillionUnitWithMoneyPointByDouble(_listDataTable[row].netProfit);
       return SizedBox(
         height: 50,
         child: Column(
@@ -911,14 +898,10 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
     _chart1YAxisData1 = '[';
     _chart1YAxisData2 = '[';
     for (var element in _listData) {
-      _chart1XAxisData += _isQuart
-          ? "'${element.year.substring(2, 4)}/${element.quarter}Q',"
-          : "'${element.year}',";
+      _chart1XAxisData += _isQuart ? "'${element.year.substring(2, 4)}/${element.quarter}Q'," : "'${element.year}',";
       _chart1BarYAxisData += "${element.sales.isEmpty ? 0 : element.sales},";
-      _chart1YAxisData1 +=
-          "${element.salesProfit.isEmpty ? 0 : element.salesProfit},";
-      _chart1YAxisData2 +=
-          "${element.netProfit.isEmpty ? 0 : element.netProfit},";
+      _chart1YAxisData1 += "${element.salesProfit.isEmpty ? 0 : element.salesProfit},";
+      _chart1YAxisData2 += "${element.netProfit.isEmpty ? 0 : element.netProfit},";
     }
     _chart1XAxisData += ']';
     _chart1BarYAxisData += ']';
@@ -933,9 +916,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
     _chart2YAxisData2 = '[';
     _chart2YAxisData3 = '[';
     for (var element in _listData) {
-      _chart2XAxisData += _isQuart
-          ? "'${element.year.substring(2, 4)}/${element.quarter}Q',"
-          : "'${element.year}',";
+      _chart2XAxisData += _isQuart ? "'${element.year.substring(2, 4)}/${element.quarter}Q'," : "'${element.year}',";
       _chart2YAxisData1 += "${element.salesIncRateYoY},";
       _chart2YAxisData2 += "${element.profitIncRateYoY},";
       _chart2YAxisData3 += "${element.netIncRateYoY},";
@@ -952,10 +933,8 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
     if (_listData.length < 2) {
       return 0;
     }
-    var item = _listData.reduce((curr, next) =>
-        (double.tryParse(curr.sales) ?? 0) > (double.tryParse(next.sales) ?? 0)
-            ? curr
-            : next);
+    var item = _listData
+        .reduce((curr, next) => (double.tryParse(curr.sales) ?? 0) > (double.tryParse(next.sales) ?? 0) ? curr : next);
     return (double.tryParse(item.sales) ?? 0);
   }
 
@@ -964,10 +943,8 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
     if (_listData.length < 2) {
       return 0;
     }
-    var item = _listData.reduce((curr, next) =>
-        (double.tryParse(curr.sales) ?? 0) < (double.tryParse(next.sales) ?? 0)
-            ? curr
-            : next);
+    var item = _listData
+        .reduce((curr, next) => (double.tryParse(curr.sales) ?? 0) < (double.tryParse(next.sales) ?? 0) ? curr : next);
     return (double.tryParse(item.sales) ?? 0);
   }
 
@@ -977,10 +954,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
       return 0;
     }
     var item = _listData.reduce((curr, next) =>
-        (double.tryParse(curr.sales) ?? 0).abs() >
-                (double.tryParse(next.sales) ?? 0).abs()
-            ? curr
-            : next);
+        (double.tryParse(curr.sales) ?? 0).abs() > (double.tryParse(next.sales) ?? 0).abs() ? curr : next);
     return (double.tryParse(item.sales) ?? 0).abs();
   }
 
@@ -990,19 +964,12 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
       return 0;
     }
     var item1 = _listData.reduce(
-      (curr, next) => (double.tryParse(curr.salesProfit) ?? 0) >
-              (double.tryParse(next.salesProfit) ?? 0)
-          ? curr
-          : next,
+      (curr, next) => (double.tryParse(curr.salesProfit) ?? 0) > (double.tryParse(next.salesProfit) ?? 0) ? curr : next,
     );
     var item2 = _listData.reduce(
-      (curr, next) => (double.tryParse(curr.netProfit) ?? 0) >
-              (double.tryParse(next.netProfit) ?? 0)
-          ? curr
-          : next,
+      (curr, next) => (double.tryParse(curr.netProfit) ?? 0) > (double.tryParse(next.netProfit) ?? 0) ? curr : next,
     );
-    return (double.tryParse(item1.salesProfit) ?? 0) >=
-            (double.tryParse(item2.netProfit) ?? 0)
+    return (double.tryParse(item1.salesProfit) ?? 0) >= (double.tryParse(item2.netProfit) ?? 0)
         ? (double.tryParse(item1.salesProfit) ?? 0)
         : (double.tryParse(item2.netProfit) ?? 0);
   }
@@ -1035,9 +1002,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
@@ -1054,15 +1019,13 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
           //_listData.addAll(resData.retData.listSales);
           _confirmSearch10Sales = Search10Sales();
           for (var e in resData.retData.listSales) {
-              if (e.sales.isNotEmpty ||
-                  e.salesProfit.isNotEmpty ||
-                  e.netProfit.isNotEmpty) {
-                _listData.add(e);
-              }
-              if (_isQuart && e.confirmYn == 'N') {
-                _confirmSearch10Sales = e;
-              }
+            if (e.sales.isNotEmpty || e.salesProfit.isNotEmpty || e.netProfit.isNotEmpty) {
+              _listData.add(e);
             }
+            if (_isQuart && e.confirmYn == 'N') {
+              _confirmSearch10Sales = e;
+            }
+          }
           _listDataTable.addAll(
             List.from(
               _listData.reversed,

@@ -13,7 +13,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_order05.dart';
+import 'package:rassi_assist/models/tr_order/tr_order05.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/pay/pay_web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';

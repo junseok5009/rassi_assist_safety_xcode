@@ -1,7 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
-import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
 
@@ -18,8 +17,8 @@ class StockCompareChart2Dialog extends StatefulWidget {
   String baseDate = '';
   List<StockCompare02> alStockCompare02 = [];
 
-  StockCompareChart2Dialog(int vChartDiv, String vStockCode, String vBaseDate,
-      List<StockCompare02> vAlStockCompare02) {
+  StockCompareChart2Dialog(int vChartDiv, String vStockCode, String vBaseDate, List<StockCompare02> vAlStockCompare02,
+      {super.key}) {
     this.chartDiv = vChartDiv;
     this.stockCode = vStockCode;
     this.baseDate = vBaseDate;
@@ -27,8 +26,7 @@ class StockCompareChart2Dialog extends StatefulWidget {
   }
 
   @override
-  _StockCompareChart2DialogState createState() =>
-      _StockCompareChart2DialogState();
+  _StockCompareChart2DialogState createState() => _StockCompareChart2DialogState();
 }
 
 class _StockCompareChart2DialogState extends State<StockCompareChart2Dialog> {
@@ -43,6 +41,7 @@ class _StockCompareChart2DialogState extends State<StockCompareChart2Dialog> {
 
   @override
   void initState() {
+    super.initState();
     FirebaseAnalytics.instance.setCurrentScreen(
       screenName: StockCompareChart2Dialog.TAG_NAME,
       screenClassOverride: StockCompareChart2Dialog.TAG_NAME,
@@ -243,8 +242,7 @@ class _StockCompareChart2DialogState extends State<StockCompareChart2Dialog> {
     tmpData += "]";
     _chartDataStrStockName = tmpDataStockName;
     _chartDataStr = tmpData;
-    DLog.d(StockCompareChart2Dialog.TAG_NAME,
-        '_chartDataStrStockName : $_chartDataStrStockName');
+    DLog.d(StockCompareChart2Dialog.TAG_NAME, '_chartDataStrStockName : $_chartDataStrStockName');
     DLog.d(StockCompareChart2Dialog.TAG_NAME, '_chartDataStr : $_chartDataStr');
   }
 
@@ -262,27 +260,35 @@ class _StockCompareChart2DialogState extends State<StockCompareChart2Dialog> {
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
           var _item = alStockCompare02[index];
-          if(chartDiv == 3){
+          if (chartDiv == 3) {
             // PBR
             _data = _item.pbr;
-          }else{
+          } else {
             _data = _item.per;
           }
-          if(_data.isEmpty){
+          if (_data.isEmpty) {
             _data = '0';
           }
-          if(_item.stockCode == stockCode){
+          if (_item.stockCode == stockCode) {
             _stockNameStyle = TStyle.commonPurple14;
             _stockDataStyle = TStyle.commonPurple14;
-          }else{
+          } else {
             _stockNameStyle = TStyle.content14;
             _stockDataStyle = TStyle.subTitle;
           }
           return Row(
             children: [
-              Text('${_item.stockName}', style: _stockNameStyle,),
-              SizedBox(width: 10,),
-              Text(_data, style: _stockDataStyle,),
+              Text(
+                '${_item.stockName}',
+                style: _stockNameStyle,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                _data,
+                style: _stockDataStyle,
+              ),
             ],
           );
         },

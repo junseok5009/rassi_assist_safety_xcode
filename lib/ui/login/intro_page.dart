@@ -15,6 +15,7 @@ import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/common_function_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/routes.dart';
@@ -26,6 +27,7 @@ import 'package:rassi_assist/models/tr_app/tr_app01.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/login/intro_start_page.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/market/issue_detail_stock_signal_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -80,6 +82,18 @@ class IntroPage extends StatelessWidget {
         body: IntroWidget(),
       ),
       routes: routes,
+      onGenerateRoute: (settings) {
+        //commonShowToast('[onGenerateRoute]1 settings.name : ${settings.name}');
+        switch (settings.name) {
+          case IssueDetailStockSignalPage.routeName:
+            //commonShowToast('[onGenerateRoute] settings.name : ${settings.name}');
+            return CustomNvRouteClass.createRouteName(
+                routeName: settings.name!, instance: const IssueDetailStockSignalPage(), arguments: settings);
+          default:
+            return null;
+        }
+        return null;
+      },
     );
   }
 }
@@ -312,6 +326,10 @@ class IntroState extends State<IntroWidget> with SingleTickerProviderStateMixin 
             ),
           )),
       routes: routes,
+      onGenerateRoute: (settings) {
+        //commonShowToast('[onGenerateRoute]2 settings.name : ${settings.name}');
+        return null;
+      },
       navigatorObservers: [
         FirebaseAnalyticsObserver(analytics: CustomFirebaseClass.analytics),
       ],

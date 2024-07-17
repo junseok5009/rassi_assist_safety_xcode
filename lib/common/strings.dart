@@ -395,5 +395,7 @@ AI매매신호 발생 추이와 시장의 흐름을 함께 참고해 보세요.'
       ''',
   ];
 
+  static const String dbEtcErroruserCenterMsg = "정상 처리되지 않았습니다. 해당 상태가 계속된다면 고객센터로 문의바랍니다.";
+
 }
 

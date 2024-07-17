@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
@@ -23,7 +22,9 @@ class StockCompareChart4Page extends StatefulWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트4';
   final String groupCode;
   final String stockCode;
-  const StockCompareChart4Page({Key? key, this.groupCode='', this.stockCode=''}) : super(key: key);
+
+  const StockCompareChart4Page({Key? key, this.groupCode = '', this.stockCode = ''}) : super(key: key);
+
   @override
   StockCompareChart4PageState createState() => StockCompareChart4PageState();
 }
@@ -90,9 +91,7 @@ class StockCompareChart4PageState extends State<StockCompareChart4Page> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      Navigator.of(context).pop(null);
-    } on SocketException catch (_) {
-      Navigator.of(context).pop(null);
+      if (mounted) Navigator.of(context).pop(null);
     }
   }
 
@@ -100,8 +99,7 @@ class StockCompareChart4PageState extends State<StockCompareChart4Page> {
     DLog.w("_parseTrData(): $trStr / ${response.body}");
     // DEFINE TR.COMPARE03 배당 수익률 조회
     if (trStr == TR.COMPARE03) {
-      final TrCompare03 resData =
-          TrCompare03.fromJson(jsonDecode(response.body));
+      final TrCompare03 resData = TrCompare03.fromJson(jsonDecode(response.body));
 
       if (resData.retCode == RT.SUCCESS) {
         DLog.d(StockCompareChart4Page.TAG_NAME, resData.retData.toString());
@@ -208,7 +206,7 @@ class StockCompareChart4PageState extends State<StockCompareChart4Page> {
       height: 240,
       child: Echarts(
         captureHorizontalGestures: true,
-        reloadAfterInit: true,
+        //reloadAfterInit: true,
         extraScript: '''
 
         ''',
@@ -273,8 +271,7 @@ class StockCompareChart4PageState extends State<StockCompareChart4Page> {
 
       for (int k = 0; k < 4; k++) {
         tmpDataCategory += '0,';
-        if (item.listSalesInfo.isNotEmpty &&
-            yearIndex < item.listSalesInfo.length) {
+        if (item.listSalesInfo.isNotEmpty && yearIndex < item.listSalesInfo.length) {
           var smallItem = item.listSalesInfo[yearIndex];
           if (smallItem.dividendYear.isEmpty) {
             strSmallDataValue += '0,';
@@ -283,8 +280,7 @@ class StockCompareChart4PageState extends State<StockCompareChart4Page> {
           } else {
             if (int.parse(smallItem.dividendYear) == (lastYear - 3 + k)) {
               strSmallDataValue += '${smallItem.dividendRate},';
-              tmpLineData +=
-                  '[${i + (alStock.length * k)}, ${smallItem.dividendRate},],';
+              tmpLineData += '[${i + (alStock.length * k)}, ${smallItem.dividendRate},],';
               yearIndex++;
             } else {
               strSmallDataValue += '0,';
@@ -366,8 +362,7 @@ class StockCompareChart4PageState extends State<StockCompareChart4Page> {
       } else if (b.dividendYear.isEmpty) {
         return 0;
       } else {
-        return double.parse(b.dividendYear)
-            .compareTo(double.parse(a.dividendYear));
+        return double.parse(b.dividendYear).compareTo(double.parse(a.dividendYear));
       }
     });
     return Container(
@@ -406,8 +401,7 @@ class StockCompareChart4PageState extends State<StockCompareChart4Page> {
               String amt = '0';
               if (listSaleInfo.length > salesInfoListIndexCheck) {
                 // 1개 이상
-                if (listSaleInfo[salesInfoListIndexCheck].dividendYear ==
-                    _listDividendYears[index]) {
+                if (listSaleInfo[salesInfoListIndexCheck].dividendYear == _listDividendYears[index]) {
                   //_salesInfoListIndexCheck++;
                   amt = listSaleInfo[salesInfoListIndexCheck++].dividendAmt;
                 }
@@ -424,7 +418,7 @@ class StockCompareChart4PageState extends State<StockCompareChart4Page> {
                         child: Align(
                           alignment: Alignment.centerRight,
                           child: Text(
-                            '$year',
+                            year,
                             style: TStyle.content14,
                           ),
                         ),

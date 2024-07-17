@@ -9,6 +9,7 @@ import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
+import 'package:rassi_assist/common/pocket_api_result.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -359,35 +360,53 @@ class SearchPageState extends State<SearchPage> {
   }
 
   _showAddStockLayerAndResult(String stkCode, String stkName) async {
-    String result = await CommonLayer.instance.showLayerAddStock(
-        context,
-        Stock(
-          stockName: stkName,
-          stockCode: stkCode,
-        ),
-        widget.pocketSn);
-
-    if (mounted) {
-      if (result == CustomNvRouteResult.refresh) {
-        Navigator.pop(
-          context,
-          CustomNvRouteResult.refresh,
-        );
-      } else if (result == CustomNvRouteResult.cancel) {
-        //
-      } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
-      } else if (result == CustomNvRouteResult.landPremiumPopup) {
-        String result = await CommonPopup.instance.showDialogPremium(context);
-        if (result == CustomNvRouteResult.landPremiumPage) {
-          basePageState.navigateAndGetResultPayPremiumPage();
+    await CommonLayer.instance
+        .showLayerAddStock(
+      context,
+      Stock(
+        stockName: stkName,
+        stockCode: stkCode,
+      ),
+      widget.pocketSn,
+    )
+        .then(
+      (result) async {
+        switch (result.code) {
+          case PocketApiCode.successWithData:
+            Navigator.pop(
+              context,
+              CustomNvRouteResult.refresh,
+            );
+            break;
+          case PocketApiCode.showPopup:
+            {
+              dynamic data = result.data;
+              if (data != null && data is Map) {
+                switch (data['type']) {
+                  case PocketApiPopupType.premium:
+                    {
+                      await CommonPopup.instance.showDialogPremium(context).then(
+                            (_) => basePageState.navigateAndGetResultPayPremiumPage(),
+                          );
+                      break;
+                    }
+                  case PocketApiPopupType.failMsg:
+                    {
+                      CommonPopup.instance.showDialogBasic(context, '안내', data['message']);
+                      break;
+                    }
+                }
+              }
+            }
+            break;
+          case PocketApiCode.unknownFailure:
+            CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
+            break;
+          case PocketApiCode.userCancelled:
+            break;
         }
-      } else {
-        CommonPopup.instance.showDialogBasic(context, '알림', result);
-      }
-    } else {
-      //Navigator.pop(context, CustomNvRouteResult(false, CustomNvRouteResult.fail,),);
-    }
+      },
+    );
   }
 
   _showAddSignalLayerAndResult(String stkCode, String stkName) async {

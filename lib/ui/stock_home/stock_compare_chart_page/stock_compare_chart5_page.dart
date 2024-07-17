@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
@@ -92,9 +91,7 @@ class StockCompareChart5PageState extends State<StockCompareChart5Page> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      Navigator.of(context).pop(null);
-    } on SocketException catch (_) {
-      Navigator.of(context).pop(null);
+      if (mounted) Navigator.of(context).pop(null);
     }
   }
 
@@ -131,11 +128,11 @@ class StockCompareChart5PageState extends State<StockCompareChart5Page> {
           Container(
             alignment: Alignment.centerRight,
             child: IconButton(
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               padding: EdgeInsets.zero,
               alignment: Alignment.topRight,
               color: Colors.black,
-              constraints: BoxConstraints(),
+              constraints: const BoxConstraints(),
               onPressed: () => Navigator.of(context).pop(null),
             ),
           ),
@@ -229,12 +226,12 @@ class StockCompareChart5PageState extends State<StockCompareChart5Page> {
   Widget _makeUpChartView() {
     _setUpChartData();
     return Container(
-      margin: EdgeInsets.only(top: 10),
+      margin: const EdgeInsets.only(top: 10),
       width: double.infinity,
       height: 240,
       child: Echarts(
         captureHorizontalGestures: true,
-        reloadAfterInit: true,
+        //reloadAfterInit: true,
         extraScript: '''
 
         ''',
@@ -301,15 +298,15 @@ class StockCompareChart5PageState extends State<StockCompareChart5Page> {
     String tmpDataYear = '[';
     String tmpDataCategory = '[';
     String tmpData = '[';
-    int _lastYear = 0;
+    int lastYear = 0;
 
     for (int i = 0; i < alStock.length; i++) {
       var item = alStock[i];
 
       int smallLastYear = item.listSalesInfo.last.year.isEmpty ? 0 : int.parse(item.listSalesInfo.last.year);
 
-      if (_lastYear < smallLastYear) {
-        _lastYear = smallLastYear;
+      if (lastYear < smallLastYear) {
+        lastYear = smallLastYear;
       }
 
       String strSmallDataValue = '[';
@@ -321,7 +318,7 @@ class StockCompareChart5PageState extends State<StockCompareChart5Page> {
 
       for (int k = 0; k < 4; k++) {
         tmpDataCategory += '0,';
-        if (item.listSalesInfo.length > 0 && yearIndex < item.listSalesInfo.length) {
+        if (item.listSalesInfo.isNotEmpty && yearIndex < item.listSalesInfo.length) {
           var smallItem = item.listSalesInfo[yearIndex];
 
           if (int.parse(smallItem.year) == (smallLastYear - 3 + k)) {
@@ -407,7 +404,7 @@ class StockCompareChart5PageState extends State<StockCompareChart5Page> {
 
     for (int q = 0; q < 4; q++) {
       //tmpDataYear += "'${_lastYear - 3 + q}(1Q)',";
-      tmpDataYear += "'${_lastYear - 3 + q}',";
+      tmpDataYear += "'${lastYear - 3 + q}',";
     }
 
     tmpDataYear += ']';

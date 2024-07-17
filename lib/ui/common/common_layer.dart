@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
+import 'package:rassi_assist/common/pocket_api_result.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/pocket.dart';
 import 'package:rassi_assist/models/stock_pkt_signal.dart';
@@ -17,9 +18,9 @@ class CommonLayer {
   static final CommonLayer instance = CommonLayer._privateConstructor();
 
   // 종목을 포켓에 담기
-  Future<String> showLayerAddStock(BuildContext context, Stock stock, String pocketSn) async {
+  Future<PocketApiResult> showLayerAddStock(BuildContext context, Stock stock, String pocketSn) async {
     if (context.mounted) {
-      return showModalBottomSheet<String>(
+      return showModalBottomSheet<PocketApiResult>(
         isScrollControlled: true,
         context: context,
         backgroundColor: Colors.transparent,
@@ -48,20 +49,20 @@ class CommonLayer {
           if (value != null) {
             return value;
           } else {
-            return CustomNvRouteResult.cancel;
+            return PocketApiResult.userCancelled();
           }
         },
       );
     } else {
-      return CustomNvRouteResult.cancel;
+      return PocketApiResult.unknownFailure();
     }
   }
 
   // 종목을 포켓에 담기
-  Future<String> showLayerAddStockWithAddSignalBtn(
+  Future<PocketApiResult> showLayerAddStockWithAddSignalBtn(
       BuildContext context, Stock stock) async {
     if (context.mounted) {
-      return showModalBottomSheet<String>(
+      return showModalBottomSheet<PocketApiResult>(
         isScrollControlled: true,
         context: context,
         backgroundColor: Colors.transparent,
@@ -89,9 +90,9 @@ class CommonLayer {
                     ),
                     //padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     alignment: Alignment.center,
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           '나만의 매도신호 만들기',
                           style: TextStyle(
@@ -112,7 +113,8 @@ class CommonLayer {
                     ),
                   ),
                   onTap: () {
-                    Navigator.pop(context, CustomNvRouteResult.landing);
+                    // 레이어 내리고 매도신호 만들기 레이어 띄워야 함
+                    return Navigator.pop(context, PocketApiResult.unknownFailure());
                   },
                 ),
               ],
@@ -124,12 +126,12 @@ class CommonLayer {
           if (value != null) {
             return value;
           } else {
-            return CustomNvRouteResult.cancel;
+            return PocketApiResult.userCancelled();
           }
         },
       );
     } else {
-      return CustomNvRouteResult.cancel;
+      return PocketApiResult.userCancelled();
     }
   }
 
@@ -151,8 +153,8 @@ class CommonLayer {
                 topRight: Radius.circular(20.0),
               ),
             ),
-            child: Wrap(
-              children: const <Widget>[
+            child: const Wrap(
+              children: <Widget>[
                 AddPocketLayer(),
               ],
             ),

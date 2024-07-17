@@ -112,7 +112,6 @@ class SignalBoardState extends State<SignalBoardWidget> {
   Widget build(BuildContext context) {
     args = ModalRoute.of(context)!.settings.arguments as PgData;
     _curProd = args.pgData;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -128,7 +127,6 @@ class SignalBoardState extends State<SignalBoardWidget> {
           const SizedBox(width: 10.0,),
         ],
       ),
-
       body: SafeArea(
         child: ListView(
           children: [
@@ -583,6 +581,7 @@ class SignalBoardState extends State<SignalBoardWidget> {
       reloadAfterInit: true,
       extraScript: '''
           var colors = ['#FC525B','#2fccaf','#6A86E7'];
+          
         ''',
       option: '''
         option = {

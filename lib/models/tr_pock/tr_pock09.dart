@@ -536,9 +536,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
             ),
             duration: const Duration(milliseconds: 180),
             curve: Curves.linear,
-            //swapAnimationDuration: const Duration(milliseconds: 180),
-            //swapAnimationCurve: Curves.fastLinearToSlowEaseIn,
-            //swapAnimationCurve: Curves.linear, // Optional
           ),
         ),
         Text(

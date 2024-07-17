@@ -27,6 +27,7 @@ import '../../../models/tr_pock/tr_pock09.dart';
 import '../../common/common_view.dart';
 
 /// [홈_홈 나의 종목 현황] - 2023.09.07 HJS
+/// 현재, 사용되지 않음
 class HomeTileMystockStatus extends StatefulWidget {
   const HomeTileMystockStatus({
     Key? key,

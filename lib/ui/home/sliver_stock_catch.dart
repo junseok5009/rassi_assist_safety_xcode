@@ -17,7 +17,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_find/tr_find01.dart';
 import 'package:rassi_assist/models/tr_find/tr_find07.dart';
 import 'package:rassi_assist/models/tr_find/tr_find09.dart';
-import 'package:rassi_assist/models/tr_push04.dart';
+import 'package:rassi_assist/models/tr_push/tr_push04.dart';
 import 'package:rassi_assist/models/tr_stk_catch01.dart';
 import 'package:rassi_assist/models/tr_stk_catch02.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
@@ -103,7 +103,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -171,8 +171,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                     ],
                     () {
                       _appGlobal.pageData = _bigDiv;
-                      Navigator.pushNamed(context, StkCatchBigPage.routeName,
-                          arguments: PgData(pgSn: ''));
+                      Navigator.pushNamed(context, StkCatchBigPage.routeName, arguments: PgData(pgSn: ''));
                     },
                   ),
 
@@ -201,9 +200,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                               ? _setCatchTopList(context)
                               : Column(
                                   children: [
-                                    _stkCatchTopList.isNotEmpty
-                                        ? TileStkCatch02(_stkCatchTopList[0])
-                                        : _setFreeCard(),
+                                    _stkCatchTopList.isNotEmpty ? TileStkCatch02(_stkCatchTopList[0]) : _setFreeCard(),
                                     _setFreeCard(),
                                     _setFreeCard(),
                                     _setFreeCard(),
@@ -267,8 +264,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                         const SizedBox(
                           height: 15.0,
                         ),
-                        _setSubTitleMore("최근 3일 매수 후 급등 종목",
-                            RString.desc_find_01_sub, 'CUR_B'),
+                        _setSubTitleMore("최근 3일 매수 후 급등 종목", RString.desc_find_01_sub, 'CUR_B'),
                         const SizedBox(
                           height: 10.0,
                         ),
@@ -276,14 +272,12 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                         const SizedBox(
                           height: 10.0,
                         ),
-                        _setSubTitleMore("평균 보유 기간이 짧은 종목",
-                            RString.desc_find_07_sub, 'SHT_S'),
+                        _setSubTitleMore("평균 보유 기간이 짧은 종목", RString.desc_find_07_sub, 'SHT_S'),
                         _setFind07List(context),
                         const SizedBox(
                           height: 10.0,
                         ),
-                        _setSubTitleMore("주간 토픽 중 최근 매수 종목",
-                            RString.desc_find_09_sub, 'TPC_S'),
+                        _setSubTitleMore("주간 토픽 중 최근 매수 종목", RString.desc_find_09_sub, 'TPC_S'),
                         _setFind09List(context),
                         const SizedBox(
                           height: 20.0,
@@ -463,8 +457,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                   width: 70.0,
                 ),
                 onPressed: () {
-                  DLog.d(SliverStockCatchWidget.TAG,
-                      'Swip index : ${_swiperBigController.event}');
+                  DLog.d(SliverStockCatchWidget.TAG, 'Swip index : ${_swiperBigController.event}');
                   _swiperBigController.previous(animation: true);
                 },
               ),
@@ -475,8 +468,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
               IconButton(
                 icon: Image.asset('images/main_jm_aw_r_g.png'),
                 onPressed: () {
-                  DLog.d(SliverStockCatchWidget.TAG,
-                      'Swip index : ${_swiperBigController.index}');
+                  DLog.d(SliverStockCatchWidget.TAG, 'Swip index : ${_swiperBigController.index}');
                   _swiperBigController.next(animation: true);
                 },
               ),
@@ -517,9 +509,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
   }
 
   void _selectDialogPush(bool onoff, String title) {
-    _appGlobal.isPremium
-        ? _showDialogPushStatus(onoff, title)
-        : _showDialogPremium();
+    _appGlobal.isPremium ? _showDialogPushStatus(onoff, title) : _showDialogPremium();
   }
 
   //Swiper 아이템 (큰손)
@@ -675,8 +665,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                   width: 70.0,
                 ),
                 onPressed: () {
-                  DLog.d(SliverStockCatchWidget.TAG,
-                      'Swip index : ${_swiperTopController.event}');
+                  DLog.d(SliverStockCatchWidget.TAG, 'Swip index : ${_swiperTopController.event}');
                   _swiperTopController.previous(animation: true);
                 },
               ),
@@ -686,8 +675,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
               IconButton(
                 icon: Image.asset('images/main_jm_aw_r_g.png'),
                 onPressed: () {
-                  DLog.d(SliverStockCatchWidget.TAG,
-                      'Swip index : ${_swiperTopController.index}');
+                  DLog.d(SliverStockCatchWidget.TAG, 'Swip index : ${_swiperTopController.index}');
                   _swiperTopController.next(animation: true);
                 },
               ),
@@ -773,9 +761,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
               height: 38,
               margin: const EdgeInsets.only(left: 10),
               padding: const EdgeInsets.all(5),
-              decoration: bSelectA
-                  ? UIStyle.boxBtnSelectedSell()
-                  : UIStyle.boxRoundLine20(),
+              decoration: bSelectA ? UIStyle.boxBtnSelectedSell() : UIStyle.boxRoundLine20(),
               child: Center(
                 child: Text(
                   '관망 상태',
@@ -801,9 +787,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
               height: 38,
               margin: const EdgeInsets.only(left: 10),
               padding: const EdgeInsets.all(5),
-              decoration: bSelectB
-                  ? UIStyle.boxBtnSelectedSell()
-                  : UIStyle.boxRoundLine20(),
+              decoration: bSelectB ? UIStyle.boxBtnSelectedSell() : UIStyle.boxRoundLine20(),
               child: Center(
                 child: Text(
                   '최근 3일 매수',
@@ -873,41 +857,33 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                 onTap: () {
                   if (type == 'CUR_B') {
                     // FIND01 - 3일내에 매수 후 급등
-                    basePageState.callPageRouteData(
-                        const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'CUR_B') {
                     // FIND01 - 3일내에 매수 후 급등
-                    basePageState.callPageRouteData(
-                        const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'HIT_H') {
                     // FIND02 - 적중률 높은 최근 매수
-                    basePageState.callPageRouteData(
-                        const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'HIT_W') {
                     // FIND03 - 적중률 높은 최근 관망
-                    basePageState.callPageRouteData(
-                        const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'AVG_H') {
                     // FIND04 - 평균수익률 높은 최근 매수
-                    basePageState.callPageRouteData(
-                        const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'AVG_W') {
                     // FIND05 - 평균수익률 높은 관망
-                    basePageState.callPageRouteData(
-                        const SignalMTopPage(), PgData(pgData: type));
+                    basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                   } else if (type == 'SHT_S') {
                     // FIND07 - 평균보유 기간이 찗은 종목
                     if (_appGlobal.isPremium) {
-                      basePageState.callPageRouteData(
-                          const SignalMTopPage(), PgData(pgData: type));
+                      basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                     } else {
                       _showDialogPremium();
                     }
                   } else if (type == 'TPC_S') {
                     // FIND09 - 주간 토픽중 최근 매수 종목
                     if (_appGlobal.isPremium) {
-                      basePageState.callPageRouteData(
-                          const SignalMTopPage(), PgData(pgData: type));
+                      basePageState.callPageRouteData(const SignalMTopPage(), PgData(pgData: type));
                     } else {
                       _showDialogPremium();
                     }
@@ -1055,8 +1031,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = const Offset(0.0, 1.0);
         var end = Offset.zero;
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -1080,8 +1055,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
     }
   }
 
-  _navigateDataRefresh(
-      BuildContext context, Widget instance, PgData pgData) async {
+  _navigateDataRefresh(BuildContext context, Widget instance, PgData pgData) async {
     final result = await Navigator.push(context, _createRoute(instance));
     if (result == 'cancel') {
       DLog.d(SliverStockCatchWidget.TAG, '*** ***');
@@ -1133,7 +1107,6 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                 const Text(
                   '안내',
                   style: TStyle.title20,
-                  
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -1142,7 +1115,6 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                   '매매비서 프리미엄에서\n이용할 수 있는 정보입니다.',
                   style: TStyle.defaultContent,
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -1150,7 +1122,6 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                 const Text(
                   '프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
                   textAlign: TextAlign.center,
-                  
                 ),
                 const SizedBox(
                   height: 25.0,
@@ -1168,7 +1139,6 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                         child: Text(
                           '프리미엄 가입하기',
                           style: TStyle.btnTextWht15,
-                          
                         ),
                       ),
                     ),
@@ -1257,10 +1227,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                   ),
                   Text(
                     '$title' + descTxt,
-                    style: const TextStyle(
-                        color: RColor.mainColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18),
+                    style: const TextStyle(color: RColor.mainColor, fontWeight: FontWeight.w600, fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(
@@ -1283,15 +1250,13 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
                           child: Text(
                             '알림 설정 바로가기',
                             style: TStyle.btnTextWht16,
-                            
                           ),
                         ),
                       ),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
-                      _navigateDataRefresh(context,
-                          const NotificationSettingN(), PgData(pgData: ''));
+                      _navigateDataRefresh(context, const NotificationSettingN(), PgData(pgData: ''));
                     },
                   ),
                 ],
@@ -1340,8 +1305,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
 
     if (trStr == TR.STKCATCH01) {
       _stkCatchBigList.clear();
-      final TrStkCatch01 resData =
-          TrStkCatch01.fromJson(jsonDecode(response.body));
+      final TrStkCatch01 resData = TrStkCatch01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         StkCatch01 scData = resData.retData;
         _bigDiv = scData.selectDiv;
@@ -1355,8 +1319,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
             if (scData.timeList.length > 1) {
               int subLen = scData.timeList[1].sigList.length;
               if (subLen > 0 && subLen > (4 - len)) {
-                _stkCatchBigList
-                    .addAll(scData.timeList[1].sigList.getRange(0, 5 - len));
+                _stkCatchBigList.addAll(scData.timeList[1].sigList.getRange(0, 5 - len));
               } else {
                 _stkCatchBigList.addAll(scData.timeList[1].sigList);
               }
@@ -1371,8 +1334,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
       }
     } else if (trStr == TR.STKCATCH02) {
       _stkCatchTopList.clear();
-      final TrStkCatch02 resData =
-          TrStkCatch02.fromJson(jsonDecode(response.body));
+      final TrStkCatch02 resData = TrStkCatch02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         StkCatch02 topData = resData.retData;
         if (topData.stkList.isNotEmpty) {
@@ -1386,8 +1348,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
 
       setState(() {});
 
-      _fetchPosts(TR.FIND01,
-          jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
+      _fetchPosts(TR.FIND01, jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
     } else if (trStr == TR.FIND01) {
       _bInitFirst = false;
 
@@ -1400,8 +1361,7 @@ class SliverStockCatchWidgetState extends State<SliverStockCatchWidget> {
         });
       }
 
-      _fetchPosts(TR.FIND07,
-          jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
+      _fetchPosts(TR.FIND07, jsonEncode(<String, String>{'userId': _userId, 'selectCount': '10'}));
     } else if (trStr == TR.FIND07) {
       final TrFind07 resData = TrFind07.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {

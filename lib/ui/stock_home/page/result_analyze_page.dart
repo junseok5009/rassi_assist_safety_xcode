@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -161,23 +160,10 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
     _initChart1IsQuart = ((ModalRoute.of(context)!.settings.arguments) as PgData).booleanData;
     return Scaffold(
       backgroundColor: Colors.white,
-      /*  appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          _stockName.length > 8
-              ? '${_stockName.substring(0, 8)} 실적분석'
-              : '$_stockName 실적분석',
-          style: TStyle.title18T,
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
-        elevation: 1,
-        centerTitle: false,
-        leadingWidth: 25,
-      ),*/
       appBar: CommonAppbar.basic(
-          buildContext: context,
-          title: _stockName.length > 8 ? '${_stockName.substring(0, 8)} 실적분석' : '$_stockName 실적분석',
-          elevation: 1,
+        buildContext: context,
+        title: _stockName.length > 8 ? '${_stockName.substring(0, 8)} 실적분석' : '$_stockName 실적분석',
+        elevation: 1,
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -621,7 +607,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
           child: LineChart(
             LineChartData(
               titlesData: _getChart4TitlesData,
-              gridData: FlGridData(
+              gridData: const FlGridData(
                 show: false,
               ),
               borderData: FlBorderData(
@@ -642,7 +628,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                 getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
                   return spotIndexes.map((index) {
                     return TouchedSpotIndicatorData(
-                      FlLine(
+                      const FlLine(
                         color: Colors.transparent,
                       ),
                       FlDotData(
@@ -660,7 +646,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
                 touchTooltipData: LineTouchTooltipData(
                   //tooltipBgColor: Colors.transparent,
                   //tooltipRoundedRadius: 8,
-
+                  getTooltipColor: (touchedSpot) => Colors.transparent,
                   tooltipPadding: EdgeInsets.zero,
                   getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
                     return lineBarsSpot.map((lineBarSpot) {
@@ -743,13 +729,13 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
             interval: 1,
           ),
         ),
-        leftTitles: AxisTitles(
+        leftTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
-        topTitles: AxisTitles(
+        topTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
-        rightTitles: AxisTitles(
+        rightTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
         ),
       );
@@ -962,9 +948,7 @@ class _ResultAnalyzePageState extends State<ResultAnalyzePage> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
-    } on SocketException catch (_) {
-      CommonPopup.instance.showDialogNetErr(context);
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 

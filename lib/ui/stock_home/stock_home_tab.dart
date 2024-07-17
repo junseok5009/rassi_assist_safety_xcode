@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -10,6 +9,7 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/net.dart';
+import 'package:rassi_assist/common/pocket_api_result.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -26,8 +26,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../provider/stock_home/stock_home_tab_name_provider.dart';
 import '../main/base_page.dart';
-import '../pay/pay_premium_aos_page.dart';
-import '../pay/pay_premium_page.dart';
 import 'stock_home_home_page.dart';
 import 'stock_home_signal_page.dart';
 
@@ -575,52 +573,54 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
   }
 
   showAddStockLayerAndResult() async {
-    String result = await CommonLayer.instance.showLayerAddStockWithAddSignalBtn(
-      context,
-      Stock(
-        stockName: stkName,
-        stockCode: stkCode,
-      ),
-    );
-    if (mounted) {
-      if (result == CustomNvRouteResult.refresh) {
-        Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
-        _showBottomSheetMyStock();
-      } else if (result == CustomNvRouteResult.cancel) {
-        //
-      } else if (result == CustomNvRouteResult.landing) {
-        // 나만의 매도신호 만들기 레이어 띄우기 !
-        if (AppGlobal().isPremium) {
-          _showAddSignalLayerAndResult();
-        } else {
-          String result = await CommonPopup.instance.showDialogPremium(context);
-          if (result == CustomNvRouteResult.landPremiumPage && mounted) {
-            Navigator.push(
-              context,
-              Platform.isIOS
-                  ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-                  : CustomNvRouteClass.createRoute(const PayPremiumAosPage()),
-            );
-          }
-        }
-      } else if (result == CustomNvRouteResult.landPremiumPopup) {
-        String result = await CommonPopup.instance.showDialogPremium(context);
-        if (result == CustomNvRouteResult.landPremiumPage && mounted) {
-          Navigator.push(
-            context,
-            Platform.isIOS
-                ? CustomNvRouteClass.createRoute(const PayPremiumPage())
-                : CustomNvRouteClass.createRoute(const PayPremiumAosPage()),
-          );
-        }
-      } else if (result == CustomNvRouteResult.fail) {
-        CommonPopup.instance.showDialogBasic(context, '안내', CommonPopup.dbEtcErroruserCenterMsg);
-      } else {
-        CommonPopup.instance.showDialogBasic(context, '알림', result);
-      }
-    } else {
-      //Navigator.pop(context, CustomNvRouteResult(false, CustomNvRouteResult.fail,),);
-    }
+    await CommonLayer.instance
+        .showLayerAddStockWithAddSignalBtn(
+          context,
+          Stock(
+            stockName: stkName,
+            stockCode: stkCode,
+          ),
+        ).then(
+          (result) async {
+            switch(result.code){
+              case PocketApiCode.successWithData:
+                Provider.of<StockInfoProvider>(context, listen: false).postRequest(stkCode);
+                _showBottomSheetMyStock(pocketSn: result.data);
+                break;
+              case PocketApiCode.showPopup:
+                {
+                  dynamic data = result.data;
+                  if (data != null && data is Map) {
+                    switch(data['type']){
+                      case PocketApiPopupType.premium: {
+                        await CommonPopup.instance.showDialogPremium(context).then(
+                              (_) => basePageState.navigateAndGetResultPayPremiumPage(),
+                        );
+                        break;
+                      }
+                      case PocketApiPopupType.failMsg: {
+                        CommonPopup.instance.showDialogBasic(context, '안내', data['message']);
+                        break;
+                      }
+                    }
+                  }
+                }
+                break;
+              case PocketApiCode.unknownFailure:
+                // 레이어 내리고 매도신호 만들기 레이어 띄워야 함
+                if (AppGlobal().isPremium) {
+                  _showAddSignalLayerAndResult();
+                } else {
+                  await CommonPopup.instance.showDialogPremium(context).then(
+                        (_) => basePageState.navigateAndGetResultPayPremiumPage(),
+                  );
+                }
+                break;
+              case PocketApiCode.userCancelled:
+                break;
+            }
+          },
+        );
   }
 
   _showAddSignalLayerAndResult() async {
@@ -765,8 +765,8 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
     }
   }
 
-  // 관심 종목으로 등록 이후 바텀시트
-  _showBottomSheetMyStock() {
+  // 나의 포켓으로 등록 이후 바텀시트
+  _showBottomSheetMyStock({required String pocketSn}) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -822,13 +822,7 @@ class StockHomeTabState extends State<StockHomeTab> with TickerProviderStateMixi
                     ),
                   ),
                   onTap: () {
-                    var stockInfoProvider = Provider.of<StockInfoProvider>(context, listen: false);
-                    // [포켓 > 나의포켓 > 포켓선택]
-                    basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: stockInfoProvider.getPockSn);
-                    Navigator.popUntil(
-                      context,
-                      ModalRoute.withName(BasePage.routeName),
-                    );
+                    basePageState.goPocketPage(Const.PKT_INDEX_MY, pktSn: pocketSn);
                   },
                 ),
                 const SizedBox(

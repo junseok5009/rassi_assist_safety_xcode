@@ -51,7 +51,7 @@ import 'package:rassi_assist/ui/test/test_event_popup_page.dart';
 import 'package:rassi_assist/ui/test/test_image_fit.dart';
 import 'package:rassi_assist/ui/test/test_image_full_page.dart';
 import 'package:rassi_assist/ui/test/test_webview.dart';
-import 'package:rassi_assist/ui/test/today_feature_stock_list_page.dart';
+import 'package:rassi_assist/ui/market/today_feature_stock_list_page.dart';
 import 'package:rassi_assist/ui/user/user_info_page.dart';
 import 'package:rassi_assist/ui/web/web_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';

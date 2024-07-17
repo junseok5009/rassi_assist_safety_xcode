@@ -15,7 +15,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_push04.dart';
+import 'package:rassi_assist/models/tr_push/tr_push04.dart';
 import 'package:rassi_assist/models/tr_stk_catch02.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_aos_page.dart';

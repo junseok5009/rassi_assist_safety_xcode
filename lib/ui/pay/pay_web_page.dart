@@ -158,7 +158,7 @@ class PayWebState extends State<PayWebWidget> {
           initialOptions: _options,
 
           initialUrlRequest: URLRequest(
-            url: Uri.parse(_sUrl),
+            url: WebUri.uri(UriData.fromString(_sUrl).uri),
             method: 'POST',
             body: Uint8List.fromList(utf8.encode(_postData)),
             headers: Net.think_headers,

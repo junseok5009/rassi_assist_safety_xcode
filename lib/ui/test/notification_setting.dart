@@ -11,8 +11,8 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/tr_push03.dart';
-import 'package:rassi_assist/models/tr_push04.dart';
+import 'package:rassi_assist/models/tr_push/tr_push03.dart';
+import 'package:rassi_assist/models/tr_push/tr_push04.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 

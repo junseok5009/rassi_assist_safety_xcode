@@ -12,13 +12,11 @@ class TrOrder01 {
   TrOrder01({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrOrder01.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] == null ? [] : json['retData'] as List;
-    List<Order01>? rtList;
-    list == null ? rtList = null : rtList = list.map((i) => Order01.fromJson(i)).toList();
+    var jsonList = json['retData'];
     return TrOrder01(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      listData: list.map((i) => Order01.fromJson(i)).toList(),
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => Order01.fromJson(i)).toList(),
     );
   }
 }
@@ -67,9 +65,7 @@ class Order01 {
   });
 
   factory Order01.fromJson(Map<String, dynamic> json) {
-    var list = json['list_OrderChange'] == null ? [] : json['list_OrderChange'] as List;
-    List<OrderChange>? rtList;
-    list == null ? rtList = null : rtList = list.map((i) => OrderChange.fromJson(i)).toList();
+    var jsonList = json['list_OrderChange'];
     return Order01(
       orderSn: json['orderSn'],
       svcDivision: json['svcDivision'],
@@ -89,7 +85,7 @@ class Order01 {
       subscriptStat: json['subscriptStat'] ?? '',
       refundAmt: json['refundAmt'] ?? '0',
       refundDttm: json['refundDttm'] ?? '',
-      chList: list.map((i) => OrderChange.fromJson(i)).toList(),
+      chList: jsonList == null ? [] : (jsonList as List).map((i) => OrderChange.fromJson(i)).toList(),
     );
   }
 }
@@ -139,22 +135,22 @@ class TileOrder01 extends StatelessWidget {
   Widget build(BuildContext context) {
     String pdName = '';
     String period = '';
-    bool _hasRefund = false;
+    bool hasRefund = false;
 
     if (item.refundAmt != '0') {
-      _hasRefund = true;
+      hasRefund = true;
     } else {
-      _hasRefund = false;
+      hasRefund = false;
     }
-    bool _isPossibleCancel = false;
+    bool isPossibleCancel = false;
     if (item.orderChannel == 'CH32' || item.orderChannel == 'CH33') {
       if (item.prodSubdiv.startsWith('M') && item.prodSubdiv != 'M01') {
         //1개월 이상의 상품이면서 환불되지 않은 상품에 해지하기 표시
-        if (!_hasRefund) _isPossibleCancel = true;
+        if (!hasRefund) isPossibleCancel = true;
       }
     }
 
-    if (item.chList.length > 0) {
+    if (item.chList.isNotEmpty) {
       pdName = item.chList[0].prodName;
       period = '${TStyle.getDateSFormat(item.chList[0].startDate)}'
           '~${TStyle.getDateSFormat(item.chList[0].endDate)}';
@@ -241,7 +237,7 @@ class TileOrder01 extends StatelessWidget {
 
                   //환불내역
                   Visibility(
-                    visible: _hasRefund,
+                    visible: hasRefund,
                     child: Container(
                       padding: const EdgeInsets.all(7),
                       decoration: UIStyle.boxWeakGrey10(),
@@ -278,7 +274,7 @@ class TileOrder01 extends StatelessWidget {
 
                   //해지하기
                   Visibility(
-                    visible: _isPossibleCancel,
+                    visible: isPossibleCancel,
                     child: Container(
                       padding: const EdgeInsets.all(7),
                       decoration: UIStyle.boxWeakGrey10(),

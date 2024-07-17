@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/tr_push03.dart';
-import 'package:rassi_assist/models/tr_push04.dart';
+import 'package:rassi_assist/models/tr_push/tr_push03.dart';
+import 'package:rassi_assist/models/tr_push/tr_push04.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 /// 2021.07.13
 /// 알림설정 new
@@ -575,18 +575,8 @@ class NotificationSettingNState extends State<NotificationSettingN> {
     );
   }
 
-  _setViewData(
-      String sigYn,
-      String rasYn,
-      String socYn,
-      String sInfoYn,
-      String nBuyYn,
-      String brfYn,
-      String bigYn,
-      String thmYn,
-      String topYn,
-      String issYn,
-      String notiYn) {
+  _setViewData(String sigYn, String rasYn, String socYn, String sInfoYn, String nBuyYn, String brfYn, String bigYn,
+      String thmYn, String topYn, String issYn, String notiYn) {
     if (sigYn == 'Y')
       _bSignal = true;
     else
@@ -666,15 +656,11 @@ class NotificationSettingNState extends State<NotificationSettingN> {
                   const SizedBox(
                     height: 25.0,
                   ),
-                  const Text('알림 설정 안내',
-                      style: TStyle.defaultTitle,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                  const Text('알림 설정 안내', style: TStyle.defaultTitle, textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 15.0,
                   ),
-                  Text('$message',
-                      textAlign: TextAlign.center,
-                      textScaleFactor: Const.TEXT_SCALE_FACTOR),
+                  Text('$message', textAlign: TextAlign.center, textScaleFactor: Const.TEXT_SCALE_FACTOR),
                   const SizedBox(
                     height: 20.0,
                   ),
@@ -691,8 +677,7 @@ class NotificationSettingNState extends State<NotificationSettingN> {
     String permission = '';
     if (type == 'TS') {
       title = '매매비서의 AI매매신호';
-      content =
-          '나의 포켓에 관심 또는 보유종목으로 등록된 종목에 대해서 AI매매신호 또는 나만의 매도신호가 발생했을 때 알려드립니다.';
+      content = '나의 포켓에 관심 또는 보유종목으로 등록된 종목에 대해서 AI매매신호 또는 나만의 매도신호가 발생했을 때 알려드립니다.';
       permission = '이용권한 : 프리미엄 계정 또는 3종목알림 회원님';
     } else if (type == 'RN') {
       title = 'AI속보';
@@ -700,13 +685,11 @@ class NotificationSettingNState extends State<NotificationSettingN> {
       permission = '이용권한 : 모든 회원님';
     } else if (type == 'SN') {
       title = '소셜지수';
-      content =
-          '종목의 소셜지수가 폭발했을 경우에 알려드립니다.\n소셜지수가 폭발하면 해당 종목에 특별한 이슈가 있을 수 있으니 꼭 확인해 보세요.';
+      content = '종목의 소셜지수가 폭발했을 경우에 알려드립니다.\n소셜지수가 폭발하면 해당 종목에 특별한 이슈가 있을 수 있으니 꼭 확인해 보세요.';
       permission = '이용권한 : 모든 회원님';
     } else if (type == 'SB') {
       title = '내 종목 소식';
-      content =
-          '시세 급변, 거래량 급변, 변동성 급변이 있을 때 실시간 알림으로 알려드립니다. 나의 포켓에 종목이 많을 경우 알림 빈도가 높을 수 있어요.';
+      content = '시세 급변, 거래량 급변, 변동성 급변이 있을 때 실시간 알림으로 알려드립니다. 나의 포켓에 종목이 많을 경우 알림 빈도가 높을 수 있어요.';
       permission = '이용권한 : 모든 회원님';
     } else if (type == 'SC_BIG') {
       title = '큰손들의 종목캐치';
@@ -822,8 +805,7 @@ class NotificationSettingNState extends State<NotificationSettingN> {
                     height: 5.0,
                   ),
                   Padding(
-                    padding:
-                        const EdgeInsets.only(top: 20, left: 10, right: 10),
+                    padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
                     child: Text(
                       '안내',
                       style: TStyle.commonTitle,
@@ -896,7 +878,7 @@ class NotificationSettingNState extends State<NotificationSettingN> {
       final TrPush04 resData = TrPush04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Push04? item = resData.retData;
-        if(item != null) {
+        if (item != null) {
           sSignalYn = item.tradeSignalYn;
           sRassiroYn = item.rassiroNewsYn;
           sSocialYn = item.snsConcernYn;
@@ -909,18 +891,8 @@ class NotificationSettingNState extends State<NotificationSettingN> {
           sCatchTop = item.catchTopYn;
           sNoticeYn = item.noticeYn;
 
-          _setViewData(
-              sSignalYn,
-              sRassiroYn,
-              sSocialYn,
-              sStkInfoYn,
-              _sNewBuyYn,
-              sCatchBrief,
-              sCatchBig,
-              sCatchTheme,
-              sCatchTop,
-              sNewIssue,
-              sNoticeYn);
+          _setViewData(sSignalYn, sRassiroYn, sSocialYn, sStkInfoYn, _sNewBuyYn, sCatchBrief, sCatchBig, sCatchTheme,
+              sCatchTop, sNewIssue, sNoticeYn);
         }
       }
     } else if (trStr == TR.PUSH03) {

@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -13,9 +16,14 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue04.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/market/issue_calendar_page.dart';
+import 'package:rassi_assist/ui/market/issue_detail_stock_signal_page.dart';
 import 'package:rassi_assist/ui/tiles/tile_related_stock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -273,6 +281,58 @@ class IssueNewViewerState extends State<IssueNewViewer> {
           ),
         ),
         const SizedBox(height: 15),
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () async {
+            if (Provider.of<UserInfoProvider>(context, listen: false).isPremiumUser()) {
+              Navigator.pushNamed(
+                context,
+                IssueDetailStockSignalPage.routeName,
+                arguments: PgNews(
+                  tagName: _keyword,
+                  newsSn: _newsSn,
+                  issueSn: _issueSn,
+                ),
+              );
+            } else {
+              String result = await CommonPopup.instance.showDialogPremium(context);
+              if (result == CustomNvRouteResult.landPremiumPage) {
+                basePageState.navigateAndGetResultPayPremiumPage();
+              }
+            }
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 15,
+              //vertical: 10,
+            ),
+            decoration: UIStyle.boxRoundFullColor6c(
+              RColor.greyBox_f5f5f5,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: AutoSizeText(
+                    '$_keyword 관련 종목의 AI매매신호 한번에 보기',
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+                const ImageIcon(
+                  AssetImage('images/main_my_icon_arrow.png'),
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 15,),
         ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _stkList.length ~/ (10 * _stkListPageNum) > 0 ? 10 * _stkListPageNum : _stkList.length,
@@ -319,57 +379,6 @@ class IssueNewViewerState extends State<IssueNewViewer> {
     );
   }
 
-  //안내 다이얼로그
-  void _showDialogDesc(String desc) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: UIStyle.borderRoundedDialog(),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              InkWell(
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.black,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.asset(
-                  'images/rassibs_img_infomation.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(height: 25),
-                const Text(
-                  '안내',
-                  style: TStyle.title20,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  desc,
-                  style: TStyle.defaultContent,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   void _fetchPosts(String trStr, String json) async {
     DLog.d(IssueNewViewer.TAG, '$trStr $json');
 
@@ -396,21 +405,17 @@ class IssueNewViewerState extends State<IssueNewViewer> {
     if (trStr == TR.ISSUE04) {
       final TrIssue04 resData = TrIssue04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        Issue04? item = resData.retData;
-        if (item != null) {
-          DLog.d(IssueNewViewer.TAG, item.issueInfo.toString());
-          _keyword = item.issueInfo!.keyword;
-          _issueSn = item.issueInfo!.issueSn;
-          _issueTitle = item.issueInfo!.title;
-          _issueDate = item.issueInfo!.issueDttm;
-          _issueCont = item.issueInfo!.content;
-          _stkList = item.stkList;
-          setState(() {});
-        }
+        Issue04 item = resData.retData;
+        _keyword = item.issueInfo.keyword;
+        _issueSn = item.issueInfo.issueSn;
+        _issueTitle = item.issueInfo.title;
+        _issueDate = item.issueInfo.issueDttm;
+        _issueCont = item.issueInfo.content;
+        _stkList = item.stkList;
+        setState(() {});
       }
     }
   }
-
   void changeIssue(vNewsSn) {
     setState(() {
       _newsSn = vNewsSn;

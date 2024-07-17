@@ -6,7 +6,7 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/news/issue_viewer.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 
 /// 2020.09.02
 /// 오늘의 이슈
@@ -93,12 +93,12 @@ class Issue03TodayHeadWidget extends StatelessWidget {
             Navigator.push(
               context,
               CustomNvRouteClass.createRouteData(
-                const IssueViewer(),
+                const IssueNewViewer(),
                 RouteSettings(
                   arguments: PgData(
-                    userId: '',
                     pgSn: issue03.newsSn,
                     pgData: issue03.issueSn,
+                    data: issue03.keyword,
                   ),
                 ),
               ),

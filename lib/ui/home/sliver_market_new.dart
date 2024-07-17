@@ -39,8 +39,8 @@ import 'package:rassi_assist/ui/market/related_news_page.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_all_page.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_time_line_page.dart';
-import 'package:rassi_assist/ui/test/today_feature_stock_list_page.dart';
-import 'package:rassi_assist/ui/test/today_issue_timeline_page.dart';
+import 'package:rassi_assist/ui/market/today_feature_stock_list_page.dart';
+import 'package:rassi_assist/ui/market/today_issue_timeline_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main/base_page.dart';

@@ -12,7 +12,7 @@ import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_pay.dart';
-import 'package:rassi_assist/models/tr_order02.dart';
+import 'package:rassi_assist/models/tr_order/tr_order02.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/pay/pay_cancel_sub.dart';
 import 'package:shared_preferences/shared_preferences.dart';

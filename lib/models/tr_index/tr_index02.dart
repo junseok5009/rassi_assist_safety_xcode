@@ -38,7 +38,7 @@ class Index02 {
       baseDate: json['baseDate'] ?? '',
       baseTime: json['baseTime'] ?? '',
       marketTimeDiv: json['marketTimeDiv'] ?? '',
-      //marketTimeDiv: 'B',
+      //marketTimeDiv: 'N',
       kospi: json['stru_Kospi'] == null ? const Index02KosStruct() : Index02KosStruct.fromJson(json['stru_Kospi']),
       kosdaq: json['stru_Kosdaq'] == null ? const Index02KosStruct() : Index02KosStruct.fromJson(json['stru_Kosdaq']),
     );

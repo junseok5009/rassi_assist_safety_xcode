@@ -14,12 +14,12 @@ class StockCompareChart2Page extends StatelessWidget {
   static const String TAG_NAME = '종목홈_종목비교_차트2or3';
   int chartDiv = 2; // 2 > PER 3 > PBR
   String stockCode = '';
-  List<StockCompare02> _listStockCompare02 = [];
+  final List<StockCompare02> _listStockCompare02 = [];
 
-  String _chartDivName = ''; // 2 > PER // 3 > PBR
-  String _chartDataStrStockName = "";
-  String _chartDataStr = "";
-  int _highLightIndex = 0;
+  late String _chartDivName = ''; // 2 > PER // 3 > PBR
+  late String _chartDataStrStockName = "";
+  late String _chartDataStr = "";
+  late int _highLightIndex = 0;
 
   StockCompareChart2Page(
     List<StockCompare02> vAlStockCompare02, {
@@ -76,7 +76,7 @@ class StockCompareChart2Page extends StatelessWidget {
       height: 240,
       child: Echarts(
         captureHorizontalGestures: true,
-        reloadAfterInit: true,
+        //reloadAfterInit: true,
         extraScript: '''
 
         ''',
@@ -256,7 +256,7 @@ class StockCompareChart2Page extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        '${item.stockName}',
+                        item.stockName,
                         style: stockNameStyle,
                       ),
                     ),

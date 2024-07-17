@@ -164,121 +164,124 @@ class TradeIntroPageState extends State<TradeIntroPage> {
       ),
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ListView(
-          children: [
-            const SizedBox(
-              height: 15,
-            ),
-
-            _setSubTitle('$stkName의 매매신호'),
-
-            //카드뷰 - 매수, 매도, 보유중, 관망중,
-            Stack(
-              children: [
-                _setStatusCard(),
-                Visibility(
-                  visible: isTodayTag,
-                  child: Positioned(
-                    top: 25,
-                    right: 16,
-                    child: Image.asset(
-                      imgTodayTag,
-                      height: 23,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 15,
+              ),
+          
+              _setSubTitle('$stkName의 매매신호'),
+          
+              //카드뷰 - 매수, 매도, 보유중, 관망중,
+              Stack(
+                children: [
+                  _setStatusCard(),
+                  Visibility(
+                    visible: isTodayTag,
+                    child: Positioned(
+                      top: 25,
+                      right: 16,
+                      child: Image.asset(
+                        imgTodayTag,
+                        height: 23,
+                      ),
                     ),
                   ),
+                ],
+              ),
+          
+              //카드뷰 - isIssueYn = true , 아직 한번도 매수신호 발생 한적이 없을 때, 관망 중 + 매매신호 내역이 없습니다.
+              Visibility(
+                visible: _isForbiddenShow,
+                child: Column(
+                  children: [
+                    TileSignal01Forbidden(stkName, _forbiddenDesc),
+                    const SizedBox(
+                      height: 15.0,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-
-            //카드뷰 - isIssueYn = true , 아직 한번도 매수신호 발생 한적이 없을 때, 관망 중 + 매매신호 내역이 없습니다.
-            Visibility(
-              visible: _isForbiddenShow,
-              child: Column(
-                children: [
-                  TileSignal01Forbidden(stkName, _forbiddenDesc),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                ],
               ),
-            ),
-
-            // 매매신호 실시간 받기
-            _setBtnRealtime(),
-
-            const SizedBox(
-              height: 20.0,
-            ),
-
-            // 최근 1년간 AI 매매신호 차트
-            _setSubTitle(
-              "최근 1년간 AI 매매신호",
-            ),
-            Container(
-              width: double.infinity,
-              height: 270,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
+          
+              // 매매신호 실시간 받기
+              _setBtnRealtime(),
+          
+              const SizedBox(
+                height: 20.0,
               ),
-              child: _setEChartView(),
-            ),
-
-            const SizedBox(
-              height: 15.0,
-            ),
-
-            // 모든 매매내역 보기
-            _setBtnListAll(),
-            const SizedBox(
-              height: 20.0,
-            ),
-
-            Visibility(
-              visible: _hasSellResults,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 투자 수익은 ?
-                  Stack(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 170,
-                        color: RColor.bgPink,
-                      ),
-                      _setReturnCard(),
-                    ],
-                  ),
-                  _setSubTitle(
-                    '$stkName AI매매신호 성과',
-                  ),
-                  _setAchievements(context),
-                  const SizedBox(
-                    height: 15.0,
-                  ),
-                ],
+          
+              // 최근 1년간 AI 매매신호 차트
+              _setSubTitle(
+                "최근 1년간 AI 매매신호",
               ),
-            ),
-
-            // 성과 TOP 종목
-            _setTopStock(),
-            // 간편하게 시작하기
-            InkWell(
-              child: Image.asset(
-                'images/rassibs_bn_simply_start.png',
-                //height: 170,
-                fit: BoxFit.fitWidth,
+              Container(
+                width: double.infinity,
+                height: 270,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                ),
+                child: _setEChartView(),
               ),
-              onTap: () {
-                if (LoginDivisionPage.globalKey.currentState == null) {
-                  Navigator.pushReplacementNamed(
-                      context, LoginDivisionPage.routeName);
-                } else {
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          ],
+          
+              const SizedBox(
+                height: 15.0,
+              ),
+          
+              // 모든 매매내역 보기
+              _setBtnListAll(),
+              const SizedBox(
+                height: 20.0,
+              ),
+          
+              Visibility(
+                visible: _hasSellResults,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 투자 수익은 ?
+                    Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 170,
+                          color: RColor.bgPink,
+                        ),
+                        _setReturnCard(),
+                      ],
+                    ),
+                    _setSubTitle(
+                      '$stkName AI매매신호 성과',
+                    ),
+                    _setAchievements(context),
+                    const SizedBox(
+                      height: 15.0,
+                    ),
+                  ],
+                ),
+              ),
+          
+              // 성과 TOP 종목
+              _setTopStock(),
+              // 간편하게 시작하기
+              InkWell(
+                child: Image.asset(
+                  'images/rassibs_bn_simply_start.png',
+                  //height: 170,
+                  fit: BoxFit.fitWidth,
+                ),
+                onTap: () {
+                  if (LoginDivisionPage.globalKey.currentState == null) {
+                    Navigator.pushReplacementNamed(
+                        context, LoginDivisionPage.routeName);
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1028,7 +1031,6 @@ class TradeIntroPageState extends State<TradeIntroPage> {
   Widget _setEChartView() {
     return Echarts(
       captureHorizontalGestures: true,
-      reloadAfterInit: true,
       extraScript: '''
           var up = 'path://M286.031,265l-16.025,3L300,223l29.994,45-16.041-3-13.961,69Z';
           var down = 'path://M216.969,292l16.025-3L203,334l-29.994-45,16.041,3,13.961-69Z';

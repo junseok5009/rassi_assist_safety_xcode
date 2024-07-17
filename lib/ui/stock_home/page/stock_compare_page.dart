@@ -8,7 +8,6 @@ import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -16,12 +15,13 @@ import 'package:rassi_assist/common/strings.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/custom_lib/sticky_header/custom_table_sticky_header/custom_table_sticky_headers.dart';
-import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_compare02.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_group.dart';
+import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_compare/tr_compare01.dart';
 import 'package:rassi_assist/models/tr_compare/tr_compare02.dart';
 import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/stock_home/stock_compare_chart_page/stock_compare_chart2_page.dart';
 import 'package:rassi_assist/ui/stock_home/stock_compare_chart_page/stock_compare_chart4_page.dart';
 import 'package:rassi_assist/ui/stock_home/stock_compare_chart_page/stock_compare_chart5_page.dart';
@@ -42,8 +42,7 @@ class StockComparePage extends StatefulWidget {
   State<StatefulWidget> createState() => StockComparePageState();
 }
 
-class StockComparePageState extends State<StockComparePage>
-    with SingleTickerProviderStateMixin {
+class StockComparePageState extends State<StockComparePage> with SingleTickerProviderStateMixin {
   late SharedPreferences _prefs;
   bool _isLoading = true; // 현재 API 불러와서 로딩중
 
@@ -116,18 +115,14 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
   List<String> unitColumn1 = ['배', '배', '%']; // 기업가치 단위
   List<String> titleColumn2 = ['매출액 증가율', '영업이익 증가율']; // 성장성
   List<String> titleColumn3 = ['최근1년 등락률', '52주최고가대비 변동률', '52주최저가대비 변동률'];
-  List<String> titleTableColumn3 = [
-    '기간별\n등락률',
-    '52주최고가\n대비변동률',
-    '52주최저가\n대비변동률'
-  ]; // 테이블 0행 [변동성]
+  List<String> titleTableColumn3 = ['기간별\n등락률', '52주최고가\n대비변동률', '52주최저가\n대비변동률']; // 테이블 0행 [변동성]
   int _compareChartXaxisInterval = 0;
   int _compareChartXAxisMax = 0;
   int _compareChartXAxisMin = 0;
   bool _compareChartIsShowOver = true; // 차트에 [이상] 찍기
   int _compareChartYaxisInterval = 0;
   int _compareChartYAxisMax = 0;
-  int _compareChartYAxisMin = 0;
+  final int _compareChartYAxisMin = 0;
   bool _compareChartIsShowOverPerYAxis = false; // PER차트 150이상 있을 경우 [이상] 찍기
   String _compareChartYAxisUnit = '';
   String _compareChartYAxisTitle = '';
@@ -136,7 +131,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
   @override
   void dispose() {
-    _scrollController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -149,14 +144,11 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
     _loadPrefData().then((_) => {
           Future.delayed(Duration.zero, () {
             PgData pgData = ModalRoute.of(context)!.settings.arguments as PgData;
-            if (_userId != '' &&
-                pgData.stockCode != null &&
-                pgData.stockCode.isNotEmpty) {
+            if (_userId != '' && pgData.stockCode.isNotEmpty) {
               _stkName = pgData.stockName;
               _stkCode = pgData.stockCode;
               requestTrAll();
-              Provider.of<StockInfoProvider>(context, listen: false)
-                  .postRequest(_stkCode);
+              Provider.of<StockInfoProvider>(context, listen: false).postRequest(_stkCode);
             }
           }),
         });
@@ -206,8 +198,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
     // DEFINE TR.COMPARE01 핫 그룹 리스트뷰 데이터
     if (trStr == TR.COMPARE01) {
-      final TrCompare01 resData =
-          TrCompare01.fromJson(jsonDecode(response.body));
+      final TrCompare01 resData = TrCompare01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         alStockHotGroup.clear();
         alStockHotGroup.addAll(resData.retData.listData);
@@ -215,8 +206,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
     }
     // DEFINE TR.COMPARE02 테이블 표 + 해당 종목이 가진 모든 그룹
     else if (trStr == TR.COMPARE02) {
-      final TrCompare02 resData =
-          TrCompare02.fromJson(jsonDecode(response.body));
+      final TrCompare02 resData = TrCompare02.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         if (_stockGrpCd == "" && resData.retData.listStockGroup.isNotEmpty) {
           StockGroup stockGroup = resData.retData.listStockGroup[0];
@@ -279,191 +269,180 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
       ),
       body: _isLoading
           ? const SizedBox()
-          : CustomScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.vertical,
-              slivers: [
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      const SizedBox(
-                        height: 15.0,
-                      ),
-                      Visibility(
-                        visible: haveData,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding:
-                                  EdgeInsets.only(top: 15, left: 10, right: 10),
-                              child: Text(
-                                '한 눈에 보는 종목비교',
-                                style: TStyle.commonTitle,
-                              ),
+          : SafeArea(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 15.0,
+                    ),
+                    Visibility(
+                      visible: haveData,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 15, left: 10, right: 10),
+                            child: Text(
+                              '한 눈에 보는 종목비교',
+                              style: TStyle.commonTitle,
                             ),
-                            Container(
-                              width: double.infinity,
-                              margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                              padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                              decoration: const BoxDecoration(
-                                color: RColor.bgWeakGrey,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(6)),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                          ),
+                          Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                            padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                            decoration: const BoxDecoration(
+                              color: RColor.bgWeakGrey,
+                              borderRadius: BorderRadius.all(Radius.circular(6)),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      _stockGrpNm,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      TStyle.getPercentString(_stockGrpFluctRate),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: TStyle.getMinusPlusColor(_stockGrpFluctRate),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Visibility(
+                                  visible: _stockGrpCd != "" && alStockCompare02.length > 1,
+                                  child: Column(
                                     children: [
-                                      Text(
-                                        _stockGrpNm,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 20,
-                                          color: Colors.black,
-                                        ),
-                                      ),
                                       const SizedBox(
-                                        width: 10,
+                                        height: 5,
                                       ),
-                                      Text(
-                                        TStyle.getPercentString(
-                                            _stockGrpFluctRate
+                                      Container(
+                                        width: double.infinity,
+                                        margin: const EdgeInsets.fromLTRB(
+                                          15,
+                                          15,
+                                          15,
+                                          0,
                                         ),
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                          color: TStyle.getMinusPlusColor(
-                                              _stockGrpFluctRate
+                                        padding: const EdgeInsets.fromLTRB(
+                                          5,
+                                          10,
+                                          5,
+                                          10,
+                                        ),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(
+                                              6,
+                                            ),
                                           ),
+                                        ),
+                                        child: Wrap(
+                                          alignment: WrapAlignment.center,
+                                          children: [
+                                            Text(
+                                              _stkName,
+                                              style: TStyle.commonPurple14,
+                                            ),
+                                            const Text(' 외 '),
+                                            Text(
+                                              '${alStockCompare02.length}종목',
+                                              style: TStyle.subTitle,
+                                            ),
+                                            const Text('이 '),
+                                            const Text('속해 있는 종목 그룹 입니다'),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                  Visibility(
-                                    visible: _stockGrpCd != "" &&
-                                        alStockCompare02.length > 1,
-                                    child: Column(
-                                      children: [
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        Container(
-                                          width: double.infinity,
-                                          margin: const EdgeInsets.fromLTRB(
-                                            15,
-                                            15,
-                                            15,
-                                            0,
-                                          ),
-                                          padding: const EdgeInsets.fromLTRB(
-                                            5,
-                                            10,
-                                            5,
-                                            10,
-                                          ),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(
-                                                6,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Wrap(
-                                            alignment: WrapAlignment.center,
-                                            children: [
-                                              Text(
-                                                _stkName,
-                                                style: TStyle.commonPurple14,
-                                              ),
-                                              const Text(' 외 '),
-                                              Text(
-                                                '${alStockCompare02.length}종목',
-                                                style: TStyle.subTitle,
-                                              ),
-                                              const Text('이 '),
-                                              const Text('속해 있는 종목 그룹 입니다'),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Visibility(
-                                    visible: _stockGrpCd != "" &&
-                                        alStockGroup.length > 1,
-                                    child: InkWell(
-                                      child: Container(
-                                        margin: const EdgeInsets.only(top: 10),
-                                        padding: const EdgeInsets.fromLTRB(
-                                            12, 1, 12, 1),
-                                        decoration: const BoxDecoration(
-                                          color: RColor.deepBlue,
-                                          borderRadius: BorderRadius.all(
-                                            Radius.circular(20),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          '다른 비교 그룹 보기',
-                                          style: TStyle.btnTextWht14,
+                                ),
+                                Visibility(
+                                  visible: _stockGrpCd != "" && alStockGroup.length > 1,
+                                  child: InkWell(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(top: 10),
+                                      padding: const EdgeInsets.fromLTRB(12, 1, 12, 1),
+                                      decoration: const BoxDecoration(
+                                        color: RColor.deepBlue,
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(20),
                                         ),
                                       ),
-                                      onTap: () {
-                                        _showScrollableSheetGroupCompare();
-                                      },
+                                      child: const Text(
+                                        '다른 비교 그룹 보기',
+                                        style: TStyle.btnTextWht14,
+                                      ),
                                     ),
+                                    onTap: () {
+                                      _showScrollableSheetGroupCompare();
+                                    },
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-
-                      // NOTE 2. 차트1
-                      _makeChartTopInfo(),
-                      const SizedBox(
-                        height: 6,
-                      ),
-                      _makeChart(),
-
-                      // NOTE 차트, 이렇게 보세요
-                      _makeChartWatchInfoView(),
-
-                      // NOTE 3. 버튼 4개
-                      _makeTabButton(),
-
-                      // NOTE 4. 탭에 의한 아래 뷰들
-                      _makeTableHighInfo(),
-                      _makeTable(),
-                      _makeTableQuarterInfo(), // 기업규모, 성장성에만 있는 쿼터 반영 정보
-                      _makeTableLowInfo(), // NOTE TIP 설명
-
-                      // NOTE ㅡㅡㅡㅡㅡ 데이터가 없을때 ㅡㅡㅡㅡㅡ
-                      _makeNoDataView(),
-
-                      // NOTE ㅡㅡㅡㅡㅡ 데이터 상관없이 핫그릅뷰 ㅡㅡㅡㅡㅡ
-                      _makeHotGroupView(),
-
-                      // 핫그룹 설명
-                      Visibility(
-                        visible: haveData,
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(15, 20, 15, 10),
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            strStockHotGroupInfo,
-                            style: TStyle.contentGrey14,
                           ),
+                        ],
+                      ),
+                    ),
+
+                    // NOTE 2. 차트1
+                    _makeChartTopInfo(),
+                    const SizedBox(
+                      height: 6,
+                    ),
+                    _makeChart(),
+
+                    // NOTE 차트, 이렇게 보세요
+                    _makeChartWatchInfoView(),
+
+                    // NOTE 3. 버튼 4개
+                    _makeTabButton(),
+
+                    // NOTE 4. 탭에 의한 아래 뷰들
+                    _makeTableHighInfo(),
+                    _makeTable(),
+                    _makeTableQuarterInfo(), // 기업규모, 성장성에만 있는 쿼터 반영 정보
+                    _makeTableLowInfo(), // NOTE TIP 설명
+
+                    // NOTE ㅡㅡㅡㅡㅡ 데이터가 없을때 ㅡㅡㅡㅡㅡ
+                    _makeNoDataView(),
+
+                    // NOTE ㅡㅡㅡㅡㅡ 데이터 상관없이 핫그릅뷰 ㅡㅡㅡㅡㅡ
+                    _makeHotGroupView(),
+
+                    // 핫그룹 설명
+                    Visibility(
+                      visible: haveData,
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(15, 20, 15, 10),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          strStockHotGroupInfo,
+                          style: TStyle.contentGrey14,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
     );
   }
@@ -473,7 +452,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
     _stockGrpCd = vStockGroup.stockGrpCd;
     _stockGrpNm = vStockGroup.stockGrpNm;
     _stockGrpFluctRate = vStockGroup.groupfluctRate;
-    if (vStockGroup.listStock != null && vStockGroup.listStock.isNotEmpty) {
+    if (vStockGroup.listStock.isNotEmpty) {
       _stkCode = vStockGroup.listStock[0].stockCode;
       _stkName = vStockGroup.listStock[0].stockName;
       _scrollController.jumpTo(0);
@@ -592,9 +571,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
   }
 
   _setOnClickTableRow(int index) {
-    if (index != 0 &&
-        (index - 1 <= alStockCompare02.length) &&
-        alStockCompare02[index - 1].stockCode != _stkCode) {
+    if (index != 0 && (index - 1 <= alStockCompare02.length) && alStockCompare02[index - 1].stockCode != _stkCode) {
       setState(() {
         _stkCode = alStockCompare02[index - 1].stockCode;
         _stkName = alStockCompare02[index - 1].stockName;
@@ -724,10 +701,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
             child: Wrap(
               children: <Widget>[
                 StockCompareChart5Page(
-                    chartDiv: chartDiv,
-                    groupCode: _stockGrpCd,
-                    stockCode: _stkCode,
-                    listYQClass: _listYQClass),
+                    chartDiv: chartDiv, groupCode: _stockGrpCd, stockCode: _stkCode, listYQClass: _listYQClass),
               ],
             ),
           );
@@ -771,7 +745,10 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
             ),
             child: Wrap(
               children: <Widget>[
-                StockCompareChart7Page(groupCode: _stockGrpCd, stockCode: _stkCode,),
+                StockCompareChart7Page(
+                  groupCode: _stockGrpCd,
+                  stockCode: _stkCode,
+                ),
               ],
             ),
           );
@@ -815,7 +792,11 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
             ),
             child: Wrap(
               children: <Widget>[
-                StockCompareChart8Page(chartDiv: chartDiv, groupCode: _stockGrpCd, stockCode: _stkCode,),
+                StockCompareChart8Page(
+                  chartDiv: chartDiv,
+                  groupCode: _stockGrpCd,
+                  stockCode: _stkCode,
+                ),
               ],
             ),
           );
@@ -896,8 +877,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                       scrollDirection: Axis.vertical,
                       itemCount: alStockGroup.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return _makeGroupView(alStockGroup[index],
-                            _stockGrpCd == alStockGroup[index].stockGrpCd);
+                        return _makeGroupView(alStockGroup[index], _stockGrpCd == alStockGroup[index].stockGrpCd);
                       },
                     ),
                   ),
@@ -912,21 +892,20 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
   // 그룹 선택 다이어로그 _ 그룹 리스트뷰
   Widget _makeGroupView(StockGroup vStockGroup, bool isSelect) {
-    Color _vColor;
+    Color vColor;
     if (isSelect) {
-      _vColor = RColor.mainColor;
+      vColor = RColor.mainColor;
     } else {
-      _vColor = RColor.lineGrey;
+      vColor = RColor.lineGrey;
     }
     return InkWell(
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
         padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-        decoration: UIStyle.boxRoundLine10c(_vColor),
+        decoration: UIStyle.boxRoundLine10c(vColor),
         alignment: Alignment.center,
-        child:
-            Text('${vStockGroup.stockGrpNm}', style: TStyle.purpleThinStyle()),
+        child: Text(vStockGroup.stockGrpNm, style: TStyle.purpleThinStyle()),
       ),
       onTap: () {
         Navigator.pop(context);
@@ -1006,9 +985,9 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                     Radius.circular(10.0),
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Text(
                       "항목선택",
                     ),
@@ -1223,8 +1202,8 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
   Widget _makeChart1SortListViewChild(int tabIndex, int index) {
     bool isSelect = false;
     String strDivName = '';
-    Color _color;
-    TextStyle _tStyle;
+    Color color;
+    TextStyle tStyle;
 
     switch (tabIndex) {
       // 기업규모
@@ -1288,22 +1267,22 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
     }*/
 
     if (isSelect) {
-      _color = RColor.mainColor;
-      _tStyle = TStyle.commonPurple14;
+      color = RColor.mainColor;
+      tStyle = TStyle.commonPurple14;
     } else {
-      _color = RColor.lineGrey;
-      _tStyle = TStyle.content14;
+      color = RColor.lineGrey;
+      tStyle = TStyle.content14;
     }
 
     return InkWell(
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-        decoration: UIStyle.boxRoundLine10c(_color),
+        decoration: UIStyle.boxRoundLine10c(color),
         alignment: Alignment.center,
         child: Text(
           strDivName,
-          style: _tStyle,
+          style: tStyle,
         ),
       ),
       onTap: () {
@@ -1320,18 +1299,18 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
   Widget _makeChart() {
     _setChart1Data();
 
-    int _gridBottomPadding = 0;
-    int _gridLeftPadding = 14;
+    int gridBottomPadding = 0;
+    int gridLeftPadding = 14;
     if (!_compareChartIsShowOver) {
-      _gridBottomPadding = 30;
+      gridBottomPadding = 30;
     }
     if (_compareChartIsShowOverPerYAxis) {
-      _gridLeftPadding = -10;
+      gridLeftPadding = -10;
     }
 
     return Visibility(
       visible: haveData,
-      child: Container(
+      child: SizedBox(
         // margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
         width: double.infinity,
         height: 240,
@@ -1339,18 +1318,17 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
           children: [
             Echarts(
               captureHorizontalGestures: true,
-              reloadAfterInit: true,
+              //reloadAfterInit: true,
               extraScript: '''
 
               ''',
-              option: '''
-                      {
+              option: ''' {
                         backgroundColor: '#F3F4F8',
                         grid: {
-                          left: $_gridLeftPadding,
+                          left: $gridLeftPadding,
                           top: 24,
                           right: 34,
-                          bottom: $_gridBottomPadding,
+                          bottom: $gridBottomPadding,
                           containLabel: true
                         },
                         xAxis: [
@@ -1388,11 +1366,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                         ],
                         yAxis: [
                         
-                   ''' +
-                  _compareChartYAxisBasicStr +
-                  _compareChartYAxisOverStr +
-                  '''    
-                          
+                   $_compareChartYAxisBasicStr$_compareChartYAxisOverStr                          
                           {
                             axisLine: {
                               show: false,
@@ -1422,8 +1396,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                     setOnClickChart1DivListViewChild(1);
                   }
                 } else if (_tab1) {
-                  if (chart1YAxisTitleIndex == 0 ||
-                      chart1YAxisTitleIndex == 1) {
+                  if (chart1YAxisTitleIndex == 0 || chart1YAxisTitleIndex == 1) {
                     setState(() {
                       chart1YAxisTitleIndex++;
                     });
@@ -1441,8 +1414,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                     setOnClickChart1DivListViewChild(3);
                   }
                 } else if (_tab3) {
-                  if (chart1YAxisTitleIndex == 0 ||
-                      chart1YAxisTitleIndex == 1) {
+                  if (chart1YAxisTitleIndex == 0 || chart1YAxisTitleIndex == 1) {
                     setState(() {
                       chart1YAxisTitleIndex++;
                     });
@@ -1544,9 +1516,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                 },
                 child: Container(
                   height: 40,
-                  decoration: _tab0
-                      ? UIStyle.boxBtnSelected20()
-                      : UIStyle.boxRoundLine20(),
+                  decoration: _tab0 ? UIStyle.boxBtnSelected20() : UIStyle.boxRoundLine20(),
                   alignment: Alignment.center,
                   child: Text(
                     '기업규모',
@@ -1568,9 +1538,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                 child: Container(
                   margin: const EdgeInsets.only(left: 10),
                   height: 40,
-                  decoration: _tab1
-                      ? UIStyle.boxBtnSelected20()
-                      : UIStyle.boxRoundLine20(),
+                  decoration: _tab1 ? UIStyle.boxBtnSelected20() : UIStyle.boxRoundLine20(),
                   alignment: Alignment.center,
                   child: Text(
                     '기업가치',
@@ -1592,9 +1560,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                 child: Container(
                   margin: const EdgeInsets.only(left: 10),
                   height: 40,
-                  decoration: _tab2
-                      ? UIStyle.boxBtnSelected20()
-                      : UIStyle.boxRoundLine20(),
+                  decoration: _tab2 ? UIStyle.boxBtnSelected20() : UIStyle.boxRoundLine20(),
                   alignment: Alignment.center,
                   child: Text(
                     '성장성',
@@ -1616,9 +1582,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                 child: Container(
                   margin: const EdgeInsets.only(left: 10),
                   height: 40,
-                  decoration: _tab3
-                      ? UIStyle.boxBtnSelected20()
-                      : UIStyle.boxRoundLine20(),
+                  decoration: _tab3 ? UIStyle.boxBtnSelected20() : UIStyle.boxRoundLine20(),
                   alignment: Alignment.center,
                   child: Text(
                     '변동성',
@@ -1635,15 +1599,15 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
   // 테이블 _ 상단 : 데이터 반영 기준일 + base data 표시
   Widget _makeTableHighInfo() {
-    String _leftInfoStr = '';
+    String leftInfoStr = '';
     if (_tab0) {
-      _leftInfoStr = '$_year/${_quarter}Q반영 연환산';
+      leftInfoStr = '$_year/${_quarter}Q반영 연환산';
     } else if (_tab1) {
-      _leftInfoStr = 'PER, PBR : 전일 보통주 수정주가 / 최근 분기 EPS, BPS\n배당수익률 : 최근결산 기준';
+      leftInfoStr = 'PER, PBR : 전일 보통주 수정주가 / 최근 분기 EPS, BPS\n배당수익률 : 최근결산 기준';
     } else if (_tab2) {
-      _leftInfoStr = '$_year/${_quarter}Q반영 전년동기대비';
+      leftInfoStr = '$_year/${_quarter}Q반영 전년동기대비';
     } else if (_tab3) {
-      _leftInfoStr = '최근 1년';
+      leftInfoStr = '최근 1년';
     }
 
     return Visibility(
@@ -1655,7 +1619,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                _leftInfoStr,
+                leftInfoStr,
                 style: TStyle.textSGrey,
               ),
             ),
@@ -1690,8 +1654,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
         } else if (b.marketValue.isEmpty) {
           return 0;
         } else {
-          return double.parse(b.marketValue)
-              .compareTo(double.parse(a.marketValue));
+          return double.parse(b.marketValue).compareTo(double.parse(a.marketValue));
         }
       });
     }
@@ -1719,8 +1682,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
         } else if (b.salesRateQuart.isEmpty) {
           return 0;
         } else {
-          return double.parse(b.salesRateQuart)
-              .compareTo(double.parse(a.salesRateQuart));
+          return double.parse(b.salesRateQuart).compareTo(double.parse(a.salesRateQuart));
         }
       });
     }
@@ -1734,8 +1696,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
         } else if (b.fluctYear1.isEmpty) {
           return 0;
         } else {
-          return double.parse(b.fluctYear1)
-              .compareTo(double.parse(a.fluctYear1));
+          return double.parse(b.fluctYear1).compareTo(double.parse(a.fluctYear1));
         }
       });
     }
@@ -1845,15 +1806,15 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
             i,
           ),
           onRowTitlePressed: (i) => _setOnClickTableRow(i),
-          contentCellBuilder: (i, j) =>
-              _makeTableTitleColumnView(j, result[i][j]),
+          contentCellBuilder: (i, j) => _makeTableTitleColumnView(j, result[i][j]),
           onContentCellPressed: (i, j) => setOnClickTabsView2TitleClick(i, j),
           rowTitleWidth: MediaQuery.of(context).size.width / 4.0,
           // 종목명 들어가는 1열의 width
           dataCellcontentWidth: rowSize,
           // 데이터 들어가는 행들의 width
           titleViewHeight: titleViewHeight,
-          highLightedIndex: highLightedIndex, onEndScrolling: (double x, double y) {  },
+          highLightedIndex: highLightedIndex,
+          onEndScrolling: (double x, double y) {},
         ),
       ),
     );
@@ -1864,10 +1825,8 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
     int i,
   ) {
     if (i == 0) {
-      return Container(
-        child: const Text(
-          '종목/항목',
-        ),
+      return const Text(
+        '종목/항목',
       );
     } else {
       return Text(
@@ -1882,8 +1841,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
   Widget _makeTableTitleColumnView(int j, String data) {
     TextStyle tStyle;
     if (j == 0) {
-      if (data == _compareChartYAxisTitle ||
-          (_tab3 && (data == titleTableColumn3[chart1YAxisTitleIndex]))) {
+      if (data == _compareChartYAxisTitle || (_tab3 && (data == titleTableColumn3[chart1YAxisTitleIndex]))) {
         tStyle = TStyle.commonPurple14;
       } else {
         tStyle = TStyle.subTitle;
@@ -1965,24 +1923,23 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
   // 테이블 _ 하단 : 종목 반영 년도 + 분기 표시
   Widget _makeTableQuarterInfo() {
-    bool _isShowThisView = false;
+    bool isShowThisView = false;
     if (_tab0 || _tab2) {
-      _isShowThisView = true;
+      isShowThisView = true;
     }
 
-    List<StockCompare02> _vAlStockCompare02 = [];
-    _vAlStockCompare02.addAll(alStockCompare02);
+    List<StockCompare02> vAlStockCompare02 = [];
+    vAlStockCompare02.addAll(alStockCompare02);
 
     _listYQClass.clear();
-    for (int i = 0; i < _vAlStockCompare02.length; i++) {
-      var item = _vAlStockCompare02[i];
+    for (int i = 0; i < vAlStockCompare02.length; i++) {
+      var item = vAlStockCompare02[i];
       if (item.latestQuarter.isNotEmpty) {
         String itemYear = item.latestQuarter.substring(0, 4);
         String itemQ = item.latestQuarter.substring(5);
         bool isSame = false;
         for (int k = 0; k < _listYQClass.length; k++) {
-          if (itemYear == _listYQClass[k].year &&
-              itemQ == _listYQClass[k].quarter) {
+          if (itemYear == _listYQClass[k].year && itemQ == _listYQClass[k].quarter) {
             isSame = true;
             _listYQClass[k].listStockName.add(item.stockName);
             break;
@@ -1999,7 +1956,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
     _listYQClass.sort((a, b) => b.year.compareTo(a.year));
 
     return Visibility(
-      visible: _isShowThisView && haveData,
+      visible: isShowThisView && haveData,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 15,
@@ -2011,24 +1968,24 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
   // 테이블 _ 하단2 : 탭 4개의 설명들
   Widget _makeTableLowInfo() {
-    String _vTipTitle = '';
-    String _vTipcontent = '';
-    String _vTopTip = '';
+    String vTipTitle = '';
+    String vTipcontent = '';
+    String vTopTip = '';
 
     if (_tab0) {
-      _vTipTitle = alTipTitles[0];
-      _vTipcontent = alTipContents[0];
-      _vTopTip = '시가총액 : 매일 현재가 업데이트\n매출액, 영업이익 : 최근분기포함 4개분기 합';
+      vTipTitle = alTipTitles[0];
+      vTipcontent = alTipContents[0];
+      vTopTip = '시가총액 : 매일 현재가 업데이트\n매출액, 영업이익 : 최근분기포함 4개분기 합';
     } else if (_tab1) {
-      _vTipTitle = alTipTitles[1];
-      _vTipcontent = alTipContents[1];
-      _vTopTip = '배당수익률 : KIND(한국거래소 기업공시채널) 자료 수집 제공';
+      vTipTitle = alTipTitles[1];
+      vTipcontent = alTipContents[1];
+      vTopTip = '배당수익률 : KIND(한국거래소 기업공시채널) 자료 수집 제공';
     } else if (_tab2) {
-      _vTipTitle = alTipTitles[2];
-      _vTipcontent = alTipContents[2];
+      vTipTitle = alTipTitles[2];
+      vTipcontent = alTipContents[2];
     } else if (_tab3) {
-      _vTipTitle = alTipTitles[3];
-      _vTipcontent = alTipContents[3];
+      vTipTitle = alTipTitles[3];
+      vTipcontent = alTipContents[3];
     }
 
     return Visibility(
@@ -2043,7 +2000,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
               child: Container(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    _vTopTip,
+                    vTopTip,
                     style: TStyle.contentGrey12,
                   )),
             ),
@@ -2053,14 +2010,14 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
               ),
               alignment: Alignment.centerLeft,
               child: Text(
-                _vTipTitle,
+                vTipTitle,
                 style: TStyle.puplePlainStyle(),
               ),
             ),
             Container(
               margin: const EdgeInsets.only(top: 4),
               child: Text(
-                _vTipcontent,
+                vTipcontent,
                 style: TStyle.textGrey14,
               ),
             ),
@@ -2115,8 +2072,7 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
   // 핫그룹
   Widget _makeHotGroupView() {
     return Container(
-      margin:
-          haveData ? const EdgeInsets.only(top: 20) : const EdgeInsets.all(0),
+      margin: haveData ? const EdgeInsets.only(top: 20) : const EdgeInsets.all(0),
       child: Stack(
         children: [
           Positioned.fill(
@@ -2162,10 +2118,10 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
   void _setChart1Data() {
     String tmpData = '';
-    String _markLine = '';
-    int _xAxisIndex = 0;
-    int _vOverChartIndex = 0; // 차트에 표기 못하고 [이상 으로 표기해야하는 시작 index]
-    String _chartColor = '';
+    String markLine = '';
+    int xAxisIndex = 0;
+    int vOverChartIndex = 0; // 차트에 표기 못하고 [이상 으로 표기해야하는 시작 index]
+    String chartColor = '';
 
     _compareChartIsShowOver = false;
     _compareChartIsShowOverPerYAxis = false;
@@ -2175,51 +2131,44 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
     }
 
     // 시가총액 낮은 > 높은 순으로 정렬
-    alStockCompare02.sort((a, b) =>
-        double.parse(a.marketValue).compareTo(double.parse(b.marketValue)));
+    alStockCompare02.sort((a, b) => double.parse(a.marketValue).compareTo(double.parse(b.marketValue)));
 
     // DEFINE 최소값
-    String _smallMarketValue = alStockCompare02[0].marketValue;
-    if (_smallMarketValue.isEmpty) {
+    String smallMarketValue = alStockCompare02[0].marketValue;
+    if (smallMarketValue.isEmpty) {
       _compareChartXAxisMin = 0;
     } else {
-      _compareChartXAxisMin = int.parse(_smallMarketValue) -
-          (int.parse(_smallMarketValue) * 0.15).toInt();
+      _compareChartXAxisMin = int.parse(smallMarketValue) - (int.parse(smallMarketValue) * 0.15).toInt();
     }
 
     // DEFINE 최대값 [1]
-    String _bigMarketValue = '';
+    String bigMarketValue = '';
 
     // DEFINE 종목 개수 3개 이상일때
     if (alStockCompare02.length > 2) {
-      if (_smallMarketValue.isNotEmpty &&
-          int.parse(_smallMarketValue) > 10000) {
-        _bigMarketValue =
-            alStockCompare02[alStockCompare02.length - 1].marketValue;
+      if (smallMarketValue.isNotEmpty && int.parse(smallMarketValue) > 10000) {
+        bigMarketValue = alStockCompare02[alStockCompare02.length - 1].marketValue;
       } else {
         for (int k = 1; k < alStockCompare02.length; k++) {
-          _vOverChartIndex = k;
-          if (alStockCompare02[k].marketValue.isNotEmpty &&
-              int.parse(alStockCompare02[k].marketValue) > 10000) {
+          vOverChartIndex = k;
+          if (alStockCompare02[k].marketValue.isNotEmpty && int.parse(alStockCompare02[k].marketValue) > 10000) {
             _compareChartIsShowOver = true;
-            _bigMarketValue = alStockCompare02[k - 1].marketValue;
+            bigMarketValue = alStockCompare02[k - 1].marketValue;
             if (k + 3 <= alStockCompare02.length) {
               _compareChartIsShowOver = false;
-              _bigMarketValue =
-                  alStockCompare02[alStockCompare02.length - 1].marketValue;
+              bigMarketValue = alStockCompare02[alStockCompare02.length - 1].marketValue;
             }
             break;
-          } else if (k == alStockCompare02.length - 1 &&
-              int.parse(alStockCompare02[k].marketValue) <= 10000) {
-            _vOverChartIndex = k + 1;
-            _bigMarketValue = alStockCompare02[k].marketValue;
+          } else if (k == alStockCompare02.length - 1 && int.parse(alStockCompare02[k].marketValue) <= 10000) {
+            vOverChartIndex = k + 1;
+            bigMarketValue = alStockCompare02[k].marketValue;
           }
         }
       }
     }
     // 2개 알때
     else if (alStockCompare02.length == 2) {
-      _bigMarketValue = alStockCompare02[1].marketValue;
+      bigMarketValue = alStockCompare02[1].marketValue;
     }
     // 1개 일때
     else if (alStockCompare02.length == 1) {
@@ -2229,66 +2178,54 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
     }
 
     // DEFINE 최대값 [2]
-    _compareChartXAxisMax = int.parse(_bigMarketValue) +
-        (int.parse(_bigMarketValue) * 0.15).toInt();
+    _compareChartXAxisMax = int.parse(bigMarketValue) + (int.parse(bigMarketValue) * 0.15).toInt();
 
-    int _numbering = 0;
+    int numbering = 0;
     for (int k = 0; k < 2; k++) {
-      int _chartXAxisFinalValue = 0;
+      int chartXAxisFinalValue = 0;
       if (k == 0) {
         if (_compareChartXAxisMin == 0) {
-          _numbering = 0;
+          numbering = 0;
         } else {
-          _numbering = log(_compareChartXAxisMin) ~/ ln10 + 1;
+          numbering = log(_compareChartXAxisMin) ~/ ln10 + 1;
         }
-        _chartXAxisFinalValue = _compareChartXAxisMin;
+        chartXAxisFinalValue = _compareChartXAxisMin;
       } else {
-        _numbering = log(_compareChartXAxisMax) ~/ ln10 + 1;
-        _chartXAxisFinalValue = _compareChartXAxisMax;
+        numbering = log(_compareChartXAxisMax) ~/ ln10 + 1;
+        chartXAxisFinalValue = _compareChartXAxisMax;
       }
 
-      if (_numbering == 3) {
-        _chartXAxisFinalValue = _chartXAxisFinalValue -
-            (_chartXAxisFinalValue % 100 % 10); // 일의자리 0으로 만들기
-      } else if (_numbering == 4) {
-        _chartXAxisFinalValue = _chartXAxisFinalValue -
-            (_chartXAxisFinalValue % 1000 % 100); // 일, 십 의자리 0으로 만들기
-      } else if (_numbering == 5) {
-        _chartXAxisFinalValue = _chartXAxisFinalValue -
-            (_chartXAxisFinalValue % 10000 % 1000 % 100); // 일, 십 의자리 0으로 만들기
-      } else if (_numbering == 6) {
-        _chartXAxisFinalValue = _chartXAxisFinalValue -
-            (_chartXAxisFinalValue %
-                100000 %
-                10000 %
-                1000); // 일, 십, 백 의자리 0으로 만들기
-      } else if (_numbering == 7) {
-        _chartXAxisFinalValue = _chartXAxisFinalValue -
-            (_chartXAxisFinalValue %
-                1000000 %
-                100000 %
-                10000 %
-                1000); // 일, 십, 백 의자리 0으로 만들기
+      if (numbering == 3) {
+        chartXAxisFinalValue = chartXAxisFinalValue - (chartXAxisFinalValue % 100 % 10); // 일의자리 0으로 만들기
+      } else if (numbering == 4) {
+        chartXAxisFinalValue = chartXAxisFinalValue - (chartXAxisFinalValue % 1000 % 100); // 일, 십 의자리 0으로 만들기
+      } else if (numbering == 5) {
+        chartXAxisFinalValue = chartXAxisFinalValue - (chartXAxisFinalValue % 10000 % 1000 % 100); // 일, 십 의자리 0으로 만들기
+      } else if (numbering == 6) {
+        chartXAxisFinalValue =
+            chartXAxisFinalValue - (chartXAxisFinalValue % 100000 % 10000 % 1000); // 일, 십, 백 의자리 0으로 만들기
+      } else if (numbering == 7) {
+        chartXAxisFinalValue =
+            chartXAxisFinalValue - (chartXAxisFinalValue % 1000000 % 100000 % 10000 % 1000); // 일, 십, 백 의자리 0으로 만들기
       }
 
       if (k == 0) {
-        _compareChartXAxisMin = _chartXAxisFinalValue;
+        _compareChartXAxisMin = chartXAxisFinalValue;
       } else {
-        _compareChartXAxisMax = _chartXAxisFinalValue;
+        _compareChartXAxisMax = chartXAxisFinalValue;
       }
     }
 
-    _compareChartXaxisInterval =
-        (_compareChartXAxisMax - _compareChartXAxisMin) ~/ 5;
+    _compareChartXaxisInterval = (_compareChartXAxisMax - _compareChartXAxisMin) ~/ 5;
 
     // DEFINE Y축 PER 이상 추가
     if (_tab1 && chart1YAxisTitleIndex == 0) {
-      List _listStockCompare02YAxisSort = [];
-      _listStockCompare02YAxisSort.addAll(alStockCompare02);
+      List listStockCompare02YAxisSort = [];
+      listStockCompare02YAxisSort.addAll(alStockCompare02);
 
       // 1. Y축 정렬
       // per 낮은 > 높은 순으로 정렬
-      _listStockCompare02YAxisSort.sort((a, b) {
+      listStockCompare02YAxisSort.sort((a, b) {
         if (a.per.isEmpty) {
           return 1;
         } else if (b.per.isEmpty) {
@@ -2299,20 +2236,19 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
       });
 
       // DEFINE 최대값 [1]
-      String _bigPerValue = '';
+      String bigPerValue = '';
 
       // DEFINE 종목 개수 2개 초과일때
-      if (_listStockCompare02YAxisSort.length > 1) {
-        if (_listStockCompare02YAxisSort[0].per.isNotEmpty &&
-            double.parse(_listStockCompare02YAxisSort[0].per) > 150) {
+      if (listStockCompare02YAxisSort.length > 1) {
+        if (listStockCompare02YAxisSort[0].per.isNotEmpty && double.parse(listStockCompare02YAxisSort[0].per) > 150) {
           _compareChartIsShowOverPerYAxis = true;
-          _bigPerValue = '140';
+          bigPerValue = '140';
         } else {
-          for (int k = 1; k < _listStockCompare02YAxisSort.length; k++) {
-            if (_listStockCompare02YAxisSort[k].per.isNotEmpty &&
-                double.parse(_listStockCompare02YAxisSort[k].per) > 150) {
+          for (int k = 1; k < listStockCompare02YAxisSort.length; k++) {
+            if (listStockCompare02YAxisSort[k].per.isNotEmpty &&
+                double.parse(listStockCompare02YAxisSort[k].per) > 150) {
               _compareChartIsShowOverPerYAxis = true;
-              _bigPerValue = _listStockCompare02YAxisSort[k - 1].per;
+              bigPerValue = listStockCompare02YAxisSort[k - 1].per;
               break;
             }
           }
@@ -2321,8 +2257,10 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
       if (_compareChartIsShowOverPerYAxis) {
         // DEFINE 최대값 [2]
-        _compareChartYAxisMax = (double.parse(_bigPerValue) + 20).toInt();
-        while (_compareChartYAxisMax % 5 != 0) _compareChartYAxisMax++;
+        _compareChartYAxisMax = (double.parse(bigPerValue) + 20).toInt();
+        while (_compareChartYAxisMax % 5 != 0) {
+          _compareChartYAxisMax++;
+        }
 
         _compareChartYaxisInterval = (_compareChartYAxisMax) ~/ 5;
       }
@@ -2332,82 +2270,82 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
 
     for (int k = 0; k < alStockCompare02.length; k++) {
       var item = alStockCompare02[k];
-      int _yAxisIndex = 0;
-      String _yAxisValue = '';
-      String _xAxisChartValue = '0'; // 차트에 찍는 x값
-      String _dataLabelStr = '\\n';
-      String _dataLabelPosition = 'right';
-      String _customYAxisValue = '';
+      int yAxisIndex = 0;
+      String yAxisValue = '';
+      String xAxisChartValue = '0'; // 차트에 찍는 x값
+      String dataLabelStr = '\\n';
+      String dataLabelPosition = 'right';
+      String customYAxisValue = '';
 
       // DEFINE 기업규모
       if (_tab0) {
         if (chart1YAxisTitleIndex == 0) {
-          _yAxisValue = item.sales;
+          yAxisValue = item.sales;
         } else {
-          _yAxisValue = item.salesProfit;
+          yAxisValue = item.salesProfit;
         }
       }
 
       // DEFINE 기업가치
       else if (_tab1) {
         if (chart1YAxisTitleIndex == 0) {
-          _yAxisValue = item.per;
+          yAxisValue = item.per;
         } else if (chart1YAxisTitleIndex == 1) {
-          _yAxisValue = item.pbr;
+          yAxisValue = item.pbr;
         } else if (chart1YAxisTitleIndex == 2) {
-          _yAxisValue = item.dividendRate;
+          yAxisValue = item.dividendRate;
         } else {
-          _yAxisValue = item.per;
+          yAxisValue = item.per;
         }
       }
 
       // DEFINE 성장성
       else if (_tab2) {
         if (chart1YAxisTitleIndex == 0) {
-          _yAxisValue = item.salesRateQuart;
+          yAxisValue = item.salesRateQuart;
         } else if (chart1YAxisTitleIndex == 1) {
-          _yAxisValue = item.profitRateQuart;
+          yAxisValue = item.profitRateQuart;
         } else {
-          _yAxisValue = item.salesRateQuart;
+          yAxisValue = item.salesRateQuart;
         }
       }
 
       // DEFINE 변동성
       else if (_tab3) {
         if (chart1YAxisTitleIndex == 0) {
-          _yAxisValue = item.fluctYear1;
+          yAxisValue = item.fluctYear1;
         } else if (chart1YAxisTitleIndex == 1) {
-          _yAxisValue = item.top52FluctRate;
+          yAxisValue = item.top52FluctRate;
         } else if (chart1YAxisTitleIndex == 2) {
-          _yAxisValue = item.low52FluctRate;
+          yAxisValue = item.low52FluctRate;
         } else {
-          _yAxisValue = item.fluctYear1;
+          yAxisValue = item.fluctYear1;
         }
       }
 
-      if (_yAxisValue.isEmpty) _yAxisValue = '0';
-      _customYAxisValue = _yAxisValue;
+      if (yAxisValue.isEmpty) yAxisValue = '0';
+      customYAxisValue = yAxisValue;
 
       // DEFINE DATA LABEL
       // [기업규모]매출액, 영업이익 > 소수점 자르기 // 나머지는 소수점 두자리까지 그대로 표기
       if (_tab0) {
-        if (_customYAxisValue.contains('.')) {
-          _customYAxisValue = _customYAxisValue.split('.')[0];
+        if (customYAxisValue.contains('.')) {
+          customYAxisValue = customYAxisValue.split('.')[0];
         }
-        _dataLabelStr += TStyle.getMoneyPoint(_customYAxisValue);
+        dataLabelStr += TStyle.getMoneyPoint(customYAxisValue);
       } else {
-        _dataLabelStr += TStyle.getMoneyPoint2(_customYAxisValue);
+        dataLabelStr += TStyle.getMoneyPoint2(customYAxisValue);
       }
 
-      if (k < _vOverChartIndex || !_compareChartIsShowOver) {
-        _xAxisChartValue = item.marketValue;
-        _xAxisIndex = 0;
-        _markLine = '';
+      if (k < vOverChartIndex || !_compareChartIsShowOver) {
+        xAxisChartValue = item.marketValue;
+        xAxisIndex = 0;
+        markLine = '';
       } else {
-        _xAxisChartValue = '0';
-        _xAxisIndex = 1;
-        _dataLabelPosition = 'left';
-        _markLine = '''
+        xAxisChartValue = '0';
+        xAxisIndex = 1;
+        dataLabelPosition = 'left';
+        markLine = '''
         label: {
           show: false,
         },
@@ -2420,9 +2358,9 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
       }
 
       if (_stkCode == item.stockCode) {
-        _chartColor = '#7774F7';
+        chartColor = '#7774F7';
       } else {
-        _chartColor = 'black';
+        chartColor = 'black';
       }
 
       if (_tab1 &&
@@ -2430,13 +2368,13 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
           _compareChartIsShowOverPerYAxis &&
           item.per.isNotEmpty &&
           (double.parse(item.per) > 150)) {
-        _yAxisIndex = 1;
-        _yAxisValue = '0';
+        yAxisIndex = 1;
+        yAxisValue = '0';
 
         tmpData += '''
         {
-          xAxisIndex: $_xAxisIndex,
-          yAxisIndex: $_yAxisIndex,
+          xAxisIndex: $xAxisIndex,
+          yAxisIndex: $yAxisIndex,
           markLine: {        
             label: {
               show: false,
@@ -2449,46 +2387,46 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
           },
           label: {
             textStyle:{
-              color: '$_chartColor',
+              color: '$chartColor',
               fontWeight: 'bold',
             },
             fontSize: 12,
             show: true,
-            position: '$_dataLabelPosition',
+            position: '$dataLabelPosition',
             formatter: function(d) {
               return d.value[2];
             },
           },
           symbolSize: 8,
-          data: [[$_xAxisChartValue, 0, '${item.stockName}\\n'],],
+          data: [[$xAxisChartValue, 0, '${item.stockName}\\n'],],
           type: 'scatter',
           itemStyle: {
-            color: '$_chartColor',
+            color: '$chartColor',
           },
         },
         ''';
       } else {
         tmpData += '''
         {
-          xAxisIndex: $_xAxisIndex,
-          markLine: {$_markLine},
+          xAxisIndex: $xAxisIndex,
+          markLine: {$markLine},
           label: {
             textStyle:{
-              color: '$_chartColor',
+              color: '$chartColor',
               fontWeight: 'bold',
             },
             fontSize: 12,
             show: true,
-            position: '$_dataLabelPosition',
+            position: '$dataLabelPosition',
             formatter: function(d) {
               return d.value[2];
             },
           },
           symbolSize: 8,
-          data: [[$_xAxisChartValue, $_yAxisValue, '${item.stockName}\\n'],],
+          data: [[$xAxisChartValue, $yAxisValue, '${item.stockName}\\n'],],
           type: 'scatter',
           itemStyle: {
-            color: '$_chartColor',
+            color: '$chartColor',
           },
         },
         ''';
@@ -2497,24 +2435,24 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
       // 차트 라벨 데이터 때문에 한번더..
       tmpData += '''
         {
-          xAxisIndex: $_xAxisIndex,
-          yAxisIndex: $_yAxisIndex,
+          xAxisIndex: $xAxisIndex,
+          yAxisIndex: $yAxisIndex,
           label: {
             textStyle:{
-              color: '$_chartColor',
+              color: '$chartColor',
             },
             fontSize: 8,
             show: true,
-            position: '$_dataLabelPosition',
+            position: '$dataLabelPosition',
             formatter: function(d) {
               return d.value[2];
             },
           },
           symbolSize: 8,
-          data: [[$_xAxisChartValue, $_yAxisValue, '$_dataLabelStr$_compareChartYAxisUnit'],],
+          data: [[$xAxisChartValue, $yAxisValue, '$dataLabelStr$_compareChartYAxisUnit'],],
           type: 'scatter',
           itemStyle: {
-              color: '$_chartColor',
+              color: '$chartColor',
           },
         },
         ''';
@@ -2631,7 +2569,6 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                   const Text(
                     RString.err_network,
                     textAlign: TextAlign.center,
-                    
                   ),
                   const SizedBox(
                     height: 30.0,
@@ -2646,7 +2583,6 @@ PBR은 개별 종목의 높고 낮음을 보기보다 동종업계의 평균과 
                           child: Text(
                             '확인',
                             style: TStyle.btnTextWht16,
-                            
                           ),
                         ),
                       ),

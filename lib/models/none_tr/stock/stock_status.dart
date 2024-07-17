@@ -10,6 +10,12 @@ class StockStatus {
   final String bizOverview;
   final List<Keyword> listKeyword;
 
+  // 24.07.15 마켓뷰 개편 추가
+  final String tradeFlag;
+  final String tradeDate;
+  final String tradeTime;
+  final String tradePrice;
+
   StockStatus({
     this.stockCode = '',
     this.stockName = '',
@@ -18,13 +24,14 @@ class StockStatus {
     this.fluctuationAmt = '',
     this.bizOverview = '',
     this.listKeyword = const [],
+    this.tradeFlag = '',
+    this.tradeDate = '',
+    this.tradeTime = '',
+    this.tradePrice = '',
   });
 
   factory StockStatus.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Keyword'] as List<dynamic>?;
-    List<Keyword> rtList;
-    list == null ? rtList = [] : rtList = list.map((i) => Keyword.fromJson(i)).toList();
-
+    var jsonList = json['list_Keyword'];
     return StockStatus(
       stockCode: json['stockCode'] ?? '',
       stockName: json['stockName'] ?? '',
@@ -32,7 +39,11 @@ class StockStatus {
       fluctuationRate: json['fluctuationRate'] ?? '',
       fluctuationAmt: json['fluctuationAmt'] ?? '',
       bizOverview: json['bizOverview'] ?? '',
-      listKeyword: rtList,
+      listKeyword: jsonList == null ? [] : (jsonList as List).map((i) => Keyword.fromJson(i)).toList(),
+      tradeFlag: json['tradeFlag'] ?? '',
+      tradeDate: json['tradeDate'] ?? '',
+      tradeTime: json['tradeTime'] ?? '',
+      tradePrice: json['tradePrice'] ?? '',
     );
   }
 

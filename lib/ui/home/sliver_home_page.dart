@@ -23,7 +23,7 @@ import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue03.dart';
 import 'package:rassi_assist/models/tr_pock/tr_pock11.dart';
 import 'package:rassi_assist/models/tr_prom02.dart';
-import 'package:rassi_assist/models/tr_push01.dart';
+import 'package:rassi_assist/models/tr_push/tr_push01.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi15.dart';
 import 'package:rassi_assist/models/tr_today/tr_today01.dart';
 import 'package:rassi_assist/models/tr_today/tr_today05.dart';

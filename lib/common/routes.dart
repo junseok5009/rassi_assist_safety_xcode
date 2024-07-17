@@ -16,6 +16,7 @@ import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/main/keyboard_page.dart';
 import 'package:rassi_assist/ui/main/my_page.dart';
 import 'package:rassi_assist/ui/main/notification_page.dart';
+import 'package:rassi_assist/ui/market/issue_detail_stock_signal_page.dart';
 import 'package:rassi_assist/ui/news/catch_list_page.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
@@ -51,8 +52,8 @@ import 'package:rassi_assist/ui/sub/stk_catch_top.dart';
 import 'package:rassi_assist/ui/sub/theme_hot_page.dart';
 import 'package:rassi_assist/ui/test/notification_setting.dart';
 import 'package:rassi_assist/ui/test/test_page.dart';
-import 'package:rassi_assist/ui/test/today_feature_stock_list_page.dart';
-import 'package:rassi_assist/ui/test/today_issue_timeline_page.dart';
+import 'package:rassi_assist/ui/market/today_feature_stock_list_page.dart';
+import 'package:rassi_assist/ui/market/today_issue_timeline_page.dart';
 import 'package:rassi_assist/ui/user/community_page.dart';
 import 'package:rassi_assist/ui/user/terms_page.dart';
 import 'package:rassi_assist/ui/user/user_center_page.dart';
@@ -74,7 +75,7 @@ final routes = {
   AgentWelcomePage.routeName: (BuildContext context) => const AgentWelcomePage(),
 
   // 메인_홈
-  '/main_home': (BuildContext context) => const SliverHomeTabWidget(),
+  SliverHomeTabWidget.routeName: (BuildContext context) => const SliverHomeTabWidget(),
   // 메인_포켓
   '/main_pocket': (BuildContext context) => SliverPocketTab(),
 
@@ -98,7 +99,7 @@ final routes = {
 
   TodayIssueTimelinePage.routeName: (BuildContext context) => const TodayIssueTimelinePage(), // (오늘의) 이슈 타임라인
   RassiDeskTimeLinePage.routeName: (BuildContext context) => const RassiDeskTimeLinePage(), // 라씨데스크 타임라인
-
+  IssueDetailStockSignalPage.routeName: (BuildContext context) => const IssueDetailStockSignalPage(),
 
   TodayFeatureStockListPage.routeName: (BuildContext context) => const TodayFeatureStockListPage(),
 

@@ -1292,10 +1292,10 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
                     context,
                     Platform.isAndroid
                         ? CustomNvRouteClass.createRouteSlow1(
-                            InappWebviewPage('$stkName 보고서', _listShome07StockContent[index].linkUrl),
+                            InappWebviewPage(title: '$stkName 보고서', url: _listShome07StockContent[index].linkUrl),
                           )
                         : CustomNvRouteClass.createRoute(
-                            InappWebviewPage('$stkName 보고서', _listShome07StockContent[index].linkUrl),
+                            InappWebviewPage(title: '$stkName 보고서', url: _listShome07StockContent[index].linkUrl),
                           ),
                   );
                 },

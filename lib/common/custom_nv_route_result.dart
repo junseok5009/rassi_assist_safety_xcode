@@ -8,3 +8,20 @@ class CustomNvRouteResult{
   static String landPremiumPopup = 'landPremiumPopup';  // 돌아온 화면에서 프리미엄 팝업을 띄워야 하는 경우 >> success true
   static String landPremiumPage = 'landPremiumPage';  // 돌아온 화면에서 프리미엄 결제 페이지로 넘어가야 하는 경우 >> success true
 }
+
+class CustomNvRouteResultData extends CustomNvRouteResult{
+  final String customNvRouteResultCode;
+  final Object data;
+  CustomNvRouteResultData({required this.customNvRouteResultCode, required this.data});
+}
+
+/*
+enum CustomNvRouteResultCode {
+  fail,
+  cancel,
+  out,
+  refresh,
+  landing,
+  landPremiumPopup,
+  landPremiumPage
+}*/

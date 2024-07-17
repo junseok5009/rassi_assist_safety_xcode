@@ -431,7 +431,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
 
   Widget get _kosIndexView {
     return Visibility(
-      visible: _index02.baseDate.isNotEmpty && _index02.kospi.fluctuationRate.isNotEmpty && _index02.kosdaq.fluctuationRate.isNotEmpty,
+      visible: _index02.baseDate.isNotEmpty && _index02.marketTimeDiv!='N' && _index02.kospi.fluctuationRate.isNotEmpty && _index02.kosdaq.fluctuationRate.isNotEmpty,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -473,6 +473,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               horizontal: 20,
               vertical: 10,
             ),
+            decoration: UIStyle.boxShadowBasic(16),
             child: Row(
               children: [
                 Expanded(

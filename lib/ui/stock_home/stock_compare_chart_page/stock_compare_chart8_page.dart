@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
@@ -103,9 +102,7 @@ class StockCompareChart8PageState extends State<StockCompareChart8Page> {
 
       _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      Navigator.of(context).pop(null);
-    } on SocketException catch (_) {
-      Navigator.of(context).pop(null);
+      if (mounted) Navigator.of(context).pop(null);
     }
   }
 
@@ -176,7 +173,7 @@ class StockCompareChart8PageState extends State<StockCompareChart8Page> {
       height: 240,
       child: Echarts(
         captureHorizontalGestures: true,
-        reloadAfterInit: true,
+        //reloadAfterInit: true,
         extraScript: '''
 
         ''',
@@ -312,11 +309,11 @@ class StockCompareChart8PageState extends State<StockCompareChart8Page> {
   }
 
   Widget _makeListView() {
-    String _title = '';
+    String title = '';
     if (chartDiv == 9) {
-      _title = '52주 최저가';
+      title = '52주 최저가';
     } else {
-      _title = '52주 최고가';
+      title = '52주 최고가';
     }
     return Container(
       padding: const EdgeInsets.all(15),
@@ -326,7 +323,7 @@ class StockCompareChart8PageState extends State<StockCompareChart8Page> {
           Container(
             alignment: Alignment.center,
             child: Text(
-              _title,
+              title,
               style: TStyle.commonTitle,
             ),
           ),

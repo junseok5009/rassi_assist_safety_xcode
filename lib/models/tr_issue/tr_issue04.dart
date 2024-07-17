@@ -6,32 +6,32 @@ import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
 class TrIssue04 {
   final String retCode;
   final String retMsg;
-  final Issue04? retData;
+  final Issue04 retData;
 
-  TrIssue04({this.retCode = '', this.retMsg = '', this.retData});
+  TrIssue04({this.retCode = '', this.retMsg = '', this.retData = const Issue04()});
 
   factory TrIssue04.fromJson(Map<String, dynamic> json) {
+    var jsonData = json['retData'];
     return TrIssue04(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData: Issue04.fromJson(json['retData']),
+      retData: jsonData == null ? const Issue04() :Issue04.fromJson(json['retData']),
     );
   }
 }
 
 class Issue04 {
-  final IssueInfo? issueInfo;
+  final IssueInfo issueInfo;
   final List<StockStatus> stkList;
 
-  Issue04({this.issueInfo, this.stkList = const []});
+  const Issue04({this.issueInfo = const IssueInfo(), this.stkList = const []});
 
   factory Issue04.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Stock'] == null ? [] : (json['list_Stock'] as List);
-    List<StockStatus> rtList = list.map((i) => StockStatus.fromJson(i)).toList();
-
+    var jsonList = json['list_Stock'];
+    var jsonIssueStruct = json['struct_Issue'];
     return Issue04(
-      issueInfo: IssueInfo.fromJson(json['struct_Issue']),
-      stkList: rtList,
+      issueInfo: jsonIssueStruct == null ? const IssueInfo() : IssueInfo.fromJson(jsonIssueStruct),
+      stkList: jsonList == null ? [] : (jsonList as List).map((i) => StockStatus.fromJson(i)).toList(),
     );
   }
 }
@@ -45,7 +45,7 @@ class IssueInfo {
   final String keyword;
   final String imageUrl;
 
-  IssueInfo({
+  const IssueInfo({
     this.newsSn = '',
     this.issueDttm = '',
     this.title = '',
@@ -57,13 +57,13 @@ class IssueInfo {
 
   factory IssueInfo.fromJson(Map<String, dynamic> json) {
     return IssueInfo(
-      newsSn: json['newsSn'],
-      issueDttm: json['issueDttm'],
-      title: json['title'],
-      content: json['content'],
-      issueSn: json['issueSn'],
-      keyword: json['keyword'],
-      imageUrl: json['imageUrl'],
+      newsSn: json['newsSn'] ?? '',
+      issueDttm: json['issueDttm'] ?? '',
+      title: json['title'] ?? '',
+      content: json['content'] ?? '',
+      issueSn: json['issueSn'] ?? '',
+      keyword: json['keyword'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
     );
   }
 

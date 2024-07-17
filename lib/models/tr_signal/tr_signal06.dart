@@ -81,9 +81,9 @@ class SignalSig {
     return SignalSig(
       stockCode: json['stockCode'],
       stockName: json['stockName'],
-      tradeFlag: json['tradeFlag'],
-      tradeDttm: json['tradeDttm'],
-      tradePrice: json['tradePrice'],
+      tradeFlag: json['tradeFlag'] ?? '',
+      tradeDttm: json['tradeDttm'] ?? '',
+      tradePrice: json['tradePrice'] ?? '0',
       honorDiv: json['honorDiv'] ?? '',
       elapsedDays: json['elapsedDays'] ?? '',
     );

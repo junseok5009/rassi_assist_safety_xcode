@@ -9,36 +9,21 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal06.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/sub/custom_app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2021.08.03 - JY
 /// 현재 관망중인 종목
-class SignalWaitPage extends StatelessWidget {
+class SignalWaitPage extends StatefulWidget {
   static const routeName = '/page_signal_wait';
   static const String TAG = "[SignalWaitPage] ";
   static const String TAG_NAME = '매매신호_관망중_전체';
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 0,
-        backgroundColor: RColor.deepStat,
-        elevation: 0,
-      ),
-      body: SignalWaitWidget(),
-    );
-  }
+  State<StatefulWidget> createState() => SignalWaitPageState();
 }
 
-class SignalWaitWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => SignalWaitState();
-}
-
-class SignalWaitState extends State<SignalWaitWidget> {
+class SignalWaitPageState extends State<SignalWaitPage> {
   late SharedPreferences _prefs;
   String _userId = "";
   bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
@@ -99,7 +84,7 @@ class SignalWaitState extends State<SignalWaitWidget> {
           'tradeFlag': 'W', //H:보유, W:관망
           'honorYn': 'N', //명예의 전당 종목만 only
           'pageNo': _pageNum.toString(),
-          'pageItemSize': '40',
+          'pageItemSize': '30',
         }));
   }
 
@@ -114,14 +99,7 @@ class SignalWaitState extends State<SignalWaitWidget> {
 
   Widget _setLayout() {
     return Scaffold(
-/*      appBar: CustomAppBar(
-        height: Const.HEIGHT_APP_BAR,
-        child: Column(
-          children: [
-            _setAppBar(),
-          ],
-        ),
-      ),*/
+      appBar: CommonAppbar.basic(buildContext: context, title: '현재 관망중인 종목', elevation: 1,),
       body: ListView.builder(
         controller: _scrollController,
         itemCount: _listData.length,

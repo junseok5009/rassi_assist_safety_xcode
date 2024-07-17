@@ -110,9 +110,9 @@ class _PayTestState extends State<PayTestPage> {
                   children: [
                     InAppWebView(
                       key: webViewKey,
-                      initialUrlRequest: URLRequest(
+                      /*initialUrlRequest: URLRequest(
                           url: Uri.parse('https://rassiappdev.thinkpool.com:56610/rassi_pay/lgpay/default/lg_sample.do')),
-                      // initialFile: "assets/index.html",
+                      // initialFile: "assets/index.html",*/
                       initialUserScripts: UnmodifiableListView<UserScript>([]),
                       initialOptions: options,
 
@@ -225,7 +225,9 @@ class _PayTestState extends State<PayTestPage> {
     if (url.scheme.isEmpty) {
       url = Uri.parse("https://www.google.com/search?q=$sUrl");
     }
-    webViewController.loadUrl(urlRequest: URLRequest(url: url));
+    /*webViewController.loadUrl(
+        urlRequest: URLRequest(url: UriData.fromString(url).uri),
+    );*/
   }
 }
 

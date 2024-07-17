@@ -289,10 +289,10 @@ class Rassi19TimeLineRealItemWidget extends StatelessWidget {
                     context,
                     Platform.isAndroid
                         ? CustomNvRouteClass.createRouteSlow1(
-                            InappWebviewPage('', item.linkUrl),
+                            InappWebviewPage(title: '', url: item.linkUrl),
                           )
                         : CustomNvRouteClass.createRoute(
-                            InappWebviewPage('', item.linkUrl),
+                            InappWebviewPage(title: '', url: item.linkUrl),
                           ),
                   );
                 },
@@ -509,10 +509,10 @@ class Rassi19RealItemWidget extends StatelessWidget {
                     context,
                     Platform.isAndroid
                         ? CustomNvRouteClass.createRouteSlow1(
-                            InappWebviewPage('', item.linkUrl),
+                            InappWebviewPage(title: '', url: item.linkUrl),
                           )
                         : CustomNvRouteClass.createRoute(
-                            InappWebviewPage('', item.linkUrl),
+                            InappWebviewPage(title: '', url: item.linkUrl),
                           ),
                   );
                 },
@@ -705,10 +705,10 @@ class Rassi19Week52ItemWidget extends StatelessWidget {
                     context,
                     Platform.isAndroid
                         ? CustomNvRouteClass.createRouteSlow1(
-                            InappWebviewPage('', item.linkUrl),
+                            InappWebviewPage(title: '', url: item.linkUrl),
                           )
                         : CustomNvRouteClass.createRoute(
-                            InappWebviewPage('', item.linkUrl),
+                            InappWebviewPage(title: '', url: item.linkUrl),
                           ),
                   );
                 },
