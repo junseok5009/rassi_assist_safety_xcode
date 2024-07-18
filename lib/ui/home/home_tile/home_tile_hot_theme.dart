@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
@@ -190,7 +191,7 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme> {
                     ? const Color(0xffFFEBEB)
                     : const Color(0xffE4EBFE),
               ),
-              child: Text(
+              child: AutoSizeText(
                 '#${item.themeName}',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,

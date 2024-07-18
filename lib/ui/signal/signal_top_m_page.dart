@@ -35,7 +35,6 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   String TAG_NAME = '조건별_';
   late SharedPreferences _prefs;
   String _userId = "";
-  bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
 
   ListSort selectSort = ListSort.SORT_A;
   bool topHit = false,
@@ -64,7 +63,7 @@ class SignalMTopPageState extends State<SignalMTopPage> {
           Duration.zero,
           () {
             PgData args = ModalRoute.of(context)!.settings.arguments as PgData;
-            if (_userId != '' && args != null) {
+            if (_userId != '') {
               String sTr = '';
               if (args.pgData == 'CUR_B') {
                 TAG_NAME = '조건별_매수후급등';
@@ -88,16 +87,18 @@ class SignalMTopPageState extends State<SignalMTopPage> {
                 TAG_NAME = '조건별_주간토픽중최근매수종목';
                 sTr = TR.FIND09;
               }
-              CustomFirebaseClass.logEvtScreenView(TAG_NAME);
-
-              _fetchPosts(
-                sTr,
-                jsonEncode(
-                  <String, String>{
-                    'userId': _userId,
-                    'selectCount': '50',
-                  },
-                ),
+              CustomFirebaseClass.logEvtScreenView(TAG_NAME).then(
+                (value) {
+                  _fetchPosts(
+                    sTr,
+                    jsonEncode(
+                      <String, String>{
+                        'userId': _userId,
+                        'selectCount': '50',
+                      },
+                    ),
+                  );
+                },
               );
             }
           },
@@ -112,9 +113,10 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   }
 
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -261,8 +263,7 @@ class SignalMTopPageState extends State<SignalMTopPage> {
       body: json,
       headers: Net.headers,
     );
-
-    if (_bYetDispose) _parseTrData(trStr, response);
+    _parseTrData(trStr, response);
   }
 
   // 비동기적으로 들어오는 데이터를 어떻게 처리할 것인지 더 생각
@@ -272,87 +273,47 @@ class SignalMTopPageState extends State<SignalMTopPage> {
     //3일내에 매수 후 급등 (FIND01)
     if (trStr == TR.FIND01) {
       final TrFind01 resData = TrFind01.fromJson(jsonDecode(response.body));
-      if (resData.listData != null) {
-        DLog.d(SignalMTopPage.TAG, resData.listData[0].toString());
-        _vList1 = resData.listData;
-      } else {
-        topEmpty = true;
-      }
+      _vList1 = resData.listData;
       topHit = true;
-      setState(() {});
     }
     //승률 높은 최근 매수 (FIND02)
     else if (trStr == TR.FIND02) {
       final TrFind02 resData = TrFind02.fromJson(jsonDecode(response.body));
-      if (resData.listData != null) {
-        DLog.d(SignalMTopPage.TAG, resData.listData[0].toString());
-        _vList2 = resData.listData;
-      } else {
-        topEmpty = true;
-      }
+      _vList2 = resData.listData;
       topPrf = true;
-      setState(() {});
     }
     //승률 높은 최근 관망 (FIND03)
     else if (trStr == TR.FIND03) {
       final TrFind03 resData = TrFind03.fromJson(jsonDecode(response.body));
-      if (resData.listData != null) {
-        DLog.d(SignalMTopPage.TAG, resData.listData[0].toString());
-        _vList3 = resData.listData;
-      } else {
-        topEmpty = true;
-      }
+      _vList3 = resData.listData;
       topSta = true;
-      setState(() {});
     }
     //평균수익률 높은 최근 매수 (FIND04)
     else if (trStr == TR.FIND04) {
       final TrFind04 resData = TrFind04.fromJson(jsonDecode(response.body));
-      if (resData.listData != null) {
-        DLog.d(SignalMTopPage.TAG, resData.listData[0].toString());
-        _vList4 = resData.listData;
-      } else {
-        topEmpty = true;
-      }
+      _vList4 = resData.listData;
       topMax = true;
-      setState(() {});
     }
     //평균수익률 높은 관망 (FIND05)
     else if (trStr == TR.FIND05) {
       final TrFind05 resData = TrFind05.fromJson(jsonDecode(response.body));
-      if (resData.listData != null) {
-        DLog.d(SignalMTopPage.TAG, resData.listData[0].toString());
-        _vList5 = resData.listData;
-      } else {
-        topEmpty = true;
-      }
+      _vList5 = resData.listData;
       topAvg = true;
-      setState(() {});
     }
     //평균보유기간 짧은 종목 (FIND07)
     else if (trStr == TR.FIND07) {
       final TrFind07 resData = TrFind07.fromJson(jsonDecode(response.body));
-      if (resData.listData != null) {
-        DLog.d(SignalMTopPage.TAG, resData.listData[0].toString());
-        _vList7 = resData.listData;
-      } else {
-        topEmpty = true;
-      }
+      _vList7 = resData.listData;
       topSht = true;
-      setState(() {});
     }
     //주간토픽 중 최근 매수 종목 (FIND09)
     else if (trStr == TR.FIND09) {
       final TrFind09 resData = TrFind09.fromJson(jsonDecode(response.body));
-      if (resData.listData != null) {
-        DLog.d(SignalMTopPage.TAG, resData.listData[0].toString());
-        _vList9 = resData.listData;
-      } else {
-        topEmpty = true;
-      }
+      _vList9 = resData.listData;
       topTpc = true;
-      setState(() {});
     }
+    _setListSortA();
+    setState(() {});
   }
 
   Widget _setHeaderView() {
@@ -443,14 +404,14 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   Widget _setHeaderTextT1() {
     return Container(
       margin: const EdgeInsets.all(15.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 7,
           ),
           Row(
-            children: const [
+            children: [
               Text(
                 '최근 3일',
                 style: TStyle.defaultTitle,
@@ -461,24 +422,24 @@ class SignalMTopPageState extends State<SignalMTopPage> {
               ),
             ],
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '매수 신호가 발생한',
             style: TStyle.defaultContent,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '종목 중',
             style: TStyle.defaultContent,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '급등한 종목',
             style: TStyle.textBBuy,
           ),
@@ -490,14 +451,14 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   Widget _setHeaderTextT2() {
     return Container(
       margin: const EdgeInsets.all(15.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 7,
           ),
           Row(
-            children: const [
+            children: [
               Text(
                 '적중률',
                 style: TStyle.defaultTitle,
@@ -508,24 +469,24 @@ class SignalMTopPageState extends State<SignalMTopPage> {
               ),
             ],
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '종목중 최근 3일 이내',
             style: TStyle.defaultContent,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '매수 신호가',
             style: TStyle.defaultContent,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '발생한 종목',
             style: TStyle.textBBuy,
           ),
@@ -537,14 +498,14 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   Widget _setHeaderTextT3() {
     return Container(
       margin: const EdgeInsets.all(15.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 7,
           ),
           Row(
-            children: const [
+            children: [
               Text(
                 '적중률',
                 style: TStyle.defaultTitle,
@@ -555,17 +516,17 @@ class SignalMTopPageState extends State<SignalMTopPage> {
               ),
             ],
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '종목중 현재 관망',
             style: TStyle.defaultContent,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '상태인 종목',
             style: TStyle.textBBuy,
           ),
@@ -577,14 +538,14 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   Widget _setHeaderTextT4() {
     return Container(
       margin: const EdgeInsets.all(15.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 7,
           ),
           Row(
-            children: const [
+            children: [
               Text(
                 '매매시 ',
                 style: TStyle.defaultContent,
@@ -595,24 +556,24 @@ class SignalMTopPageState extends State<SignalMTopPage> {
               ),
             ],
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '높은 종목 중',
             style: TStyle.defaultContent,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '최근 3일 이내 매수 신호가',
             style: TStyle.defaultTitle,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '발생한 종목',
             style: TStyle.textBBuy,
           ),
@@ -624,14 +585,14 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   Widget _setHeaderTextT5() {
     return Container(
       margin: const EdgeInsets.all(15.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 7,
           ),
           Row(
-            children: const [
+            children: [
               Text(
                 '매매시 ',
                 style: TStyle.defaultContent,
@@ -642,24 +603,24 @@ class SignalMTopPageState extends State<SignalMTopPage> {
               ),
             ],
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '높은 종목 중',
             style: TStyle.defaultContent,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '현재 관망',
             style: TStyle.defaultTitle,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '상태인 종목',
             style: TStyle.textBBuy,
           ),
@@ -671,21 +632,21 @@ class SignalMTopPageState extends State<SignalMTopPage> {
   Widget _setHeaderTextT7() {
     return Container(
       margin: const EdgeInsets.all(15.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 7,
           ),
-          const Text(
+          Text(
             '평균 보유 기간이',
             style: TStyle.defaultTitle,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
           Row(
-            children: const [
+            children: [
               Text(
                 '짧은',
                 style: TStyle.textBBuy,
@@ -696,10 +657,10 @@ class SignalMTopPageState extends State<SignalMTopPage> {
               ),
             ],
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '매매신호 발생이 빈번한 100종목',
             style: TStyle.defaultTitle,
           ),
@@ -712,28 +673,28 @@ class SignalMTopPageState extends State<SignalMTopPage> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(15.0),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 7,
           ),
-          const Text(
+          Text(
             '최근 5주간 올라온',
             style: TStyle.defaultTitle,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
-          const Text(
+          Text(
             '라씨 매매비서의 주간토픽종목 중',
             style: TStyle.defaultTitle,
           ),
-          const SizedBox(
+          SizedBox(
             height: 5,
           ),
           Row(
-            children: const [
+            children: [
               Text(
                 '최근 매수 종목',
                 style: TStyle.textBBuy,
@@ -812,23 +773,19 @@ class SignalMTopPageState extends State<SignalMTopPage> {
       });
     } else if (topSta) {
       _vList3.sort((a, b) {
-        return double.parse(b.winningRate)
-            .compareTo(double.parse(a.winningRate));
+        return double.parse(b.winningRate).compareTo(double.parse(a.winningRate));
       });
     } else if (topMax) {
       _vList4.sort((a, b) {
-        return double.parse(b.avgProfitRate)
-            .compareTo(double.parse(a.avgProfitRate));
+        return double.parse(b.avgProfitRate).compareTo(double.parse(a.avgProfitRate));
       });
     } else if (topAvg) {
       _vList5.sort((a, b) {
-        return double.parse(b.avgProfitRate)
-            .compareTo(double.parse(a.avgProfitRate));
+        return double.parse(b.avgProfitRate).compareTo(double.parse(a.avgProfitRate));
       });
     } else if (topSht) {
       _vList7.sort((a, b) {
-        return double.parse(a.holdingDays)
-            .compareTo(double.parse(b.holdingDays));
+        return double.parse(a.holdingDays).compareTo(double.parse(b.holdingDays));
       });
     } else if (topTpc) {
       _vList9.sort((a, b) {
@@ -861,8 +818,7 @@ class SignalMTopPageState extends State<SignalMTopPage> {
       });
     } else if (topSht) {
       _vList7.sort((a, b) {
-        return double.parse(a.elapsedDays)
-            .compareTo(double.parse(b.elapsedDays));
+        return double.parse(a.elapsedDays).compareTo(double.parse(b.elapsedDays));
       });
     } else if (topTpc) {
       _vList9.sort((a, b) {

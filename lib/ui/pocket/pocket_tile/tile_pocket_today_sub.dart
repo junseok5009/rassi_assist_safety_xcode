@@ -151,21 +151,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CommonView.setFluctuationRateBox(value: widget.item.fluctuationRate, fontSize: 15,),
-                  //등락률
-                  /*Text(
-                    TStyle.getPercentString(
-                      widget.item.fluctuationRate,
-                    ),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: TStyle.getMinusPlusColor(
-                        widget.item.fluctuationRate,
-                      ),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),*/
                 ],
               ),
             ),
@@ -187,7 +172,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
           height: 42,
           child: SfCartesianChart(
             plotAreaBorderWidth: 0,
-            margin: EdgeInsets.all(
+            margin: const EdgeInsets.all(
               1,
             ),
             primaryXAxis: const CategoryAxis(
@@ -197,7 +182,7 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
             ),
             primaryYAxis: NumericAxis(
               //isVisible: false,
-              labelStyle: TextStyle(
+              labelStyle: const TextStyle(
                 fontSize: 0,
               ),
               axisLine: const AxisLine(
@@ -216,7 +201,6 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 width: 0,
               ),
               rangePadding: ChartRangePadding.none,
-              edgeLabelPlacement: EdgeLabelPlacement.hide,
               plotOffset: 2,
               plotBands: [
                 PlotBand(
@@ -616,30 +600,6 @@ class _TileStockIssue extends State<TileStockIssue> {
         ),
       ],
     );
-
-    if (avgFluctRate == '0' || avgFluctRate == '0.0' || avgFluctRate == '0.00') {
-      return Text(
-        '보합 ${TStyle.getPercentString(avgFluctRate)}',
-        style: TStyle.contentGrey14,
-      );
-    }
-    if (!avgFluctRate.contains('-')) {
-      return Text(
-        '상승중 ${TStyle.getPercentString(avgFluctRate)}',
-        style: TextStyle(
-          color: TStyle.getMinusPlusColor(avgFluctRate),
-        ),
-      );
-    } else if (avgFluctRate.contains('-')) {
-      return Text(
-        '하락중 ${TStyle.getPercentString(avgFluctRate)}',
-        style: TextStyle(
-          color: TStyle.getMinusPlusColor(avgFluctRate),
-        ),
-      );
-    } else {
-      return Container();
-    }
   }
 
   //관련 종목 부분

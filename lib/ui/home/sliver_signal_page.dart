@@ -772,10 +772,10 @@ class SliverSignalWidgetState extends State<SliverSignalWidget> {
                 GridView.count(
                   shrinkWrap: true,
                   crossAxisCount: 2,
-                  padding: EdgeInsets.zero,
+                  //padding: EdgeInsets.zero,
                   physics: const NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.vertical,
-                  childAspectRatio: 4.5,
+                  childAspectRatio: 3.5,
                   children: List.generate(_catchStkList.length, (index) => TileStockCatch(_catchStkList[index])),
                 ),
               ],

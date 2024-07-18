@@ -15,11 +15,9 @@ class TrFind07 extends TrAtom {
       : super(retCode: retCode, retMsg: retMsg);
 
   factory TrFind07.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] as List;
-    List<Find07> rtList = list.map((i) => Find07.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrFind07(
-        retCode: json['retCode'], retMsg: json['retMsg'], listData: rtList);
+        retCode: json['retCode'], retMsg: json['retMsg'], listData: jsonList == null ? [] : (jsonList as List).map((i) => Find07.fromJson(i)).toList());
   }
 }
 
@@ -125,7 +123,7 @@ class TileFind07 extends StatelessWidget {
 class TileFindV07 extends StatelessWidget {
   final Find07 item;
 
-  TileFindV07(this.item);
+  const TileFindV07(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +140,7 @@ class TileFindV07 extends StatelessWidget {
       ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -212,11 +210,7 @@ class TileFindV07 extends StatelessWidget {
   }
 
   Widget _setListItem3() {
-    bool status = false;
-    if (item.tradeFlag == 'B')
-      status = true;
-    else if (item.tradeFlag == 'S') status = false;
-
+    bool status = item.tradeFlag == 'B';
     return Expanded(
       flex: 2,
       child: Column(

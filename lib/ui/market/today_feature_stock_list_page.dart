@@ -41,6 +41,8 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
 
   final List<Rassi19Rassiro> _listData = [];
   final _scrollController = ScrollController();
+  
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -79,11 +81,6 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   void setState(VoidCallback fn) {
     if (mounted) {
       super.setState(fn);
@@ -105,54 +102,72 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
           children: [
             _menuDiv == _Rassi19Div.real ? _topBoxRealWidget : _setDivButtons,
             Expanded(
-              child: Column(
-                //mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
                 children: [
-                  if (_listData.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: CommonView.setNoDataView(170, '$_title의 데이터가 없습니다.'),
-                    )
-                  else
-                    Expanded(
-                      child: RefreshIndicator(
-                        color: RColor.greyBasic_8c8c8c,
-                        backgroundColor: RColor.bgBasic_fdfdfd,
-                        strokeWidth: 2.0,
-                        displacement: 150,
-                        onRefresh: () async {
-                          _listData.clear();
-                          _pageNo = 0;
-                          _totalPageSize = 0;
-                          await _requestTrRassi19();
-                        },
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          itemCount: _listData.length,
-                          itemBuilder: (context, index) {
-                            if (_menuDiv == _Rassi19Div.real) {
-                              return Rassi19RealItemWidget(
-                                item: _listData[index],
-                              );
-                            } else if (_menuDiv == _Rassi19Div.week52 || _menuDiv == _Rassi19Div.limit) {
-                              return Rassi19Week52ItemWidget(
-                                item: _listData[index],
-                              );
-                            } else if (_menuDiv == _Rassi19Div.change) {
-                              return Rassi19ChangeItemWidget(
-                                item: _listData[index],
-                              );
-                            } else {
-                              return SizedBox();
-                            }
-                          },
-                          shrinkWrap: true,
+                  Column(
+                    //mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_listData.isEmpty && !_isLoading)
+                        Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: CommonView.setNoDataView(170, '$_title의 데이터가 없습니다.'),
+                        )
+                      else
+                        Expanded(
+                          child: RefreshIndicator(
+                            color: RColor.greyBasic_8c8c8c,
+                            backgroundColor: RColor.bgBasic_fdfdfd,
+                            strokeWidth: 2.0,
+                            displacement: 150,
+                            onRefresh: () async {
+                              _listData.clear();
+                              _pageNo = 0;
+                              _totalPageSize = 0;
+                              await _requestTrRassi19();
+                            },
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              itemCount: _listData.length,
+                              itemBuilder: (context, index) {
+                                if (_menuDiv == _Rassi19Div.real) {
+                                  return Rassi19RealItemWidget(
+                                    item: _listData[index],
+                                  );
+                                } else if (_menuDiv == _Rassi19Div.week52 || _menuDiv == _Rassi19Div.limit) {
+                                  return Rassi19Week52ItemWidget(
+                                    item: _listData[index],
+                                  );
+                                } else if (_menuDiv == _Rassi19Div.change) {
+                                  return Rassi19ChangeItemWidget(
+                                    item: _listData[index],
+                                  );
+                                } else {
+                                  return const SizedBox();
+                                }
+                              },
+                              shrinkWrap: true,
+                            ),
+                          ),
                         ),
+                    ],
+                  ),
+                  Visibility(
+                    visible: _isLoading,
+                    child: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: Colors.grey.withOpacity(0.1),
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'images/gif_ios_loading_large.gif',
+                        height: 25,
                       ),
                     ),
+                  ),
                 ],
               ),
-            )
+            ),
+            const SizedBox(height: 10,),
           ],
         ),
       ),
@@ -307,14 +322,17 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
 
   _checkAndRequestTrRassi19() {
     if (_pageNo < _totalPageSize) {
-      _listData.removeLast();
       _requestTrRassi19();
     }
   }
 
   Future<void> _fetchPosts(String trStr, String json) async {
     //DLog.d(StockHomeHomePage.TAG, trStr + ' ' + json);
-
+    if(_isLoading){
+      return;
+    }else{
+      setState(() => _isLoading = true,);
+    }
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
       final http.Response response = await http.post(
@@ -342,6 +360,9 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
         Rassi19 rassi19 = resData.retData;
         _pageNo++;
         _totalPageSize = int.parse(rassi19.totalPageSize);
+        if(_pageNo > 1){
+          _listData.removeLast();
+        }
         if (rassi19.listRassiro.isNotEmpty) {
           _listData.addAll(
             rassi19.listRassiro,
@@ -350,13 +371,12 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
             _listData.add(Rassi19Rassiro());
           }
         }
-        setState(() {});
       } else {
         if (_pageNo == 0) {
           _listData.clear();
         }
-        setState(() {});
       }
+      setState(() {_isLoading = false;});
     }
   }
 }

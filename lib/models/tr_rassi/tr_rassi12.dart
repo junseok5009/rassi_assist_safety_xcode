@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -119,7 +120,7 @@ class TileSwpRassi12 extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints){
-        double gridViewHeight = 380; // 고정된 GridView 높이
+        double gridViewHeight = 350; // 고정된 GridView 높이
         double gridViewWidth = constraints.maxWidth; // 현재 사용 가능한 너비
         int crossAxisCount = 2; // 가로로 표시할 아이템 수
 
@@ -133,7 +134,7 @@ class TileSwpRassi12 extends StatelessWidget {
 
         return Container(
           width: double.infinity,
-          height: 270,
+          //height: 250,
           margin: const EdgeInsets.only(left: 10, right: 8),
           child: GridView.count(
             physics: const NeverScrollableScrollPhysics(),
@@ -151,20 +152,25 @@ class TileSwpRassi12 extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            itemList[index].reportName,
-                            style: TStyle.commonTitle,
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            itemList[index].reportDesc,
-                            maxLines: 3,
-                            style: TStyle.content15,
-                          ),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AutoSizeText(
+                              itemList[index].reportName,
+                              style: TStyle.commonTitle,
+                              maxLines: 1,
+                            ),
+                            const SizedBox(height: 5),
+                            Expanded(
+                              child: AutoSizeText(
+                                itemList[index].reportDesc,
+                                maxLines: 3,
+                                style: TStyle.content15,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       Visibility(
                         visible: itemList[index].tagName.isNotEmpty,
@@ -196,7 +202,6 @@ class TileSwpRassi12 extends StatelessWidget {
                       ));
                 },
               );
-              ;
             }),
           ),
         );

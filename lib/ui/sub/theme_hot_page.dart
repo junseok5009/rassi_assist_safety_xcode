@@ -191,7 +191,11 @@ class ThemeHotPageState extends State<ThemeHotPage> {
                         ),
                         itemCount: _dataList.length,
                         itemBuilder: (context, index) {
-                          return TileTheme03(_dataList[index]);
+                          if(_dataList[index].listData.isEmpty){
+                            return const SizedBox();
+                          }else{
+                            return TileTheme03(_dataList[index]);
+                          }
                         },
                       ),
 

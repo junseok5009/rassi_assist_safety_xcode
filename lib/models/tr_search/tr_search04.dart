@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -11,18 +12,15 @@ class TrSearch04 {
   final String retMsg;
   final Search04 retData;
 
-  TrSearch04({this.retCode='', this.retMsg='', this.retData = defSearch04});
+  TrSearch04({this.retCode = '', this.retMsg = '', this.retData = defSearch04});
 
   factory TrSearch04.fromJson(Map<String, dynamic> json) {
     return TrSearch04(
         retCode: json['retCode'],
         retMsg: json['retMsg'],
-        retData: json['retData'] == null
-            ? defSearch04
-            : Search04.fromJson(json['retData']));
+        retData: json['retData'] == null ? defSearch04 : Search04.fromJson(json['retData']));
   }
 }
-
 
 const defSearch04 = Search04();
 
@@ -30,12 +28,14 @@ class Search04 {
   final String updateDttm; //YYYYMMDDHH24MISS
   final List<StockInfo> listStock;
 
-  const Search04({this.updateDttm='', this.listStock = const []});
+  const Search04({this.updateDttm = '', this.listStock = const []});
 
   factory Search04.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Stock'] as List;
-    List<StockInfo> listData = list.map((e) => StockInfo.fromJson(e)).toList();
-    return Search04(updateDttm: json['updateDttm'], listStock: listData);
+    var jsonList = json['list_Stock'];
+    return Search04(
+      updateDttm: json['updateDttm'],
+      listStock: jsonList == null ? [] : (jsonList as List).map((e) => StockInfo.fromJson(e)).toList(),
+    );
   }
 }
 
@@ -77,35 +77,41 @@ class TileSearch04 extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  //보유/관망 표시
-                  _setImageLabel(strStatus, statColor),
-                  const SizedBox(
-                    width: 15.0,
-                  ),
-
-                  //종목정보
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        TStyle.getLimitString(item.stockName, 11),
-                        style: TStyle.commonTitle,
+              Expanded(
+                child: Row(
+                  children: [
+                    //보유/관망 표시
+                    _setImageLabel(strStatus, statColor),
+                    const SizedBox(
+                      width: 10.0,
+                    ),
+                    //종목정보
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText(
+                            item.stockName,
+                            style: TStyle.commonTitle,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(
+                            height: 3,
+                          ),
+                          Text(
+                            item.stockCode,
+                            style: TStyle.textSGrey,
+                          ),
+                        ],
                       ),
-                      const SizedBox(
-                        height: 3,
-                      ),
-                      Text(
-                        item.stockCode,
-                        style: TStyle.textSGrey,
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-
+              const SizedBox(
+                width: 10.0,
+              ),
               //보유수익률 or 관망 몇일째
               _setSubData(),
             ],
@@ -175,6 +181,7 @@ class TileSearch04 extends StatelessWidget {
           height: 2.0,
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Text('매수가'),
             const SizedBox(
@@ -188,6 +195,7 @@ class TileSearch04 extends StatelessWidget {
           ],
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Text('발생'),
             const SizedBox(
@@ -205,21 +213,12 @@ class TileSearch04 extends StatelessWidget {
 
   //보유중
   Widget _setHoldingInfo() {
-    Color profitColor;
-    String stkProfit;
-    if (item.profitRate.contains('-')) {
-      stkProfit = '${item.profitRate}%';
-      profitColor = RColor.sigSell;
-    } else {
-      stkProfit = '+${item.profitRate}%';
-      profitColor = RColor.sigBuy;
-    }
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Text('매수가'),
             const SizedBox(
@@ -233,15 +232,16 @@ class TileSearch04 extends StatelessWidget {
           ],
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Text('보유수익률'),
             const SizedBox(
               width: 3.0,
             ),
             Text(
-              stkProfit,
+              TStyle.getPercentString(item.profitRate),
               style: TextStyle(
-                color: profitColor,
+                color: TStyle.getMinusPlusColor(item.profitRate),
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
@@ -255,8 +255,9 @@ class TileSearch04 extends StatelessWidget {
   //관망중
   Widget _setWatchingInfo() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        const Text('관망'),
+        const Text('관망 '),
         Text(
           item.elapsedDays,
           style: TStyle.commonSTitle,
@@ -277,6 +278,7 @@ class TileSearch04 extends StatelessWidget {
           height: 2.0,
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Text('매도가'),
             const SizedBox(
@@ -290,6 +292,7 @@ class TileSearch04 extends StatelessWidget {
           ],
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Text('발생'),
             const SizedBox(
@@ -309,7 +312,7 @@ class TileSearch04 extends StatelessWidget {
   Widget _setTodaySellTag() {
     return Container(
       width: 50,
-      height: 11,
+      height: 13,
       decoration: const BoxDecoration(
         color: RColor.sigSell,
         borderRadius: BorderRadius.all(Radius.circular(0.0)),
@@ -327,7 +330,7 @@ class TileSearch04 extends StatelessWidget {
   Widget _setTodayBuyTag() {
     return Container(
       width: 50,
-      height: 11,
+      height: 13,
       decoration: const BoxDecoration(
         color: RColor.sigBuy,
         borderRadius: BorderRadius.all(Radius.circular(0.0)),

@@ -190,6 +190,8 @@ class IssueNewViewerState extends State<IssueNewViewer> {
   // 이슈 캘린더(히스토리) 연결 배너
   Widget get _setCalendarBanner {
     return InkWell(
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       onTap: () {
         if (_issueSn.isNotEmpty) {
           Navigator.push(
@@ -208,7 +210,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
       },
       child: Container(
         width: double.infinity,
-        height: AppGlobal().isTablet ? 150 : 130,
+        height: AppGlobal().isTablet ? 120 : 100,
         margin: const EdgeInsets.all(15),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
@@ -226,23 +228,25 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$_keyword의 이슈 캘린더',
-                  style: TStyle.btnTextWht16,
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  '해당 이슈의 히스토리를 확인해보세요',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$_keyword의 이슈 캘린더',
+                    style: TStyle.btnTextWht16,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  const Text(
+                    '해당 이슈의 히스토리를 확인해보세요',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
             Align(
               alignment: Alignment.centerRight,

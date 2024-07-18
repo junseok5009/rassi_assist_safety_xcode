@@ -40,47 +40,43 @@ class ConditionPageState extends State<ConditionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: CommonAppbar.basic(
-          buildContext: context,
-          title: '조건 탐색 캐치',
-          elevation: 1,
-        ),
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: ListView(
-            children: [
-              // Find01 (기존)
-              _setConditionTile(
-                  "최근 3일 매수 후 급등 종목", RString.desc_find_01, 'CUR_B'),
-              // Find07
-              _setConditionTile(
-                  "평균 보유 기간 짧은 종목", RString.desc_find_07, 'SHT_S'),
-              // Find08
-              // _setConditionTile("평균 관망 기간을 50% 이상 초과한 종목", RString.desc_find_08, 'PSS_S'),
-              // Find09
-              _setConditionTile(
-                  "라씨 매매비서의 주간 토픽 중 최근 매수 종목", RString.desc_find_09, 'TPC_S'),
-              // Find02 (기존)
-              _setConditionTile(
-                  "적중률 TOP 중 최근 3일 매수 종목", RString.desc_find_02, 'HIT_H'),
-              // Find03 (기존)
-              _setConditionTile(
-                  "적중률 TOP 중 관망 종목", RString.desc_find_03, 'HIT_W'),
-              // Find04 (기존)
-              _setConditionTile(
-                  "평균수익률 TOP 중 최근 3일 매수 종목", RString.desc_find_04, 'AVG_H'),
-              // Find05 (기존)
-              _setConditionTile(
-                  "평균수익률 TOP 중 관망 종목", RString.desc_find_05, 'AVG_W'),
-              const SizedBox(
-                height: 25.0,
-              ),
-            ],
-          ),
+    return Scaffold(
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '조건 탐색 캐치',
+        elevation: 1,
+      ),
+      backgroundColor: RColor.bgBasic_fdfdfd,
+      body: SafeArea(
+        child: ListView(
+          children: [
+            // Find01 (기존)
+            _setConditionTile(
+                "최근 3일 매수 후 급등 종목", RString.desc_find_01, 'CUR_B'),
+            // Find07
+            _setConditionTile(
+                "평균 보유 기간 짧은 종목", RString.desc_find_07, 'SHT_S'),
+            // Find08
+            // _setConditionTile("평균 관망 기간을 50% 이상 초과한 종목", RString.desc_find_08, 'PSS_S'),
+            // Find09
+            _setConditionTile(
+                "라씨 매매비서의 주간 토픽 중 최근 매수 종목", RString.desc_find_09, 'TPC_S'),
+            // Find02 (기존)
+            _setConditionTile(
+                "적중률 TOP 중 최근 3일 매수 종목", RString.desc_find_02, 'HIT_H'),
+            // Find03 (기존)
+            _setConditionTile(
+                "적중률 TOP 중 관망 종목", RString.desc_find_03, 'HIT_W'),
+            // Find04 (기존)
+            _setConditionTile(
+                "평균수익률 TOP 중 최근 3일 매수 종목", RString.desc_find_04, 'AVG_H'),
+            // Find05 (기존)
+            _setConditionTile(
+                "평균수익률 TOP 중 관망 종목", RString.desc_find_05, 'AVG_W'),
+            const SizedBox(
+              height: 25.0,
+            ),
+          ],
         ),
       ),
     );
@@ -90,7 +86,7 @@ class ConditionPageState extends State<ConditionPage> {
   Widget _setConditionTile(String subTitle, String desc, String type) {
     return Container(
       margin: const EdgeInsets.only(left: 15, right: 15, top: 20),
-      decoration: UIStyle.boxRoundLine6(),
+      decoration: UIStyle.boxShadowBasic(6),
       child: InkWell(
         child: Container(
           padding: const EdgeInsets.all(20),

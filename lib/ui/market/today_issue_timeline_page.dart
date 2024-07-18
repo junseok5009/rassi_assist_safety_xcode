@@ -469,117 +469,124 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
             ),
           ),
           Container(
+            //margin: EdgeInsets.symmetric(horizontal: 10,),
             padding: const EdgeInsets.symmetric(
               horizontal: 20,
               vertical: 10,
             ),
-            decoration: UIStyle.boxShadowBasic(16),
             child: Row(
               children: [
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset('images/icon_event_chart_0.png'),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              '코스피',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                  child: Container(
+                    decoration: UIStyle.boxShadowBasic(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset('images/icon_event_chart_0.png'),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                '코스피',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            Text(
-                              '${TStyle.getMoneyPoint(_index02.kospi.priceIndex)}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
+                              Text(
+                                '${TStyle.getMoneyPoint(_index02.kospi.priceIndex)}',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  TStyle.getTriangleStringWithMoneyPoint(_index02.kospi.indexFluctuation),
-                                  style: TextStyle(
-                                    //fontSize: 14,
-                                    color: TStyle.getMinusPlusColor(_index02.kospi.fluctuationRate),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    TStyle.getTriangleStringWithMoneyPoint(_index02.kospi.indexFluctuation),
+                                    style: TextStyle(
+                                      //fontSize: 14,
+                                      color: TStyle.getMinusPlusColor(_index02.kospi.fluctuationRate),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  TStyle.getPercentString(
-                                    _index02.kospi.fluctuationRate,
+                                  const SizedBox(
+                                    width: 5,
                                   ),
-                                  style: TextStyle(
-                                    //fontSize: 12,
-                                    color: TStyle.getMinusPlusColor(_index02.kospi.fluctuationRate),
+                                  Text(
+                                    TStyle.getPercentString(
+                                      _index02.kospi.fluctuationRate,
+                                    ),
+                                    style: TextStyle(
+                                      //fontSize: 12,
+                                      color: TStyle.getMinusPlusColor(_index02.kospi.fluctuationRate),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
+                const SizedBox(width: 15,),
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset('images/icon_event_chart_0.png'),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              '코스닥',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                  child: Container(
+                    decoration: UIStyle.boxShadowBasic(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset('images/icon_event_chart_0.png'),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                '코스닥',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            Text(
-                              '${TStyle.getMoneyPoint(_index02.kosdaq.priceIndex)}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
+                              Text(
+                                '${TStyle.getMoneyPoint(_index02.kosdaq.priceIndex)}',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  TStyle.getTriangleStringWithMoneyPoint(_index02.kosdaq.indexFluctuation),
-                                  style: TextStyle(
-                                    //fontSize: 14,
-                                    color: TStyle.getMinusPlusColor(_index02.kosdaq.fluctuationRate),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    TStyle.getTriangleStringWithMoneyPoint(_index02.kosdaq.indexFluctuation),
+                                    style: TextStyle(
+                                      //fontSize: 14,
+                                      color: TStyle.getMinusPlusColor(_index02.kosdaq.fluctuationRate),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  TStyle.getPercentString(
-                                    _index02.kosdaq.fluctuationRate,
+                                  const SizedBox(
+                                    width: 5,
                                   ),
-                                  style: TextStyle(
-                                    //fontSize: 12,
-                                    color: TStyle.getMinusPlusColor(_index02.kosdaq.fluctuationRate),
+                                  Text(
+                                    TStyle.getPercentString(
+                                      _index02.kosdaq.fluctuationRate,
+                                    ),
+                                    style: TextStyle(
+                                      //fontSize: 12,
+                                      color: TStyle.getMinusPlusColor(_index02.kosdaq.fluctuationRate),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

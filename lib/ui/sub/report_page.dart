@@ -25,36 +25,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// 2022.07.14 - JS reportDiv 0 : 증권사 리포트 추가로 인한 수정
 /// 2024.07 - 마켓뷰 개편에 따른 디자인 변경
 /// 분석리포트
-class ReportPage extends StatelessWidget {
+class ReportPage extends StatefulWidget {
+  const ReportPage({super.key});
+
   static const routeName = '/page_report';
   static const String TAG = "[ReportPage] ";
   static const String TAG_NAME = '라씨로_분석리포트';
   static const String LD_CODE = '';
-
+  
   @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: RColor.deepStat,
-          elevation: 0,
-        ),
-        body: const ReportWidget(),
-      ),
-    );
-  }
+  State<StatefulWidget> createState() => ReportPageState();
 }
 
-class ReportWidget extends StatefulWidget {
-  const ReportWidget({super.key});
-
-  @override
-  State<StatefulWidget> createState() => ReportState();
-}
-
-class ReportState extends State<ReportWidget> {
+class ReportPageState extends State<ReportPage> {
   late SharedPreferences _prefs;
   String _userId = "";
   late PgData args;
@@ -216,7 +199,7 @@ class ReportState extends State<ReportWidget> {
   //최근 리포트
   Widget _setRecentReport() {
     return Visibility(
-      visible: _repList != null && _repList.length > 0 && repDiv == '0',
+      visible: _repList.isNotEmpty && repDiv == '0',
       child: Container(
         padding: const EdgeInsets.only(bottom: 15),
         color: RColor.bgAiReport,
@@ -422,7 +405,7 @@ class ReportState extends State<ReportWidget> {
 
           if (pageNum == 0) {
             for (int i = 0; i < rassiList.length; i++) {
-              if (rassiList[i].listStock != null && rassiList[i].listStock.length > 0) {
+              if (rassiList[i].listStock.isNotEmpty) {
                 _recentList.addAll(rassiList[i].listStock);
               }
             }

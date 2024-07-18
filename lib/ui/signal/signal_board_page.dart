@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:http/http.dart' as http;
@@ -14,6 +15,8 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal03.dart';
 import 'package:rassi_assist/models/tr_signal/tr_signal04.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/pay/pay_premium_page.dart';
 import 'package:rassi_assist/ui/signal/signal_hold_stock.dart';
 import 'package:rassi_assist/ui/signal/signal_today_page.dart';
@@ -22,37 +25,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../pay/pay_premium_aos_page.dart';
 
-
 /// 2021.02.17
 /// 매매신호 종합분석 보드
-class SignalBoardPage extends StatelessWidget {
+class SignalBoardPage extends StatefulWidget {
   static const routeName = '/page_signal_board';
   static const String TAG = "[SignalBoardPage]";
   static const String TAG_NAME = '매매신호_종합보드';
 
+  const SignalBoardPage({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: Scaffold(
-        appBar: AppBar(toolbarHeight: 0,
-          backgroundColor: RColor.deepStat, elevation: 0,),
-        body: SignalBoardWidget(),
-      ),
-    );
-  }
+  State<StatefulWidget> createState() => SignalBoardPageState();
 }
 
-class SignalBoardWidget extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => SignalBoardState();
-}
-
-class SignalBoardState extends State<SignalBoardWidget> {
+class SignalBoardPageState extends State<SignalBoardPage> {
   late SharedPreferences _prefs;
   String _userId = "";
   late PgData args;
-  bool _bYetDispose = true;     //true: 아직 화면이 사라지기 전
 
   String sCntBuy = "";
   String sCntSell = "";
@@ -61,7 +50,7 @@ class SignalBoardState extends State<SignalBoardWidget> {
   final cirSize = 70.0;
   String _sUpdateTime = '업데이트';
 
-  String _curProd = '';       //상품코드
+  String _curProd = ''; //상품코드
   String _dataKospi = '[]';
   String _dataKosdaq = '[]';
   String _cntKospi = '0';
@@ -78,43 +67,49 @@ class SignalBoardState extends State<SignalBoardWidget> {
   String _indexMax = '3500';
   String _sigBarColor = 'colors[0]';
 
-
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(SignalBoardPage.TAG_NAME,);
-    _loadPrefData();
-    Future.delayed(const Duration(milliseconds: 500), (){
-      DLog.d(SignalBoardPage.TAG, "delayed user id : $_userId");
-      if(_userId != '') {
-        _fetchPosts(TR.SIGNAL03, jsonEncode(<String, String>{
-          'userId': _userId,
-        }));
-      }
-    });
+    CustomFirebaseClass.logEvtScreenView(
+      SignalBoardPage.TAG_NAME,
+    );
+    _loadPrefData().then(
+      (_) {
+        Future.delayed(
+          Duration.zero,
+          () {
+            args = ModalRoute.of(context)!.settings.arguments as PgData;
+            _curProd = args.pgData;
+            if (_userId != '') {
+              _fetchPosts(
+                  TR.SIGNAL03,
+                  jsonEncode(<String, String>{
+                    'userId': _userId,
+                  }));
+            }
+          },
+        );
+      },
+    );
   }
 
-  // 저장된 데이터를 가져오는 것에 시간이 필요함
-  _loadPrefData() async {
+  Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
   }
 
   @override
-  void dispose() {
-    _bYetDispose = false;
-    super.dispose();
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    args = ModalRoute.of(context)!.settings.arguments as PgData;
-    _curProd = args.pgData;
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
+      /*  appBar: AppBar(
         title: const Text('매매신호 종합보드', style: TStyle.defaultTitle,),
         automaticallyImplyLeading: false,
         backgroundColor: RColor.bgMintWeak,
@@ -126,6 +121,13 @@ class SignalBoardState extends State<SignalBoardWidget> {
             onPressed: () => Navigator.of(context).pop(null),),
           const SizedBox(width: 10.0,),
         ],
+      ),*/
+      appBar: CommonAppbar.simpleWithExit(
+        context,
+        '매매신호 종합보드',
+        Colors.black,
+        RColor.bgMintWeak,
+        Colors.black,
       ),
       body: SafeArea(
         child: ListView(
@@ -135,39 +137,49 @@ class SignalBoardState extends State<SignalBoardWidget> {
               color: RColor.bgMintWeak,
               width: double.infinity,
               alignment: Alignment.centerRight,
-              child: Text(_sUpdateTime, style: TStyle.contentGrey14,),
+              child: Text(
+                _sUpdateTime,
+                style: TStyle.contentGrey14,
+              ),
             ),
 
             Container(
               padding: const EdgeInsets.all(15.0),
               color: RColor.bgMintWeak,
-              child: Column(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _setCircleText(sCntBuy, RColor.sigBuy, '매수'),
-                      _setCircleText(sCntSell, RColor.sigSell, '매도'),
-                      _setCircleText(sCntHold, RColor.bgHolding, '보유'),
-                      _setCircleText(sCntWatch, RColor.sigWatching, '관망'),
-                    ],
-                  ),
+                  Expanded(child: _setCircleText(sCntBuy, RColor.sigBuy, '매수')),
+                  Expanded(child: _setCircleText(sCntSell, RColor.sigSell, '매도')),
+                  Expanded(child: _setCircleText(sCntHold, RColor.bgHolding, '보유')),
+                  Expanded(child: _setCircleText(sCntWatch, RColor.sigWatching, '관망')),
                 ],
               ),
             ),
-            const SizedBox(height: 25.0,),
+            const SizedBox(
+              height: 25.0,
+            ),
 
             //코스피 vs 코스닥 종목의 포지션 비교
             _setPiePart(),
-            const SizedBox(height: 25.0,),
+            const SizedBox(
+              height: 25.0,
+            ),
 
-            SizedBox(height: 15.0,
-                child: Container(color: RColor.bgWeakGrey,)),
-            const SizedBox(height: 25.0,),
+            SizedBox(
+                height: 15.0,
+                child: Container(
+                  color: RColor.bgWeakGrey,
+                )),
+            const SizedBox(
+              height: 25.0,
+            ),
 
             //AI 매매신호 발생 추이와 코스피 지수 비교
             _setMixedPart(),
-            const SizedBox(height: 30.0,),
+            const SizedBox(
+              height: 30.0,
+            ),
           ],
         ),
       ),
@@ -179,59 +191,78 @@ class SignalBoardState extends State<SignalBoardWidget> {
       children: [
         InkWell(
           child: Container(
-            width: cirSize,
-            height: cirSize,
+            //width: cirSize,
+            //height: cirSize,
             margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
             ),
+            constraints: BoxConstraints(maxWidth: 70, maxHeight: 70),
             child: Center(
-              child: Text(cnt, style: TStyle.btnTextWht17,),
+              child: Text(
+                cnt,
+                style: TStyle.btnTextWht17,
+              ),
             ),
           ),
-          onTap: (){
-            if(label == '매수') {
-              if(_curProd.contains('ac_pr')) {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const SignalTodayPage(),
-                  settings: RouteSettings(arguments: PgData(userId: '', flag: 'B', pgData: cnt),),
-                ));
+          onTap: () {
+            if (label == '매수') {
+              if (_curProd.contains('ac_pr')) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignalTodayPage(),
+                      settings: RouteSettings(
+                        arguments: PgData(userId: '', flag: 'B', pgData: cnt),
+                      ),
+                    ));
               } else {
-                _showDialogPremium();     //프리미엄 가입하기
+                _showDialogPremium(); //프리미엄 가입하기
               }
             }
-            if(label == '매도') {
-              if(_curProd.contains('ac_pr')) {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const SignalTodayPage(),
-                  settings: RouteSettings(arguments: PgData(userId: '', flag: 'S', pgData: cnt),),
-                ));
+            if (label == '매도') {
+              if (_curProd.contains('ac_pr')) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignalTodayPage(),
+                      settings: RouteSettings(
+                        arguments: PgData(userId: '', flag: 'S', pgData: cnt),
+                      ),
+                    ));
               } else {
-                _showDialogPremium();     //프리미엄 가입하기
+                _showDialogPremium(); //프리미엄 가입하기
               }
             }
-            if(label == '보유') {
-              if(_curProd.contains('ac_pr')) {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => SignalHoldPage(),
-                ));
+            if (label == '보유') {
+              if (_curProd.contains('ac_pr')) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignalHoldPage(),
+                    ));
               } else {
-                _showDialogPremium();     //프리미엄 가입하기
+                _showDialogPremium(); //프리미엄 가입하기
               }
             }
-            if(label == '관망') {
-              if(_curProd.contains('ac_pr')) {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => SignalWaitPage(),
-                ));
+            if (label == '관망') {
+              if (_curProd.contains('ac_pr')) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignalWaitPage(),
+                    ));
               } else {
-                _showDialogPremium();     //프리미엄 가입하기
+                _showDialogPremium(); //프리미엄 가입하기
               }
             }
           },
         ),
-        Text(label, style: TStyle.content16,),
+        Text(
+          label,
+          style: TStyle.content16,
+        ),
       ],
     );
   }
@@ -244,20 +275,28 @@ class SignalBoardState extends State<SignalBoardWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('코스피 vs 코스닥 종목의 포지션 비교',
-                style: TStyle.defaultTitle,),
+              const Text(
+                '코스피 vs 코스닥 종목의 포지션 비교',
+                style: TStyle.defaultTitle,
+              ),
               InkWell(
-                child: const ImageIcon(AssetImage('images/rassi_icon_qu_bl.png',),
-                  size: 22, color: Colors.grey,),
-                onTap: (){
+                child: const ImageIcon(
+                  AssetImage(
+                    'images/rassi_icon_qu_bl.png',
+                  ),
+                  size: 22,
+                  color: Colors.grey,
+                ),
+                onTap: () {
                   _showDialogDesc(RString.desc_signal_position);
                 },
               )
             ],
           ),
         ),
-        const SizedBox(height: 10,),
-
+        const SizedBox(
+          height: 10,
+        ),
         Row(
           children: [
             Expanded(
@@ -273,7 +312,6 @@ class SignalBoardState extends State<SignalBoardWidget> {
                 ),
               ),
             ),
-
             Expanded(
               child: Container(
                 height: 200,
@@ -298,7 +336,10 @@ class SignalBoardState extends State<SignalBoardWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(mkText, style: TStyle.content17,),
+          Text(
+            mkText,
+            style: TStyle.content17,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -306,7 +347,9 @@ class SignalBoardState extends State<SignalBoardWidget> {
               const Text('종목'),
             ],
           ),
-          const SizedBox(height: 7,),
+          const SizedBox(
+            height: 7,
+          ),
         ],
       ),
     );
@@ -370,19 +413,25 @@ class SignalBoardState extends State<SignalBoardWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('AI매매신호 발생 추이와 코스피 지수 비교', style: TStyle.defaultTitle,),
+              const Text(
+                'AI매매신호 발생 추이와 코스피 지수 비교',
+                style: TStyle.defaultTitle,
+              ),
               InkWell(
-                child: const ImageIcon(AssetImage('images/rassi_icon_qu_bl.png',),
+                child: const ImageIcon(
+                  AssetImage(
+                    'images/rassi_icon_qu_bl.png',
+                  ),
                   size: 22,
-                  color: Colors.grey,),
-                onTap: (){
+                  color: Colors.grey,
+                ),
+                onTap: () {
                   _showDialogDesc(RString.desc_signal_compare);
                 },
               )
             ],
           ),
         ),
-
         Container(
           padding: const EdgeInsets.all(10),
           child: Stack(
@@ -394,10 +443,14 @@ class SignalBoardState extends State<SignalBoardWidget> {
                 decoration: UIStyle.boxRoundLine10c(RColor.lineGrey),
                 child: Column(
                   children: [
-                    const SizedBox(height: 35,),
+                    const SizedBox(
+                      height: 35,
+                    ),
                     //기간별 매매신호 발생건수
                     _setCirclePeriod(),
-                    const SizedBox(height: 5,),
+                    const SizedBox(
+                      height: 5,
+                    ),
 
                     Container(
                       width: double.infinity,
@@ -408,12 +461,10 @@ class SignalBoardState extends State<SignalBoardWidget> {
                   ],
                 ),
               ),
-
               _setBtnBuySell(),
             ],
           ),
         ),
-
       ],
     );
   }
@@ -434,12 +485,14 @@ class SignalBoardState extends State<SignalBoardWidget> {
                     padding: const EdgeInsets.all(5),
                     decoration: _bSelectA ? UIStyle.boxBtnSelectedBuy() : UIStyle.boxRoundLine20(),
                     child: Center(
-                      child: Text('매수신호 vs 코스피',
-                        style: _bSelectA ? TStyle.btnTextWht15 : TStyle.commonTitle15,),
+                      child: Text(
+                        '매수신호 vs 코스피',
+                        style: _bSelectA ? TStyle.btnTextWht15 : TStyle.commonTitle15,
+                      ),
                     ),
                   ),
-                  onTap: (){
-                    if(_bSelectB) {
+                  onTap: () {
+                    if (_bSelectB) {
                       setState(() {
                         _bSelectA = true;
                         _bSelectB = false;
@@ -459,12 +512,14 @@ class SignalBoardState extends State<SignalBoardWidget> {
                     padding: const EdgeInsets.all(5),
                     decoration: _bSelectB ? UIStyle.boxBtnSelectedSell() : UIStyle.boxRoundLine20(),
                     child: Center(
-                      child: Text('매도신호 vs 코스피',
-                        style: _bSelectB ? TStyle.btnTextWht15 : TStyle.commonTitle15,),
+                      child: Text(
+                        '매도신호 vs 코스피',
+                        style: _bSelectB ? TStyle.btnTextWht15 : TStyle.commonTitle15,
+                      ),
                     ),
                   ),
-                  onTap: (){
-                    if(_bSelectA) {
+                  onTap: () {
+                    if (_bSelectA) {
                       setState(() {
                         _bSelectA = false;
                         _bSelectB = true;
@@ -494,10 +549,13 @@ class SignalBoardState extends State<SignalBoardWidget> {
             margin: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 7.0),
             decoration: _bSelect_1 ? UIStyle.circleBtnSelected() : UIStyle.circleBtnDefault(),
             child: const Center(
-              child: Text('1개월', style: TStyle.content15,),
+              child: Text(
+                '1개월',
+                style: TStyle.content15,
+              ),
             ),
           ),
-          onTap: (){
+          onTap: () {
             setState(() {
               _bSelect_1 = true;
               _bSelect_3 = false;
@@ -515,10 +573,13 @@ class SignalBoardState extends State<SignalBoardWidget> {
             margin: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 7.0),
             decoration: _bSelect_3 ? UIStyle.circleBtnSelected() : UIStyle.circleBtnDefault(),
             child: const Center(
-              child: Text('3개월', style: TStyle.content15,),
+              child: Text(
+                '3개월',
+                style: TStyle.content15,
+              ),
             ),
           ),
-          onTap: (){
+          onTap: () {
             setState(() {
               _bSelect_1 = false;
               _bSelect_3 = true;
@@ -536,10 +597,13 @@ class SignalBoardState extends State<SignalBoardWidget> {
             margin: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 7.0),
             decoration: _bSelect_6 ? UIStyle.circleBtnSelected() : UIStyle.circleBtnDefault(),
             child: const Center(
-              child: Text('6개월', style: TStyle.content15,),
+              child: Text(
+                '6개월',
+                style: TStyle.content15,
+              ),
             ),
           ),
-          onTap: (){
+          onTap: () {
             setState(() {
               _bSelect_1 = false;
               _bSelect_3 = false;
@@ -557,10 +621,13 @@ class SignalBoardState extends State<SignalBoardWidget> {
             margin: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 7.0),
             decoration: _bSelect_12 ? UIStyle.circleBtnSelected() : UIStyle.circleBtnDefault(),
             child: const Center(
-              child: Text('12개월', style: TStyle.content15,),
+              child: Text(
+                '12개월',
+                style: TStyle.content15,
+              ),
             ),
           ),
-          onTap: (){
+          onTap: () {
             setState(() {
               _bSelect_1 = false;
               _bSelect_3 = false;
@@ -589,6 +656,13 @@ class SignalBoardState extends State<SignalBoardWidget> {
       
           tooltip: {
               trigger: 'axis',
+          },
+          grid: {
+            left: 0,
+            top: 52,
+            right: 10,
+            bottom: 52,
+            containLabel: true,
           },
           dataZoom: [
               {
@@ -689,7 +763,10 @@ class SignalBoardState extends State<SignalBoardWidget> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               InkWell(
-                child: const Icon(Icons.close, color: Colors.black,),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.black,
+                ),
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -699,15 +776,30 @@ class SignalBoardState extends State<SignalBoardWidget> {
           content: SingleChildScrollView(
             child: Column(
               children: [
-                Image.asset('images/rassibs_img_infomation.png',
-                  height: 60, fit: BoxFit.contain,),
-                const SizedBox(height: 25.0,),
-                const Text('안내', style: TStyle.title20, textAlign: TextAlign.center,
-                  ),
-                const SizedBox(height: 30.0,),
-                Text(desc, style: TStyle.defaultContent,
-                  textAlign: TextAlign.center, ),
-                const SizedBox(height: 30.0,),
+                Image.asset(
+                  'images/rassibs_img_infomation.png',
+                  height: 60,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(
+                  height: 25.0,
+                ),
+                const Text(
+                  '안내',
+                  style: TStyle.title20,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 30.0,
+                ),
+                Text(
+                  desc,
+                  style: TStyle.defaultContent,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 30.0,
+                ),
               ],
             ),
           ),
@@ -724,12 +816,16 @@ class SignalBoardState extends State<SignalBoardWidget> {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),),
+            borderRadius: BorderRadius.circular(15.0),
+          ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               InkWell(
-                child: const Icon(Icons.close, color: Colors.black,),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.black,
+                ),
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -739,19 +835,35 @@ class SignalBoardState extends State<SignalBoardWidget> {
           content: SingleChildScrollView(
             child: Column(
               children: [
-                Image.asset('images/rassibs_img_infomation.png',
-                  height: 60, fit: BoxFit.contain,),
-                const SizedBox(height: 25.0,),
-                const Text('안내', style: TStyle.title20, ),
-                const SizedBox(height: 30.0,),
-
-                const Text('매매비서 프리미엄에서 이용할 수 있는 정보입니다.',
-                  textAlign: TextAlign.center, ),
-                const SizedBox(height: 25.0,),
-                const Text('프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
-                  textAlign: TextAlign.center, ),
-                const SizedBox(height: 25.0,),
-
+                Image.asset(
+                  'images/rassibs_img_infomation.png',
+                  height: 60,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(
+                  height: 25.0,
+                ),
+                const Text(
+                  '안내',
+                  style: TStyle.title20,
+                ),
+                const SizedBox(
+                  height: 30.0,
+                ),
+                const Text(
+                  '매매비서 프리미엄에서 이용할 수 있는 정보입니다.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 25.0,
+                ),
+                const Text(
+                  '프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 25.0,
+                ),
                 MaterialButton(
                   child: Center(
                     child: Container(
@@ -762,16 +874,19 @@ class SignalBoardState extends State<SignalBoardWidget> {
                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                       ),
                       child: const Center(
-                        child: Text('프리미엄 가입하기', style: TStyle.btnTextWht15,
-                          ),),
+                        child: Text(
+                          '프리미엄 가입하기',
+                          style: TStyle.btnTextWht15,
+                        ),
+                      ),
                     ),
                   ),
-                  onPressed: (){
+                  onPressed: () {
                     Navigator.pop(context);
-                    _navigateRefreshPay(context,
-                      Platform.isIOS
-                          ? PayPremiumPage()
-                          : PayPremiumAosPage(),);
+                    _navigateRefreshPay(
+                      context,
+                      Platform.isIOS ? const PayPremiumPage() : const PayPremiumAosPage(),
+                    );
                   },
                 ),
               ],
@@ -784,11 +899,12 @@ class SignalBoardState extends State<SignalBoardWidget> {
 
   _navigateRefreshPay(BuildContext context, Widget instance) async {
     final result = await Navigator.push(context, _createRoute(instance));
-    if(result == 'cancel') {
+    if (result == 'cancel') {
       DLog.d(SignalBoardPage.TAG, '*** navigete cancel ***');
     } else {
       DLog.d(SignalBoardPage.TAG, '*** navigateRefresh');
-      _fetchPosts(TR.USER04,
+      _fetchPosts(
+          TR.USER04,
           jsonEncode(<String, String>{
             'userId': _userId,
           }));
@@ -807,110 +923,51 @@ class SignalBoardState extends State<SignalBoardWidget> {
 
         return SlideTransition(
           position: offsetAnimation,
-          child: child,);
+          child: child,
+        );
       },
     );
   }
 
-  //네트워크 에러 알림
-  void _showDialogNetErr() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: UIStyle.borderRoundedDialog(),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  child: const Icon(Icons.close, color: Colors.black,),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Image.asset('images/rassibs_img_infomation.png',
-                    height: 60, fit: BoxFit.contain,),
-                  const SizedBox(height: 5.0,),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text('안내', style: TStyle.commonTitle,
-                      ),
-                  ),
-                  const SizedBox(height: 25.0,),
-                  const Text(RString.err_network, textAlign: TextAlign.center,
-                    ),
-                  const SizedBox(height: 30.0,),
-                  MaterialButton(
-                    child: Center(
-                      child: Container(
-                        width: 180,
-                        height: 40,
-                        decoration: UIStyle.roundBtnStBox(),
-                        child: const Center(
-                          child: Text('확인', style: TStyle.btnTextWht16,
-                            ),),
-                      ),
-                    ),
-                    onPressed: (){
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-    );
-  }
-
-
   void _requestSignal04(String bsType, String period) {
-    _fetchPosts(TR.SIGNAL04,
+    _fetchPosts(
+        TR.SIGNAL04,
         jsonEncode(<String, String>{
           'userId': _userId,
-          'marketType': '1',        //1:KOSPI, 2:KOSDAQ
-          'tradeFlag': bsType,      //B:매수, S:매도
+          'marketType': '1', //1:KOSPI, 2:KOSDAQ
+          'tradeFlag': bsType, //B:매수, S:매도
           'periodMonth': period,
         }));
   }
 
   //convert 패키지의 jsonDecode 사용
   void _fetchPosts(String trStr, String json) async {
-    DLog.d(SignalBoardPage.TAG, trStr + ' ' +json);
+    DLog.d(SignalBoardPage.TAG, '$trStr $json');
 
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
-        url,
-        body: json,
-        headers: Net.headers,
-      ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+      final http.Response response = await http
+          .post(
+            url,
+            body: json,
+            headers: Net.headers,
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
-      if(_bYetDispose) _parseTrData(trStr, response);
-
+      _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
-      DLog.d(SignalBoardPage.TAG, 'ERR : TimeoutException (12 seconds)');
-      _showDialogNetErr();
-    } on SocketException catch (_) {
-      DLog.d(SignalBoardPage.TAG, 'ERR : SocketException');
-      _showDialogNetErr();
+      if (mounted) CommonPopup.instance.showDialogNetErr(context);
     }
   }
 
   void _parseTrData(String trStr, final http.Response response) {
     DLog.d(SignalBoardPage.TAG, response.body);
 
-    if(trStr == TR.SIGNAL03) {
+    if (trStr == TR.SIGNAL03) {
       final TrSignal03 resData = TrSignal03.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         Signal03? item = resData.retData;
-        if(item != null) {
+        if (item != null) {
           String upTime = item.kospi.tradeDate + item.kospi.tradeTime;
           _sUpdateTime = '${TStyle.getDateTdFormat(upTime)} 업데이트';
 
@@ -934,16 +991,8 @@ class SignalBoardState extends State<SignalBoardWidget> {
           sCntWatch = wCnt.toString();
 
           // String nameKspBuy = '\'매수\\n\'';   //따움표 안에서 \n 을 나타내려면 \\로 역슬래시 표현
-          _dataKospi = '['
-              + '{value:' + kspBuy + ', name: \'매수\'},'
-              + '{value:' + kspHold + ', name: \'보유\'},'
-              + '{value:' + kspSell + ', name: \'매도\'},'
-              + '{value:' + kspWait + ', name: \'관망\'},' + ']';
-          _dataKosdaq = '['
-              + '{value:' + ksdBuy + ', name: \'매수\'},'
-              + '{value:' + ksdHold + ', name: \'보유\'},'
-              + '{value:' + ksdSell + ', name: \'매도\'},'
-              + '{value:' + ksdWait + ', name: \'관망\'},' + ']';
+          _dataKospi = '[{value:$kspBuy, name: \'매수\'},{value:$kspHold, name: \'보유\'},{value:$kspSell, name: \'매도\'},{value:$kspWait, name: \'관망\'},]';
+          _dataKosdaq = '[{value:$ksdBuy, name: \'매수\'},{value:$ksdHold, name: \'보유\'},{value:$ksdSell, name: \'매도\'},{value:$ksdWait, name: \'관망\'},]';
           _cntKospi = item.kospi.totalCount;
           _cntKosdaq = item.kosdaq.totalCount;
 
@@ -951,25 +1000,26 @@ class SignalBoardState extends State<SignalBoardWidget> {
         }
       }
 
-      _fetchPosts(TR.SIGNAL04,
+      _fetchPosts(
+          TR.SIGNAL04,
           jsonEncode(<String, String>{
             'userId': _userId,
-            'marketType': '1',          //1:KOSPI, 2:KOSDAQ
-            'tradeFlag': _curBsType,    //B:매수, S:매도
+            'marketType': '1', //1:KOSPI, 2:KOSDAQ
+            'tradeFlag': _curBsType, //B:매수, S:매도
             'periodMonth': _curPeriod,
           }));
     }
 
     //매매신호와 시장지수 비교
-    else if(trStr == TR.SIGNAL04) {
+    else if (trStr == TR.SIGNAL04) {
       final TrSignal04 resData = TrSignal04.fromJson(jsonDecode(response.body));
-      if(resData.retCode == RT.SUCCESS) {
+      if (resData.retCode == RT.SUCCESS) {
         Signal04? item = resData.retData;
-        if(item != null) {
+        if (item != null) {
           var idxHigh = double.parse(item.indexHigh);
           var idxLow = double.parse(item.indexLow);
-          var iMax = (idxHigh * 1.1).toInt();   // 10% 위로 범위
-          var iMin = (idxLow * 0.8).toInt();    // 20% 아래로 범위
+          var iMax = (idxHigh * 1.1).toInt(); // 10% 위로 범위
+          var iMin = (idxLow * 0.8).toInt(); // 20% 아래로 범위
           DLog.d(SignalBoardPage.TAG, 'max:min = $iMax:$iMin');
           _indexMax = iMax.toString();
           _indexMin = iMin.toString();
@@ -978,7 +1028,7 @@ class SignalBoardState extends State<SignalBoardWidget> {
           String tmpSig = '[';
           String tmpIdx = '[';
           List<SigGenData> chartData = item.listChart;
-          for(int i=0; i < chartData.length; i++) {
+          for (int i = 0; i < chartData.length; i++) {
             tmpDate = '$tmpDate\'${TStyle.getDateDivFormat(chartData[i].date)}\',';
             tmpSig = '$tmpSig${chartData[i].count},';
             tmpIdx = '$tmpIdx${chartData[i].index},';
@@ -993,4 +1043,3 @@ class SignalBoardState extends State<SignalBoardWidget> {
     }
   }
 }
-

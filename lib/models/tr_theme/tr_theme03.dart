@@ -16,14 +16,11 @@ class TrTheme03 {
   TrTheme03({this.retCode = '', this.retMsg = '', this.retData = const []});
 
   factory TrTheme03.fromJson(Map<String, dynamic> json) {
-    var list = json['retData'] == null ? [] : json['retData'] as List;
-    List<Theme03>? rtList;
-    if (list != null) rtList = list.map((i) => Theme03.fromJson(i)).toList();
-
+    var jsonList = json['retData'];
     return TrTheme03(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData: list.map((i) => Theme03.fromJson(i)).toList(),
+      retData: jsonList == null ? [] : (jsonList as List).map((i) => Theme03.fromJson(i)).toList(),
     );
   }
 }
@@ -35,13 +32,10 @@ class Theme03 {
   Theme03({this.tradeDate = '', this.listData = const []});
 
   factory Theme03.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Theme'] == null ? [] : json['list_Theme'] as List;
-    List<ThemeOb>? rtList;
-    if (list != null) rtList = list.map((i) => ThemeOb.fromJson(i)).toList();
-
+    var jsonList = json['list_Theme'];
     return Theme03(
       tradeDate: json['tradeDate'] ?? '',
-      listData: list.map((i) => ThemeOb.fromJson(i)).toList(),
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => ThemeOb.fromJson(i)).toList(),
     );
   }
 }
@@ -83,7 +77,7 @@ class TileTheme03 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ThemeOb>? subList = item.listData;
+    List<ThemeOb> subList = item.listData;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -117,23 +111,28 @@ class TileTheme03 extends StatelessWidget {
     );
   }
 
-  //
   Widget _setThemeBox(List<ThemeOb> subList) {
-    ThemeOb? item1 = subList[0];
-    ThemeOb? item2 = subList[1];
-    ThemeOb? item3 = subList[2];
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SizedBox(
-        width: double.infinity,
-        height: 110,
-        child: Row(
-          children: [
-            if (item1 != null) _setInfoBox(item1),
-            if (item2 != null) _setInfoBox(item2),
-            if (item3 != null) _setInfoBox(item3),
-          ],
-        ),
+    return SizedBox(
+      width: double.infinity,
+      height: 110,
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              child: subList.isEmpty ? const SizedBox() : _setInfoBox(subList.first),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              child: subList.length > 1 ? _setInfoBox(subList[1]) : const SizedBox(),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              child: subList.length > 2 ?  _setInfoBox(subList.last) : const SizedBox(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -150,43 +149,41 @@ class TileTheme03 extends StatelessWidget {
       rColor = RColor.sigBuy;
     }
 
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.all(5),
-        decoration: UIStyle.boxShadowBasic(16),
-        child: InkWell(
-          splashColor: Colors.deepPurpleAccent.withAlpha(30),
-          child: Container(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  tItem.themeName,
-                  style: TStyle.content16T,
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
+    return Container(
+      margin: const EdgeInsets.all(5),
+      decoration: UIStyle.boxShadowBasic(16),
+      child: InkWell(
+        splashColor: Colors.deepPurpleAccent.withAlpha(30),
+        child: Container(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                tItem.themeName,
+                style: TStyle.content16T,
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+              ),
+              Text(
+                '$rText%',
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
+                  color: rColor,
                 ),
-                Text(
-                  '$rText%',
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 17,
-                    color: rColor,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          onTap: () {
-            basePageState.callPageRouteUpData(
-              const ThemeHotViewer(),
-              PgData(userId: '', pgSn: tItem.themeCode),
-            );
-          },
         ),
+        onTap: () {
+          basePageState.callPageRouteUpData(
+            const ThemeHotViewer(),
+            PgData(userId: '', pgSn: tItem.themeCode),
+          );
+        },
       ),
     );
   }
