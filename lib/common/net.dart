@@ -255,6 +255,8 @@ class TR {
   static const ISSUE07 = "TR_ISSUE07"; //지정일 이슈, 관련 종목 매매신호 정보
   static const ISSUE08 = "TR_ISSUE08";
   static const ISSUE09 = "TR_ISSUE09";
+  static const ISSUE10 = "TR_ISSUE10"; //지정월 신규 등록된 이슈
+  static const ISSUE11 = "TR_ISSUE11"; //
 
   static const RASSI01 = "TR_RASSI01"; //라씨로 일반뉴스 리스트
   static const RASSI02 = "TR_RASSI02"; //라씨로 종목뉴스 리스트
