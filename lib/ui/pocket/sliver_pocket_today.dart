@@ -539,7 +539,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
       return InkWell(
         child: TileSupplyAndDemand(_pock10.sdList[idx]),
         onTap: () async {
-          await basePageState.goStockHomePage(
+          basePageState.goStockHomePage(
             _pock10.sdList[idx].stockCode,
             _pock10.sdList[idx].stockName,
             Const.STK_INDEX_HOME,
@@ -552,7 +552,7 @@ class SliverPocketTodayWidgetState extends State<SliverPocketTodayWidget> with T
       return InkWell(
         child: TileStockChart(_pock10.sdList[idx]),
         onTap: () async {
-          await basePageState.goStockHomePage(
+          basePageState.goStockHomePage(
             _pock10.sdList[idx].stockCode,
             _pock10.sdList[idx].stockName,
             Const.STK_INDEX_HOME,

@@ -298,13 +298,6 @@ class NewsViewerState extends State<NewsViewer> {
             padding: const EdgeInsets.all(15),
             child: InkWell(
               onTap: () {
-                if (StockHomeTab.globalKey.currentState == null) {
-                  // 앞에 StockAiBreakingNewsPage 페이지 냅두기
-                  Navigator.pop(context, false);
-                } else {
-                  // 앞에 StockAiBreakingNewsPage 페이지 닫기
-                  Navigator.pop(context, true);
-                }
                 basePageState.goStockHomePage(
                   stkCode,
                   stkName,

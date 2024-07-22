@@ -100,7 +100,7 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
       body: SafeArea(
         child: Column(
           children: [
-            _menuDiv == _Rassi19Div.real ? _topBoxRealWidget : _setDivButtons,
+            if(_menuDiv != _Rassi19Div.real) _setDivButtons,
             Expanded(
               child: Stack(
                 children: [
@@ -127,12 +127,16 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
                             },
                             child: ListView.builder(
                               controller: _scrollController,
-                              itemCount: _listData.length,
+                              itemCount: _menuDiv == _Rassi19Div.real ? _listData.isEmpty ? 0 : _listData.length + 1 : _listData.length,
                               itemBuilder: (context, index) {
                                 if (_menuDiv == _Rassi19Div.real) {
-                                  return Rassi19RealItemWidget(
-                                    item: _listData[index],
-                                  );
+                                  if(index == 0){
+                                    return _topBoxRealWidget;
+                                  }else{
+                                    return Rassi19RealItemWidget(
+                                      item: _listData[index + 1],
+                                    );
+                                  }
                                 } else if (_menuDiv == _Rassi19Div.week52 || _menuDiv == _Rassi19Div.limit) {
                                   return Rassi19Week52ItemWidget(
                                     item: _listData[index],
@@ -231,7 +235,7 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
                 ),
               ),
               onTap: () {
-                if (!_isSelectDivLeft) {
+                if (!_isSelectDivLeft && !_isLoading) {
                   setState(() {
                     _listData.clear();
                     _pageNo = 0;
@@ -279,7 +283,7 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
                 ),
               ),
               onTap: () {
-                if (_isSelectDivLeft) {
+                if (_isSelectDivLeft && !_isLoading) {
                   setState(() {
                     _listData.clear();
                     _pageNo = 0;

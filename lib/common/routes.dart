@@ -17,6 +17,7 @@ import 'package:rassi_assist/ui/main/keyboard_page.dart';
 import 'package:rassi_assist/ui/main/my_page.dart';
 import 'package:rassi_assist/ui/main/notification_page.dart';
 import 'package:rassi_assist/ui/market/issue_detail_stock_signal_page.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/news/catch_list_page.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
@@ -152,6 +153,7 @@ final routes = {
   NewsListPage.routeName: (BuildContext context) => const NewsListPage(),
   NewsViewer.routeName: (BuildContext context) => const NewsViewer(),
   IssueListPage.routeName: (BuildContext context) => const IssueListPage(),
+  IssueNewViewer.routeName: (BuildContext context) => const IssueNewViewer(),
 
   WebPage.routeName: (BuildContext context) => const WebPage(),
   TermsPage.routeName: (BuildContext context) => TermsPage(),

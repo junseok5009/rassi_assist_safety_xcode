@@ -3,7 +3,6 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
-
 /// 2020.10.29
 /// 평균 수익률 TOP
 class TrHonor05 {
@@ -26,7 +25,6 @@ class TrHonor05 {
   }
 }
 
-
 class Honor05 {
   final String stockCode;
   final String stockName;
@@ -35,8 +33,10 @@ class Honor05 {
   final String tradeCount;
 
   Honor05({
-    this.stockCode = '', this.stockName = '',
-    this.tradeFlag = '', this.avgProfitRate = '',
+    this.stockCode = '',
+    this.stockName = '',
+    this.tradeFlag = '',
+    this.avgProfitRate = '',
     this.tradeCount = '',
   });
 
@@ -56,10 +56,10 @@ class Honor05 {
   }
 }
 
-
 //화면구성
 class TileHonor05 extends StatelessWidget {
   final Honor05 item;
+
   TileHonor05(this.item);
 
   @override
@@ -67,7 +67,10 @@ class TileHonor05 extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 50,
-      margin: const EdgeInsets.only(left: 15.0, right: 15.0,),
+      margin: const EdgeInsets.only(
+        left: 15.0,
+        right: 15.0,
+      ),
       decoration: const BoxDecoration(
         color: RColor.bgWeakGrey,
         border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
@@ -85,9 +88,12 @@ class TileHonor05 extends StatelessWidget {
             ],
           ),
         ),
-        onTap: (){
-          Navigator.pop(context);
-          basePageState.goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_SIGNAL,);
+        onTap: () {
+          basePageState.goStockHomePage(
+            item.stockCode,
+            item.stockName,
+            Const.STK_INDEX_SIGNAL,
+          );
         },
       ),
     );
@@ -104,10 +110,16 @@ class TileHonor05 extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(item.stockName, maxLines: 1,
+            Text(
+              item.stockName,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TStyle.commonSTitle,),
-            Text(item.stockCode, style: TStyle.textSGrey,),
+              style: TStyle.commonSTitle,
+            ),
+            Text(
+              item.stockCode,
+              style: TStyle.textSGrey,
+            ),
           ],
         ),
       ),
@@ -117,7 +129,7 @@ class TileHonor05 extends StatelessWidget {
   Widget _setListItem2() {
     String strDiv;
     TextStyle tStyle;
-    if(item.avgProfitRate.contains('-')) {
+    if (item.avgProfitRate.contains('-')) {
       strDiv = '';
       tStyle = TStyle.textMSell;
     } else {
@@ -128,16 +140,15 @@ class TileHonor05 extends StatelessWidget {
       flex: 2,
       child: Container(
         decoration: const BoxDecoration(
-          border: Border(
-              right: BorderSide(
-                  color: Colors.grey,
-                  width: 1)),
+          border: Border(right: BorderSide(color: Colors.grey, width: 1)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
-            Text('$strDiv${item.avgProfitRate}%', style: tStyle,),
+            Text(
+              '$strDiv${item.avgProfitRate}%',
+              style: tStyle,
+            ),
           ],
         ),
       ),
@@ -150,7 +161,10 @@ class TileHonor05 extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('${item.tradeCount}번', style: TStyle.commonSTitle,),
+          Text(
+            '${item.tradeCount}번',
+            style: TStyle.commonSTitle,
+          ),
         ],
       ),
     );

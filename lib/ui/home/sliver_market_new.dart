@@ -36,11 +36,11 @@ import 'package:rassi_assist/ui/home/market_tile/market_tile_today_market.dart';
 import 'package:rassi_assist/ui/market/headline_now_page.dart';
 import 'package:rassi_assist/ui/market/home_market_kos_chart.dart';
 import 'package:rassi_assist/ui/market/related_news_page.dart';
+import 'package:rassi_assist/ui/market/today_feature_stock_list_page.dart';
+import 'package:rassi_assist/ui/market/today_issue_timeline_page.dart';
 import 'package:rassi_assist/ui/news/news_list_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_all_page.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_time_line_page.dart';
-import 'package:rassi_assist/ui/market/today_feature_stock_list_page.dart';
-import 'package:rassi_assist/ui/market/today_issue_timeline_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main/base_page.dart';
@@ -203,7 +203,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
               //실시간 속보
               _setNewsList(),
-              const SizedBox(height: 15),
+              //const SizedBox(height: 15),
 
               CommonView.setDivideLine,
 
@@ -219,12 +219,10 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
               _setAnlReport(),
 
               CommonView.setDivideLine,
-              const SizedBox(height: 10),
 
               _setPrLow(),
 
               _setNewsAllTagBtn(),
-              const SizedBox(height: 30),
             ]),
           ),
         ],
@@ -417,7 +415,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
         } else {
           if (issue09timeLapse.listData.length > 5) {
             issue09timeLapse.listData.sort(
-                  (a, b) => double.parse(b.avgFluctRate).abs().compareTo(double.parse(a.avgFluctRate).abs()),
+              (a, b) => double.parse(b.avgFluctRate).abs().compareTo(double.parse(a.avgFluctRate).abs()),
             );
             issue03List.addAll(issue09timeLapse.listData.sublist(0, 5));
           } else {
@@ -437,7 +435,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
             horizontal: 20,
           ),
           child: Text(
-            '이슈 헤드라인',
+            '주요 이슈 헤드라인',
             style: TStyle.defaultTitle,
           ),
         ),
@@ -497,7 +495,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
               alignment: Alignment.centerRight,
               child: Image.asset(
                 'images/icon_calendar_dec.png',
-                width: 60,
+                width: 40,
               ),
             ),
           ],
@@ -510,7 +508,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
   Widget _setCurrentHeadline() {
     return Column(
       children: [
-        _setSubTitleMore('이시간 헤드라인', '더보기', () {
+        _setSubTitleMore('이 시각 헤드라인', '더보기', () {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -522,13 +520,18 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
         SizedBox(
           width: double.infinity,
           child: ListView.builder(
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+            ),
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _pickTagList.length,
             itemBuilder: (context, index) {
-              return TileRassi11(_pickTagList[index]);
+              return TileRassi11(
+                item: _pickTagList[index],
+                visibleDividerLine: index != _pickTagList.length - 1,
+              );
             },
           ),
         ),
@@ -536,7 +539,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
     );
   }
 
-// 실시간 속보
+  // 실시간 속보
   Widget _setNewsList() {
     return Column(
       children: [
@@ -552,13 +555,16 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
         SizedBox(
           width: double.infinity,
           child: ListView.builder(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.symmetric(horizontal: 20,),
               shrinkWrap: true,
               scrollDirection: Axis.vertical,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _newsList.length,
               itemBuilder: (context, index) {
-                return TileRassi01(_newsList[index]);
+                return TileRassi01(
+                  item: _newsList[index],
+                  visibleDividerLine: index != _newsList.length - 1 ? true : false,
+                );
               }),
         ),
       ],
@@ -684,7 +690,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(top: 5, bottom: 10),
+      padding: const EdgeInsets.only(top: 5, bottom: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -697,11 +703,12 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
           ),
           Container(
             width: double.infinity,
-            height: 390,
+            height: 360,
             margin: const EdgeInsets.only(top: 15),
+            //color: Colors.red.withOpacity(0.2),
             child: Swiper(
               controller: SwiperController(),
-              pagination: CommonSwiperPagenation.getNormalSpWithMargin(8.0, 370, Colors.black),
+              pagination: CommonSwiperPagenation.getNormalSpWithMargin(8.0, 340, Colors.black),
               loop: false,
               autoplay: false,
               onIndexChanged: (int index) {},
@@ -720,26 +727,21 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
   Widget _setNewsAllTagBtn() {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      //margin: EdgeInsets.symmetric(),
       child: Column(
         children: [
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
           const Text(
             'AI가 분석하는 모든 태그\n분류를 확인해 보세요',
-            style: TStyle.defaultTitle,
+            style: TStyle.commonTitle,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 30),
           CommonView.setBasicMoreRoundBtnView(
             [
-              // Text(
-              //   "→ 태그",
-              //   style: TStyle.puplePlainStyle(),
-              // ),
               const Text(
                 "+ 태그 전체보기",
-                style: TStyle.commonSTitle,
+                style: TextStyle(fontSize: 15,),
               ),
             ],
             () {
@@ -748,7 +750,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
               );
             },
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 30),
         ],
       ),
     );
@@ -994,7 +996,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
       final TrRassi01 resData = TrRassi01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _newsList = resData.listData;
-
         setState(() {});
       }
 

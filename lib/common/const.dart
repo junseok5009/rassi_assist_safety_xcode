@@ -5,13 +5,13 @@ class Const {
   static const bool isDebuggable = true; //상용버전[false] / 개발버전[true]
   //static const BASE = "rassiapp";           //상용 서버
   static const BASE = "rassiappdev"; //개발 서버
-  static const APP_VER = '1.3.5'; //빌드 번호 가져오는 방법
+  static const APP_VER = '1.3.6'; //빌드 번호 가져오는 방법
   static const VER_CODE = 64;
   static const bool isSkeletonLoader = true;
 
   /// android set
-  static const APP_VER_AOS = '1.3.5'; //안드로이드 버전
-  static const VER_CODE_AOS = 132;
+  static const APP_VER_AOS = '1.3.6'; //안드로이드 버전
+  static const VER_CODE_AOS = 134;
   static const METHOD_CHANNEL_NAME = 'thinkpool.flutter.dev/channel_method';
   static const METHOD_CHANNEL_PUSH =
       'thinkpool.flutter.dev/channel_method_push';
@@ -109,6 +109,7 @@ class RColor {
   static const chartPink = Color(0xffFA8383);
   static const chartYellow = Color(0xffFBD240);
   static const chartGreen = Color(0xff5DD68D);
+  static const chartPurple = Color(0xff9797fa);  // 보통 보라색(메인)
   static const chartGreyColor = Color(0xffDCDFE2);
   static const chartTradePriceColor = Color(0xff454A63);
 

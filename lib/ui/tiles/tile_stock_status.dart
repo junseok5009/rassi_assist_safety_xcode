@@ -29,7 +29,7 @@ class TileStockStatus extends StatelessWidget {
           child: _makeCardView(context),
         ),
         onTap: () {
-          basePageState.goStockHomePageCheck(context, item.stockCode, item.stockName, Const.STK_INDEX_HOME,);
+          basePageState.goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_HOME,);
         },
       ),
     );

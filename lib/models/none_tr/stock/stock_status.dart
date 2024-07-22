@@ -15,6 +15,8 @@ class StockStatus {
   final String tradeDate;
   final String tradeTime;
   final String tradePrice;
+  final String profitRate;
+  final String elapsedDays;
 
   StockStatus({
     this.stockCode = '',
@@ -28,23 +30,26 @@ class StockStatus {
     this.tradeDate = '',
     this.tradeTime = '',
     this.tradePrice = '',
+    this.profitRate = '',
+    this.elapsedDays = '',
   });
 
   factory StockStatus.fromJson(Map<String, dynamic> json) {
     var jsonList = json['list_Keyword'];
     return StockStatus(
-      stockCode: json['stockCode'] ?? '',
-      stockName: json['stockName'] ?? '',
-      currentPrice: json['currentPrice'] ?? '',
-      fluctuationRate: json['fluctuationRate'] ?? '',
-      fluctuationAmt: json['fluctuationAmt'] ?? '',
-      bizOverview: json['bizOverview'] ?? '',
-      listKeyword: jsonList == null ? [] : (jsonList as List).map((i) => Keyword.fromJson(i)).toList(),
-      tradeFlag: json['tradeFlag'] ?? '',
-      tradeDate: json['tradeDate'] ?? '',
-      tradeTime: json['tradeTime'] ?? '',
-      tradePrice: json['tradePrice'] ?? '',
-    );
+        stockCode: json['stockCode'] ?? '',
+        stockName: json['stockName'] ?? '',
+        currentPrice: json['currentPrice'] ?? '',
+        fluctuationRate: json['fluctuationRate'] ?? '',
+        fluctuationAmt: json['fluctuationAmt'] ?? '',
+        bizOverview: json['bizOverview'] ?? '',
+        listKeyword: jsonList == null ? [] : (jsonList as List).map((i) => Keyword.fromJson(i)).toList(),
+        tradeFlag: json['tradeFlag'] ?? '',
+        tradeDate: json['tradeDate'] ?? '',
+        tradeTime: json['tradeTime'] ?? '',
+        tradePrice: json['tradePrice'] ?? '',
+        profitRate: json['profitRate'] ?? '',
+        elapsedDays: json['elapsedDays'] ?? '');
   }
 
   @override

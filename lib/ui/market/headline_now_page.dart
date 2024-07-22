@@ -9,7 +9,6 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
-import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi11.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi14.dart';
@@ -117,47 +116,21 @@ class HeadlineNowState extends State<HeadlineNowPage> {
         child: ListView(
           controller: _scrollController,
           children: [
-            //관련 태그 리스트
-/*            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              color: const Color(0xffF5F5F5),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '관련태그',
-                    style: TStyle.content15,
-                  ),
-                  SizedBox(height: 3),
-                  // SizedBox(
-                  //   width: double.infinity,
-                  //   child: Wrap(
-                  //     spacing: 8.0,
-                  //     alignment: WrapAlignment.start,
-                  //     children: List.generate(
-                  //       _recomTagList.length,
-                  //           (index) => TileTag14(
-                  //         _recomTagList[index],
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                ],
-              ),
-            ),*/
-
             //관련 속보와 종목
+            const SizedBox(height: 10),
             Stack(
               children: [
                 ListView.builder(
-                  padding: EdgeInsets.zero,
+                  padding: const EdgeInsets.symmetric(horizontal: 20,),
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: _pickTagList.length,
                   itemBuilder: (context, index) {
-                    return TileRassi11(_pickTagList[index]);
+                    return TileRassi11(
+                      item: _pickTagList[index],
+                      visibleDividerLine: true,
+                    );
                   },
                 ),
                 Visibility(

@@ -82,16 +82,12 @@ class IntroPage extends StatelessWidget {
         body: IntroWidget(),
       ),
       routes: routes,
+      onUnknownRoute: (settings) {
+        DLog.e('[onUnknownRoute] : ${settings.name}');
+        return null;
+      },
       onGenerateRoute: (settings) {
-        //commonShowToast('[onGenerateRoute]1 settings.name : ${settings.name}');
-        switch (settings.name) {
-          case IssueDetailStockSignalPage.routeName:
-            //commonShowToast('[onGenerateRoute] settings.name : ${settings.name}');
-            return CustomNvRouteClass.createRouteName(
-                routeName: settings.name!, instance: const IssueDetailStockSignalPage(), arguments: settings);
-          default:
-            return null;
-        }
+        DLog.e('[onGenerateRoute] : ${settings.name}');
         return null;
       },
     );

@@ -602,7 +602,7 @@ class _ResultAnalyzeTileChart1State extends State<ResultAnalyzeTileChart1>
       width: double.infinity,
       height: 250,
       child: Echarts(
-        reloadAfterInit: true,
+        //reloadAfterInit: true,
         extraScript: '''
 
         ''',

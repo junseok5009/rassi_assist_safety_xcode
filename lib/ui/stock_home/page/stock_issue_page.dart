@@ -227,7 +227,6 @@ class _StockIssuePageState extends State<StockIssuePage> {
                             item.stkList[index].stockName,
                             Const.STK_INDEX_HOME,
                           );
-                          Navigator.pop(context);
                         },
                       );
                     },

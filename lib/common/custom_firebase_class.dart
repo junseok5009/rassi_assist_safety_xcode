@@ -53,7 +53,6 @@ class CustomFirebaseClass{
       name: 'signal_info_view',
       parameters: <String, dynamic>{
         'stock_name': stockName,
-        'stock_cnt': 1,
       },
     );
   }

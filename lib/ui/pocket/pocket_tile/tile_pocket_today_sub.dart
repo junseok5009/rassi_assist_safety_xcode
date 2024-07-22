@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -55,12 +54,14 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
   @override
   void initState() {
     super.initState();
-    int compareTradePrc = widget.item.listChart.first.tradePrc.compareTo(widget.item.listChart.last.tradePrc);
-    _chartColor = compareTradePrc > 0
-        ? RColor.bgSell
-        : compareTradePrc < 0
-            ? RColor.bgBuy
-            : RColor.greyMore_999999;
+    if (widget.item.listChart.isNotEmpty) {
+      int compareTradePrc = widget.item.listChart.first.tradePrc.compareTo(widget.item.listChart.last.tradePrc);
+      _chartColor = compareTradePrc > 0
+          ? RColor.bgSell
+          : compareTradePrc < 0
+              ? RColor.bgBuy
+              : RColor.greyMore_999999;
+    }
   }
 
   @override
@@ -150,21 +151,24 @@ class _TileUpAndDownState extends State<TileUpAndDown> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CommonView.setFluctuationRateBox(value: widget.item.fluctuationRate, fontSize: 15,),
+                  CommonView.setFluctuationRateBox(
+                    value: widget.item.fluctuationRate,
+                    fontSize: 15,
+                  ),
                 ],
               ),
             ),
             const SizedBox(
               width: 5,
             ),
-            _setChartView(),
+            if (widget.item.listChart.isNotEmpty) _setChartView,
           ],
         ),
       ),
     );
   }
 
-  Widget _setChartView() {
+  Widget get _setChartView {
     return Column(
       children: [
         SizedBox(
@@ -588,13 +592,15 @@ class _TileStockIssue extends State<TileStockIssue> {
             color: TStyle.getMinusPlusColor(avgFluctRate),
           ),
         ),
-        const SizedBox(width: 4,),
+        const SizedBox(
+          width: 4,
+        ),
         Text(
           TStyle.getPercentString(TStyle.getFixedNum(avgFluctRate)),
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: TStyle.getMinusPlusColor(
-                avgFluctRate,
+              avgFluctRate,
             ),
           ),
         ),

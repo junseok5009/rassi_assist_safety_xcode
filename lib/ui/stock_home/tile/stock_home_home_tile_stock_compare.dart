@@ -153,6 +153,8 @@ class StockHomeHomeTileStockCompareState extends State<StockHomeHomeTileStockCom
                     horizontal: 10,
                   ),
                   child: BarChart(
+                    swapAnimationCurve: Curves.fastOutSlowIn,
+                    swapAnimationDuration: const Duration(milliseconds: 1500),
                     BarChartData(
                       barTouchData: barTouchData,
                       titlesData: titlesData,
@@ -162,8 +164,7 @@ class StockHomeHomeTileStockCompareState extends State<StockHomeHomeTileStockCom
                       barGroups: barGroupsData,
                       gridData: FlGridData(
                         show: true,
-                        //checkToShowHorizontalLine: (value) => value % 10 == 0,
-                        getDrawingHorizontalLine: (value) => FlLine(
+                        getDrawingHorizontalLine: (value) => const FlLine(
                           color: Colors.grey,
                           strokeWidth: 0.6,
                           dashArray: [2, 2],
@@ -171,8 +172,6 @@ class StockHomeHomeTileStockCompareState extends State<StockHomeHomeTileStockCom
                         drawVerticalLine: false,
                       ),
                       alignment: BarChartAlignment.spaceAround,
-                      //minY: 1000,
-                      //baselineY: 1000,
                       extraLinesData: ExtraLinesData(
                         horizontalLines: [
                           HorizontalLine(
@@ -182,7 +181,6 @@ class StockHomeHomeTileStockCompareState extends State<StockHomeHomeTileStockCom
                           ),
                         ],
                       ),
-                      //maxY: 20,
                     ),
                   ),
                 ),
@@ -511,9 +509,9 @@ class StockHomeHomeTileStockCompareState extends State<StockHomeHomeTileStockCom
   BarTouchData get barTouchData => BarTouchData(
         enabled: false,
         touchTooltipData: BarTouchTooltipData(
-
           tooltipPadding: EdgeInsets.zero,
           tooltipMargin: 0,
+          getTooltipColor: (group) => Colors.transparent,
           getTooltipItem: (
             BarChartGroupData group,
             int groupIndex,

@@ -3,7 +3,6 @@ import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
-
 /// 2020.10.29
 /// 수익 발생(10% 이상) 횟수 TOP > 수익난 매매 TOP 50
 class TrHonor02 {
@@ -22,7 +21,6 @@ class TrHonor02 {
     );
   }
 }
-
 
 class Honor02 {
   final String stockCode;
@@ -55,10 +53,10 @@ class Honor02 {
   }
 }
 
-
 //화면구성
 class TileHonor02 extends StatelessWidget {
   final Honor02 item;
+
   TileHonor02(this.item);
 
   @override
@@ -66,14 +64,13 @@ class TileHonor02 extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 50,
-      margin: const EdgeInsets.only(left: 15.0, right: 15.0,),
+      margin: const EdgeInsets.only(
+        left: 15.0,
+        right: 15.0,
+      ),
       decoration: const BoxDecoration(
         color: RColor.bgWeakGrey,
-        border: Border(
-            bottom: BorderSide(
-                color: Colors.grey,
-                width: 1)
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
       ),
       child: InkWell(
         splashColor: Colors.deepPurpleAccent.withAlpha(30),
@@ -88,9 +85,12 @@ class TileHonor02 extends StatelessWidget {
             ],
           ),
         ),
-        onTap: (){
-          Navigator.pop(context);
-          basePageState.goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_HOME,);
+        onTap: () {
+          basePageState.goStockHomePage(
+            item.stockCode,
+            item.stockName,
+            Const.STK_INDEX_HOME,
+          );
         },
       ),
     );
@@ -107,10 +107,16 @@ class TileHonor02 extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(item.stockName, maxLines: 1,
+            Text(
+              item.stockName,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TStyle.commonSTitle,),
-            Text(item.stockCode, style: TStyle.textSGrey,),
+              style: TStyle.commonSTitle,
+            ),
+            Text(
+              item.stockCode,
+              style: TStyle.textSGrey,
+            ),
           ],
         ),
       ),
@@ -127,7 +133,10 @@ class TileHonor02 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('${item.tradeCount}번', style: TStyle.commonSTitle,),
+            Text(
+              '${item.tradeCount}번',
+              style: TStyle.commonSTitle,
+            ),
           ],
         ),
       ),
@@ -140,7 +149,10 @@ class TileHonor02 extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('${item.holdingDays}일', style: TStyle.commonSTitle,),
+          Text(
+            '${item.holdingDays}일',
+            style: TStyle.commonSTitle,
+          ),
         ],
       ),
     );

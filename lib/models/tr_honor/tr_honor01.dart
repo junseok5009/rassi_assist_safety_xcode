@@ -86,7 +86,6 @@ class TileHonor01 extends StatelessWidget {
           ),
         ),
         onTap: () {
-          Navigator.pop(context);
           basePageState.goStockHomePage(
             item.stockCode,
             item.stockName,

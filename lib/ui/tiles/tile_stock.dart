@@ -6,7 +6,6 @@ import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 
 import '../../common/ui_style.dart';
-import '../stock_home/stock_home_tab.dart';
 
 // 뉴스 하단 종목
 class TileStock extends StatelessWidget {
@@ -71,13 +70,6 @@ class TileStock extends StatelessWidget {
             ),
           ),
           onTap: () {
-            if (StockHomeTab.globalKey.currentState == null) {
-              // 앞에 StockAiBreakingNewsPage 페이지 냅두기
-              //Navigator.pop(context, false);
-            } else {
-              // 앞에 StockAiBreakingNewsPage, NewsTagPage 페이지 까지 다 닫기
-              Navigator.pop(context, true);
-            }
             basePageState.goStockHomePage(
               item.stockCode,
               item.stockName,

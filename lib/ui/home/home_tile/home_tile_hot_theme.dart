@@ -172,7 +172,7 @@ class HomeTileHotThemeState extends State<HomeTileHotTheme> {
               }
             },
             child: Container(
-              height: 35,
+              height: 40,
               margin: EdgeInsets.only(
                 right: i == 0
                     ? 5

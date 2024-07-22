@@ -30,8 +30,7 @@ class TileRelatedStock extends StatelessWidget {
           child: _makeCardView(context),
         ),
         onTap: () {
-          basePageState.goStockHomePageCheck(
-            context,
+          basePageState.goStockHomePage(
             item.stockCode,
             item.stockName,
             Const.STK_INDEX_HOME,

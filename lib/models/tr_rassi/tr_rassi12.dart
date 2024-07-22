@@ -120,7 +120,7 @@ class TileSwpRassi12 extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints){
-        double gridViewHeight = 350; // 고정된 GridView 높이
+        double gridViewHeight = 340; // 고정된 GridView 높이
         double gridViewWidth = constraints.maxWidth; // 현재 사용 가능한 너비
         int crossAxisCount = 2; // 가로로 표시할 아이템 수
 
@@ -161,12 +161,12 @@ class TileSwpRassi12 extends StatelessWidget {
                               style: TStyle.commonTitle,
                               maxLines: 1,
                             ),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: 4),
                             Expanded(
                               child: AutoSizeText(
                                 itemList[index].reportDesc,
                                 maxLines: 3,
-                                style: TStyle.content15,
+                                style: TextStyle(color: RColor.greyBasicStrong_666666,),
                               ),
                             ),
                           ],

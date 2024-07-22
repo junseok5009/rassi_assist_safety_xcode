@@ -11,6 +11,7 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue03.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue09.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleNode.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleRoot.dart';
@@ -114,9 +115,22 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
         const SizedBox(
           width: 20,
         ),
-        Image.asset(
-          'images/icon_time_lapse_clock_grey.png',
-          width: 20,
+        InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () {
+            CommonPopup.instance.showDialogBasicConfirm(
+              context,
+              '알림',
+              '이슈 타임랩스는 하루동안의 이슈의 강약 변화를 볼 수 있습니다.\n'
+                  '장시작 부터 장마감까지 30분 단위로 저장됩니다.\n'
+                  '오늘의 이슈의 실시간 이슈 강약 확인은 물론 과거의 강약도 함께 확인해 보세요.',
+            );
+          },
+          child: Image.asset(
+            'images/icon_time_lapse_clock_grey.png',
+            width: 20,
+          ),
         ),
         Expanded(
           child: SfSliderTheme(

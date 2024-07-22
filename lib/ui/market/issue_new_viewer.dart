@@ -14,7 +14,6 @@ import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue04.dart';
@@ -26,13 +25,16 @@ import 'package:rassi_assist/ui/market/issue_calendar_page.dart';
 import 'package:rassi_assist/ui/market/issue_detail_stock_signal_page.dart';
 import 'package:rassi_assist/ui/tiles/tile_related_stock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../models/none_tr/chart_data.dart';
 
 /// 2024.07
 /// 이슈 상세보기 (with 마켓뷰 개편)
 class IssueNewViewer extends StatefulWidget {
   static const routeName = '/page_issue_calendar';
   static const String TAG = "[IssueCalendarPage] ";
-  static const String TAG_NAME = '';
+  static const String TAG_NAME = '이슈상세보기';
 
   const IssueNewViewer({Key? key}) : super(key: key);
 
@@ -45,18 +47,170 @@ class IssueNewViewerState extends State<IssueNewViewer> {
   String _userId = "";
   late PgData args;
 
-  String _keyword = '';
   String _newsSn = '';
   String _issueSn = '';
-  String _issueTitle = "";
-  String _issueDate = "";
-  String _issueCont = "";
-
-  List<StockStatus> _stkList = [];
+  Issue04 _issue04 = Issue04();
   int _stkListPageNum = 2;
+
+  late TrackballBehavior _trackballBehavior;
 
   @override
   void initState() {
+    _trackballBehavior = TrackballBehavior(
+      enable: true,
+      shouldAlwaysShow: false,
+      lineDashArray: const [4, 3],
+      lineWidth: 1,
+      tooltipAlignment: ChartAlignment.near,
+      tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+      activationMode: ActivationMode.singleTap,
+      markerSettings: const TrackballMarkerSettings(
+        markerVisibility: TrackballVisibilityMode.visible,
+        borderWidth: 0,
+        width: 0,
+        height: 0,
+      ),
+      builder: (BuildContext context, TrackballDetails trackballDetails) {
+        int index = trackballDetails.groupingModeInfo?.currentPointIndices.first ?? 0;
+        IssueTrend? itemIssueTrend;
+        if (_issue04.listIssueTrend.isNotEmpty &&
+            index < _issue04.listIssueTrend.length &&
+            _issue04.listIssueTrend[index].searchTrend.isNotEmpty
+        ) {
+          itemIssueTrend = _issue04.listIssueTrend[index];
+        }
+        ChartData? topStock0;
+        if (_issue04.listTopStock.isNotEmpty &&
+            _issue04.listTopStock.first.listChart.isNotEmpty &&
+            index < _issue04.listTopStock.first.listChart.length &&
+            _issue04.listTopStock.first.listChart[index].fr.isNotEmpty) {
+          topStock0 = _issue04.listTopStock.first.listChart[index];
+        }
+        ChartData? topStock1;
+        if (_issue04.listTopStock.length > 1 &&
+            _issue04.listTopStock[1].listChart.isNotEmpty &&
+            index < _issue04.listTopStock[1].listChart.length &&
+            _issue04.listTopStock[1].listChart[index].fr.isNotEmpty) {
+          topStock1 = _issue04.listTopStock[1].listChart[index];
+        }
+        ChartData? topStock2;
+        if (_issue04.listTopStock.length == 3 &&
+            _issue04.listTopStock[2].listChart.isNotEmpty &&
+            index < _issue04.listTopStock[2].listChart.length &&
+            _issue04.listTopStock[2].listChart[index].fr.isNotEmpty) {
+          topStock2 = _issue04.listTopStock[2].listChart[index];
+        }
+        return Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 6,
+                offset: const Offset(2, 2),
+              )
+            ],
+          ),
+          child: FittedBox(
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      itemIssueTrend == null ? topStock0 == null ? topStock1 == null ? topStock2 == null ?
+                      '' :
+                      TStyle.getDateSlashFormat1(topStock2.tradeDate) :
+                          TStyle.getDateSlashFormat1(topStock1.tradeDate) :
+                          TStyle.getDateSlashFormat1(topStock0.tradeDate) : TStyle.getDateSlashFormat1(itemIssueTrend.issueDate),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                  ],
+                ),
+                if (itemIssueTrend != null)
+                  Row(
+                    children: [
+                      Text(
+                        '${_issue04.issueInfo.keyword} 검색추이',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.red,
+                        ),
+                      ),
+                      Text(
+                        ' : ${TStyle.getMoneyPoint(itemIssueTrend.searchTrend)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (topStock0 != null)
+                  Row(
+                    children: [
+                      Text(
+                        '${_issue04.listTopStock.first.sn} 등락률',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: RColor.chartGreen,
+                        ),
+                      ),
+                      Text(
+                        ' : ${TStyle.getPercentString(topStock0.fr)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (topStock1 != null)
+                  Row(
+                    children: [
+                      Text(
+                        '${_issue04.listTopStock[1].sn} 등락률',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: RColor.chartYellow,
+                        ),
+                      ),
+                      Text(
+                        ' : ${TStyle.getPercentString(topStock1.fr)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (topStock2 != null)
+                  Row(
+                    children: [
+                      Text(
+                        '${_issue04.listTopStock.last.sn} 등락률',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: RColor.chartPurple,
+                        ),
+                      ),
+                      Text(
+                        ' : ${TStyle.getPercentString(topStock2.fr)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
     super.initState();
     CustomFirebaseClass.logEvtScreenView(
       IssueNewViewer.TAG_NAME,
@@ -68,7 +222,6 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         if (_newsSn.isEmpty) {
           _newsSn = args.pgSn;
           _issueSn = args.pgData;
-          _keyword = args.data;
         }
 
         if (_userId != '') {
@@ -101,7 +254,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
       backgroundColor: RColor.bgBasic_fdfdfd,
       appBar: CommonAppbar.simpleWithExit(
         context,
-        '$_keyword 이슈 상세보기',
+        '${_issue04.issueInfo.keyword} 이슈 상세보기',
         Colors.black,
         RColor.bgBasic_fdfdfd,
         Colors.black,
@@ -115,6 +268,9 @@ class IssueNewViewerState extends State<IssueNewViewer> {
               _setRecentIssue,
               const SizedBox(height: 15),
               _setCalendarBanner,
+              const SizedBox(height: 15),
+              _setChart,
+              const SizedBox(height: 15),
               _setRelatedStocks,
               const SizedBox(height: 5),
             ],
@@ -146,7 +302,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                 Row(
                   children: [
                     Text(
-                      TStyle.getDateFormat(_issueDate),
+                      TStyle.getDateFormat(_issue04.issueInfo.issueDttm),
                       style: const TextStyle(
                         //작은 그레이 텍스트
                         fontWeight: FontWeight.w500,
@@ -158,12 +314,12 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  _issueTitle,
+                  _issue04.issueInfo.title,
                   style: TStyle.content16T,
                 ),
                 const SizedBox(height: 15),
                 Html(
-                  data: _issueCont,
+                  data: _issue04.issueInfo.content,
                   style: {
                     "body": Style(
                       fontSize: FontSize(16.0),
@@ -175,9 +331,6 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                       display: Display.none,
                     ),
                   },
-                  // onLinkTap: (url, attributes, element) {
-                  //   commonLaunchURL(url!);
-                  // },
                 ),
               ],
             ),
@@ -201,7 +354,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
               settings: RouteSettings(
                 arguments: PgData(
                   pgData: _issueSn,
-                  data: _keyword,
+                  data: _issue04.issueInfo.keyword,
                 ),
               ),
             ),
@@ -234,7 +387,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '$_keyword의 이슈 캘린더',
+                    '${_issue04.issueInfo.keyword}의 이슈 캘린더',
                     style: TStyle.btnTextWht16,
                   ),
                   const SizedBox(height: 10),
@@ -261,11 +414,285 @@ class IssueNewViewerState extends State<IssueNewViewer> {
     );
   }
 
+  Widget get _setChart {
+    if (_issue04.listIssueTrend.isEmpty && _issue04.listTopStock.isEmpty) {
+      return const SizedBox();
+    } else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 15,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${_issue04.issueInfo.keyword} 검색추이 및 연관 종목 등락률',
+              style: TStyle.defaultTitle,
+            ),
+            const SizedBox(height: 25,),
+            SizedBox(
+              width: double.infinity,
+              height: 250,
+              //color: Colors.green.withOpacity(0.3),
+              child: SfCartesianChart(
+                plotAreaBorderWidth: 0,
+                enableMultiSelection: false,
+                margin: EdgeInsets.zero,
+                primaryXAxis: CategoryAxis(
+                    axisBorderType: AxisBorderType.withoutTopAndBottom,
+                    plotOffset: 0,
+                    axisLine: const AxisLine(
+                      width: 1,
+                      color: Colors.black,
+                    ),
+                    majorGridLines: const MajorGridLines(
+                      width: 0,
+                    ),
+                    labelPlacement: LabelPlacement.onTicks,
+                    majorTickLines: const MajorTickLines(
+                      width: 1,
+                      color: Colors.black,
+                    ),
+                    edgeLabelPlacement: EdgeLabelPlacement.shift,
+                    axisLabelFormatter: (axisLabelRenderArgs) {
+                      return ChartAxisLabel(
+                        TStyle.getDateDivFormat(axisLabelRenderArgs.text),
+                        const TextStyle(
+                          fontSize: 10,
+                          color: RColor.greyBasic_8c8c8c,
+                        ),
+                      );
+                    }),
+                primaryYAxis: NumericAxis(
+                  rangePadding: ChartRangePadding.additional,
+                  opposedPosition: true,
+                  desiredIntervals: 10,
+                  axisLine: const AxisLine(
+                    width: 0,
+                  ),
+                  majorGridLines: const MajorGridLines(
+                    width: 1,
+                  ),
+                  majorTickLines: const MajorTickLines(
+                    width: 0,
+                  ),
+                  axisLabelFormatter: (axisLabelRenderArgs) {
+                    return ChartAxisLabel(
+                      TStyle.getMoneyPoint(axisLabelRenderArgs.value.toStringAsFixed(2)),
+                      const TextStyle(
+                        fontSize: 10,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    );
+                  },
+                ),
+                trackballBehavior: _trackballBehavior,
+                selectionType: SelectionType.point,
+                onMarkerRender: (markerArgs) {
+                  markerArgs.markerWidth = 6;
+                  markerArgs.markerHeight = 6;
+                  if (markerArgs.seriesIndex == 0 &&
+                      _issue04.listTopStock.isNotEmpty &&
+                      (markerArgs.pointIndex == 0 ||
+                          markerArgs.pointIndex == _issue04.listTopStock.first.listChart.length - 1)) {
+                    markerArgs.color = RColor.chartGreen;
+                  } else if (markerArgs.seriesIndex == 1 &&
+                      _issue04.listTopStock.length > 1 &&
+                      (markerArgs.pointIndex == 0 ||
+                          markerArgs.pointIndex == _issue04.listTopStock[1].listChart.length - 1)) {
+                    markerArgs.color = RColor.chartYellow;
+                  } else if (markerArgs.seriesIndex == 2 &&
+                      _issue04.listTopStock.length == 3 &&
+                      (markerArgs.pointIndex == 0 ||
+                          markerArgs.pointIndex == _issue04.listTopStock.last.listChart.length - 1)) {
+                    markerArgs.color = RColor.chartPurple;
+                  } else if (markerArgs.seriesIndex == 3 &&
+                      (markerArgs.pointIndex == 0 || markerArgs.pointIndex == _issue04.listIssueTrend.length - 1)) {
+                    markerArgs.color = Colors.red;
+                  } else {
+                    markerArgs.markerWidth = 0;
+                    markerArgs.markerHeight = 0;
+                  }
+                },
+                axes: [
+                  NumericAxis(
+                    name: 'yaxis1',
+                    rangePadding: ChartRangePadding.additional,
+                    plotOffset: 0,
+                    desiredIntervals: 10,
+                    axisLine: const AxisLine(
+                      width: 0,
+                    ),
+                    majorGridLines: const MajorGridLines(
+                      width: 0,
+                    ),
+                    majorTickLines: const MajorTickLines(
+                      width: 0,
+                    ),
+                    axisLabelFormatter: (axisLabelRenderArgs) {
+                      return ChartAxisLabel(
+                        TStyle.getMoneyPoint(axisLabelRenderArgs.value.toStringAsFixed(2)),
+                        const TextStyle(
+                          fontSize: 10,
+                          color: RColor.greyBasic_8c8c8c,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+                series: [
+                  if (_issue04.listTopStock.isNotEmpty && _issue04.listTopStock.first.listChart.isNotEmpty)
+                    LineSeries<ChartData, String>(
+                      dataSource: _issue04.listTopStock.first.listChart,
+                      xValueMapper: (item, index) => item.tradeDate,
+                      yValueMapper: (item, index) => double.tryParse(item.fr),
+                      yAxisName: 'yaxis1',
+                      color: RColor.chartGreen,
+                      width: 1.2,
+                      markerSettings: const MarkerSettings(
+                        isVisible: true,
+                        color: RColor.grey_abb0bb,
+                        width: 0,
+                        height: 0,
+                        borderWidth: 0,
+                        shape: DataMarkerType.circle,
+                      ),
+                      animationDuration: 1500,
+                    ),
+                  if (_issue04.listTopStock.length > 1 && _issue04.listTopStock[1].listChart.isNotEmpty)
+                    LineSeries<ChartData, String>(
+                      dataSource: _issue04.listTopStock[1].listChart,
+                      xValueMapper: (item, index) => item.tradeDate,
+                      yValueMapper: (item, index) => double.tryParse(item.fr),
+                      yAxisName: 'yaxis1',
+                      color: RColor.chartYellow,
+                      width: 1.2,
+                      markerSettings: const MarkerSettings(
+                        isVisible: true,
+                        color: RColor.grey_abb0bb,
+                        width: 0,
+                        height: 0,
+                        borderWidth: 0,
+                        shape: DataMarkerType.circle,
+                      ),
+                      animationDuration: 1500,
+                    ),
+                  if (_issue04.listTopStock.length == 3 && _issue04.listTopStock[2].listChart.isNotEmpty)
+                    LineSeries<ChartData, String>(
+                      dataSource: _issue04.listTopStock[2].listChart,
+                      xValueMapper: (item, index) => item.tradeDate,
+                      yValueMapper: (item, index) => double.tryParse(item.fr),
+                      yAxisName: 'yaxis1',
+                      color: RColor.chartPurple,
+                      width: 1.2,
+                      markerSettings: const MarkerSettings(
+                        isVisible: true,
+                        color: RColor.grey_abb0bb,
+                        width: 0,
+                        height: 0,
+                        borderWidth: 0,
+                        shape: DataMarkerType.circle,
+                      ),
+                      animationDuration: 1500,
+                    ),
+                  if (_issue04.listIssueTrend.isNotEmpty)
+                    LineSeries<IssueTrend, String>(
+                      dataSource: _issue04.listIssueTrend,
+                      xValueMapper: (item, index) => item.issueDate,
+                      yValueMapper: (item, index) => double.tryParse(item.searchTrend),
+                      color: Colors.red,
+                      width: 1.2,
+                      markerSettings: const MarkerSettings(
+                        isVisible: true,
+                        color: RColor.grey_abb0bb,
+                        width: 0,
+                        height: 0,
+                        borderWidth: 0,
+                        shape: DataMarkerType.circle,
+                      ),
+                      animationDuration: 1500,
+                    ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              height: 30,
+              child: Center(
+                child: ListView.separated(
+                  separatorBuilder: (context, index) => SizedBox(
+                    width: 10,
+                  ),
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 4,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      if (_issue04.listIssueTrend.isEmpty) {
+                        return const SizedBox();
+                      } else {
+                        return _setChartCircleInfo(color: Colors.red, name: _issue04.issueInfo.keyword);
+                      }
+                    } else if (index == 1) {
+                      if (_issue04.listTopStock.isNotEmpty && _issue04.listTopStock.first.listChart.isNotEmpty) {
+                        return _setChartCircleInfo(color: RColor.chartGreen, name: _issue04.listTopStock.first.sn);
+                      } else {
+                        return const SizedBox();
+                      }
+                    } else if (index == 2) {
+                      if (_issue04.listTopStock.length > 1 && _issue04.listTopStock[1].listChart.isNotEmpty) {
+                        return _setChartCircleInfo(color: RColor.chartYellow, name: _issue04.listTopStock[1].sn);
+                      } else {
+                        return const SizedBox();
+                      }
+                    } else if (index == 3) {
+                      if (_issue04.listTopStock.length == 3 && _issue04.listTopStock.last.listChart.isNotEmpty) {
+                        return _setChartCircleInfo(color: RColor.chartPurple, name: _issue04.listTopStock.last.sn);
+                      } else {
+                        return const SizedBox();
+                      }
+                    } else {
+                      return const SizedBox();
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Widget _setChartCircleInfo({required Color color, required String name}) {
+    return Row(
+      children: [
+        Container(
+          width: 7,
+          height: 7,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Text(
+          '  $name',
+          style: TextStyle(
+            fontSize: 11,
+            color: RColor.new_basic_text_color_grey,
+          ),
+        ),
+      ],
+    );
+  }
+
   // 관련 종목
   Widget get _setRelatedStocks {
     return Column(
       children: [
-        const SizedBox(height: 25),
+        const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Row(
@@ -274,11 +701,11 @@ class IssueNewViewerState extends State<IssueNewViewer> {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                '$_keyword 관련 종목',
+                '${_issue04.issueInfo.keyword} 관련 종목',
                 style: TStyle.defaultTitle,
               ),
               Text(
-                '(총 ${_stkList.length}종목)',
+                '(총 ${_issue04.stkList.length}종목)',
                 style: TStyle.textGrey14S,
               ),
             ],
@@ -294,7 +721,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                 context,
                 IssueDetailStockSignalPage.routeName,
                 arguments: PgNews(
-                  tagName: _keyword,
+                  tagName: _issue04.issueInfo.keyword,
                   newsSn: _newsSn,
                   issueSn: _issueSn,
                 ),
@@ -321,7 +748,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
               children: [
                 Expanded(
                   child: AutoSizeText(
-                    '$_keyword 관련 종목의 AI매매신호 한번에 보기',
+                    '${_issue04.issueInfo.keyword} 관련 종목의 AI매매신호 한번에 보기',
                     style: const TextStyle(
                       fontSize: 16,
                     ),
@@ -336,18 +763,21 @@ class IssueNewViewerState extends State<IssueNewViewer> {
             ),
           ),
         ),
-        const SizedBox(height: 15,),
+        const SizedBox(
+          height: 15,
+        ),
         ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: _stkList.length ~/ (10 * _stkListPageNum) > 0 ? 10 * _stkListPageNum : _stkList.length,
+          itemCount:
+              _issue04.stkList.length ~/ (10 * _stkListPageNum) > 0 ? 10 * _stkListPageNum : _issue04.stkList.length,
           shrinkWrap: true,
           itemBuilder: (context, index) {
-            return TileRelatedStock(_stkList[index]);
+            return TileRelatedStock(_issue04.stkList[index]);
           },
         ),
         const SizedBox(height: 10),
         Visibility(
-          visible: _stkList.length ~/ (10 * _stkListPageNum) > 0,
+          visible: _issue04.stkList.length ~/ (10 * _stkListPageNum) > 0,
           child: InkWell(
             onTap: () {
               setState(() {
@@ -383,6 +813,66 @@ class IssueNewViewerState extends State<IssueNewViewer> {
     );
   }
 
+  Future<void> synchronizeLists() async {
+   /* List<List<ChartData>> chartDataLists = _issue04.listTopStock
+        .where((topStock) => topStock.listChart.isNotEmpty)
+        .map((topStock) => topStock.listChart)
+        .toList();*/
+    // 모든 날짜를 포함하는 Set을 생성합니다.
+    Set<String> allDates = {
+      //..._issue04.listIssueTrend.map((item) => item.issueDate),
+      for (var stock in _issue04.listTopStock) ...stock.listChart.map((chart) => chart.tradeDate)
+    };
+
+    // 날짜 순서대로 정렬합니다.
+    List<String> sortedDates = allDates.toList()..sort();
+
+    // 각 리스트에 누락된 날짜를 채웁니다.
+    _issue04.listIssueTrend = _fillMissingDatesInIssueTrend(sortedDates);
+    if (_issue04.listTopStock.isNotEmpty && _issue04.listTopStock.first.listChart.isNotEmpty) {
+      _issue04.listTopStock.first.listChart =
+          _fillMissingDatesInChartData(_issue04.listTopStock.first.listChart, sortedDates);
+    }
+    if (_issue04.listTopStock.length > 1 && _issue04.listTopStock[1].listChart.isNotEmpty) {
+      _issue04.listTopStock[1].listChart =
+          _fillMissingDatesInChartData(_issue04.listTopStock[1].listChart, sortedDates);
+    }
+    if (_issue04.listTopStock.length == 3 && _issue04.listTopStock[2].listChart.isNotEmpty) {
+      _issue04.listTopStock[2].listChart =
+          _fillMissingDatesInChartData(_issue04.listTopStock[2].listChart, sortedDates);
+    }
+
+    // 검색추이 리스트에서 종목 리스트에 없는 날짜를 제거합니다.
+    _issue04.listIssueTrend.removeWhere((item) => !sortedDates.contains(item.issueDate));
+  }
+
+  List<IssueTrend> _fillMissingDatesInIssueTrend(List<String> sortedDates) {
+    Map<String, IssueTrend> dateToIssueTrend = {for (var item in _issue04.listIssueTrend) item.issueDate: item};
+    return sortedDates.map((date) {
+      return dateToIssueTrend[date] ??
+          IssueTrend(
+            issueDate: date,
+            issueSn: '',
+            keyword: '',
+            searchTrend: '',
+          ); // 누락된 날짜에 대한 IssueTrend 객체 생성
+    }).toList();
+  }
+
+  List<ChartData> _fillMissingDatesInChartData(List<ChartData> list, List<String> sortedDates) {
+    Map<String, ChartData> dateToChartData = {for (var item in list) item.tradeDate: item};
+    return sortedDates.map((date) {
+      return dateToChartData[date] ??
+          ChartData(
+            tradeDate: date,
+            fr: '',
+            vDateTime: DateTime.now(),
+            flag: '',
+            tradePrc: '',
+          ); // 누락된 날짜에 대한 ChartData 객체 생성
+    }).toList();
+  }
+
   void _fetchPosts(String trStr, String json) async {
     DLog.d(IssueNewViewer.TAG, '$trStr $json');
 
@@ -404,22 +894,22 @@ class IssueNewViewerState extends State<IssueNewViewer> {
   }
 
   Future<void> _parseTrData(String trStr, final http.Response response) async {
-    DLog.d(IssueNewViewer.TAG, response.body);
+    //DLog.d(IssueNewViewer.TAG, response.body);
 
     if (trStr == TR.ISSUE04) {
       final TrIssue04 resData = TrIssue04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
-        Issue04 item = resData.retData;
-        _keyword = item.issueInfo.keyword;
-        _issueSn = item.issueInfo.issueSn;
-        _issueTitle = item.issueInfo.title;
-        _issueDate = item.issueInfo.issueDttm;
-        _issueCont = item.issueInfo.content;
-        _stkList = item.stkList;
-        setState(() {});
+        _issue04 = resData.retData;
+        if (_issue04.listIssueTrend.isNotEmpty && _issue04.listTopStock.isNotEmpty) {
+          await synchronizeLists();
+        }
+      } else {
+        _issue04 = Issue04();
       }
+      setState(() {});
     }
   }
+
   void changeIssue(vNewsSn) {
     setState(() {
       _newsSn = vNewsSn;

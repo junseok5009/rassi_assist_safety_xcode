@@ -19,6 +19,9 @@ class SignalWaitPage extends StatefulWidget {
   static const routeName = '/page_signal_wait';
   static const String TAG = "[SignalWaitPage] ";
   static const String TAG_NAME = '매매신호_관망중_전체';
+
+  const SignalWaitPage({super.key});
+
   @override
   State<StatefulWidget> createState() => SignalWaitPageState();
 }
@@ -39,7 +42,6 @@ class SignalWaitPageState extends State<SignalWaitPage> {
     CustomFirebaseClass.logEvtScreenView(SignalWaitPage.TAG_NAME);
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
-
     _loadPrefData();
     Future.delayed(const Duration(milliseconds: 300), () {
       DLog.d(SignalWaitPage.TAG, "delayed user id : $_userId");
@@ -66,8 +68,7 @@ class SignalWaitPageState extends State<SignalWaitPage> {
 
   //리스트뷰 하단 리스너
   _scrollListener() {
-    if (_scrollController.offset >=
-            _scrollController.position.maxScrollExtent &&
+    if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       _pageNum = _pageNum + 1;
@@ -90,22 +91,17 @@ class SignalWaitPageState extends State<SignalWaitPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: Const.TEXT_SCALE_FACTOR),
-      child: _setLayout(),
-    );
-  }
-
-  Widget _setLayout() {
     return Scaffold(
-      appBar: CommonAppbar.basic(buildContext: context, title: '현재 관망중인 종목', elevation: 1,),
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '현재 관망중인 종목',
+        elevation: 1,
+      ),
       body: ListView.builder(
         controller: _scrollController,
         itemCount: _listData.length,
         itemBuilder: (context, index) {
-          return _buildOneItem(
-              _listData[index].elapsedTmTx, _listData[index].listData);
+          return _buildOneItem(_listData[index].elapsedTmTx, _listData[index].listData);
         },
       ),
     );
@@ -141,8 +137,7 @@ class SignalWaitPageState extends State<SignalWaitPage> {
                 ),
                 Text(
                   strTime,
-                  style:
-                      TextStyle(fontSize: 14, color: Colors.deepOrangeAccent),
+                  style: TextStyle(fontSize: 14, color: Colors.deepOrangeAccent),
                 ),
               ],
             ),
@@ -159,8 +154,7 @@ class SignalWaitPageState extends State<SignalWaitPage> {
                 return Container(
                   height: 67,
                   margin: const EdgeInsets.symmetric(vertical: 5.0),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                   decoration: UIStyle.boxRoundLine20(),
                   child: InkWell(
                     child: Row(
@@ -172,8 +166,7 @@ class SignalWaitPageState extends State<SignalWaitPage> {
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             Text(
-                              TStyle.getLimitString(
-                                  subList[index].stockName, 12),
+                              TStyle.getLimitString(subList[index].stockName, 12),
                               style: TStyle.commonSTitle,
                             ),
                             const SizedBox(
@@ -218,33 +211,6 @@ class SignalWaitPageState extends State<SignalWaitPage> {
               }),
         )
       ],
-    );
-  }
-
-  Widget _setAppBar() {
-    return Container(
-      height: Const.HEIGHT_APP_BAR,
-      decoration: const BoxDecoration(
-          border: Border(
-        bottom: BorderSide(color: RColor.lineGrey, width: 1),
-      )),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
-            iconSize: 20,
-            onPressed: () => Navigator.of(context).pop(null),
-          ),
-          const Text(
-            '현재 관망중인 종목',
-            style: TStyle.commonTitle,
-          ),
-          const SizedBox(
-            width: 40,
-          )
-        ],
-      ),
     );
   }
 

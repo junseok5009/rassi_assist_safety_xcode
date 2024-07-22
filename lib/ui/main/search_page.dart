@@ -466,9 +466,6 @@ class SearchPageState extends State<SearchPage> {
               'stockCode': stock.stockCode,
             }));
       }
-      if (mounted) {
-        Navigator.pop(context);
-      }
       basePageState.goStockHomePage(
         stock.stockCode,
         stock.stockName,

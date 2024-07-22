@@ -135,8 +135,7 @@ class _IssueDetailStockSignalPageState extends State<IssueDetailStockSignalPage>
                         await _showAddStockLayerAndResult(stkName: item.stockName, stkCode: item.stockCode);
                       },
                       onTap: () {
-                        basePageState.goStockHomePageCheck(
-                          context,
+                        basePageState.goStockHomePage(
                           item.stockCode,
                           item.stockName,
                           Const.STK_INDEX_SIGNAL,
@@ -270,8 +269,7 @@ class _IssueDetailStockSignalPageState extends State<IssueDetailStockSignalPage>
                       await _showAddStockLayerAndResult(stkName: item.stockName, stkCode: item.stockCode);
                     },
                     onTap: () {
-                      basePageState.goStockHomePageCheck(
-                        context,
+                      basePageState.goStockHomePage(
                         item.stockCode,
                         item.stockName,
                         Const.STK_INDEX_SIGNAL,
@@ -346,15 +344,15 @@ class _IssueDetailStockSignalPageState extends State<IssueDetailStockSignalPage>
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   const Text(
-                                    '보유수익률',
+                                    '보유수익률 ',
                                     style: TextStyle(
                                       color: RColor.greyBasic_8c8c8c,
                                     ),
                                   ),
                                   Text(
-                                    '?!?!?!?!',
-                                    style: const TextStyle(
-                                      color: RColor.greyBasic_8c8c8c,
+                                    TStyle.getPercentString(item.profitRate),
+                                    style: TextStyle(
+                                      color: TStyle.getMinusPlusColor(item.profitRate),
                                     ),
                                   ),
                                 ],
@@ -412,8 +410,7 @@ class _IssueDetailStockSignalPageState extends State<IssueDetailStockSignalPage>
                       await _showAddStockLayerAndResult(stkName: item.stockName, stkCode: item.stockCode);
                     },
                     onTap: () {
-                      basePageState.goStockHomePageCheck(
-                        context,
+                      basePageState.goStockHomePage(
                         item.stockCode,
                         item.stockName,
                         Const.STK_INDEX_SIGNAL,
@@ -472,7 +469,7 @@ class _IssueDetailStockSignalPageState extends State<IssueDetailStockSignalPage>
                                 ),
                               ),
                               Text(
-                                '???',
+                                item.elapsedDays,
                               ),
                               const Text(
                                 '일째',

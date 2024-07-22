@@ -1832,9 +1832,8 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
       final TrSignal08 resData = TrSignal08.fromJson(jsonDecode(response.body));
       _signalChartDataList.clear();
       _recentSignalDataFlag = '';
-      //_chartSeriesController?.isVisible = false;
-      //setState(() {});
-      await Future.delayed(const Duration(milliseconds: 100));
+      setState(() {},);
+      await Future.delayed(const Duration(milliseconds: 200));
       if (resData.retCode == RT.SUCCESS) {
         final Signal08 mData = resData.retData;
         beginYear = mData.beginYear;
@@ -1842,13 +1841,12 @@ class StockHomeSignalPageState extends State<StockHomeSignalPage> {
         balAmt = mData.balanceAmt;
         _signalChartDataList.addAll(mData.listChart);
         _recentSignalDataFlag = _findRecentSignalData;
-        await Future.delayed(const Duration(milliseconds: 100));
         setState(() {
           SchedulerBinding.instance.addPostFrameCallback((_) {
-            //_chartSeriesController?.seriesRenderer.
-            _zoomPanBehavior.zoomToSingleAxis(_xAxis, 0.99, 0.15);
-            _chartSeriesController?.isVisible = true;
-            _chartSeriesController?.animate();
+            _zoomPanBehavior.zoomToSingleAxis(_xAxis, 10, 0.16);
+            Future.delayed(const Duration(milliseconds: 200)).then((value) {
+              _chartSeriesController?.animate();
+            },);
           });
         });
       }

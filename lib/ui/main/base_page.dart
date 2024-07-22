@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
-import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/routes.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
@@ -547,41 +546,21 @@ class BasePageState extends State<BasePage> {
     }
   }
 
-  //종목홈 안떠있으면 닫지 않고 열기, 종목홈 떠있으면 닫고 종목홈 갱신시키기
-  goStockHomePageCheck(BuildContext pageBuildContext, String stockCode, String stockName, int pageIdx) {
-    appGlobal.stkCode = stockCode;
-    appGlobal.stkName = stockName;
-    appGlobal.tabIndex = pageIdx;
-    if (StockHomeTab.globalKey.currentState == null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => StockHomeTab(),
-        ),
-      );
-    } else {
-      Navigator.pop(pageBuildContext);
-      StockHomeTab.globalKey.currentState?.refreshChild();
-    }
-  }
-
   //종목홈으로 이동 or 갱신
-  Future<String?> goStockHomePage(String stockCode, String stockName, int pageIdx) async {
+  goStockHomePage(String stockCode, String stockName, int pageIdx) {
     appGlobal.stkCode = stockCode;
     appGlobal.stkName = stockName;
     appGlobal.tabIndex = pageIdx;
-    String? result = CustomNvRouteResult.cancel;
-    if (StockHomeTab.globalKey.currentState == null) {
-      result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => StockHomeTab(),
-        ),
-      );
+    var stockHomeTabState = StockHomeTab.globalKey.currentState;
+    if (stockHomeTabState == null) {
+      Navigator.pushNamed(context, StockHomeTab.routeName);
     } else {
-      StockHomeTab.globalKey.currentState?.refreshChild();
+      Navigator.popUntil(
+        context,
+        ModalRoute.withName(StockHomeTab.routeName),
+      );
+      stockHomeTabState.refreshChild();
     }
-    return result;
   }
 
   //포켓탭으로 이동
@@ -726,19 +705,19 @@ class BasePageState extends State<BasePage> {
   // 마이 -
   // etc
 
-  testFunc(){
+  testFunc() {
     Navigator.popUntil(
       context,
-          (route) => route.settings.name == BasePage.routeName,
+      (route) => route.settings.name == BasePage.routeName,
     );
-    if(_selectedIndex == 0){
-      if(SliverHomeWidget.globalKey.currentState==null){
+    if (_selectedIndex == 0) {
+      if (SliverHomeWidget.globalKey.currentState == null) {
         DefaultTabController.of(context).animateTo(0);
-      }else{
+      } else {
         var childCurrentState = SliverHomeWidget.globalKey.currentState;
         childCurrentState?.reload();
       }
-    }else{
+    } else {
       setState(() {
         _selectedIndex = 0;
       });
@@ -754,9 +733,7 @@ class BasePageState extends State<BasePage> {
     ).then(
       (result) {
         if (result == 'cancel') {
-        } else {
-
-        }
+        } else {}
       },
     );
   }

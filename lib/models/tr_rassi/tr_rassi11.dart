@@ -92,14 +92,14 @@ class Rassi11 {
 
 class TileRassi11 extends StatelessWidget {
   final Rassi11 item;
+  final bool visibleDividerLine;
 
-  const TileRassi11(this.item, {super.key});
+  const TileRassi11({required this.item, required this.visibleDividerLine, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.only(top: 14,),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -109,7 +109,7 @@ class TileRassi11 extends StatelessWidget {
               _setTagList(),
               Text(
                 item.elapsedTmTx,
-                style: TStyle.contentGrey14,
+                style: const TextStyle(color: RColor.greyMore_999999,),
               ),
             ],
           ),
@@ -134,10 +134,12 @@ class TileRassi11 extends StatelessWidget {
               textAlign: TextAlign.start,
             ),
           ),
+          const SizedBox(height: 10),
           _setStockList(context, item.listStock),
+          const SizedBox(height: 12),
           Container(
             color: Colors.black12,
-            height: 1.2,
+            height: visibleDividerLine ? 1.2 : 0,
           ),
         ],
       ),
@@ -180,7 +182,7 @@ class TileRassi11 extends StatelessWidget {
 
   Widget _setStockList(BuildContext context, List<StockData> listStk) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: 0),
       width: double.infinity,
       child: Wrap(
         spacing: 7.0,
@@ -188,29 +190,26 @@ class TileRassi11 extends StatelessWidget {
         children: List.generate(
           listStk.length,
           (index) => InkWell(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
-              // decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    TStyle.getLimitString(listStk[index].stockName, 7),
-                    style: TStyle.contentGrey14,
-                  ),
-                  const SizedBox(width: 4,),
-                  Text(
-                    TStyle.getPercentString(TStyle.getFixedNum(listStk[index].fluctuationRate)),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: TStyle.getMinusPlusColor(
-                        listStk[index].fluctuationRate,
-                      ),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  TStyle.getLimitString(listStk[index].stockName, 7),
+                  style: const TextStyle(color: RColor.greyMore_999999,),
+                ),
+                const SizedBox(width: 4,),
+                Text(
+                  TStyle.getPercentString(TStyle.getFixedNum(listStk[index].fluctuationRate)),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: TStyle.getMinusPlusColor(
+                      listStk[index].fluctuationRate,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             onTap: () {
               //종목홈으로 이동

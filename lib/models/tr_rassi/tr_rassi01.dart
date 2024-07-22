@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/rassiro.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
@@ -19,13 +18,11 @@ class TrRassi01 {
   TrRassi01({this.retCode = '', this.retMsg = '', this.listData = const []});
 
   factory TrRassi01.fromJson(Map<String, dynamic> json) {
-    var list = json['retData']['list_Rassiro'] as List;
-    List<Rassiro> rtList = list.map((i) => Rassiro.fromJson(i)).toList();
-
+    var jsonList = json['retData']['list_Rassiro'];
     return TrRassi01(
       retCode: json['retCode'] ?? '',
       retMsg: json['retMsg'] ?? '',
-      listData: rtList,
+      listData: jsonList == null ? [] : (jsonList as List).map((i) => Rassiro.fromJson(i)).toList(),
     );
   }
 }
@@ -33,66 +30,64 @@ class TrRassi01 {
 //화면구성 (마켓뷰)
 class TileRassi01 extends StatelessWidget {
   final Rassiro item;
+  final bool visibleDividerLine;
 
-  const TileRassi01(this.item, {Key? key}) : super(key: key);
+  const TileRassi01({required this.item, required this.visibleDividerLine, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return item.isEmpty()
-        ? Container(
-            width: double.infinity,
-            height: 50,
-            alignment: Alignment.center,
-            child: Image.asset(
-              'images/gif_ios_loading_large.gif',
-              height: 20,
-            ),
-          )
-        : Container(
-            width: double.infinity,
-            alignment: Alignment.centerLeft,
-            child: InkWell(
-              splashColor: Colors.deepPurpleAccent.withAlpha(30),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title,
-                      style: TStyle.defaultContent,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.start,
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      TStyle.getDtTimeFormat(item.issueDttm),
-                      style: TStyle.contentGrey12,
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      color: Colors.black12,
-                      height: 1.2,
-                    )
-                  ],
+    return Container(
+      width: double.infinity,
+      alignment: Alignment.centerLeft,
+      margin: EdgeInsets.only(
+        top: 12,
+      ),
+      child: InkWell(
+        splashColor: Colors.deepPurpleAccent.withAlpha(30),
+        child: Container(
+          width: double.infinity,
+          //padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.title,
+                style: TStyle.defaultContent,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.start,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                TStyle.getDtTimeFormat(item.issueDttm),
+                style: const TextStyle(
+                  color: RColor.greyMore_999999,
                 ),
               ),
-              onTap: () {
-                basePageState.callPageRouteNews(
-                  const NewsViewer(),
-                  PgNews(
-                    stockCode: '',
-                    stockName: '',
-                    newsSn: item.newsSn,
-                    createDate: item.newsCrtDate,
-                  ),
-                );
-              },
+              Container(
+                color: Colors.black12,
+                height: visibleDividerLine ? 1.2 : 0,
+                margin: const EdgeInsets.only(
+                  top: 12,
+                ),
+              )
+            ],
+          ),
+        ),
+        onTap: () {
+          basePageState.callPageRouteNews(
+            const NewsViewer(),
+            PgNews(
+              stockCode: '',
+              stockName: '',
+              newsSn: item.newsSn,
+              createDate: item.newsCrtDate,
             ),
           );
+        },
+      ),
+    );
   }
 }
 
