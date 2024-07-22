@@ -230,6 +230,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
               jsonEncode(<String, String>{
                 'userId': _userId,
                 'newsSn': _newsSn,
+                'issueSn': _issueSn,
               }));
         }
       });

@@ -83,8 +83,9 @@ dependencies:
   syncfusion_flutter_charts: ^26.1.41
 
   #syncfusion
-  syncfusion_flutter_sliders: ^26.1.41
   syncfusion_flutter_core: ^26.1.41
+  syncfusion_flutter_sliders: ^26.1.41
+  syncfusion_flutter_treemap: ^26.1.41
 
   #간편로그인
   kakao_flutter_sdk: ^1.2.2

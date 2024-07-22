@@ -35,6 +35,7 @@ import 'package:rassi_assist/ui/home/market_tile/market_tile_today_issue.dart';
 import 'package:rassi_assist/ui/home/market_tile/market_tile_today_market.dart';
 import 'package:rassi_assist/ui/market/headline_now_page.dart';
 import 'package:rassi_assist/ui/market/home_market_kos_chart.dart';
+import 'package:rassi_assist/ui/market/issue_insight_page.dart';
 import 'package:rassi_assist/ui/market/related_news_page.dart';
 import 'package:rassi_assist/ui/market/today_feature_stock_list_page.dart';
 import 'package:rassi_assist/ui/market/today_issue_timeline_page.dart';
@@ -156,6 +157,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
           SliverList(
             delegate: SliverChildListDelegate([
               _setPrTop(),
+              _setBtnIssueInsight(),
 
               const SizedBox(height: 10),
               //오늘의 이슈
@@ -226,6 +228,28 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
             ]),
           ),
         ],
+      ),
+    );
+  }
+
+  // 이슈 인사이트 연결
+  Widget _setBtnIssueInsight() {
+    return Visibility(
+      visible: false,
+      child: InkWell(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
+          child: const Center(
+            child: Text(
+              '시장 이슈를 분석하는 이슈 인사이트 ',
+              style: TStyle.content14,
+            ),
+          ),
+        ),
+        onTap: () {
+          basePageState.callPageRouteUP(const IssueInsightPage());
+        },
       ),
     );
   }
@@ -467,7 +491,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
     );
   }
 
-// 타임라인 배너
+  // 타임라인 배너
   Widget _setTimelineBanner() {
     return InkWell(
       onTap: () {
