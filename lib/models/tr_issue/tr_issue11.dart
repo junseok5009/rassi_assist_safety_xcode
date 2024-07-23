@@ -45,6 +45,7 @@ class Issue11 {
   final String content2;
   final String upMaxDate;
   final String dnMaxDate;
+  final List<IssueTrendCount> listIssueCount;
 
   // [UPDAY]
   final String totalPageSize;
@@ -55,7 +56,6 @@ class Issue11 {
   const Issue11({
     this.menuDiv = '',
     this.content1 = '',
-
     this.listGenMonth = const [],
 
     this.title1 = '',
@@ -63,6 +63,7 @@ class Issue11 {
     this.content2 = '',
     this.upMaxDate = '',
     this.dnMaxDate = '',
+    this.listIssueCount = const [],
 
     this.totalPageSize = '',
     this.totalItemSize = '',
@@ -84,6 +85,7 @@ class Issue11 {
       totalItemSize: json['totalItemSize'] ?? '',
       currentPageNo: json['currentPageNo'] ?? '',
       listGenMonth: jsonList == null ? [] : (jsonList as List).map((i) => IssueGenMonth.fromJson(i)).toList(),
+      listIssueCount: jsonList == null ? [] : (jsonList as List).map((i) => IssueTrendCount.fromJson(i)).toList(),
       listDayTop: jsonList == null ? [] : (jsonList as List).map((i) => IssueTopDay.fromJson(i)).toList(),
     );
   }
@@ -103,6 +105,35 @@ class IssueGenMonth {
       keyword: json['keyword'] ?? '',
       occurCount: json['occurCount'] ?? '',
     );
+  }
+}
+
+//  [TREND]
+class IssueTrendCount {
+  final String issueDate;
+  final String upCount;
+  final String downCount;
+  final String occurCount;
+
+  IssueTrendCount({
+    this.issueDate = '',
+    this.upCount = '0',
+    this.downCount = '0',
+    this.occurCount = '0',
+  });
+
+  factory IssueTrendCount.fromJson(Map<String, dynamic> json) {
+    return IssueTrendCount(
+      issueDate: json['issueDate'] ?? '',
+      upCount: json['upCount'] ?? '0',
+      downCount: json['downCount'] ?? '0',
+      occurCount: json['occurCount'] ?? '0',
+    );
+  }
+
+  @override
+  String toString() {
+    return '$issueDate | $upCount | $downCount | $occurCount';
   }
 }
 
@@ -129,6 +160,8 @@ class IssueTopDay {
     );
   }
 }
+
+
 
 // Tile 한달동안 많이 발섕한 이슈
 class TileMonthTopIssue extends StatelessWidget {

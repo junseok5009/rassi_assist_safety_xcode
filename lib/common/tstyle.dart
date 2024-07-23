@@ -221,6 +221,12 @@ class TStyle {
     color: Color(0xff111111),
   );
 
+  static const content14n = TextStyle(
+    fontWeight: FontWeight.w400,
+    fontSize: 14,
+    color: RColor.blackTitle_141414,
+  );
+
   static const content15 = TextStyle(
     //본문 내용
     fontWeight: FontWeight.w500,

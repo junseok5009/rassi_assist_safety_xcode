@@ -17,7 +17,7 @@ class TrRassi06 {
     return TrRassi06(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      listData: rtList,
+      listData: rtList ?? [],
     );
   }
 }

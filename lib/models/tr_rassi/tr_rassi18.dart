@@ -1,10 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/models/pg_news.dart';
-import 'package:rassi_assist/ui/main/base_page.dart';
-import 'package:rassi_assist/ui/news/news_tag_page.dart';
-import 'package:rassi_assist/ui/news/news_tag_sum_page.dart';
 
 
 /// 2024.07

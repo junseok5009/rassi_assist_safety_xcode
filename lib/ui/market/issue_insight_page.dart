@@ -2,27 +2,22 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
-import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
 import 'package:rassi_assist/models/pg_data.dart';
-import 'package:rassi_assist/models/tr_issue/tr_issue04.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue10.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue11.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
-import 'package:rassi_assist/ui/market/issue_calendar_page.dart';
-import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
-import 'package:rassi_assist/ui/tiles/tile_related_stock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_treemap/treemap.dart';
 
 /// 2024.07
@@ -44,77 +39,37 @@ class IssueInsightState extends State<IssueInsightPage> {
   late PgData args;
 
   final String yearMonth = TStyle.getYearMonthString();
+  late DateTime _currentDate;
+  String dateTitle = '';
+  String _monthDesc = '';
 
-  IssueDivType subType = IssueDivType.OCCUR;
   List<IssueGenMonth> _issMonthTopList = [];
   List<IssueTopDay> _issDayTopList = [];
   List<NewIssue> _newIssueList = [];
+  List<IssueTrendCount> _listStackedColumn = [];
 
   String _trendTitle1 = '';
   String _trendTitle2 = '';
   String _trendContent1 = '';
   String _trendContent2 = '';
+  String _upCountTrend = '';
+  String _dnCountTrend = '';
 
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(
-      IssueInsightPage.TAG_NAME,
-    );
+    CustomFirebaseClass.logEvtScreenView(IssueInsightPage.TAG_NAME);
+
+    _currentDate = DateTime.now();
+    dateTitle = TStyle.getDateLongYmKorFormat(yearMonth);
+
     _loadPrefData().then((value) {
       Future.delayed(Duration.zero, () {
         DLog.d(IssueInsightPage.TAG, "delayed user id : $_userId");
-        DLog.d(IssueInsightPage.TAG, "delayed subType : ${subType.name}");
+        // DLog.d(IssueInsightPage.TAG, "delayed subType : ${subType.name}");
 
         if (_userId != '') {
-          //월별 발생 순위
-          _fetchPosts(
-              TR.ISSUE11,
-              jsonEncode(<String, String>{
-                'userId': _userId,
-                'issueMonth': yearMonth,
-                'menuDiv': IssueDivType.OCCUR.name,
-                'pageNo': '0',
-                'pageItemSize': '10',
-              }));
-
-          //트랜드
-          _fetchPosts(
-              TR.ISSUE11,
-              jsonEncode(<String, String>{
-                'userId': _userId,
-                'issueMonth': yearMonth,
-                'menuDiv': IssueDivType.TREND.name,
-              }));
-
-          //일별 상승 랭킹
-          _fetchPosts(
-              TR.ISSUE11,
-              jsonEncode(<String, String>{
-                'userId': _userId,
-                'issueMonth': yearMonth,
-                'menuDiv': IssueDivType.UPDAY.name,
-                'pageNo': '0',
-                'pageItemSize': '10',
-              }));
-
-          /// (전문 개발중??)
-          // _fetchPosts(
-          //     TR.ISSUE11,
-          //     jsonEncode(<String, String>{
-          //       'userId': _userId,
-          //       'issueMonth': yearMonth,
-          //       'menuDiv': IssueDivType.UPMON.name,
-          //       'pageNo': '0',
-          //       'pageItemSize': '10',
-          //     }));
-
-          _fetchPosts(
-              TR.ISSUE10,
-              jsonEncode(<String, String>{
-                'userId': _userId,
-                'issueMonth': yearMonth,
-              }));
+          _requestData(_getYearMonth(0));
         }
       });
     });
@@ -132,6 +87,13 @@ class IssueInsightState extends State<IssueInsightPage> {
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? AppGlobal().userId;
   }
 
+  /// 다음달 +1, 이전달 -1
+  String _getYearMonth(int index) {
+    // if(_currentDate) ---> 마지막 이번달 체크 필요
+    _currentDate = DateTime(_currentDate.year, _currentDate.month + index, 1);
+    return DateFormat('yyyyMM').format(_currentDate);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,17 +108,31 @@ class IssueInsightState extends State<IssueInsightPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 15),
+              const SizedBox(height: 25),
+              _setDateTitle,
+              const SizedBox(height: 20),
 
-              //
+              Container(
+                margin: const EdgeInsets.all(15),
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
+                child: Text(
+                  _monthDesc,
+                  style: TStyle.defaultContent,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // 한달동안 많이 발섕한 이슈
               _setMonthTopIssue,
               const SizedBox(height: 10),
               CommonView.setDivideLine,
               const SizedBox(height: 10),
 
-              //
+              // 한달동안 이슈 트랜드
               _setMonthTrend,
               CommonView.setDivideLine,
               const SizedBox(height: 10),
@@ -165,13 +141,52 @@ class IssueInsightState extends State<IssueInsightPage> {
               _setDayTopIssue,
               const SizedBox(height: 25),
 
-              //
+              // 새롭게 등장한 이슈
               _setNewIssueList,
               const SizedBox(height: 10),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // 2024년 7월
+  Widget get _setDateTitle {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          padding: const EdgeInsets.all(5),
+          constraints: const BoxConstraints(),
+          icon: Image.asset(
+            'images/main_jm_aw_l_g.png',
+            width: 18,
+            height: 14,
+          ),
+          onPressed: () {
+            _requestData(_getYearMonth(-1));
+          },
+        ),
+        const SizedBox(width: 10),
+        Text(
+          dateTitle,
+          style: TStyle.title22m,
+        ),
+        const SizedBox(width: 10),
+        IconButton(
+          padding: const EdgeInsets.all(5),
+          constraints: const BoxConstraints(),
+          icon: Image.asset(
+            'images/main_jm_aw_r_g.png',
+            width: 18,
+            height: 14,
+          ),
+          onPressed: () {
+            _requestData(_getYearMonth(1));
+          },
+        ),
+      ],
     );
   }
 
@@ -191,7 +206,7 @@ class IssueInsightState extends State<IssueInsightPage> {
           const Text('한달간 오늘의 이슈 등록 횟수가 가장 많았던 뜨거운 이슈를 살펴보세요'),
           const SizedBox(height: 15),
 
-          //
+          //chart
           _setTreeMap,
           const SizedBox(height: 15),
 
@@ -209,13 +224,13 @@ class IssueInsightState extends State<IssueInsightPage> {
   }
 
   Widget get _setTreeMap {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 330,
       child: _issMonthTopList.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : SfTreemap(
-              dataCount: _issMonthTopList.length > 20 ? 20 : _issMonthTopList.length,
+              dataCount: _issMonthTopList.length > 23 ? 23 : _issMonthTopList.length,
               weightValueMapper: (int index) {
                 return double.parse(_issMonthTopList[index].occurCount);
               },
@@ -259,13 +274,105 @@ class IssueInsightState extends State<IssueInsightPage> {
             style: TStyle.defaultTitle,
           ),
           const SizedBox(height: 15),
-          const Text('매월 1일부터 말일까지 발생된 이슈의 트랜드와 지수'),
+          const Text('매월 1일부터 말일까지 발생된 이슈의 트랜드와 지수의 흐름도 함께 비교해 보세요'),
           const SizedBox(height: 15),
 
-          Text(_trendTitle1),
-          Text(_trendContent1),
-          Text(_trendTitle2),
-          Text(_trendContent2),
+          //chart
+          _setStackedColumn100,
+          const SizedBox(height: 15),
+
+          //상승/하락 이슈가 많았던 날
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
+            child: Row(
+              children: [
+                Expanded(
+                    child: Column(
+                  children: [
+                    const Text(
+                      '상승 이슈가\n많았던 날',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 73,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: RColor.sigBuy,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$_upCountTrend일',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20,
+                            color: RColor.sigBuy,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
+                Expanded(
+                    child: Column(
+                  children: [
+                    const Text(
+                      '하락 이슈가\n많았던 날',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 73,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: RColor.sigSell,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$_dnCountTrend일',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20,
+                            color: RColor.sigSell,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
+              ],
+            ),
+          ),
+          const SizedBox(height: 25),
+
+          Text(
+            _trendTitle1,
+            style: TStyle.defaultTitle,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _trendContent1,
+            style: TStyle.defaultContent,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            _trendTitle2,
+            style: TStyle.defaultTitle,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _trendContent2,
+            style: TStyle.defaultContent,
+          ),
 
           // ListView.builder(
           //   physics: const ScrollPhysics(),
@@ -277,6 +384,38 @@ class IssueInsightState extends State<IssueInsightPage> {
           // ),
         ],
       ),
+    );
+  }
+
+  Widget get _setStackedColumn100 {
+    return SizedBox(
+      height: 300,
+      child: _listStackedColumn.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : SfCartesianChart(
+              // margin: EdgeInsets.zero,
+              primaryXAxis: const CategoryAxis(),
+              primaryYAxis: const NumericAxis(
+                axisLine: AxisLine(width: 0),
+                majorGridLines: MajorGridLines(width: 0),
+                labelStyle: TextStyle(color: Colors.transparent),
+                isVisible: false,
+              ),
+              series: <CartesianSeries>[
+                StackedColumn100Series<IssueTrendCount, String>(
+                  dataSource: _listStackedColumn,
+                  xValueMapper: (IssueTrendCount data, _) => data.issueDate,
+                  yValueMapper: (IssueTrendCount data, _) => double.parse(data.upCount),
+                  color: RColor.bubbleChartRed,
+                ),
+                StackedColumn100Series<IssueTrendCount, String>(
+                  dataSource: _listStackedColumn,
+                  xValueMapper: (IssueTrendCount data, _) => data.issueDate,
+                  yValueMapper: (IssueTrendCount data, _) => double.parse(data.downCount),
+                  color: RColor.bubbleChartBlue,
+                ),
+              ],
+            ),
     );
   }
 
@@ -336,58 +475,14 @@ class IssueInsightState extends State<IssueInsightPage> {
     );
   }
 
-  //안내 다이얼로그
-  void _showDialogDesc(String desc) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: UIStyle.borderRoundedDialog(),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              InkWell(
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.black,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.asset(
-                  'images/rassibs_img_infomation.png',
-                  height: 60,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(height: 25),
-                const Text(
-                  '안내',
-                  style: TStyle.title20,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  desc,
-                  style: TStyle.defaultContent,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   void _requestData(String sYearMonth) {
+    dateTitle = TStyle.getDateLongYmKorFormat(sYearMonth);
+    _monthDesc = '';
+    _issMonthTopList.clear();
+    _issDayTopList.clear();
+    _newIssueList.clear();
+    _listStackedColumn.clear();
+
     _fetchPosts(
         TR.ISSUE11,
         jsonEncode(<String, String>{
@@ -403,7 +498,7 @@ class IssueInsightState extends State<IssueInsightPage> {
         TR.ISSUE11,
         jsonEncode(<String, String>{
           'userId': _userId,
-          'issueMonth': yearMonth,
+          'issueMonth': sYearMonth,
           'menuDiv': IssueDivType.TREND.name,
         }));
 
@@ -412,21 +507,19 @@ class IssueInsightState extends State<IssueInsightPage> {
         TR.ISSUE11,
         jsonEncode(<String, String>{
           'userId': _userId,
-          'issueMonth': yearMonth,
+          'issueMonth': sYearMonth,
           'menuDiv': IssueDivType.UPDAY.name,
           'pageNo': '0',
           'pageItemSize': '10',
         }));
 
-    // _fetchPosts(
-    //     TR.ISSUE11,
-    //     jsonEncode(<String, String>{
-    //       'userId': _userId,
-    //       'issueMonth': sYearMonth,
-    //       'menuDiv': IssueDivType.OCCUR.name,
-    //       'pageNo': '0',
-    //       'pageItemSize': '10',
-    //     }));
+    //월별 신규 등록된 이슈
+    _fetchPosts(
+        TR.ISSUE10,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'issueMonth': sYearMonth,
+        }));
   }
 
   void _fetchPosts(String trStr, String json) async {
@@ -459,6 +552,7 @@ class IssueInsightState extends State<IssueInsightPage> {
         DLog.d(IssueInsightPage.TAG, item.menuDiv);
 
         if (item.menuDiv == IssueDivType.OCCUR.name) {
+          _monthDesc = item.content1;
           _issMonthTopList = item.listGenMonth;
         }
         if (item.menuDiv == IssueDivType.TREND.name) {
@@ -466,6 +560,12 @@ class IssueInsightState extends State<IssueInsightPage> {
           _trendTitle2 = item.title2;
           _trendContent1 = item.content1;
           _trendContent2 = item.content2;
+          _upCountTrend = item.upMaxDate;
+          _dnCountTrend = item.dnMaxDate;
+          _listStackedColumn = item.listIssueCount;
+          // for (IssueTrendCount tt in _listStackedColumn) {
+          //   DLog.w(tt.toString());
+          // }
         }
         if (item.menuDiv == IssueDivType.UPDAY.name) {
           _issDayTopList = item.listDayTop;

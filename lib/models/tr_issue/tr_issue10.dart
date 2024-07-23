@@ -106,12 +106,17 @@ class TileNewIssue extends StatelessWidget {
               item.keyword,
               style: TStyle.defaultTitle,
             ),
-
-            Text(
-              item.title,
-              style: TStyle.defaultContent,
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
+              child: Text(
+                item.title,
+                style: TStyle.defaultContent,
+              ),
             ),
-
+            const SizedBox(height: 10),
             _setStockList(context, item.stockList),
           ],
         ),
@@ -138,7 +143,7 @@ class TileNewIssue extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Wrap(
-        spacing: 7.0,
+        spacing: 10,
         alignment: WrapAlignment.start,
         children: List.generate(
           listStk.length,
@@ -148,7 +153,7 @@ class TileNewIssue extends StatelessWidget {
               // decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
               child: Text(
                 TStyle.getLimitString(listStk[index].stockName, 7),
-                style: TStyle.contentGrey14,
+                style: TStyle.content14n,
               ),
             ),
             onTap: () {

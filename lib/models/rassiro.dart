@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/models/tag_info.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
 import 'package:rassi_assist/ui/news/news_viewer.dart';
 import 'package:rassi_assist/ui/web/web_page.dart';
@@ -28,6 +30,9 @@ class Rassiro {
   final String currentPrice; // 관련 종목 현재 가격
   final String fluctuationRate; // 관련 종목 등락
 
+  //관련 종목
+  final List<Stock> listStock;
+
   Rassiro({
     this.newsDiv = '',
     this.newsSn = '',
@@ -41,6 +46,7 @@ class Rassiro {
     this.linkUrl = '',
     this.currentPrice = '',
     this.fluctuationRate = '',
+    this.listStock = const [],
   });
 
   bool isEmpty() {
@@ -52,6 +58,7 @@ class Rassiro {
   }
 
   factory Rassiro.fromJson(Map<String, dynamic> json) {
+    var jsonList = json['list_Stock'];
     return Rassiro(
       newsDiv: json['newsDiv'] ?? '',
       newsSn: json['newsSn'] ?? '',
@@ -65,6 +72,7 @@ class Rassiro {
       linkUrl: json['linkUrl'] ?? '',
       currentPrice: json['currentPrice'] ?? '',
       fluctuationRate: json['fluctuationRate'] ?? '',
+      listStock: jsonList == null ? [] : (jsonList as List).map((e) => Stock.fromJson(e)).toList(),
     );
   }
 }
@@ -101,15 +109,14 @@ class TileRassiroList extends StatelessWidget {
                       TStyle.getDateTdFormat(item.issueDttm),
                       style: TStyle.purpleThinStyle(),
                     ),
-                    const SizedBox(
-                      height: 4
-                    ),
+                    const SizedBox(height: 4),
                     Text(
                       item.title,
                       style: TStyle.content16,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    _setStockList(context, item.listStock),
                     Container(
                       margin: const EdgeInsets.only(top: 12),
                       color: Colors.black12,
@@ -154,6 +161,40 @@ class TileRassiroList extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Widget _setStockList(BuildContext context, List<Stock> listStk) {
+    return listStk.isEmpty
+        ? const SizedBox()
+        : Container(
+      margin: const EdgeInsets.only(top: 10),
+            width: double.infinity,
+            child: Wrap(
+              spacing: 10,
+              alignment: WrapAlignment.start,
+              children: List.generate(
+                listStk.length > 3 ? 3 : listStk.length,
+                (index) => InkWell(
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                    // decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
+                    child: Text(
+                      TStyle.getLimitString(listStk[index].stockName, 7),
+                      style: TStyle.content14n,
+                    ),
+                  ),
+                  onTap: () {
+                    //종목홈으로 이동
+                    basePageState.goStockHomePage(
+                      listStk[index].stockCode,
+                      listStk[index].stockName,
+                      Const.STK_INDEX_HOME,
+                    );
+                  },
+                ),
+              ),
+            ),
+          );
   }
 }
 
