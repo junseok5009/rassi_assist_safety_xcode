@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui' as duTextDirection;
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,6 @@ import 'package:intl/intl.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -29,7 +29,6 @@ import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleNode.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleRoot.dart';
 import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
-import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -138,7 +137,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
         builder: (context) =>
             SafeArea(
               child: Container(
-                padding: const EdgeInsets.only(top: 12),
+                padding: const EdgeInsets.only(top: 0),
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
@@ -161,11 +160,12 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                 ),
                 child: AnimatedContainer(
                   width: double.infinity,
-                  height: _isFaVisible ? 100 : 0,
+                  height: _isFaVisible ? 90 : 0,
                   duration: const Duration(
                     milliseconds: 300,
                   ),
-                  padding: const EdgeInsets.all(15),
+                  //padding: const EdgeInsets.all(15),
+                  padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10,),
                   margin: EdgeInsets.only(
                     bottom: MediaQuery
                         .of(_scaffoldKey.currentState!.context)
@@ -354,7 +354,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                     //MarketTileTodayMarket(index02: _index02),
 
                     const SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                   ],
                 ),
@@ -462,26 +462,29 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               style: TStyle.defaultTitle,
             ),
           ),
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 10,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 5,
-            ),
-            decoration: UIStyle.boxRoundFullColor6c(
-              RColor.greyBox_f5f5f5,
-            ),
-            child: Text(
-              '코스피는 ${_index02.kospi.fluctuationRate}% ${_index02.kospi.fluctuationRate.contains('-') ? '하락' : '상승'}, '
-                  '코스닥은 ${_index02.kosdaq.fluctuationRate}% ${_index02.kosdaq.fluctuationRate.contains('-')
-                  ? '하락'
-                  : '상승'}',
-              style: const TextStyle(
-                fontSize: 15,
+          Visibility(
+            visible: false,
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 10,
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 5,
+              ),
+              decoration: UIStyle.boxRoundFullColor6c(
+                RColor.greyBox_f5f5f5,
+              ),
+              child: Text(
+                '코스피는 ${_index02.kospi.fluctuationRate}% ${_index02.kospi.fluctuationRate.contains('-') ? '하락' : '상승'}, '
+                    '코스닥은 ${_index02.kosdaq.fluctuationRate}% ${_index02.kosdaq.fluctuationRate.contains('-')
+                    ? '하락'
+                    : '상승'}',
+                style: const TextStyle(
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
@@ -504,9 +507,17 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Image.network(
+                            /*Image.network(
                               'https://webchart.thinkpool.com/2024/mini_index/U1001.png',
                               width: 40,
+
+                            ),*/
+                            CachedNetworkImage(
+                              imageUrl: "https://webchart.thinkpool.com/2024/mini_index/U1001.png?timestamp=${DateTime.now().millisecondsSinceEpoch}",
+                              width: 40,
+                              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                  CircularProgressIndicator(value: downloadProgress.progress,color: RColor.greyBox_f5f5f5,),
+                              errorWidget: (context, url, error) => const SizedBox(width: 40,),
                             ),
                             Expanded(
                               child: Column(
@@ -560,9 +571,16 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Image.network(
+                            /*Image.network(
                               'https://webchart.thinkpool.com/2024/mini_index/U2001.png',
                               width: 40,
+                            ),*/
+                            CachedNetworkImage(
+                              imageUrl: "https://webchart.thinkpool.com/2024/mini_index/U2001.png?timestamp=${DateTime.now().millisecondsSinceEpoch}",
+                              width: 40,
+                              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                  CircularProgressIndicator(value: downloadProgress.progress, color: RColor.greyBox_f5f5f5,),
+                              errorWidget: (context, url, error) => const SizedBox(width: 40,),
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,

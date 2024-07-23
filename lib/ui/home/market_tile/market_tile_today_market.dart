@@ -106,7 +106,7 @@ class MarketTileTodayMarket extends StatelessWidget {
                             opposedPosition: true,
                             rangePadding: ChartRangePadding.none,
                             majorGridLines: const MajorGridLines(width: 0),
-                            plotOffset: 0,
+                            plotOffset: 2,
                             labelStyle: const TextStyle(
                               fontSize: 0,
                             ),
@@ -164,7 +164,7 @@ class MarketTileTodayMarket extends StatelessWidget {
                               AreaSeries<Index02KosChart, String>(
                                 dataSource: index02.kospi.listKosChart,
                                 xValueMapper: (item, index) => item.tt,
-                                yValueMapper: (item, index) => double.tryParse(item.ti)?.round(),
+                                yValueMapper: (item, index) => double.tryParse(item.ti),
                                 borderWidth: 1,
                                 borderColor: index02.kospi.fluctuationRate.contains('-')
                                     ? const Color(0xff9eb3ff)
@@ -317,7 +317,7 @@ class MarketTileTodayMarket extends StatelessWidget {
                             style: TextStyle(fontSize: 12,),
                           ),
                         ),*/
-                      Container(
+                      SizedBox(
                         width: double.infinity,
                         height: 110,
                         //color: Colors.red.withOpacity(0.2),
@@ -345,10 +345,9 @@ class MarketTileTodayMarket extends StatelessWidget {
                               width: 0,
                             ),
                             opposedPosition: true,
-                            rangePadding:
-                                index02.marketTimeDiv == 'B' ? ChartRangePadding.none : ChartRangePadding.none,
+                            rangePadding: ChartRangePadding.none,
                             majorGridLines: const MajorGridLines(width: 0),
-                            plotOffset: 0,
+                            plotOffset: 2,
                             labelStyle: const TextStyle(
                               fontSize: 0,
                             ),
@@ -409,7 +408,7 @@ class MarketTileTodayMarket extends StatelessWidget {
                               AreaSeries<Index02KosChart, String>(
                                 dataSource: index02.kosdaq.listKosChart,
                                 xValueMapper: (item, index) => item.tt,
-                                yValueMapper: (item, index) => double.tryParse(item.ti)?.round(),
+                                yValueMapper: (item, index) => double.tryParse(item.ti),
                                 borderWidth: 1,
                                 borderColor: index02.kosdaq.fluctuationRate.contains('-')
                                     ? const Color(0xff9eb3ff)

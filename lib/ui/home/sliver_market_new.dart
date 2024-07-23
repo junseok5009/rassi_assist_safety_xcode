@@ -172,11 +172,11 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
               _setTimelineBanner(),
 
               CommonView.setDivideLine,
-              const SizedBox(height: 10),
+              //const SizedBox(height: 10),
 
               //오늘 시장은
               _setSubTitleMore('오늘 시장은', '더보기', _showSheetMarketChart),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
               _index02.marketTimeDiv.isEmpty || _index02.marketTimeDiv == 'N'
                   ? CommonView.setNoDataTextView(120, '오늘 시장 데이터가 없습니다.')
                   : MarketTileTodayMarket(index02: _index02),
@@ -579,7 +579,9 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
         SizedBox(
           width: double.infinity,
           child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20,),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+              ),
               shrinkWrap: true,
               scrollDirection: Axis.vertical,
               physics: const NeverScrollableScrollPhysics(),
@@ -749,7 +751,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
 // 모든 태그를 확인해 보세요
   Widget _setNewsAllTagBtn() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       //margin: EdgeInsets.symmetric(),
       child: Column(
@@ -765,7 +767,9 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
             [
               const Text(
                 "+ 태그 전체보기",
-                style: TextStyle(fontSize: 15,),
+                style: TextStyle(
+                  fontSize: 15,
+                ),
               ),
             ],
             () {
@@ -974,6 +978,10 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
       } else {
         _index02 = const Index02();
       }
+      setState(
+        () {},
+      );
+      DLog.e('_index02 : ${_index02.toString()}');
       _fetchPosts(
           TR.TODAY05,
           jsonEncode(<String, String>{

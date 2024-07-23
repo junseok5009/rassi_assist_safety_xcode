@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
@@ -24,6 +25,7 @@ import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/market/issue_calendar_page.dart';
 import 'package:rassi_assist/ui/market/issue_detail_stock_signal_page.dart';
 import 'package:rassi_assist/ui/tiles/tile_related_stock.dart';
+import 'package:rassi_assist/ui/web/inapp_webview_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -75,8 +77,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         IssueTrend? itemIssueTrend;
         if (_issue04.listIssueTrend.isNotEmpty &&
             index < _issue04.listIssueTrend.length &&
-            _issue04.listIssueTrend[index].searchTrend.isNotEmpty
-        ) {
+            _issue04.listIssueTrend[index].searchTrend.isNotEmpty) {
           itemIssueTrend = _issue04.listIssueTrend[index];
         }
         ChartData? topStock0;
@@ -121,11 +122,15 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                 Row(
                   children: [
                     Text(
-                      itemIssueTrend == null ? topStock0 == null ? topStock1 == null ? topStock2 == null ?
-                      '' :
-                      TStyle.getDateSlashFormat1(topStock2.tradeDate) :
-                          TStyle.getDateSlashFormat1(topStock1.tradeDate) :
-                          TStyle.getDateSlashFormat1(topStock0.tradeDate) : TStyle.getDateSlashFormat1(itemIssueTrend.issueDate),
+                      itemIssueTrend == null
+                          ? topStock0 == null
+                              ? topStock1 == null
+                                  ? topStock2 == null
+                                      ? ''
+                                      : TStyle.getDateSlashFormat1(topStock2.tradeDate)
+                                  : TStyle.getDateSlashFormat1(topStock1.tradeDate)
+                              : TStyle.getDateSlashFormat1(topStock0.tradeDate)
+                          : TStyle.getDateSlashFormat1(itemIssueTrend.issueDate),
                       style: const TextStyle(
                         fontSize: 11,
                         color: RColor.greyBasic_8c8c8c,
@@ -300,20 +305,6 @@ class IssueNewViewerState extends State<IssueNewViewer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      TStyle.getDateFormat(_issue04.issueInfo.issueDttm),
-                      style: const TextStyle(
-                        //작은 그레이 텍스트
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15),
                 Text(
                   _issue04.issueInfo.title,
                   style: TStyle.content16T,
@@ -329,8 +320,15 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                       lineHeight: LineHeight.percent(125),
                     ),
                     "a": Style(
-                      display: Display.none,
-                    ),
+                        //display: Display.none,
+                        ),
+                  },
+                  onLinkTap: (url, attributes, element) {
+                    Navigator.push(
+                        context,
+                        CustomNvRouteClass.createRouteSlow1(
+                          InappWebviewPage(title: '', url: url!),
+                        ));
                   },
                 ),
               ],
@@ -431,7 +429,9 @@ class IssueNewViewerState extends State<IssueNewViewer> {
               '${_issue04.issueInfo.keyword} 검색추이 및 연관 종목 등락률',
               style: TStyle.defaultTitle,
             ),
-            const SizedBox(height: 25,),
+            const SizedBox(
+              height: 25,
+            ),
             SizedBox(
               width: double.infinity,
               height: 250,
@@ -622,11 +622,11 @@ class IssueNewViewerState extends State<IssueNewViewer> {
               height: 30,
               child: Center(
                 child: ListView.separated(
-                  separatorBuilder: (context, index) => SizedBox(
+                  separatorBuilder: (context, index) => const SizedBox(
                     width: 10,
                   ),
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   itemCount: 4,
                   itemBuilder: (context, index) {
@@ -680,7 +680,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         ),
         Text(
           '  $name',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             color: RColor.new_basic_text_color_grey,
           ),
@@ -815,7 +815,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
   }
 
   Future<void> synchronizeLists() async {
-   /* List<List<ChartData>> chartDataLists = _issue04.listTopStock
+    /* List<List<ChartData>> chartDataLists = _issue04.listTopStock
         .where((topStock) => topStock.listChart.isNotEmpty)
         .map((topStock) => topStock.listChart)
         .toList();*/
@@ -895,7 +895,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
   }
 
   Future<void> _parseTrData(String trStr, final http.Response response) async {
-    //DLog.d(IssueNewViewer.TAG, response.body);
+    DLog.d(IssueNewViewer.TAG, response.body);
 
     if (trStr == TR.ISSUE04) {
       final TrIssue04 resData = TrIssue04.fromJson(jsonDecode(response.body));

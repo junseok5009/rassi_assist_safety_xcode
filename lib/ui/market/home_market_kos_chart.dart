@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -27,10 +28,8 @@ class HomeMarketKosChartPage extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => KosdaqProvider()),
         ChangeNotifierProvider(create: (_) => Counts()),
       ],
-      child: const SafeArea(
-        child: Scaffold(
-          body: HomeMarketKosChartWidget(),
-        ),
+      child: const Scaffold(
+        body: SafeArea(child: HomeMarketKosChartWidget()),
       ),
     );
   }
@@ -41,8 +40,7 @@ class HomeMarketKosChartWidget extends StatefulWidget {
 
   //const HomeMarketKosChartWidget({Key? key}) : super(key: key);
   @override
-  State<HomeMarketKosChartWidget> createState() =>
-      _HomeMarketKosChartWidgetState();
+  State<HomeMarketKosChartWidget> createState() => _HomeMarketKosChartWidgetState();
 }
 
 class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
@@ -53,18 +51,18 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
   String _kospiSub = '';
   Color _kospiColor = Colors.grey;
   final List _kospiChartUrlList = [
-    'https://webchart.thinkpool.com/2022Mobile/IndexDay/U1001.png',
-    'https://webchart.thinkpool.com/2022Mobile/IndexLineStock92/U1001_92.png',
-    'https://webchart.thinkpool.com/2022Mobile/IndexLineStock360/U1001_360.png'
+    'https://webchart.thinkpool.com/2022Mobile/IndexDay/U1001.png?timestamp=${DateTime.now().millisecondsSinceEpoch}',
+    'https://webchart.thinkpool.com/2022Mobile/IndexLineStock92/U1001_92.png?timestamp=${DateTime.now().millisecondsSinceEpoch}',
+    'https://webchart.thinkpool.com/2022Mobile/IndexLineStock360/U1001_360.png?timestamp=${DateTime.now().millisecondsSinceEpoch}'
   ];
 
   String _kosdaq = '';
   String _kosdaqSub = '';
   Color _kosdaqColor = Colors.grey;
   final List _kosdaqChartUrlList = [
-    'https://webchart.thinkpool.com/2022Mobile/IndexDay/U2001.png',
-    'https://webchart.thinkpool.com/2022Mobile/IndexLineStock92/U2001_92.png',
-    'https://webchart.thinkpool.com/2022Mobile/IndexLineStock360/U2001_360.png'
+    'https://webchart.thinkpool.com/2022Mobile/IndexDay/U2001.png?timestamp=${DateTime.now().millisecondsSinceEpoch}',
+    'https://webchart.thinkpool.com/2022Mobile/IndexLineStock92/U2001_92.png?timestamp=${DateTime.now().millisecondsSinceEpoch}',
+    'https://webchart.thinkpool.com/2022Mobile/IndexLineStock360/U2001_360.png?timestamp=${DateTime.now().millisecondsSinceEpoch}'
   ];
 
   @override
@@ -134,7 +132,7 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
                             width: 10,
                           ),
                           Text(
-                            '$_kospiSub',
+                            _kospiSub,
                             style: TextStyle(
                               color: _kospiColor,
                               fontWeight: FontWeight.w800,
@@ -165,8 +163,13 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
                               height: 14,
                             ),
                             Expanded(
-                              child: Image.network(
+                              child:
+                                  /*Image.network(
                                 _kospiChartUrlList[value.getIndex],
+                                fit: BoxFit.fill,
+                              ),*/
+                                  CachedNetworkImage(
+                                imageUrl: _kospiChartUrlList[value.getIndex],
                                 fit: BoxFit.fill,
                               ),
                             ),
@@ -208,7 +211,7 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
                             width: 10,
                           ),
                           Text(
-                            '$_kosdaqSub',
+                            _kosdaqSub,
                             style: TextStyle(
                               color: _kosdaqColor,
                               fontWeight: FontWeight.w800,
@@ -219,7 +222,7 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 16,
                   ),
                   Expanded(
@@ -232,14 +235,23 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
                               alignment: WrapAlignment.center,
                               children: List.generate(
                                 3,
-                                (index) =>
-                                    _makeKosBtnViews(index, _kosdaqKey),
+                                (index) => _makeKosBtnViews(index, _kosdaqKey),
                               ),
                             ),
                             const SizedBox(
                               height: 14,
                             ),
-                            Expanded(child: Image.network(_kosdaqChartUrlList[value.getIndex], fit: BoxFit.fill, ),),
+                            Expanded(
+                              child:
+                                  /*Image.network(
+                                _kosdaqChartUrlList[value.getIndex],
+                                fit: BoxFit.fill,
+                              ),*/
+                                  CachedNetworkImage(
+                                imageUrl: _kosdaqChartUrlList[value.getIndex],
+                                fit: BoxFit.fill,
+                              ),
+                            ),
                           ],
                         );
                       },
@@ -249,10 +261,9 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
               ),
             ),
 
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
-
           ],
         ),
       ),
@@ -269,13 +280,15 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
   void _fetchPosts() async {
     var url = Uri.parse(Net.TR_BASE + TR.INDEX01);
     try {
-      final http.Response response = await http.post(
+      final http.Response response = await http
+          .post(
             url,
             body: jsonEncode(<String, String>{
               'userId': AppGlobal().userId,
             }),
             headers: Net.headers,
-          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       final TrIndex01 resData = TrIndex01.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
@@ -287,8 +300,7 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
           _kospiSub = '▼${kospi.indexFluctuation.replaceAll('-', '')}  ${kospi.fluctuationRate}%';
           _kospiColor = RColor.sigSell;
         } else if (kospi.fluctuationRate == '0.00') {
-          _kospiSub =
-              '${kospi.indexFluctuation}  ${kospi.fluctuationRate}%';
+          _kospiSub = '${kospi.indexFluctuation}  ${kospi.fluctuationRate}%';
         } else {
           _kospiSub = '▲${kospi.indexFluctuation}  +${kospi.fluctuationRate}%';
           _kospiColor = RColor.sigBuy;
@@ -299,8 +311,7 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
           _kosdaqSub = '▼${kosdaq.indexFluctuation.replaceAll('-', '')}   ${kosdaq.fluctuationRate}%';
           _kosdaqColor = RColor.sigSell;
         } else if (kosdaq.fluctuationRate == '0.00') {
-          _kosdaqSub =
-              '${kosdaq.indexFluctuation}  ${kosdaq.fluctuationRate}%';
+          _kosdaqSub = '${kosdaq.indexFluctuation}  ${kosdaq.fluctuationRate}%';
         } else {
           _kosdaqSub = '▲${kosdaq.indexFluctuation}   +${kosdaq.fluctuationRate}%';
           _kosdaqColor = RColor.sigBuy;
@@ -308,9 +319,11 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
 
         setState(() {});
       } else {
-        Navigator.pop(context);
+        if(mounted) Navigator.pop(context);
       }
-    } catch (error) {}
+    } catch (error) {
+      if(mounted) Navigator.pop(context);
+    }
   }
 
   Widget _makeKosBtnViews(int index, int key) {
@@ -326,12 +339,8 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
       btnTitle = '1년';
     }
 
-    if ((key == _kospiKey &&
-            Provider.of<KospiProvider>(context, listen: false)._index ==
-                index) ||
-        (key == _kosdaqKey &&
-            Provider.of<KosdaqProvider>(context, listen: false)._index ==
-                index)) {
+    if ((key == _kospiKey && Provider.of<KospiProvider>(context, listen: false)._index == index) ||
+        (key == _kosdaqKey && Provider.of<KosdaqProvider>(context, listen: false)._index == index)) {
       btnDecoration = UIStyle.boxBtnSelectedMainColor6Cir();
       btnFontColor = Colors.white;
     }
@@ -347,7 +356,7 @@ class _HomeMarketKosChartWidgetState extends State<HomeMarketKosChartWidget> {
       child: Container(
         width: 60,
         decoration: btnDecoration,
-        padding: EdgeInsets.fromLTRB(6, 4, 6, 4),
+        padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
         alignment: Alignment.center,
         child: Text(
           btnTitle,
