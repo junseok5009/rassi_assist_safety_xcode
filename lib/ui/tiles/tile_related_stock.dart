@@ -124,7 +124,7 @@ class TileRelatedStock extends StatelessWidget {
                 (index) => InkWell(
                   child: Container(
                     padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
-                    decoration: UIStyle.boxRoundLine25c(RColor.greyBasic_8c8c8c),
+                    decoration: UIStyle.boxRoundLine25c(const Color(0xffD2D2D2)),
                     child: Text(
                       '#${item.listKeyword[index].keyword}',
                       style: TStyle.content14,

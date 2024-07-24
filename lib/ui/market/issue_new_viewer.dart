@@ -54,6 +54,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
   Issue04 _issue04 = Issue04();
   int _stkListPageNum = 2;
 
+  final ScrollController _scrollController = ScrollController();
   late TrackballBehavior _trackballBehavior;
 
   @override
@@ -249,6 +250,12 @@ class IssueNewViewerState extends State<IssueNewViewer> {
     }
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     _userId = _prefs.getString(Const.PREFS_USER_ID) ?? AppGlobal().userId;
@@ -267,6 +274,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -305,6 +313,27 @@ class IssueNewViewerState extends State<IssueNewViewer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      TStyle.getDateSlashFormat2(_issue04.issueInfo.issueDttm),
+                      style: TStyle.textGrey14S,
+                    ),
+                    _issue04.issueInfo.issueDttm.isNotEmpty &&
+                            _issue04.issueInfo.issueDttm.substring(0, 6) == TStyle.getYearMonthString()
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            decoration: UIStyle.boxRoundFullColor6c(RColor.mainColor),
+                            child: const Text(
+                              '오늘의 이슈',
+                              style: TStyle.btnTextWht12,
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 Text(
                   _issue04.issueInfo.title,
                   style: TStyle.content16T,
@@ -424,8 +453,8 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '${_issue04.issueInfo.keyword} 검색추이 및 연관 종목 등락률',
+            const Text(
+              '이슈 검색추이 및 연관 종목 등락률',
               style: TStyle.defaultTitle,
             ),
             const SizedBox(
@@ -702,8 +731,8 @@ class IssueNewViewerState extends State<IssueNewViewer> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(
-                '${_issue04.issueInfo.keyword} 관련 종목',
+              const Text(
+                '관련 종목들',
                 style: TStyle.defaultTitle,
               ),
               Text(
@@ -909,6 +938,17 @@ class IssueNewViewerState extends State<IssueNewViewer> {
         _issue04 = Issue04();
       }
       setState(() {});
+      _scrollToTop();
+    }
+  }
+
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
     }
   }
 
