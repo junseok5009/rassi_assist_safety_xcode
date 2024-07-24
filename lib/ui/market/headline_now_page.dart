@@ -17,7 +17,7 @@ import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// 2024.06
-/// 이 시간 헤드라인
+/// 이 시각 헤드라인
 class HeadlineNowPage extends StatefulWidget {
   static const routeName = '/page_headline_now';
   static const String TAG = "[HeadlineNowPage]";
@@ -88,10 +88,8 @@ class HeadlineNowState extends State<HeadlineNowPage> {
   _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      deviceModel = iosInfo?.model;
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    deviceModel = iosInfo.model;
   }
 
   @override
@@ -109,7 +107,7 @@ class HeadlineNowState extends State<HeadlineNowPage> {
       backgroundColor: RColor.bgBasic_fdfdfd,
       appBar: CommonAppbar.basic(
         buildContext: context,
-        title: '이 시간 헤드라인',
+        title: '이 시각 헤드라인',
         elevation: 1,
       ),
       body: SafeArea(
@@ -201,7 +199,7 @@ class HeadlineNowState extends State<HeadlineNowPage> {
       setState(() {});
     }
 
-    //이 시간 헤드라인 (라씨로 PICK)
+    //이 시각 헤드라인 (라씨로 PICK)
     if (trStr == TR.RASSI11) {
       final TrRassi11 resData = TrRassi11.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {

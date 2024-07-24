@@ -95,10 +95,8 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
   _loadPrefData() async {
     _prefs = await SharedPreferences.getInstance();
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    setState(() {
-      _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
-      deviceModel = iosInfo?.model;
-    });
+    _userId = _prefs.getString(Const.PREFS_USER_ID) ?? '';
+    deviceModel = iosInfo.model;
   }
 
   @override
@@ -131,7 +129,7 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('관련태그', style: TStyle.content15,),
+                  const Text('관련 태그', style: TStyle.content15,),
                   const SizedBox(height: 3),
                   SizedBox(
                     width: double.infinity,

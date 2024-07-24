@@ -11,7 +11,7 @@ class TrIssue05 {
 
   factory TrIssue05.fromJson(Map<String, dynamic> json) {
     var jsonData = json['retData'];
-    var jsonList = json['retData']['list_Issue'];
+    var jsonList = json['retData']?['list_Issue'];
     return TrIssue05(
         retCode: json['retCode'],
         retMsg: json['retMsg'],

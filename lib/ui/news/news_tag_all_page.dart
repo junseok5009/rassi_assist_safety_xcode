@@ -10,10 +10,56 @@ import 'package:rassi_assist/ui/news/news_tag_page.dart';
 
 import '../../common/ui_style.dart';
 
-class NewsTagAllPage extends StatelessWidget {
+class NewsTagAllPage extends StatefulWidget {
   static const String TAG_NAME = '라씨로_태그_전체보기';
 
   const NewsTagAllPage({super.key});
+
+  @override
+  State<NewsTagAllPage> createState() => _NewsTagAllPageState();
+}
+
+class _NewsTagAllPageState extends State<NewsTagAllPage> with TickerProviderStateMixin {
+  final List<List<TagAllModel>> _listListTagAllModel = [];
+  late TabController tabController;
+  List<TagAllModel> _listTagAllModel = [];
+  final Decoration _btnDecorationOn = const BoxDecoration(
+    color: Colors.black87,
+    borderRadius: BorderRadius.all(Radius.circular(30.0)),
+  );
+  final Decoration _btnDecorationOff = BoxDecoration(
+    color: Colors.white,
+    border: Border.all(
+      color: RColor.lineGrey,
+      width: 0.8,
+    ),
+    borderRadius: const BorderRadius.all(Radius.circular(30.0)),
+  );
+  int _clickIndex = 0;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    CustomFirebaseClass.logEvtScreenView(NewsTagAllPage.TAG_NAME);
+    initData();
+    _listTagAllModel = _listListTagAllModel[0];
+    tabController = TabController(length: 6, vsync: this);
+    tabController.addListener(() {
+      if (_clickIndex != tabController.index) {
+        setState(() {
+          _clickIndex = tabController.index;
+          _listTagAllModel = _listListTagAllModel[tabController.index];
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +69,29 @@ class NewsTagAllPage extends StatelessWidget {
         title: 'AI속보 태그 전체보기',
         elevation: 1,
       ),
-      body: const SafeArea(child: NewsTagAllPageWidget()),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 14),
+            _makeBtnViews(),
+            const SizedBox(height: 14),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _setPageHeader(),
+                    _makeTagListViews(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
-}
 
-class NewsTagAllPageWidget extends StatefulWidget {
-  const NewsTagAllPageWidget({super.key});
-
-  List<List<TagAllModel>> initData() {
-    final List<List<TagAllModel>> vListListTagAllModel = [];
-
+  initData() {
     for (int i = 0; i < 6; i++) {
       final List<TagAllModel> vListTagAllModel = [];
 
@@ -84,73 +142,8 @@ class NewsTagAllPageWidget extends StatefulWidget {
         );
       }
 
-      vListListTagAllModel.add(vListTagAllModel);
+      _listListTagAllModel.add(vListTagAllModel);
     }
-
-    return vListListTagAllModel;
-  }
-
-  @override
-  State<NewsTagAllPageWidget> createState() => _NewsTagAllPageWidgetState(initData());
-}
-
-class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget> with TickerProviderStateMixin {
-  final List<List<TagAllModel>> _listListTagAllModel;
-  late TabController tabController;
-  List<TagAllModel> _listTagAllModel = [];
-
-  _NewsTagAllPageWidgetState(this._listListTagAllModel);
-
-  final Decoration _btnDecorationOn = const BoxDecoration(
-    color: Colors.black87,
-    borderRadius: BorderRadius.all(Radius.circular(30.0)),
-  );
-
-  final Decoration _btnDecorationOff = BoxDecoration(
-    color: Colors.white,
-    border: Border.all(
-      color: RColor.lineGrey,
-      width: 0.8,
-    ),
-    borderRadius: const BorderRadius.all(Radius.circular(30.0)),
-  );
-
-  int _clickIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    CustomFirebaseClass.logEvtScreenView(NewsTagAllPage.TAG_NAME);
-    _listTagAllModel = _listListTagAllModel[0];
-    tabController = TabController(length: 6, vsync: this);
-    tabController.addListener(() {
-      if (_clickIndex != tabController.index) {
-        setState(() {
-          _clickIndex = tabController.index;
-          _listTagAllModel = _listListTagAllModel[tabController.index];
-        });
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _setPageHeader(),
-          Column(
-            children: [
-              const SizedBox(height: 14),
-              _makeBtnViews(),
-              const SizedBox(height: 14),
-            ],
-          ),
-          _makeTagListViews(),
-        ],
-      ),
-    );
   }
 
   Widget _setPageHeader() {
@@ -193,25 +186,25 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget> with Ticker
   }
 
   Widget _makeBtnTile(int vIndex) {
-    String _title = '';
+    String title = '';
     switch (vIndex) {
       case 0:
-        _title = '수급';
+        title = '수급';
         break;
       case 1:
-        _title = '테마';
+        title = '테마';
         break;
       case 2:
-        _title = '공시';
+        title = '공시';
         break;
       case 3:
-        _title = '실적';
+        title = '실적';
         break;
       case 4:
-        _title = '리포트';
+        title = '리포트';
         break;
       case 5:
-        _title = '시세';
+        title = '시세';
         break;
     }
 
@@ -219,7 +212,7 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget> with Ticker
       padding: const EdgeInsets.fromLTRB(30, 14, 30, 14),
       decoration: _clickIndex == vIndex ? _btnDecorationOn : _btnDecorationOff,
       child: Text(
-        _title,
+        title,
         style: TextStyle(
           color: _clickIndex == vIndex ? Colors.white : Colors.black,
           fontSize: 15,
@@ -229,22 +222,14 @@ class _NewsTagAllPageWidgetState extends State<NewsTagAllPageWidget> with Ticker
   }
 
   Widget _makeTagListViews() {
-    return Expanded(
-      child: ListView.builder(
-
-        // separatorBuilder: (context, index) {
-        //   return const Divider(
-        //     thickness: 1.4,
-        //     color: RColor.lineGrey,
-        //   );
-        // },
-        shrinkWrap: true,
-        scrollDirection: Axis.vertical,
-        itemCount: _listTagAllModel.length,
-        itemBuilder: (context, index) {
-          return _makeTagTile(index);
-        },
-      ),
+    return ListView.builder(
+      shrinkWrap: true,
+      scrollDirection: Axis.vertical,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _listTagAllModel.length,
+      itemBuilder: (context, index) {
+        return _makeTagTile(index);
+      },
     );
   }
 

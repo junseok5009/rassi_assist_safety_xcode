@@ -187,7 +187,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
               //오늘의 특징주 빠르게 보기
               _setFeatureStocks(),
-              const SizedBox(height: 25),
 
               CommonView.setDivideLine,
 
@@ -196,7 +195,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
               CommonView.setDivideLine,
 
-              //이 시간 헤드라인
+              //이 시각 헤드라인
               _setCurrentHeadline(),
               const SizedBox(height: 5),
 
@@ -211,7 +210,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
 
               //AI 가 찾은 추천 정보
               _setRecomInfo(),
-              const SizedBox(height: 25),
 
               CommonView.setDivideLine,
 
@@ -406,7 +404,8 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
                   ),
                 );
               }),
-        )
+        ),
+        const SizedBox(height: 10),
       ],
     );
   }
@@ -418,11 +417,17 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
     } else {
       content = item.content;
     }
-    if (item.menuDiv == 'REAL') return '실시간 특징주 발생 $content';
-    if (item.menuDiv == 'WEEK52') return '52주 신고가 돌파 $content';
-    if (item.menuDiv == 'LIMIT') return '상한가 발생 $content';
-    if (item.menuDiv == 'CHANGE') return '손바뀜 종목 $content';
-    return '';
+
+    if (item.menuDiv == 'REAL') {
+      return '실시간 특징주 $content';
+    } else if (item.menuDiv == 'WEEK52')
+      return '52주 신고가 $content';
+    else if (item.menuDiv == 'LIMIT')
+      return '상한가 $content';
+    else if (item.menuDiv == 'CHANGE')
+      return '거래비중 상위 $content';
+    else
+      return '';
   }
 
   // 오늘의 이슈 헤드라인
@@ -512,7 +517,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
               children: [
                 Text('오늘의 이슈 타임라인', style: TStyle.commonTitle),
                 SizedBox(height: 10),
-                Text('날짜별 모든 이슈를\n확인해보세요'),
+                Text('날짜별 모든 이슈를\n확인해 보세요'),
               ],
             ),
             Align(
@@ -528,7 +533,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
     );
   }
 
-//이 시간 헤드라인
+//이 시각 헤드라인
   Widget _setCurrentHeadline() {
     return Column(
       children: [
@@ -685,6 +690,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
                 );
               },
             )),
+        const SizedBox(height: 10),
       ],
     );
   }
@@ -1040,7 +1046,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
           }));
     }
 
-    //이 시간 헤드라인 (라씨로 PICK)
+    //이 시각 헤드라인 (라씨로 PICK)
     else if (trStr == TR.RASSI11) {
       final TrRassi11 resData = TrRassi11.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {

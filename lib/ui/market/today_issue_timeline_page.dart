@@ -19,7 +19,6 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_index/tr_index02.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue03.dart';
-import 'package:rassi_assist/models/tr_issue/tr_issue08.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue09.dart';
 import 'package:rassi_assist/models/tr_rassi/tr_rassi19.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
@@ -51,8 +50,8 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
   bool _isNetworkDo = false;
 
   final String _todayStrYyyyMmDd = TStyle.getTodayString(); // 오늘 날짜 yyyymmdd
-  final List<Issue08> _listIssue08 = []; // 날짜 리스트
-  String _selectStrYyyyMmDd = TStyle.getTodayString();
+  final List<TimeLapseDateClass> _listDate = []; // 날짜 리스트
+  int _selectDateIndex = -1; // 날짜 리스트
   final ScrollController _bottomSheetScrollController = ScrollController();
 
   // 버블
@@ -77,6 +76,8 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
 
   bool _isFaVisible = true;
 
+  int _nowMillisecondsSinceEpoch = 0; // 이미지 캐시 방지를 위한 값
+
   @override
   void initState() {
     super.initState();
@@ -86,7 +87,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
     _rassiroListScrollController.addListener(() {
       if (_rassiroListScrollController.hasClients && _rassiroListScrollController.position.atEdge) {
         bool isTop = _rassiroListScrollController.position.pixels == 0;
-        if (!isTop) {
+        if (!isTop && _listRassiroData.isNotEmpty) {
           _checkAndRequestTrRassi19();
         }
       }
@@ -94,14 +95,17 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
         setState(() {
           _isFaVisible = true;
         });
-      } else if (_rassiroListScrollController.position.userScrollDirection == ScrollDirection.reverse && _isFaVisible) {
+      }
+      else if (_rassiroListScrollController.position.userScrollDirection == ScrollDirection.reverse && _isFaVisible) {
         setState(() {
           _isFaVisible = false;
         });
       }
     });
+    _nowMillisecondsSinceEpoch = DateTime.now().millisecondsSinceEpoch;
     _loadPrefData().then((value) {
-      _requestIssue08(issueDate: _todayStrYyyyMmDd);
+      _getDaysOfMonth(standardDate: _todayStrYyyyMmDd);
+      _requestIssue09(issueDate: _todayStrYyyyMmDd);
     });
   }
 
@@ -129,64 +133,67 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: CommonAppbar.basic(buildContext: context, title: '오늘의 이슈 타임라인', elevation: 1),
-      backgroundColor: RColor.bgBasic_fdfdfd,
-      bottomSheet: BottomSheet(
-        builder: (context) =>
-            SafeArea(
-              child: Container(
-                padding: const EdgeInsets.only(top: 0),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                  border: const Border.fromBorderSide(
-                    BorderSide(
-                      color: RColor.greyBox_f5f5f5,
+    return _listDate.isEmpty
+        ? const SizedBox()
+        : Scaffold(
+            key: _scaffoldKey,
+            appBar: CommonAppbar.basic(buildContext: context, title: '오늘의 이슈 타임라인', elevation: 1),
+            backgroundColor: RColor.bgBasic_fdfdfd,
+            bottomSheet: BottomSheet(
+              builder: (context) => SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.only(top: 0),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
                     ),
-                  ),
-                  color: RColor.bgBasic_fdfdfd,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      //spreadRadius: 0,
-                      blurRadius: 12,
-                      offset: const Offset(0, -5), //changes position of shadow
-                    )
-                  ],
-                ),
-                child: AnimatedContainer(
-                  width: double.infinity,
-                  height: _isFaVisible ? 90 : 0,
-                  duration: const Duration(
-                    milliseconds: 300,
-                  ),
-                  //padding: const EdgeInsets.all(15),
-                  padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10,),
-                  margin: EdgeInsets.only(
-                    bottom: MediaQuery
-                        .of(_scaffoldKey.currentState!.context)
-                        .viewPadding
-                        .bottom,
-                  ),
-                  child: Row(
-                    //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${_selectStrYyyyMmDd.substring(4, 6)}월',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    border: const Border.fromBorderSide(
+                      BorderSide(
+                        color: RColor.greyBox_f5f5f5,
                       ),
-                      IconButton(
-                        icon: Image.asset('images/icon_arrow_down.png', width: 14, height: 14),
-                        onPressed: () async {
-                          await CommonDatePicker.showYearMonthPicker(context, DateTime.parse(
-                              _listIssue08.last.issueDate))
+                    ),
+                    color: RColor.bgBasic_fdfdfd,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        //spreadRadius: 0,
+                        blurRadius: 12,
+                        offset: const Offset(0, -5), //changes position of shadow
+                      )
+                    ],
+                  ),
+                  child: AnimatedContainer(
+                    width: double.infinity,
+                    height: _isFaVisible ? 90 : 0,
+                    duration: const Duration(
+                      milliseconds: 300,
+                    ),
+                    //padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.only(
+                      left: 15,
+                      right: 15,
+                      top: 10,
+                      bottom: 10,
+                    ),
+                    margin: EdgeInsets.only(
+                      bottom: MediaQuery.of(_scaffoldKey.currentState!.context).viewPadding.bottom,
+                    ),
+                    child: Row(
+                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${_listDate[_selectDateIndex].yyyyMMdd.substring(4, 6)}월',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Image.asset('images/icon_arrow_down.png', width: 14, height: 14),
+                          onPressed: () async {
+                            await CommonDatePicker.showYearMonthPicker(context, DateTime.parse(
+                              _listDate[_selectDateIndex].yyyyMMdd))
                               .then((value) {
                             if (value != null) {
                               DateTime selectMonthLastDateTime = DateTime(
@@ -194,22 +201,25 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                                 value.month + 1,
                                 0,
                               );
-
                               if (!_isNetworkDo) {
-                                _requestIssue08(issueDate: DateFormat('yyyyMMdd').format(selectMonthLastDateTime));
+                                String getMonthLastDay = DateFormat('yyyyMMdd').format(selectMonthLastDateTime);
+                                _getDaysOfMonth(standardDate: getMonthLastDay);
+                                //_requestIssue08(issueDate: DateFormat('yyyyMMdd').format(selectMonthLastDateTime));
+                                _selectDateIndex = _listDate.length -1;
+                                _requestIssue09(issueDate: getMonthLastDay);
                               }
                             }
                           });
-                        },
-                        padding: const EdgeInsets.all(4),
-                        constraints: const BoxConstraints(),
-                      ),
-                      Container(
-                        width: 1,
-                        height: double.infinity,
-                        color: RColor.greyBasic_8c8c8c,
-                      ),
-                      IconButton(
+                          },
+                          padding: const EdgeInsets.all(4),
+                          constraints: const BoxConstraints(),
+                        ),
+                        Container(
+                          width: 1,
+                          height: double.infinity,
+                          color: RColor.greyBasic_8c8c8c,
+                        ),
+                        /*IconButton(
                         icon: Image.asset(
                           'images/main_jm_aw_l_g.png',
                           width: 16,
@@ -217,22 +227,25 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         ),
                         onPressed: () {
                           if (!_isNetworkDo) {
-                            _requestIssue08(issueDate: _listIssue08[_listIssue08.length - 2].issueDate);
+                            _requestIssue09(issueDate: _listIssue08[_listIssue08.length - 2].issueDate);
                           }
                         },
                         padding: const EdgeInsets.all(4),
                         constraints: const BoxConstraints(),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemBuilder: (context, index) => _bottomSheetDateView(index),
-                          itemCount: _listIssue08.length,
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          controller: _bottomSheetScrollController,
+                      ),*/
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: ListView.builder(
+                              itemBuilder: (context, index) => _bottomSheetDateView(index),
+                              itemCount: _listDate.length,
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              controller: _bottomSheetScrollController,
+                            ),
+                          ),
                         ),
-                      ),
-                      IconButton(
+                        /*IconButton(
                         icon: Image.asset(
                           'images/main_jm_aw_r_g.png',
                           width: 16,
@@ -250,189 +263,200 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         },
                         padding: const EdgeInsets.all(4),
                         constraints: const BoxConstraints(),
-                      ),
-                    ],
+                      ),*/
+                      ],
+                    ),
                   ),
                 ),
               ),
+              enableDrag: false,
+              onClosing: () {},
             ),
-        enableDrag: false,
-        onClosing: () {},
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            bottom: 20,
-          ),
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                controller: _rassiroListScrollController,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 20,
+                ),
+                child: Stack(
                   children: [
-                    const SizedBox(
-                      height: 10,
-                    ),
-
-                    // 코스피 코스닥 지수
-                    _kosIndexView,
-
-                    const SizedBox(
-                      height: 10,
-                    ),
-
-                    CommonView.setDivideLine,
-
-                    // 타이틀 - 이슈는?
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      child: Text(
-                        '이슈는?',
-                        style: TStyle.defaultTitle,
-                      ),
-                    ),
-
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      decoration: UIStyle.boxRoundFullColor6c(
-                        RColor.greyBox_f5f5f5,
-                      ),
-                      child: RichText(
-                        //textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
+                    SingleChildScrollView(
+                      controller: _rassiroListScrollController,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                            height: 10,
                           ),
-                          children: [
-                            TextSpan(
-                              text: '${_selectStrYyyyMmDd.substring(4, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일에 총 ',
+
+                          // 코스피 코스닥 지수
+                          _kosIndexView,
+
+
+
+                          // 타이틀 - 이슈는?
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
                             ),
-                            TextSpan(
-                              text: _listIssue08.isEmpty ? '' : _listIssue08.last.issueCount,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                            child: Text(
+                              '이슈는?',
+                              style: TStyle.defaultTitle,
+                            ),
+                          ),
+
+                          if (_bubbleTimeLapseList.isNotEmpty)
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              decoration: UIStyle.boxRoundFullColor6c(
+                                RColor.greyBox_f5f5f5,
+                              ),
+                              child: RichText(
+                                //textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.black,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          '${_listDate[_selectDateIndex].yyyyMMdd.substring(4, 6)}월 ${_listDate[_selectDateIndex].yyyyMMdd.substring(6, 8)}일에 총 ',
+                                    ),
+                                    TextSpan(
+                                      //text: _listIssue08.isEmpty ? '' : _listIssue08.last.issueCount,
+                                      text: _bubbleTimeLapseList[_selectTimeLapseIndex].listData.length.toString(),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const TextSpan(
+                                      text: '개 이슈가 발생되었습니다.',
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            const TextSpan(
-                              text: '개 이슈가 발생되었습니다.',
+
+                          const SizedBox(
+                            height: 0,
+                          ),
+
+                          // 버블 차트
+                          _bubbleChartView,
+
+                          // 타임랩스
+                          _bubbleTimeLapseList.isEmpty && !_isNetworkDo
+                              ? CommonView.setNoDataTextView(200, '이슈 데이터가 없습니다.')
+                              : _bubbleTimeLapseView,
+
+                          const SizedBox(
+                            height: 20,
+                          ),
+
+                          CommonView.setDivideLine,
+                          // 타이틀 - 특징주 종목들은?
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
                             ),
-                          ],
-                        ),
+                            child: Text(
+                              '특징주 종목들은?',
+                              style: TStyle.defaultTitle,
+                            ),
+                          ),
+
+                          _listRassiroData.isEmpty ? CommonView.setNoDataTextView(150, '오늘의 특징주가 없습니다.') : _realStocksView,
+                          //MarketTileTodayMarket(index02: _index02),
+
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        ],
                       ),
                     ),
-
-                    const SizedBox(
-                      height: 0,
-                    ),
-
-                    // 버블 차트
-                    _bubbleChartView,
-
-                    // 타임랩스
-                    _bubbleTimeLapseList.isEmpty && !_isNetworkDo
-                        ? CommonView.setNoDataTextView(200, '이슈 데이터가 없습니다.')
-                        : _bubbleTimeLapseView,
-
-                    const SizedBox(
-                      height: 20,
-                    ),
-
-                    _realStocksView,
-                    //MarketTileTodayMarket(index02: _index02),
-
-                    const SizedBox(
-                      height: 20,
+                    Visibility(
+                      visible: _isNetworkDo,
+                      child: Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: Colors.grey.withOpacity(0.1),
+                        alignment: Alignment.center,
+                        child: Image.asset(
+                          'images/gif_ios_loading_large.gif',
+                          height: 20,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              Visibility(
-                visible: _isNetworkDo,
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.grey.withOpacity(0.1),
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    'images/gif_ios_loading_large.gif',
-                    height: 20,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
   }
 
   /// make Widget
 
   Widget _bottomSheetDateView(int index) {
-    bool isSelectedDate = index == _listIssue08.length - 1 ? true : false;
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       onTap: () {
-        if (!isSelectedDate && !_isNetworkDo) {
-          _requestIssue08(issueDate: _listIssue08[index].issueDate);
+        if (index != _selectDateIndex && !_isNetworkDo) {
+          //issueDate: _listIssue08[index].issueDate
+          _selectDateIndex = index;
+          _requestIssue09(issueDate: _listDate[index].yyyyMMdd);
         }
       },
       child: Container(
-        width: isSelectedDate ? 50 : 46,
-        margin: EdgeInsets.symmetric(
-          horizontal: isSelectedDate ? 2 : 0,
-        ),
+        key: _listDate[index].globalKey,
+        width: 50,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(40)),
-          color: isSelectedDate ? Colors.black : null,
+          color: index == _selectDateIndex ? Colors.black : null,
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _listIssue08[index].weekday,
-                style: isSelectedDate
+                _listDate[index].weekDay,
+                style: index == _selectDateIndex
                     ? const TextStyle(
-                  color: Colors.white,
-                  //fontSize: 15,
-                )
+                        color: Colors.white,
+                        //fontSize: 15,
+                      )
                     : const TextStyle(
-                  //fontSize: 15,
-                  color: RColor.greyBasic_8c8c8c,
-                ),
+                        //fontSize: 15,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
               ),
               const SizedBox(
                 height: 2,
               ),
               Text(
-                _listIssue08[index].issueDate.substring(
-                  6,
-                ),
-                style: isSelectedDate
+                _listDate[index].yyyyMMdd.substring(
+                      6,
+                    ),
+                style: index == _selectDateIndex
                     ? const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                )
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                      )
                     : const TextStyle(
-                  fontSize: 18,
-                ),
+                        fontSize: 18,
+                      ),
               ),
             ],
           ),
@@ -457,8 +481,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               vertical: 10,
             ),
             child: Text(
-              '${_selectStrYyyyMmDd[4] == '0' ? _selectStrYyyyMmDd.substring(5, 6) : _selectStrYyyyMmDd.substring(
-                  4, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일 시장은?',
+              '${_listDate[_selectDateIndex].yyyyMMdd[4] == '0' ? _listDate[_selectDateIndex].yyyyMMdd.substring(5, 6) : _listDate[_selectDateIndex].yyyyMMdd.substring(4, 6)}월 ${_listDate[_selectDateIndex].yyyyMMdd.substring(6, 8)}일 시장은?',
               style: TStyle.defaultTitle,
             ),
           ),
@@ -479,9 +502,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               ),
               child: Text(
                 '코스피는 ${_index02.kospi.fluctuationRate}% ${_index02.kospi.fluctuationRate.contains('-') ? '하락' : '상승'}, '
-                    '코스닥은 ${_index02.kosdaq.fluctuationRate}% ${_index02.kosdaq.fluctuationRate.contains('-')
-                    ? '하락'
-                    : '상승'}',
+                '코스닥은 ${_index02.kosdaq.fluctuationRate}% ${_index02.kosdaq.fluctuationRate.contains('-') ? '하락' : '상승'}',
                 style: const TextStyle(
                   fontSize: 15,
                 ),
@@ -513,11 +534,16 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
 
                             ),*/
                             CachedNetworkImage(
-                              imageUrl: "https://webchart.thinkpool.com/2024/mini_index/U1001.png?timestamp=${DateTime.now().millisecondsSinceEpoch}",
+                              imageUrl:
+                                  "https://webchart.thinkpool.com/2024/mini_index/U1001.png?timestamp=$_nowMillisecondsSinceEpoch",
                               width: 40,
-                              progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                  CircularProgressIndicator(value: downloadProgress.progress,color: RColor.greyBox_f5f5f5,),
-                              errorWidget: (context, url, error) => const SizedBox(width: 40,),
+                              progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(
+                                value: downloadProgress.progress,
+                                color: RColor.greyBox_f5f5f5,
+                              ),
+                              errorWidget: (context, url, error) => const SizedBox(
+                                width: 40,
+                              ),
                             ),
                             Expanded(
                               child: Column(
@@ -545,7 +571,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         ),
                         Text(
                           '${TStyle.getTriangleStringWithMoneyPoint(_index02.kospi.indexFluctuation)}'
-                              '   ${TStyle.getPercentString(
+                          '   ${TStyle.getPercentString(
                             _index02.kospi.fluctuationRate,
                           )}',
                           style: TextStyle(
@@ -576,11 +602,16 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                               width: 40,
                             ),*/
                             CachedNetworkImage(
-                              imageUrl: "https://webchart.thinkpool.com/2024/mini_index/U2001.png?timestamp=${DateTime.now().millisecondsSinceEpoch}",
+                              imageUrl:
+                                  "https://webchart.thinkpool.com/2024/mini_index/U2001.png?timestamp=$_nowMillisecondsSinceEpoch",
                               width: 40,
-                              progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                  CircularProgressIndicator(value: downloadProgress.progress, color: RColor.greyBox_f5f5f5,),
-                              errorWidget: (context, url, error) => const SizedBox(width: 40,),
+                              progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(
+                                value: downloadProgress.progress,
+                                color: RColor.greyBox_f5f5f5,
+                              ),
+                              errorWidget: (context, url, error) => const SizedBox(
+                                width: 40,
+                              ),
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -606,7 +637,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         ),
                         Text(
                           '${TStyle.getTriangleStringWithMoneyPoint(_index02.kosdaq.indexFluctuation)}'
-                              '   ${TStyle.getPercentString(
+                          '   ${TStyle.getPercentString(
                             _index02.kosdaq.fluctuationRate,
                           )}',
                           style: TextStyle(
@@ -621,6 +652,10 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               ],
             ),
           ),
+          const SizedBox(
+            height: 10,
+          ),
+          CommonView.setDivideLine,
         ],
       ),
     );
@@ -689,7 +724,8 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               thumbShape: _SfThumbShape(bubbleTimeLapseList: _bubbleTimeLapseList),
               onChanged: (dynamic newValue) async {
                 //DLog.e('newValue : $newValue');
-                if (newValue > _timeLapselastDataIndex) {} else {
+                if (newValue > _timeLapselastDataIndex) {
+                } else {
                   _selectTimeLapseIndex = (newValue as double).toInt();
                   if (_bubbleTimeLapseList[_selectTimeLapseIndex].listData.isEmpty) {
                     //commonShowToastCenter('_bubbleTimeLapseList[_selectTimeLapseIndex].listData : ${_bubbleTimeLapseList[_selectTimeLapseIndex].listData.length}');
@@ -701,7 +737,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                       if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
                         _isStartBubbleAnimation = true;
                         _bubbleChartAniStart().then(
-                              (_) => _isStartBubbleAnimation = false,
+                          (_) => _isStartBubbleAnimation = false,
                         );
                       }
                     });
@@ -716,22 +752,9 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
   }
 
   Widget get _realStocksView {
-    if (_listRassiroData.isEmpty) return const SizedBox();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CommonView.setDivideLine,
-        // 타이틀 - 특징주 종목들은?
-        const Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 10,
-          ),
-          child: Text(
-            '특징주 종목들은?',
-            style: TStyle.defaultTitle,
-          ),
-        ),
 
         Container(
           width: double.infinity,
@@ -755,7 +778,8 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               ),
               children: [
                 TextSpan(
-                  text: '${_selectStrYyyyMmDd.substring(4, 6)}월 ${_selectStrYyyyMmDd.substring(6, 8)}일 특징주는 총 ',
+                  text:
+                      '${_listDate[_selectDateIndex].yyyyMMdd.substring(4, 6)}월 ${_listDate[_selectDateIndex].yyyyMMdd.substring(6, 8)}일 특징주는 총 ',
                 ),
                 TextSpan(
                   text: _totalItemSize,
@@ -775,10 +799,9 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
           //controller: _rassiroListScrollController,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _listRassiroData.length,
-          itemBuilder: (context, index) =>
-              Rassi19TimeLineRealItemWidget(
-                item: _listRassiroData[index],
-              ),
+          itemBuilder: (context, index) => Rassi19TimeLineRealItemWidget(
+            item: _listRassiroData[index],
+          ),
           shrinkWrap: true,
         ),
       ],
@@ -796,7 +819,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
     List<Issue03> issueList = _bubbleTimeLapseList[_selectTimeLapseIndex].listData;
 
     issueList.sort(
-          (a, b) => double.parse(b.avgFluctRate).abs().compareTo(double.parse(a.avgFluctRate).abs()),
+      (a, b) => double.parse(b.avgFluctRate).abs().compareTo(double.parse(a.avgFluctRate).abs()),
     );
 
     List<CustomBubbleNode> listNodes = [];
@@ -878,11 +901,15 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
             CustomFirebaseClass.logEvtTodayIssue(
               item.keyword,
             );
-            Navigator.pushNamed(context, IssueNewViewer.routeName, arguments: PgData(
-              userId: '',
-              pgSn: item.newsSn,
-              pgData: item.issueSn,
-            ),);
+            Navigator.pushNamed(
+              context,
+              IssueNewViewer.routeName,
+              arguments: PgData(
+                userId: '',
+                pgSn: item.newsSn,
+                pgData: item.issueSn,
+              ),
+            );
             /*Navigator.push(
               context,
               CustomNvRouteClass.createRouteData(
@@ -1004,31 +1031,61 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
           <String, String>{
             'userId': _userId,
             'menuDiv': 'REAL',
-            'tradeDate': _selectStrYyyyMmDd,
+            'tradeDate': _listDate[_selectDateIndex].yyyyMMdd,
             'pageNo': '$_pageNo',
             'pageItemSize': '10',
           },
         ),
       );
     } else if (_listRassiroData.isEmpty) {
-
     } else {
       commonShowToast('더 이상 내용이 없습니다.');
     }
   }
 
   /// NetWork
-  _requestIssue08({required String issueDate}) {
+  _requestIssue09({required String issueDate}) {
     _fetchPosts(
-      TR.ISSUE08,
+      TR.ISSUE09,
       jsonEncode(
         <String, String>{
           'userId': _userId,
           'issueDate': issueDate,
-          'selectCount': '20',
         },
       ),
     );
+  }
+
+  _getDaysOfMonth({required String standardDate}) {
+    _listDate.clear();
+
+    // 현재 날짜 정보를 가져옵니다.
+    DateTime dateTime = DateTime.parse(standardDate);
+
+    // 현재 년과 월을 저장합니다.
+    int year = dateTime.year;
+    int month = dateTime.month;
+
+    // 해당 월의 마지막 날을 구합니다.
+    DateTime lastDayOfMonth = DateTime(year, month + 1, 0);
+
+    // 1일부터 마지막 날까지 반복하여 리스트에 추가합니다.
+    for (int i = 1; i <= lastDayOfMonth.day; i++) {
+      DateTime currentDay = DateTime(year, month, i);
+      String formattedDate = DateFormat('yyyyMMdd').format(currentDay);
+      String weekDay = _getKoreanWeekDay(currentDay);
+      _listDate.add(TimeLapseDateClass(yyyyMMdd: formattedDate, weekDay: weekDay, globalKey: GlobalKey()));
+      if(_selectDateIndex == -1 && formattedDate==_todayStrYyyyMmDd){
+        _selectDateIndex = i-1;
+      }
+    }
+  }
+
+  // 요일을 한국어로 변환하는 함수
+  String _getKoreanWeekDay(DateTime date) {
+    List<String> weekDays = ['월', '화', '수', '목', '금', '토', '일'];
+    // DateTime의 weekday는 1(월요일)에서 7(일요일)까지의 값을 가집니다.
+    return weekDays[date.weekday - 1];
   }
 
   Future<void> _fetchPosts(String trStr, String json) async {
@@ -1059,40 +1116,34 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
   Future<void> _parseTrData(String trStr, final http.Response response) async {
     DLog.w(trStr + response.body);
 
-    // NOTE 오늘 날짜로 요청 > 해당 일이 영업일이 아니라면 가장가까운 영업일(과거)부터 과거 20일 동안의 영업일 리턴
-    if (trStr == TR.ISSUE08) {
-      final TrIssue08 resData = TrIssue08.fromJson(jsonDecode(response.body));
-      _listIssue08.clear();
-      if (resData.retCode == RT.SUCCESS && resData.listData.isNotEmpty) {
-        _listIssue08.addAll(resData.listData);
-        _selectStrYyyyMmDd = _listIssue08.last.issueDate;
-
-        _listRassiroData.clear();
-        _pageNo = 0;
-        _totalPageSize = 0;
-
-        _fetchPosts(
-          TR.ISSUE09,
-          jsonEncode(
-            <String, String>{
-              'userId': _userId,
-              'issueDate': _selectStrYyyyMmDd,
-            },
-          ),
-        );
-      }
-    }
-
     // NOTE 날짜의 이슈(버블차트 이슈)
-    else if (trStr == TR.ISSUE09) {
+    if (trStr == TR.ISSUE09) {
       final TrIssue09 resData = TrIssue09.fromJson(jsonDecode(response.body));
+      _pageNo = 0;
+      _totalPageSize = 0;
+      _listRassiroData.clear();
       _bubbleTimeLapseList.clear();
+
+      Scrollable.ensureVisible(
+        _listDate[_selectDateIndex].globalKey.currentContext!,
+        alignment: 0.5,
+        curve: Curves.fastEaseInToSlowEaseOut,
+        duration: const Duration(seconds: 1),
+      );
+
       if (resData.retCode == RT.SUCCESS) {
-        if (resData.retData.issueDate != _selectStrYyyyMmDd) {
-          _requestIssue08(issueDate: resData.retData.issueDate);
+        if (resData.retData.issueDate != _listDate[_selectDateIndex].yyyyMMdd) {
+          _bubbleChartAniControllerList.clear();
+          _bubbleWidgetList.clear();
+          _index02 = const Index02();
+          setState(() {
+            _isNetworkDo = false;
+          });
         } else {
+          //_getDaysOfMonth(standardDate: _listDate[_selectDateIndex].yyyyMMdd);
+
           _bubbleTimeLapseList.addAll(resData.retData.listData);
-          if (_selectStrYyyyMmDd == _todayStrYyyyMmDd) {
+          if (_listDate[_selectDateIndex].yyyyMMdd == _todayStrYyyyMmDd) {
             _selectTimeLapseIndex = _bubbleTimeLapseList.indexWhere((element) => element.lastDataYn == 'Y');
             _timeLapselastDataIndex = _selectTimeLapseIndex;
             if (_selectTimeLapseIndex == -1) {
@@ -1103,17 +1154,24 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
             _selectTimeLapseIndex = _bubbleTimeLapseList.length - 1;
             _timeLapselastDataIndex = _bubbleTimeLapseList.length - 1;
           }
+          if (_bubbleTimeLapseList.isNotEmpty) {
+            await _setBubbleNode();
+          }
+          _fetchPosts(
+              TR.INDEX02,
+              jsonEncode(<String, String>{
+                'userId': _userId,
+                'tradeDate': _listDate[_selectDateIndex].yyyyMMdd,
+              }));
         }
-        if (_bubbleTimeLapseList.isNotEmpty) {
-          await _setBubbleNode();
-        }
+      }else{
+        _bubbleChartAniControllerList.clear();
+        _bubbleWidgetList.clear();
+        _index02 = const Index02();
+        setState(() {
+          _isNetworkDo = false;
+        });
       }
-      _fetchPosts(
-          TR.INDEX02,
-          jsonEncode(<String, String>{
-            'userId': _userId,
-            'tradeDate': _selectStrYyyyMmDd,
-          }));
     }
 
     //코스피 코스닥 지수
@@ -1124,31 +1182,31 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
       } else {
         _index02 = const Index02();
       }
-
       _fetchPosts(
         TR.RASSI19,
         jsonEncode(
           <String, String>{
             'userId': _userId,
             'menuDiv': 'REAL',
-            'tradeDate': _selectStrYyyyMmDd,
+            'tradeDate': _listDate[_selectDateIndex].yyyyMMdd,
             'pageNo': '$_pageNo',
             'pageItemSize': '10',
           },
         ),
       ).then((value) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_bottomSheetScrollController.position.pixels < _bottomSheetScrollController.position.maxScrollExtent) {
+          /*if (_bottomSheetScrollController.position.pixels < _bottomSheetScrollController.position.maxScrollExtent) {
             _bottomSheetScrollController.animateTo(
               _bottomSheetScrollController.position.maxScrollExtent + 20,
               duration: const Duration(seconds: 1),
               curve: Curves.fastOutSlowIn,
             );
-          }
+          }*/
+
           if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
             _isStartBubbleAnimation = true;
             _bubbleChartAniStart().then(
-                  (_) => _isStartBubbleAnimation = false,
+              (_) => _isStartBubbleAnimation = false,
             );
           }
         });
@@ -1158,7 +1216,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
       final TrRassi19 resData = TrRassi19.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Rassi19 rassi19 = resData.retData;
-        if (_pageNo != 0) {
+        if (_pageNo != 0 && _listRassiroData.isNotEmpty) {
           _listRassiroData.removeLast();
         }
         _pageNo++;
@@ -1192,14 +1250,14 @@ class _SfThumbShape extends SfThumbShape {
   @override
   void paint(PaintingContext context, Offset center,
       {required RenderBox parentBox,
-        required RenderBox? child,
-        required SfSliderThemeData themeData,
-        SfRangeValues? currentValues,
-        dynamic currentValue,
-        required Paint? paint,
-        required Animation<double> enableAnimation,
-        required duTextDirection.TextDirection textDirection,
-        required SfThumb? thumb}) {
+      required RenderBox? child,
+      required SfSliderThemeData themeData,
+      SfRangeValues? currentValues,
+      dynamic currentValue,
+      required Paint? paint,
+      required Animation<double> enableAnimation,
+      required duTextDirection.TextDirection textDirection,
+      required SfThumb? thumb}) {
     final double radius = getPreferredSize(themeData).width / 2;
     final bool hasThumbStroke = themeData.thumbStrokeColor != null &&
         themeData.thumbStrokeColor != Colors.transparent &&
@@ -1224,7 +1282,7 @@ class _SfThumbShape extends SfThumbShape {
       paint = Paint();
       paint.isAntiAlias = true;
       paint.color =
-      ColorTween(begin: themeData.disabledThumbColor, end: themeData.thumbColor).evaluate(enableAnimation)!;
+          ColorTween(begin: themeData.disabledThumbColor, end: themeData.thumbColor).evaluate(enableAnimation)!;
     }
 
     context.canvas.drawCircle(center, radius, paint);
@@ -1260,4 +1318,15 @@ class _SfThumbShape extends SfThumbShape {
     tp.layout();
     tp.paint(context.canvas, Offset(center.dx - tp.width / 2, center.dy + radius + 5));
   }
+}
+
+class TimeLapseDateClass {
+  final String yyyyMMdd;
+  final String weekDay;
+  final GlobalKey globalKey;
+  const TimeLapseDateClass({
+    required this.yyyyMMdd,
+    required this.weekDay,
+    required this.globalKey,
+  });
 }

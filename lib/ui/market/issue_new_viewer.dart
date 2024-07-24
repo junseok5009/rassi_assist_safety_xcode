@@ -391,9 +391,8 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    '해당 이슈의 히스토리를 확인해보세요',
+                    '해당 이슈의 히스토리를 확인해 보세요!',
                     style: TextStyle(
-                      fontSize: 14,
                       color: Colors.white,
                     ),
                   ),
@@ -603,7 +602,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                       xValueMapper: (item, index) => item.issueDate,
                       yValueMapper: (item, index) => double.tryParse(item.searchTrend),
                       color: Colors.red,
-                      width: 1.2,
+                      width: 1.8,
                       markerSettings: const MarkerSettings(
                         isVisible: true,
                         color: RColor.grey_abb0bb,
@@ -669,6 +668,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
 
   Widget _setChartCircleInfo({required Color color, required String name}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
           width: 7,
@@ -683,6 +683,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
           style: const TextStyle(
             fontSize: 11,
             color: RColor.new_basic_text_color_grey,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],

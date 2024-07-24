@@ -594,11 +594,11 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage> with Tick
     DLog.w(trStr + response.body);
     if (trStr == TR.TODAY05) {
       final TrToday05 resData = TrToday05.fromJson(jsonDecode(response.body));
+      _listRassiroNewsDdInfo.clear();
       if (resData.retCode == RT.SUCCESS) {
         Today05 today05 = resData.retData;
-        _listRassiroNewsDdInfo.clear();
         _listRassiroNewsDdInfo.addAll(today05.listRassiroNewsDdInfo);
-      } else {}
+      }
     }
     setState(() {});
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -608,7 +608,6 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage> with Tick
         if (isOn) {
           isNow = _listCompareTimes2[key].compareTo(_nowHourMinute) >= 0;
           if (isNow) {
-            DLog.e('isNow index : $key');
             Scrollable.ensureVisible(
               _listGlobalKeys[key].currentContext!,
               alignment: 0.5,

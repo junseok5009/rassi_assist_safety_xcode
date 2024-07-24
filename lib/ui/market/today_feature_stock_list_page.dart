@@ -68,8 +68,8 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
           _tagName = '상한가_하한가';
           _title = '상한가/하한가';
         } else if (_menuDiv == _Rassi19Div.change) {
-          _tagName = '손바뀜_종목';
-          _title = '손바뀜 종목';
+          _tagName = '거래비중_상위_종목';
+          _title = '거래비중 상위 종목';
         } else {
           Navigator.pop(context);
         }
@@ -227,7 +227,7 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
                         : _menuDiv == _Rassi19Div.limit
                             ? '상한가'
                             : _menuDiv == _Rassi19Div.change
-                                ? 'KOSPI'
+                                ? '코스피'
                                 : '',
                     style:
                         _isSelectDivLeft ? TStyle.commonTitle15 : const TextStyle(fontSize: 15, color: RColor.lineGrey),
@@ -271,7 +271,7 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
                         : _menuDiv == _Rassi19Div.limit
                             ? '하한가'
                             : _menuDiv == _Rassi19Div.change
-                                ? 'KOSDAQ'
+                                ? '코스닥'
                                 : '',
                     style: _isSelectDivLeft
                         ? const TextStyle(
@@ -331,7 +331,7 @@ class _TodayFeatureStockListPageState extends State<TodayFeatureStockListPage> {
   }
 
   Future<void> _fetchPosts(String trStr, String json) async {
-    //DLog.d(StockHomeHomePage.TAG, trStr + ' ' + json);
+    DLog.w(trStr + ' ' + json);
     if(_isLoading){
       return;
     }else{
@@ -389,5 +389,5 @@ class _Rassi19Div {
   static const String real = 'REAL'; // 실시간 특징주
   static const String week52 = 'WEEK52'; // 52주 신고가/신저가
   static const String limit = 'LIMIT'; // 당일 상한/하한
-  static const String change = 'CHANGE'; // 손바뀜: 거래비중 상위
+  static const String change = 'CHANGE'; // 거래비중 상위
 }

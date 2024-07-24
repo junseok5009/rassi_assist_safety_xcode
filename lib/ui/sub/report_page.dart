@@ -169,11 +169,11 @@ class ReportPageState extends State<ReportPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('관련태그', style: TStyle.content15,),
-            const SizedBox(height: 5),
+            const Text('관련 태그', style: TStyle.content15,),
+            const SizedBox(height: 3),
             Wrap(
-              spacing: 7.0,
-              alignment: WrapAlignment.center,
+              spacing: 8.0,
+              alignment: WrapAlignment.start,
               children: List.generate(
                 _tagList.length,
                 (index) => InkWell(
