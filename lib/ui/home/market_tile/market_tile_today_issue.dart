@@ -119,11 +119,11 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: () {
-            CommonPopup.instance.showDialogBasicConfirm(
+            CommonPopup.instance.showDialogBasic(
               context,
-              '알림',
+              '이슈 타임랩스',
               '이슈 타임랩스는 하루동안의 이슈의 강약 변화를 볼 수 있습니다.\n'
-                  '장시작 부터 장마감까지 30분 단위로 저장됩니다.\n'
+                  '장시작 부터 장마감까지 1시간 단위로 저장됩니다.\n'
                   '오늘의 이슈의 실시간 이슈 강약 확인은 물론 과거의 강약도 함께 확인해 보세요.',
             );
           },

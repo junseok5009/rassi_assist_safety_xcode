@@ -159,7 +159,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage> with Tick
                               left: 10,
                             ),
                             child: Text(
-                              '${TStyle.getDateMdKorFormat(TStyle.getTodayString())} ${TStyle.getWeekdayKor(TStyle.getTodayString())} ${TStyle.getTimeString1()}',
+                              '${TStyle.getDateMdKorFormat(TStyle.getTodayString(), isZeroVisible : true)} ${TStyle.getWeekdayKor(TStyle.getTodayString())} ${TStyle.getTimeString1()}',
                               style: const TextStyle(
                                 color: RColor.mainColor,
                                 fontSize: 15,

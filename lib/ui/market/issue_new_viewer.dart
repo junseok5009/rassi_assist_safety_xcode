@@ -229,7 +229,6 @@ class IssueNewViewerState extends State<IssueNewViewer> {
           _newsSn = args.pgSn;
           _issueSn = args.pgData;
         }
-
         if (_userId != '') {
           _fetchPosts(
               TR.ISSUE04,
@@ -931,6 +930,8 @@ class IssueNewViewerState extends State<IssueNewViewer> {
       final TrIssue04 resData = TrIssue04.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         _issue04 = resData.retData;
+        _newsSn = _issue04.issueInfo.newsSn;
+        _issueSn = _issue04.issueInfo.issueSn;
         if (_issue04.listIssueTrend.isNotEmpty && _issue04.listTopStock.isNotEmpty) {
           await synchronizeLists();
         }

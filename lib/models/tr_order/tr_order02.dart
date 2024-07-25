@@ -194,7 +194,7 @@ class TileOrder02 extends StatelessWidget {
                         ),
                         const SizedBox(width: 7.0),
                         Text(
-                          TStyle.getDateMdKorFormat(item.nextPayDate),
+                          TStyle.getDateMdKorFormat(item.nextPayDate, isZeroVisible : true),
                           style: TStyle.defaultContent,
                         ),
                       ],

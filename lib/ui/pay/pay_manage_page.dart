@@ -207,7 +207,7 @@ class PayManagePageState extends State<PayManagePage> {
                           ),
                           const SizedBox(width: 7),
                           Text(
-                            TStyle.getDateMdKorFormat(item.nextPayDate),
+                            TStyle.getDateMdKorFormat(item.nextPayDate, isZeroVisible : true),
                             style: TStyle.defaultContent,
                           ),
                         ],

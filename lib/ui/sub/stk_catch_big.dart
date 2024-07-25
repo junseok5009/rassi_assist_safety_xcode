@@ -83,7 +83,7 @@ class StkCatchBigPageState extends State<StkCatchBigPage> {
 
   @override
   void dispose() {
-    _scrollController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -186,7 +186,7 @@ class StkCatchBigPageState extends State<StkCatchBigPage> {
                       ),
                       Text(
                         '${_listData[0].tradeDate == TStyle.getTodayString() ? 'TODAY' : ''}'
-                            '${_listData[0].tradeDate == TStyle.getTodayString() ? '' : TStyle.getDateMdKorFormat(_listData[0].tradeDate)}'
+                            '${_listData[0].tradeDate == TStyle.getTodayString() ? '' : TStyle.getDateMdKorFormat(_listData[0].tradeDate, isZeroVisible : true)}'
                             '(${TStyle.getWeekdayKor(_listData[0].tradeDate)})',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w600,
@@ -518,7 +518,7 @@ class StkCatchBigPageState extends State<StkCatchBigPage> {
       sColor = RColor.jinbora;
     } else {
       sDate =
-          '${TStyle.getDateMdKorFormat(strDate)}(${TStyle.getWeekdayKor(strDate)})';
+          '${TStyle.getDateMdKorFormat(strDate, isZeroVisible : true)}(${TStyle.getWeekdayKor(strDate)})';
     }
 
     return Column(

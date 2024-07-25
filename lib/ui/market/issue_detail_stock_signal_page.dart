@@ -344,17 +344,21 @@ class _IssueDetailStockSignalPageState extends State<IssueDetailStockSignalPage>
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   const Text(
-                                    '보유수익률 ',
+                                    '보유 ',
                                     style: TextStyle(
                                       color: RColor.greyBasic_8c8c8c,
                                     ),
                                   ),
                                   Text(
-                                    TStyle.getPercentString(item.profitRate),
+                                    item.elapsedDays,
+                                  ),
+                                  const Text(
+                                    '일째',
                                     style: TextStyle(
-                                      color: TStyle.getMinusPlusColor(item.profitRate),
+                                      color: RColor.greyBasic_8c8c8c,
                                     ),
                                   ),
+
                                 ],
                               ),
                             ],

@@ -4,22 +4,17 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock_status.dart';
 import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
-import 'package:rassi_assist/ui/news/issue_viewer.dart';
 
 import '../main/base_page.dart';
 
 ///
 class TileRelatedStock extends StatelessWidget {
   final StockStatus item;
-  bool isIssue = false;
 
-  TileRelatedStock(this.item);
+  const TileRelatedStock(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (item.listKeyword.isNotEmpty) {
-      isIssue = true;
-    }
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       decoration: UIStyle.boxWithOpacity16(),
@@ -112,7 +107,7 @@ class TileRelatedStock extends StatelessWidget {
         ),
         const SizedBox(height: 5),
         Visibility(
-          visible: isIssue,
+          visible: item.listKeyword.isNotEmpty,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 5),
             width: double.infinity,

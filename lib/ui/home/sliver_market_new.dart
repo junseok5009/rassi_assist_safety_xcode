@@ -177,9 +177,11 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
               //오늘 시장은
               _setSubTitleMore('오늘 시장은', '더보기', _showSheetMarketChart),
               const SizedBox(height: 15),
-              _index02.marketTimeDiv.isEmpty || _index02.marketTimeDiv == 'N'
+              _index02.marketTimeDiv.isEmpty
                   ? CommonView.setNoDataTextView(120, '오늘 시장 데이터가 없습니다.')
-                  : MarketTileTodayMarket(index02: _index02),
+                  : _index02.marketTimeDiv == 'N'
+                      ? CommonView.setNoDataTextView(120, '장 시작 전 입니다')
+                      : MarketTileTodayMarket(index02: _index02),
               const SizedBox(height: 5),
               _setTodayMarketCardView,
 
@@ -487,7 +489,7 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
             itemCount: issue03List.length,
             itemBuilder: (BuildContext context, int index) {
               return Issue03TodayHeadWidget(
-                issue03: issue03List[index],
+                issue03: issue03List[index], isShowFluctRate: _index02.marketTimeDiv == 'O' || _index02.marketTimeDiv == 'C',
               );
             },
           ),

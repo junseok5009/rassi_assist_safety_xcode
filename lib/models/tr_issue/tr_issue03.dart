@@ -73,8 +73,8 @@ class Issue03 {
 }
 
 class Issue03TodayHeadWidget extends StatelessWidget {
-  const Issue03TodayHeadWidget({required this.issue03, super.key});
-
+  const Issue03TodayHeadWidget({required this.issue03, required this.isShowFluctRate, super.key});
+  final bool isShowFluctRate;
   final Issue03 issue03;
 
   @override
@@ -116,12 +116,15 @@ class Issue03TodayHeadWidget extends StatelessWidget {
                       issue03.keyword,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    Text(
-                      TStyle.getPercentString(issue03.avgFluctRate),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: TStyle.getMinusPlusColor(issue03.avgFluctRate),
+                    Visibility(
+                      visible: isShowFluctRate,
+                      child: Text(
+                        TStyle.getPercentString(issue03.avgFluctRate),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: TStyle.getMinusPlusColor(issue03.avgFluctRate),
+                        ),
                       ),
                     ),
                   ],

@@ -446,6 +446,119 @@ class CommonPopup {
   }
 
   // 24.04.23 프리미엄 가입 팝업 basic
+  Future<String> showDialogPremiumBasic(BuildContext context) async {
+    if (context.mounted) {
+      return showDialog<String>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context, CustomNvRouteResult.cancel);
+                  },
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'images/rassibs_img_infomation.png',
+                      height: 60,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(
+                      height: 25.0,
+                    ),
+                    const Text(
+                      '안내',
+                      style: TStyle.title20,
+                    ),
+                    const SizedBox(
+                      height: 25.0,
+                    ),
+                    const Text(
+                      '매매비서 프리미엄에서 이용할 수 있는 정보입니다.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 25.0,
+                    ),
+                    const Text(
+                      '프리미엄으로 업그레이드 하시고 더 완벽하게 이용해 보세요.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 25.0,
+                    ),
+                    InkWell(
+                      child: Container(
+                        width: double.infinity,
+                        height: 50,
+                        constraints: const BoxConstraints(
+                          minWidth: 100,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                        ),
+                        decoration: UIStyle.boxRoundFullColor50c(
+                          RColor.mainColor,
+                        ),
+                        alignment: Alignment.center,
+                        child: const FittedBox(
+                          child: Text(
+                            '프리미엄 가입하기',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context, CustomNvRouteResult.landPremiumPage);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ).then(
+            (value) {
+          if (value != null) {
+            return value;
+          } else {
+            return CustomNvRouteResult.cancel;
+          }
+        },
+      );
+    } else {
+      return CustomNvRouteResult.cancel;
+    }
+  }
+
+  // 24.04.23 프리미엄 가입 팝업 New
   Future<String> showDialogPremium(BuildContext context) async {
     if (context.mounted) {
       return showDialog<String>(
@@ -878,35 +991,7 @@ class CommonPopup {
     }
   }
 
-  // index 0 : top / 1 : bottom / 2 : left / 3 : right
-  Widget _premiumCircleWidget(String title, int index) {
-    return Container(
-      width: AppGlobal().deviceWidth / 7.5,
-      height: AppGlobal().deviceWidth / 7.5,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xff353B6F),
-      ),
-      padding: index == 2
-          ? const EdgeInsets.all(8)
-          : index == 3
-              ? const EdgeInsets.all(10)
-              : const EdgeInsets.all(4),
-      alignment: Alignment.center,
-      child: FittedBox(
-        child: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            height: 1.2,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  // 23.12.05 공통 알림 팝업 개편 >> 확인 버튼 없음, 타이틀 빈 값이면 안보이게 >>>>> 삭제 예정
+  // 23.12.05 공통 알림 팝업 개편 >> 확인 버튼 없음, 타이틀 빈 값이면 안보이게
   showDialogBasic(BuildContext context, String title, String message) async {
     if (context.mounted) {
       return showDialog<String>(

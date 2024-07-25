@@ -18,6 +18,13 @@ class MarketTileTodayMarket extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double beforeTiKospi = double.parse(index02.kospi.priceIndex) - double.parse(index02.kospi.indexFluctuation);
+    double beforeTiKosdaq = double.parse(index02.kosdaq.priceIndex) - double.parse(index02.kosdaq.indexFluctuation);
+    double maxTiKospi = _findMaxTiChartData(isKospi: true);
+    double maxTiKosdaq = _findMaxTiChartData(isKospi: false);
+    double minTiKospi = _findMinTiChartData(isKospi: true);
+    double minTiKosdaq = _findMinTiChartData(isKospi: false);
+
     return Container(
       width: double.infinity,
       height: 240,
@@ -112,8 +119,28 @@ class MarketTileTodayMarket extends StatelessWidget {
                             ),
                             decimalPlaces: 0,
                             isVisible: index02.marketTimeDiv != 'B',
-                            minimum: index02.marketTimeDiv == 'B' ? 0 : null,
-                            maximum: index02.marketTimeDiv == 'B' ? 2 : null,
+                            minimum: index02.marketTimeDiv == 'B'
+                                ? 0
+                                : minTiKospi > beforeTiKospi
+                                    ? beforeTiKospi
+                                    : minTiKospi,
+                            maximum: index02.marketTimeDiv == 'B'
+                                ? 2
+                                : maxTiKospi > beforeTiKospi
+                                    ? maxTiKospi
+                                    : beforeTiKospi,
+                            plotBands: [
+                              if (index02.marketTimeDiv != 'B')
+                                PlotBand(
+                                  isVisible: true,
+                                  start: beforeTiKospi,
+                                  end: beforeTiKospi,
+                                  borderColor: RColor.greyMore_999999,
+                                  borderWidth: 1.4,
+                                  dashArray: const [3, 4],
+                                  shouldRenderAboveSeries: true,
+                                ),
+                            ],
                           ),
                           enableAxisAnimation: false,
                           onMarkerRender: (markerArgs) {
@@ -196,7 +223,6 @@ class MarketTileTodayMarket extends StatelessWidget {
                                 ),
                                 borderDrawMode: BorderDrawMode.top,
                                 animationDuration: 1500,
-                                //animationDelay: 200,
                                 onRendererCreated: (ChartSeriesController controller) {
                                   SchedulerBinding.instance.addPostFrameCallback((_) {
                                     controller.isVisible = true;
@@ -207,18 +233,6 @@ class MarketTileTodayMarket extends StatelessWidget {
                           ],
                         ),
                       ),
-                      /*if (index02.marketTimeDiv == 'B')
-                        Container(
-                          alignment: Alignment.center,
-                          color: RColor.bgBasic_fdfdfd,
-                          margin: const EdgeInsets.only(
-                            bottom: 28,
-                          ),
-                          child: Text(
-                            "${TStyle.getMonthDayString()}\n개장전 예상지수",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),*/
                     ],
                   ),
                   Text(
@@ -308,19 +322,9 @@ class MarketTileTodayMarket extends StatelessWidget {
                   Stack(
                     alignment: Alignment.topCenter,
                     children: [
-                      /*if (index02.marketTimeDiv == 'B')
-                        Container(
-                          color: RColor.bgBasic_fdfdfd,
-                          child: Text(
-                            "${TStyle.getMonthDayString()}\n개장전 예상지수",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 12,),
-                          ),
-                        ),*/
                       SizedBox(
                         width: double.infinity,
                         height: 110,
-                        //color: Colors.red.withOpacity(0.2),
                         child: SfCartesianChart(
                           plotAreaBorderWidth: 0,
                           margin: EdgeInsets.zero,
@@ -353,10 +357,28 @@ class MarketTileTodayMarket extends StatelessWidget {
                             ),
                             decimalPlaces: 0,
                             isVisible: index02.marketTimeDiv != 'B',
-                            minimum:
-                                index02.marketTimeDiv == 'B' ? double.parse(index02.kosdaq.priceIndex) - 0.1 : null,
-                            maximum:
-                                index02.marketTimeDiv == 'B' ? double.parse(index02.kosdaq.priceIndex) + 0.1 : null,
+                            minimum: index02.marketTimeDiv == 'B'
+                                ? 0
+                                : minTiKosdaq > beforeTiKosdaq
+                                    ? beforeTiKosdaq
+                                    : minTiKosdaq,
+                            maximum: index02.marketTimeDiv == 'B'
+                                ? 2
+                                : maxTiKosdaq > beforeTiKosdaq
+                                    ? maxTiKosdaq
+                                    : beforeTiKosdaq,
+                            plotBands: [
+                              if (index02.marketTimeDiv != 'B')
+                                PlotBand(
+                                  isVisible: true,
+                                  start: beforeTiKosdaq,
+                                  end: beforeTiKosdaq,
+                                  borderColor: RColor.greyMore_999999,
+                                  borderWidth: 1.4,
+                                  dashArray: const [3, 4],
+                                  shouldRenderAboveSeries: true,
+                                ),
+                            ],
                           ),
                           enableAxisAnimation: false,
                           onMarkerRender: (markerArgs) {
@@ -388,10 +410,10 @@ class MarketTileTodayMarket extends StatelessWidget {
                           },
                           series: [
                             if (index02.marketTimeDiv == 'B')
-                              LineSeries<Index02KosStruct, int>(
-                                dataSource: [index02.kosdaq, index02.kosdaq],
+                              LineSeries<int, int>(
+                                dataSource: const [0, 1],
                                 xValueMapper: (item, index) => index,
-                                yValueMapper: (item, index) => double.tryParse(item.priceIndex),
+                                yValueMapper: (item, index) => 1,
                                 color: RColor.grey_abb0bb,
                                 markerSettings: const MarkerSettings(
                                   isVisible: true,
@@ -485,5 +507,45 @@ class MarketTileTodayMarket extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  double _findMaxTiChartData({required bool isKospi}) {
+    List<Index02KosChart> listKosChart = [];
+    if (isKospi) {
+      listKosChart = index02.kospi.listKosChart;
+    } else {
+      listKosChart = index02.kosdaq.listKosChart;
+    }
+    final nonNullList = listKosChart.where((data) => double.tryParse(data.ti) != null).toList();
+    if (nonNullList.isEmpty) {
+      return -1;
+    } else if (nonNullList.length == 1) {
+      return 0;
+    } else {
+      Index02KosChart data = nonNullList.reduce(
+        (curr, next) => (double.tryParse(curr.ti) ?? 0) > (double.tryParse(next.ti) ?? 0) ? curr : next,
+      );
+      return double.parse(data.ti);
+    }
+  }
+
+  double _findMinTiChartData({required bool isKospi}) {
+    List<Index02KosChart> listKosChart = [];
+    if (isKospi) {
+      listKosChart = index02.kospi.listKosChart;
+    } else {
+      listKosChart = index02.kosdaq.listKosChart;
+    }
+    final nonNullList = listKosChart.where((data) => double.tryParse(data.ti) != null).toList();
+    if (nonNullList.isEmpty) {
+      return -1;
+    } else if (nonNullList.length == 1) {
+      return 0;
+    } else {
+      Index02KosChart data = nonNullList.reduce(
+        (curr, next) => (double.tryParse(curr.ti) ?? 0) > (double.tryParse(next.ti) ?? 0) ? next : curr,
+      );
+      return double.parse(data.ti);
+    }
   }
 }

@@ -794,14 +794,22 @@ class TStyle {
     return '';
   }
 
-  //날짜 형식 표시 (05월 05일)
-  static String getDateMdKorFormat(String date) {
+  //날짜 형식 표시 zeroVisible = true ? (05월 05일) : 5월 5일
+  static String getDateMdKorFormat(String date, {required bool isZeroVisible}) {
     String rtStr = '';
     if (date.length > 7) {
-      rtStr = '${date.substring(4, 6)}월 ${date.substring(6, 8)}일';
+      if(isZeroVisible){
+        rtStr = '${date.substring(4, 6)}월 ${date.substring(6, 8)}일';
+      }else{
+        rtStr = '${date[4] == '0' ? date.substring(5, 6) : date.substring(4, 6)}월 ${date.substring(6, 8)}일';
+      }
       return rtStr;
     } else if (date.length == 4) {
-      rtStr = '${date.substring(0, 2)}월 ${date.substring(2, 4)}일';
+      if(isZeroVisible){
+        rtStr = '${date.substring(0, 2)}월 ${date.substring(2, 4)}일';
+      }else{
+        rtStr = '${date[0] == '0' ? date.substring(1, 2) : date.substring(0, 2)}월 ${date.substring(2, 4)}일';
+      }
       return rtStr;
     }
     return '';
