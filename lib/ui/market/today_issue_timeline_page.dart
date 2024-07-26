@@ -189,12 +189,12 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                           onTap: () async {
                             if (Provider.of<UserInfoProvider>(context, listen: false).isPremiumUser()) {
                               await CommonDatePicker.showYearMonthPicker(
-                                  context, DateTime.parse(_listDate[_selectDateIndex].yyyyMMdd))
+                                      context, DateTime.parse(_listDate[_selectDateIndex].yyyyMMdd))
                                   .then((value) {
                                 if (value != null) {
                                   String getYearMonth = DateFormat('yyyyMMdd').format(value);
                                   DateTime selectMonthLastDateTime = DateTime.now();
-                                  if(getYearMonth.substring(0,6) != _todayStrYyyyMmDd.substring(0,6)){
+                                  if (getYearMonth.substring(0, 6) != _todayStrYyyyMmDd.substring(0, 6)) {
                                     selectMonthLastDateTime = DateTime(
                                       value.year,
                                       value.month + 1,
@@ -204,23 +204,23 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                                   if (!_isNetworkDo) {
                                     String getMonthLastDay = DateFormat('yyyyMMdd').format(selectMonthLastDateTime);
                                     _getDaysOfMonth(standardDate: getMonthLastDay);
-                                    if(getMonthLastDay == _todayStrYyyyMmDd){
-                                      for(int i = 0; i < _listDate.length; i++){
-                                        if(_listDate[i].yyyyMMdd == _todayStrYyyyMmDd){
+                                    if (getMonthLastDay == _todayStrYyyyMmDd) {
+                                      for (int i = 0; i < _listDate.length; i++) {
+                                        if (_listDate[i].yyyyMMdd == _todayStrYyyyMmDd) {
                                           _selectDateIndex = i;
                                           break;
                                         }
                                       }
-                                    }else{
+                                    } else {
                                       _selectDateIndex = _listDate.length - 1;
                                     }
                                     _requestIssue09(issueDate: getMonthLastDay);
                                   }
                                 }
                               });
-                            }else{
+                            } else {
                               CommonPopup.instance.showDialogPremiumBasic(context).then(
-                                    (result) {
+                                (result) {
                                   if (result == CustomNvRouteResult.landPremiumPage) {
                                     basePageState.navigateAndGetResultPayPremiumPage();
                                   }
@@ -248,7 +248,9 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                           width: 1,
                           height: double.infinity,
                           color: RColor.greyBasic_8c8c8c,
-                          margin: EdgeInsets.symmetric(horizontal: 5,),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                          ),
                         ),
                         /*IconButton(
                         icon: Image.asset(
@@ -310,144 +312,187 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                 ),
                 child: Stack(
                   children: [
-                    SingleChildScrollView(
-                      controller: _rassiroListScrollController,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 10,
-                          ),
-
-                          // 타이틀 - [날짜] 시장은?
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: Text(
-                              _index02.baseDate.isEmpty
-                                  ? '${TStyle.getDateMdKorFormat(_listDate[_selectDateIndex].yyyyMMdd, isZeroVisible: false)} 시장은?'
-                                  : '${TStyle.getDateMdKorFormat(_index02.baseDate, isZeroVisible: false)} 시장은?',
-                              //'${_listDate[_selectDateIndex].yyyyMMdd[4] == '0' ? _listDate[_selectDateIndex].yyyyMMdd.substring(5, 6) : _listDate[_selectDateIndex].yyyyMMdd.substring(4, 6)}월 ${_listDate[_selectDateIndex].yyyyMMdd.substring(6, 8)}일 시장은?',
-                              style: TStyle.defaultTitle,
-                            ),
-                          ),
-
-                          // 코스피 코스닥 지수
-                          _index02.marketTimeDiv.isEmpty
-                              ? CommonView.setNoDataTextView(120, '오늘 시장 데이터가 없습니다.')
-                              : _index02.marketTimeDiv == 'N'
-                                  ? CommonView.setNoDataTextView(120, '장 시작 전 입니다')
-                                  : _kosIndexView,
-
-                          // 타이틀 - 이슈는?
-                          const Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: Text(
-                              '이슈는?',
-                              style: TStyle.defaultTitle,
-                            ),
-                          ),
-
-                          if (_bubbleTimeLapseList.isNotEmpty)
-                            Container(
-                              width: double.infinity,
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 8,
-                              ),
-                              decoration: UIStyle.boxRoundFullColor6c(
-                                RColor.greyBox_f5f5f5,
-                              ),
-                              child: RichText(
-                                //textAlign: TextAlign.center,
-                                text: TextSpan(
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.black,
+                    if (!_isNetworkDo && _index02.marketTimeDiv.isEmpty && _bubbleWidgetList.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.only(
+                          bottom: 100,
+                        ),
+                        child: Column(
+                          children: [
+                            const Expanded(flex: 1, child: SizedBox()),
+                            Expanded(
+                              flex: 5,
+                              child: Row(
+                                children: [
+                                  const Expanded(
+                                    flex: 3,
+                                    child: SizedBox(),
                                   ),
-                                  children: [
-                                    TextSpan(
-                                      text: _index02.baseDate.isEmpty
-                                          ? '${TStyle.getDateMdKorFormat(_listDate[_selectDateIndex].yyyyMMdd, isZeroVisible: false)}에 총 '
-                                          : '${TStyle.getDateMdKorFormat(_index02.baseDate, isZeroVisible: false)}에 총 ',
-                                    ),
-                                    TextSpan(
-                                      //text: _listIssue08.isEmpty ? '' : _listIssue08.last.issueCount,
-                                      text: _bubbleTimeLapseList[_selectTimeLapseIndex].listData.length.toString(),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
+                                  Expanded(
+                                    flex: 7,
+                                    child: FractionallySizedBox(
+                                      heightFactor: 0.6,
+                                      child: Image.asset(
+                                        'images/icon_issue_timelapse_nodata.png',
                                       ),
                                     ),
-                                    const TextSpan(
-                                      text: '개 이슈가 발생되었습니다.',
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-
-                          const SizedBox(
-                            height: 0,
-                          ),
-
-                          // 버블 차트
-                          _bubbleChartView,
-
-                          // 타임랩스
-                          _bubbleTimeLapseList.isEmpty && !_isNetworkDo
-                              ? CommonView.setNoDataTextView(200, '이슈 데이터가 없습니다.')
-                              : _bubbleTimeLapseView,
-
-                          const SizedBox(
-                            height: 20,
-                          ),
-
-                          CommonView.setDivideLine,
-                          // 타이틀 - 특징주 종목들은?
-                          const Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: Text(
-                              '특징주 종목들은?',
-                              style: TStyle.defaultTitle,
-                            ),
-                          ),
-
-                          _listRassiroData.isEmpty
-                              ? CommonView.setNoDataTextView(150, '오늘의 특징주가 없습니다.')
-                              : _realStocksView,
-                          //MarketTileTodayMarket(index02: _index02),
-
-                          const SizedBox(
-                            height: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Visibility(
-                      visible: _isNetworkDo,
-                      child: Container(
+                            const Expanded(
+                                flex: 4,
+                                child: Text(
+                                  '선택하신 날짜에는 데이터가 없습니다.\n다른 날짜를 선택해 보세요.',
+                                  style: TextStyle(fontSize: 16),
+                                  textAlign: TextAlign.center,
+                                ))
+                          ],
+                        ),
+                      )
+                    else if (_isNetworkDo)
+                      Container(
                         width: double.infinity,
                         height: double.infinity,
                         color: Colors.grey.withOpacity(0.1),
                         alignment: Alignment.center,
+                        padding: const EdgeInsets.only(
+                          bottom: 100,
+                        ),
                         child: Image.asset(
                           'images/gif_ios_loading_large.gif',
                           height: 20,
                         ),
+                      )
+                    else
+                      SingleChildScrollView(
+                        controller: _rassiroListScrollController,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              height: 10,
+                            ),
+
+                            // 타이틀 - [날짜] 시장은?
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              child: Text(
+                                _index02.baseDate.isEmpty
+                                    ? '${TStyle.getDateMdKorFormat(_listDate[_selectDateIndex].yyyyMMdd, isZeroVisible: false)} 시장은?'
+                                    : '${TStyle.getDateMdKorFormat(_index02.baseDate, isZeroVisible: false)} 시장은?',
+                                //'${_listDate[_selectDateIndex].yyyyMMdd[4] == '0' ? _listDate[_selectDateIndex].yyyyMMdd.substring(5, 6) : _listDate[_selectDateIndex].yyyyMMdd.substring(4, 6)}월 ${_listDate[_selectDateIndex].yyyyMMdd.substring(6, 8)}일 시장은?',
+                                style: TStyle.defaultTitle,
+                              ),
+                            ),
+
+                            // 코스피 코스닥 지수
+                            _index02.marketTimeDiv.isEmpty
+                                ? CommonView.setNoDataTextView(120, '오늘 시장 데이터가 없습니다.')
+                                : _index02.marketTimeDiv == 'N'
+                                    ? CommonView.setNoDataTextView(120, '장 시작 전 입니다')
+                                    : _kosIndexView,
+
+                            // 타이틀 - 이슈는?
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              child: Text(
+                                '이슈는?',
+                                style: TStyle.defaultTitle,
+                              ),
+                            ),
+
+                            if (_bubbleTimeLapseList.isNotEmpty)
+                              Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 10,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
+                                decoration: UIStyle.boxRoundFullColor6c(
+                                  RColor.greyBox_f5f5f5,
+                                ),
+                                child: RichText(
+                                  //textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: _index02.baseDate.isEmpty
+                                            ? '${TStyle.getDateMdKorFormat(_listDate[_selectDateIndex].yyyyMMdd, isZeroVisible: false)}에 총 '
+                                            : '${TStyle.getDateMdKorFormat(_index02.baseDate, isZeroVisible: false)}에 총 ',
+                                      ),
+                                      TextSpan(
+                                        //text: _listIssue08.isEmpty ? '' : _listIssue08.last.issueCount,
+                                        text: _bubbleTimeLapseList[_selectTimeLapseIndex].listData.length.toString(),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const TextSpan(
+                                        text: '개 이슈가 발생되었습니다.',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                            const SizedBox(
+                              height: 0,
+                            ),
+
+                            // 버블 차트
+                            _bubbleChartView,
+
+                            // 타임랩스
+                            _bubbleTimeLapseList.isEmpty && !_isNetworkDo
+                                ? CommonView.setNoDataTextView(200, '이슈 데이터가 없습니다.')
+                                : _bubbleTimeLapseView,
+
+                            const SizedBox(
+                              height: 20,
+                            ),
+
+                            CommonView.setDivideLine,
+                            // 타이틀 - 특징주 종목들은?
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              child: Text(
+                                '특징주 종목들은?',
+                                style: TStyle.defaultTitle,
+                              ),
+                            ),
+
+                            _listRassiroData.isEmpty
+                                ? CommonView.setNoDataTextView(150, '오늘의 특징주가 없습니다.')
+                                : _realStocksView,
+                            //MarketTileTodayMarket(index02: _index02),
+
+                            const SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -989,24 +1034,11 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               context,
               IssueNewViewer.routeName,
               arguments: PgData(
-                userId: '',
                 pgSn: item.newsSn,
                 pgData: item.issueSn,
+                data: item.keyword,
               ),
             );
-            /*Navigator.push(
-              context,
-              CustomNvRouteClass.createRouteData(
-                const IssueNewViewer(),
-                RouteSettings(
-                  arguments: PgData(
-                    userId: '',
-                    pgSn: item.newsSn,
-                    pgData: item.issueSn,
-                  ),
-                ),
-              ),
-            );*/
           },
           child: FittedBox(
             fit: BoxFit.cover,

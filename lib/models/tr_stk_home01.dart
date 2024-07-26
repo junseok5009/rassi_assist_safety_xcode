@@ -153,103 +153,10 @@ class RassiroH {
   }
 }
 
-
-
-//화면구성
-class TileAnother extends StatelessWidget {
-  final LinkData item;
-
-  TileAnother(this.item,);
-
-  @override
-  Widget build(BuildContext context) {
-    String descTxt = '';
-    if(item.newsDiv == 'ISSUE') {
-      descTxt = '같은 이슈 키워드가\n발생하였습니다.';
-    }
-    else if(item.newsDiv == 'TRADE') {
-      descTxt = '같은 매매신호 내역이\n발생하였습니다.';
-    }
-    if(item.newsDiv == 'RASSIRO') {
-      descTxt = '같은 라씨로\n태그 종목입니다.';
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(left: 12, right: 8, top: 15, bottom: 15),
-      decoration: UIStyle.boxWithOpacity(),
-      child: InkWell(
-        splashColor: Colors.deepPurpleAccent.withAlpha(30),
-        child: Container(
-          width: 133,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: double.infinity,
-                height: 47,
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: RColor.yonbora,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                  ),
-                ),
-                child: Text(item.stockName, style: TStyle.commonTitle15,
-                  textAlign: TextAlign.center,
-                  maxLines: 1, overflow: TextOverflow.clip,),
-              ),
-              Text(
-                descTxt,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: const TextStyle(       //작은 그레이 텍스트
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                  color: Color(0xdd555555),
-                ),),
-              _setBtnText(),
-            ],
-          ),
-        ),
-        onTap: (){
-          if(item.newsDiv == 'ISSUE') {
-            basePageState.callPageRouteUpData(const IssueViewer(),
-                PgData(userId: '', pgSn: item.newsSn));
-          }
-          else if(item.newsDiv == 'TRADE') {
-            basePageState.goStockHomePage(item.stockCode, item.stockName, Const.STK_INDEX_SIGNAL,);
-          }
-          if(item.newsDiv == 'RASSIRO') {
-            basePageState.callPageRouteNews(const NewsViewer(),
-              PgNews(stockCode: item.stockCode, stockName: item.stockName,
-                newsSn: item.newsSn, createDate: item.issueDate,),);
-          }
-        },
-      ),
-    );
-  }
-
-  // 버튼 형태의 Text
-  Widget _setBtnText() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 7),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-      decoration: const BoxDecoration(
-        color: RColor.mainColor,
-        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-      ),
-      child: const Text(' 자세히 보기 ',
-        style: TextStyle(fontSize: 12, color: Colors.white,
-            fontWeight: FontWeight.w400),),
-    );
-  }
-}
-
 //종목홈 - AI속보 리스트
 class TileRassiroH extends StatelessWidget {
   final RassiroH item;
-  TileRassiroH(this.item,);
+  const TileRassiroH(this.item, {super.key});
   @override
   Widget build(BuildContext context) {
     return Container(

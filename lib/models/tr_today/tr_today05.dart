@@ -84,8 +84,8 @@ class RassiroNewsDdInfo {
 }
 
 class Item {
-  final String itemName;
-  final String itemCode;
+  final String itemName;  // newsSn
+  final String itemCode;  // keyword
 
   Item({
     this.itemName='',

@@ -34,8 +34,8 @@ import '../../models/none_tr/chart_data.dart';
 /// 2024.07
 /// 이슈 상세보기 (with 마켓뷰 개편)
 class IssueNewViewer extends StatefulWidget {
-  static const routeName = '/page_issue_calendar';
-  static const String TAG = "[IssueCalendarPage] ";
+  static const routeName = '/page_issue_new_viewer';
+  static const String TAG = "[IssueNewViewer] ";
   static const String TAG_NAME = '이슈상세보기';
 
   const IssueNewViewer({Key? key}) : super(key: key);
@@ -225,17 +225,18 @@ class IssueNewViewerState extends State<IssueNewViewer> {
       Future.delayed(Duration.zero, () {
         DLog.d(IssueNewViewer.TAG, "delayed user id : $_userId");
         args = ModalRoute.of(context)!.settings.arguments as PgData;
-        if (_newsSn.isEmpty) {
-          _newsSn = args.pgSn;
-          _issueSn = args.pgData;
+        _newsSn = args.pgSn;
+        _issueSn = args.pgData;
+        if (_newsSn.isEmpty && _issueSn.isEmpty) {
+          Navigator.pop(context);
         }
         if (_userId != '') {
           _fetchPosts(
               TR.ISSUE04,
               jsonEncode(<String, String>{
                 'userId': _userId,
-                'newsSn': _newsSn,
-                'issueSn': _issueSn,
+                if (_newsSn.isNotEmpty) 'newsSn': _newsSn,
+                if (_issueSn.isNotEmpty) 'issueSn': _issueSn,
               }));
         }
       });
@@ -264,12 +265,10 @@ class IssueNewViewerState extends State<IssueNewViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: RColor.bgBasic_fdfdfd,
-      appBar: CommonAppbar.simpleWithExit(
-        context,
-        '${_issue04.issueInfo.keyword} 이슈 상세보기',
-        Colors.black,
-        RColor.bgBasic_fdfdfd,
-        Colors.black,
+      appBar: CommonAppbar.basic(
+        buildContext: context,
+        title: '${_issue04.issueInfo.keyword} 이슈 상세보기',
+        elevation: 1,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -765,29 +764,33 @@ class IssueNewViewerState extends State<IssueNewViewer> {
           },
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             margin: const EdgeInsets.symmetric(
               horizontal: 15,
               //vertical: 10,
             ),
             decoration: UIStyle.boxRoundFullColor6c(
-              RColor.greyBox_f5f5f5,
+              const Color(0xff4C4F68),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Image.asset(
+                  'images/icon_volume_white.png',
+                  width: 16,
+                ),
+                const SizedBox(width: 5,),
                 Expanded(
                   child: AutoSizeText(
                     '${_issue04.issueInfo.keyword} 관련 종목의 AI매매신호 한번에 보기',
                     style: const TextStyle(
                       fontSize: 16,
+                      color: Colors.white,
+                      height: 1.2,
                     ),
                     maxLines: 1,
                   ),
-                ),
-                const ImageIcon(
-                  AssetImage('images/main_my_icon_arrow.png'),
-                  size: 20,
                 ),
               ],
             ),

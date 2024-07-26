@@ -15,6 +15,7 @@ import 'package:rassi_assist/provider/stock_home/stock_home_stock_info_provider.
 import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../common/net.dart';
@@ -237,9 +238,15 @@ class _StockIssuePageState extends State<StockIssuePage> {
           ],
         ),
         onTap: () {
-          //이슈 뷰어
-          basePageState.callPageRouteUpData(
-              IssueViewer(), PgData(userId: '', pgSn: item.newsSn));
+          Navigator.pushNamed(
+            context,
+            IssueNewViewer.routeName,
+            arguments: PgData(
+              pgSn: item.newsSn,
+              pgData: item.issueSn,
+              data: item.keyword,
+            ),
+          );
         },
       ),
     );

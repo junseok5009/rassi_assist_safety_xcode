@@ -90,17 +90,13 @@ class Issue03TodayHeadWidget extends StatelessWidget {
             Radius.circular(16.0),
           ),
           onTap: () {
-            Navigator.push(
+            Navigator.pushNamed(
               context,
-              CustomNvRouteClass.createRouteData(
-                const IssueNewViewer(),
-                RouteSettings(
-                  arguments: PgData(
-                    pgSn: issue03.newsSn,
-                    pgData: issue03.issueSn,
-                    data: issue03.keyword,
-                  ),
-                ),
+              IssueNewViewer.routeName,
+              arguments: PgData(
+                pgSn: issue03.newsSn,
+                pgData: issue03.issueSn,
+                data: issue03.keyword,
               ),
             );
           },

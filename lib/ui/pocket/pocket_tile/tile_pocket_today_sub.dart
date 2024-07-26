@@ -6,6 +6,7 @@ import 'package:rassi_assist/models/none_tr/stock/stock_pkt_chart.dart';
 import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/pocket/sliver_pocket_tab.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -563,8 +564,15 @@ class _TileStockIssue extends State<TileStockIssue> {
                 ],
               ),
               onTap: () {
-                basePageState.callPageRouteUpData(
-                    const IssueViewer(), PgData(userId: '', pgSn: widget.item.newsSn, pgData: widget.item.issueSn));
+                Navigator.pushNamed(
+                  context,
+                  IssueNewViewer.routeName,
+                  arguments: PgData(
+                    pgSn: widget.item.newsSn,
+                    pgData: widget.item.issueSn,
+                    data: widget.item.keyword,
+                  ),
+                );
               },
             ),
           ),

@@ -199,17 +199,12 @@ class TileMonthTopIssue extends StatelessWidget {
         ),
       ),
       onTap: () {
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          CustomNvRouteClass.createRouteData(
-            const IssueNewViewer(),
-            RouteSettings(
-              arguments: PgData(
-                userId: '',
-                pgSn: '', //item.newsSn,
-                pgData: item.issueSn,
-              ),
-            ),
+          IssueNewViewer.routeName,
+          arguments: PgData(
+            pgData: item.issueSn,
+            data: item.keyword,
           ),
         );
       },
@@ -245,17 +240,12 @@ class TileDayTopIssue extends StatelessWidget {
         ),
       ),
       onTap: () {
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          CustomNvRouteClass.createRouteData(
-            const IssueNewViewer(),
-            RouteSettings(
-              arguments: PgData(
-                userId: '',
-                pgSn: '', //item.newsSn,
-                pgData: item.issueSn,
-              ),
-            ),
+          IssueNewViewer.routeName,
+          arguments: PgData(
+            pgData: item.issueSn,
+            data: item.keyword,
           ),
         );
       },

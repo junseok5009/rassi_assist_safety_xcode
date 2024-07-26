@@ -657,7 +657,7 @@ class StockHomeHomeTileSocialAnalyze extends StatelessWidget {
 
     if (_findMinValue == _findMaxValue) return _findMaxValue * 2;
 
-    DLog.e('minValue : $minValue / maxValue : $maxValue');
+    //DLog.e('minValue : $minValue / maxValue : $maxValue');
 
     double range = maxValue - minValue;
     double interval = range / 4; // 예시로 5개의 간격으로 나눔

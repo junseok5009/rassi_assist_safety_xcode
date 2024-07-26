@@ -43,7 +43,6 @@ class IssueListPageState extends State<IssueListPage> {
   void initState() {
     super.initState();
     CustomFirebaseClass.logEvtScreenView(IssueListPage.TAG_NAME,);
-
     _loadPrefData().then((value) {
       _requestData();
     });

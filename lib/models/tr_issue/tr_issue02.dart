@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/models/pg_data.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 
 /// 2021.02.22
@@ -65,7 +66,7 @@ class TileChip2 extends StatelessWidget {
   final Issue02 item;
   final Color bColor;
 
-  TileChip2(this.item, this.bColor);
+  const TileChip2(this.item, this.bColor, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -79,14 +80,11 @@ class TileChip2 extends StatelessWidget {
         backgroundColor: bColor,
       ),
       onTap: () {
-        Navigator.of(context).push(
-          CustomNvRouteClass.createRouteData(
-            const IssueViewer(),
-            RouteSettings(
-              arguments: PgData(userId: '', pgSn: item.newsSn),
-            ),
-          ),
-        );
+        Navigator.pushNamed(context, IssueNewViewer.routeName, arguments: PgData(
+          pgSn: item.newsSn,
+          pgData: item.issueSn,
+          data: item.keyword,
+        ));
       },
     );
   }

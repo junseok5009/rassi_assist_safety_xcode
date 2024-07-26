@@ -16,6 +16,7 @@ import 'package:rassi_assist/models/tr_today/tr_today05.dart';
 import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
@@ -208,11 +209,13 @@ class HomeTileDdinfo extends StatelessWidget {
                       onTap: () {
                         if (item.contentDiv == 'ISS') {
                           // 개별 이슈 페이지로
-                          basePageState.callPageRouteUpData(
-                            const IssueViewer(),
-                            PgData(
-                                userId: '',
-                                pgSn: item.listItem[index].itemCode),
+                          Navigator.pushNamed(
+                            context,
+                            IssueNewViewer.routeName,
+                            arguments: PgData(
+                              pgSn: item.listItem[index].itemCode,
+                              data: item.listItem[index].itemName,
+                            ),
                           );
                         }
                         /*else if (item.contentDiv == 'RPT') {

@@ -866,7 +866,7 @@ class Rassi19ChangeItemWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(
-              height: 5,
+              height: 6,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -880,7 +880,7 @@ class Rassi19ChangeItemWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(
-                  width: 4,
+                  width: 6,
                 ),
                 Text(
                   item.stockCode,
@@ -892,87 +892,89 @@ class Rassi19ChangeItemWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(
-              height: 5,
+              height: 12,
             ),
             Container(
               //alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              padding: const EdgeInsets.all(15),
               decoration: UIStyle.boxRoundFullColor6c(
                 RColor.greyBox_f5f5f5,
               ),
               child: Row(
                 children: [
-                  Flexible(
-                    flex: 3,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
                           '거래량 ',
                           style: TextStyle(
-                            fontSize: 12,
+                            color: RColor.greyBasicStrong_666666,
                           ),
                         ),
                         Text(
                           TStyle.getMoneyPoint(item.tradeVol),
                           maxLines: 1,
                           style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Flexible(
-                    flex: 4,
-                    child: Row(
+                  Expanded(
+                    flex: 1,
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
                           '상장주식수 ',
                           style: TextStyle(
-                            fontSize: 12,
+                            color: RColor.greyBasicStrong_666666,
                           ),
                         ),
                         Text(
                           TStyle.getMoneyPoint(item.listedShares),
                           maxLines: 1,
                           style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Flexible(
-                    flex: 3,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        const Text(
-                          '거래비중 ',
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
+                  const SizedBox(width: 10,),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        '거래비중 ',
+                        style: TextStyle(
+                          color: RColor.greyBasicStrong_666666,
                         ),
-                        Text(
-                          '${TStyle.getMoneyPoint(item.tradeVolRate)}%',
-                          maxLines: 1,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      ),
+                      Text(
+                        '${TStyle.getMoneyPoint(item.tradeVolRate)}%',
+                        maxLines: 1,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: RColor.mainColor,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             const SizedBox(
-              height: 5,
+              height: 6,
             ),
             Container(
               width: double.infinity,

@@ -273,7 +273,7 @@ class _NewsTagAllPageState extends State<NewsTagAllPage> with TickerProviderStat
             padding: const EdgeInsets.only(left: 20, right: 20),
             child: Text(
               _listTagAllModel[vIndex].tagInfo,
-              style: TStyle.content15,
+              style: const TextStyle(fontSize: 15,),
             ),
           ),
           const SizedBox(height: 15),

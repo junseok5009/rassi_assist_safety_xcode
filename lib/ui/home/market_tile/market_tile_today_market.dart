@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_index/tr_index02.dart';
@@ -136,9 +137,17 @@ class MarketTileTodayMarket extends StatelessWidget {
                                   start: beforeTiKospi,
                                   end: beforeTiKospi,
                                   borderColor: RColor.greyMore_999999,
-                                  borderWidth: 1.4,
+                                  borderWidth: 1,
                                   dashArray: const [3, 4],
                                   shouldRenderAboveSeries: true,
+                                  text: '전일 종가 ${TStyle.getMoneyPoint(beforeTiKospi.toString())}',
+                                  textStyle: TextStyle(fontSize:10,),
+                                  horizontalTextAlignment: TextAnchor.end,
+                                  verticalTextAlignment: minTiKospi > beforeTiKospi
+                                      ? TextAnchor.end
+                                      : maxTiKospi > beforeTiKospi
+                                      ? TextAnchor.start
+                                      : TextAnchor.start,
                                 ),
                             ],
                           ),
@@ -374,9 +383,17 @@ class MarketTileTodayMarket extends StatelessWidget {
                                   start: beforeTiKosdaq,
                                   end: beforeTiKosdaq,
                                   borderColor: RColor.greyMore_999999,
-                                  borderWidth: 1.4,
+                                  borderWidth: 1,
                                   dashArray: const [3, 4],
                                   shouldRenderAboveSeries: true,
+                                  text: '전일 종가 ${TStyle.getMoneyPoint(beforeTiKosdaq.toStringAsFixed(2))}',
+                                  textStyle: const TextStyle(fontSize:10,),
+                                  horizontalTextAlignment: TextAnchor.end,
+                                  verticalTextAlignment: minTiKosdaq > beforeTiKosdaq
+                                      ? TextAnchor.end
+                                      : maxTiKosdaq > beforeTiKosdaq
+                                          ? TextAnchor.start
+                                          : TextAnchor.start,
                                 ),
                             ],
                           ),

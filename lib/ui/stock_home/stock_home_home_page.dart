@@ -28,6 +28,7 @@ import 'package:rassi_assist/provider/stock_home/stock_home_event_view_div_provi
 import 'package:rassi_assist/provider/stock_home/stock_home_tab_name_provider.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_ai_breaking_news_list_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_company_overview_page.dart';
@@ -1438,12 +1439,13 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
                             ],
                           ),
                           onTap: () {
-                            basePageState.callPageRouteUpData(
-                              const IssueViewer(),
-                              PgData(
-                                userId: '',
+                            Navigator.pushNamed(
+                              context,
+                              IssueNewViewer.routeName,
+                              arguments: PgData(
                                 pgSn: item.newsSn,
                                 pgData: item.issueSn,
+                                data: item.keyword,
                               ),
                             );
                           },

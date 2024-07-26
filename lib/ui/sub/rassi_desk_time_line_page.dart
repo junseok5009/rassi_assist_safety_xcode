@@ -10,6 +10,7 @@ import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/tr_today/tr_today05.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/search_page.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
 import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_page.dart';
@@ -401,8 +402,15 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage> with Tick
                           ),
                           onTap: () {
                             if (item.contentDiv == 'ISS') {
-                              basePageState.callPageRouteUpData(
-                                  IssueViewer(), PgData(userId: '', pgSn: item.listItem[index].itemCode));
+                              Navigator.pushNamed(
+                                context,
+                                IssueNewViewer.routeName,
+                                arguments: PgData(
+                                  pgSn: item.listItem[index].itemCode,
+                                  //pgData: item.listItem[index].itemCode,
+                                  data: item.listItem[index].itemName,
+                                ),
+                              );
                             }
                             /*else if (item.contentDiv == 'RPT') {
                               // 증권사 리포트로

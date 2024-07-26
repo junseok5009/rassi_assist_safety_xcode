@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue03.dart';
+import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 
 import '../../../common/const.dart';
 import '../../../common/strings.dart';
@@ -163,13 +165,15 @@ class TileIssue03N extends StatelessWidget {
         ),
       ),
       onTap: () {
-        basePageState.callPageRouteUpData(
-            const IssueViewer(),
-            PgData(
-              userId: '',
-              pgSn: item.newsSn,
-              pgData: item.issueSn,
-            ));
+        Navigator.pushNamed(
+          context,
+          IssueNewViewer.routeName,
+          arguments: PgData(
+            pgSn: item.newsSn,
+            pgData: item.issueSn,
+            data: item.keyword,
+          ),
+        );
       },
     );
   }

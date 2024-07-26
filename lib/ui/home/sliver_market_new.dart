@@ -470,30 +470,34 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
             style: TStyle.defaultTitle,
           ),
         ),
-        Container(
-          width: double.infinity,
-          height: 190,
-          margin: const EdgeInsets.only(
-            top: 15,
-            left: 10,
-            right: 10,
-            bottom: 0,
-          ),
-          child: Swiper(
-            controller: SwiperController(),
-            pagination: CommonSwiperPagenation.getNormalSP(
-              8.0,
+        if (issue03List.isEmpty)
+          CommonView.setNoDataTextView(120, '오늘 주요 이슈가 없습니다.')
+        else
+          Container(
+            width: double.infinity,
+            height: 190,
+            margin: const EdgeInsets.only(
+              top: 15,
+              left: 10,
+              right: 10,
+              bottom: 0,
             ),
-            loop: false,
-            autoplay: false,
-            itemCount: issue03List.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Issue03TodayHeadWidget(
-                issue03: issue03List[index], isShowFluctRate: _index02.marketTimeDiv == 'O' || _index02.marketTimeDiv == 'C',
-              );
-            },
+            child: Swiper(
+              controller: SwiperController(),
+              pagination: CommonSwiperPagenation.getNormalSP(
+                8.0,
+              ),
+              loop: false,
+              autoplay: false,
+              itemCount: issue03List.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Issue03TodayHeadWidget(
+                  issue03: issue03List[index],
+                  isShowFluctRate: _index02.marketTimeDiv == 'O' || _index02.marketTimeDiv == 'C',
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }
@@ -989,7 +993,6 @@ class SliverMarketWidgetState extends State<SliverMarketNewWidget> {
       setState(
         () {},
       );
-      DLog.e('_index02 : ${_index02.toString()}');
       _fetchPosts(
           TR.TODAY05,
           jsonEncode(<String, String>{

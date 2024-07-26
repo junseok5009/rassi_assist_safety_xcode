@@ -122,17 +122,13 @@ class TileNewIssue extends StatelessWidget {
         ),
       ),
       onTap: () {
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          CustomNvRouteClass.createRouteData(
-            const IssueNewViewer(),
-            RouteSettings(
-              arguments: PgData(
-                userId: '',
-                pgSn: item.newsSn,
-                pgData: item.issueSn,
-              ),
-            ),
+          IssueNewViewer.routeName,
+          arguments: PgData(
+            pgSn: item.newsSn,
+            pgData: item.issueSn,
+            data: item.keyword,
           ),
         );
       },

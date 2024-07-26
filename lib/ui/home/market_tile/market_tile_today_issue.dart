@@ -3,6 +3,7 @@ import 'dart:ui' as du_text_direction;
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
@@ -300,20 +301,11 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
             CustomFirebaseClass.logEvtTodayIssue(
               item.keyword,
             );
-            Navigator.push(
-              context,
-              CustomNvRouteClass.createRouteData(
-                const IssueNewViewer(),
-                // const IssueViewer(),
-                RouteSettings(
-                  arguments: PgData(
-                    userId: '',
-                    pgSn: item.newsSn,
-                    pgData: item.issueSn,
-                  ),
-                ),
-              ),
-            );
+            Navigator.pushNamed(context, IssueNewViewer.routeName, arguments: PgData(
+              userId: '',
+              pgSn: item.newsSn,
+              pgData: item.issueSn,
+            ));
           },
           child: FittedBox(
             fit: BoxFit.cover,

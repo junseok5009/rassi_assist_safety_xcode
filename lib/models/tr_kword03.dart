@@ -68,20 +68,3 @@ class ChipKeyword extends StatelessWidget {
     );
   }
 }
-
-// Route _createRoute(PgData pgData) {
-//   return PageRouteBuilder(
-//     pageBuilder: (context, animation, secondaryAnimation) => IssueViewer(),
-//     settings: RouteSettings(arguments: pgData),
-//     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-//       var begin = Offset(0.0, 1.0);
-//       var end = Offset.zero;
-//       var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.ease));
-//       var offsetAnimation = animation.drive(tween);
-//
-//       return SlideTransition(
-//         position: offsetAnimation,
-//         child: child,);
-//     },
-//   );
-// }
