@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:provider/provider.dart';
 import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
+import 'package:rassi_assist/common/custom_nv_route_result.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -17,7 +19,10 @@ import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue02n.dart';
 import 'package:rassi_assist/models/tr_issue/tr_issue05.dart';
+import 'package:rassi_assist/provider/user_info_provider.dart';
 import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -26,7 +31,7 @@ import 'package:table_calendar/table_calendar.dart';
 class IssueCalendarPage extends StatefulWidget {
   static const routeName = '/page_issue_calendar';
   static const String TAG = "[IssueCalendarPage] ";
-  static const String TAG_NAME = '';
+  static const String TAG_NAME = '이슈캘린더';
 
   const IssueCalendarPage({Key? key}) : super(key: key);
 
@@ -43,6 +48,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
   String _keyword = '';
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
+  String _focusedYearMonth = '';
 
   late DateTime _firstDay;
   late DateTime _lastDay;
@@ -71,7 +77,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     _firstDay = DateTime(_lastDay.year - 10, _lastDay.month, 1);
 
     // DLog.d(IssueCalendarPage.TAG, _firstDay.toString());
-    _strMonth = TStyle.getYearMonthString().substring(4, 6);
+    _strMonth = _focusedDay.month.toString();
 
     eventSource = {};
     _updateCalendar();
@@ -81,15 +87,15 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         args = ModalRoute.of(context)!.settings.arguments as PgData;
         _issueSn = args.pgData;
         _keyword = args.data;
-        // if (_themeCode.isEmpty) {
-        //   Navigator.pop(context);
-        // }
+
         if (_userId != '') {
+          _focusedYearMonth = TStyle.getYearMonthString();
+
           _fetchPosts(
               TR.ISSUE02,
               jsonEncode(<String, String>{
                 'userId': _userId,
-                'issueMonth': TStyle.getYearMonthString(),
+                'issueMonth': _focusedYearMonth,
                 'selectDiv': 'NEW',
                 'issueSn': _issueSn,
               }));
@@ -99,6 +105,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
               jsonEncode(<String, String>{
                 'userId': _userId,
                 'issueSn': _issueSn,
+                'issueMonth': _focusedYearMonth,
                 'pageNo': pageNum.toString(),
                 'pageItemSize': '10',
               }));
@@ -126,7 +133,7 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         !_scrollController.position.outOfRange) {
       //리스트뷰 하단 도착 / 새로운 데이터 요청
       pageNum = pageNum + 1;
-      _requestIssue05();
+      _requestIssue05(_focusedYearMonth);
     } else {}
   }
 
@@ -161,15 +168,20 @@ class IssueCalendarState extends State<IssueCalendarPage> {
             _setMonthlySummary(),
             _setIssueCalendar(),
             const SizedBox(height: 25),
-            _setSubTitle('이슈 히스토리'),
-            const SizedBox(height: 15),
-            ListView.builder(
-              physics: const ScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: _issueList.length,
-              itemBuilder: (context, index) {
-                return _setIssueItem(_issueList[index]);
-              },
+            // _setSubTitle('이슈 히스토리'),
+            // const SizedBox(height: 15),
+
+            _issueList.isNotEmpty
+                ? ListView.builder(
+                    physics: const ScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: _issueList.length,
+                    itemBuilder: (context, index) {
+                      return _setIssueItem(_issueList[index]);
+                    },
+                  )
+                : const Center(
+              child: Text('발생된 이슈 히스토리가 없습니다.', style: TStyle.defaultContent,),
             ),
             const SizedBox(height: 20),
           ],
@@ -185,9 +197,28 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         margin: const EdgeInsets.all(15),
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
-        child: Text(
-          '$_strMonth월에는 $_strIssDays번의 이슈가 발생하였으며, $_strRiseDays번 상승, $_strFallDays번 하락을 했습니다.',
-          style: TStyle.defaultContent,
+        child: RichText(
+          text: TextSpan(
+            style: const TextStyle(
+              height: 1.3,
+              fontWeight: FontWeight.w400,
+              fontSize: 16,
+              color: Color(0xff111111),
+            ),
+            children: [
+              TextSpan(text: '$_strMonth월에는 '),
+              TextSpan(
+                text: _strIssDays,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              TextSpan(
+                text: '번의 이슈가 발생하였으며, $_strRiseDays번 상승, $_strFallDays번 하락을 했습니다.',
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -228,23 +259,41 @@ class IssueCalendarState extends State<IssueCalendarPage> {
         eventLoader: (day) {
           return _getEventsForDay(day);
         },
-        onPageChanged: (focusedDay) {
+        onPageChanged: (focusedDay) async {
           DLog.d(IssueCalendarPage.TAG, 'Calendar page focusedDay: $focusedDay');
-          _focusedDay = focusedDay;
-          DLog.d(IssueCalendarPage.TAG, 'Calendar page changed to ${focusedDay.month}/${focusedDay.year}');
-          _strMonth = focusedDay.month.toString();
-          _loadEventsForMonth(focusedDay);
+
+          if (Provider.of<UserInfoProvider>(context, listen: false).isPremiumUser()) {
+            _focusedDay = focusedDay;
+            DLog.d(IssueCalendarPage.TAG, 'Calendar page changed to ${focusedDay.month}/${focusedDay.year}');
+            _strMonth = focusedDay.month.toString();
+            // DLog.d(IssueCalendarPage.TAG, 'Loading events for ${forcusedCal.month}/${forcusedCal.year}');
+            _focusedYearMonth = focusedDay.year.toString() + focusedDay.month.toString().padLeft(2, '0');
+            DLog.d(IssueCalendarPage.TAG, _focusedYearMonth);
+
+            if (Provider.of<UserInfoProvider>(context, listen: false).isPremiumUser()) {
+              _requestData(_focusedYearMonth);
+            }
+          } else {
+            setState(() {
+              _focusedDay = DateTime.now();
+            });
+            String result = await CommonPopup.instance.showDialogPremium(context);
+            if (result == CustomNvRouteResult.landPremiumPage) {
+              basePageState.navigateAndGetResultPayPremiumPage();
+            }
+          }
+
         },
       ),
     );
   }
 
-  void _loadEventsForMonth(DateTime datetime) {
+  void _loadEventsForMonth(DateTime datetime) async {
     _strMonth = datetime.month.toString();
     // DLog.d(IssueCalendarPage.TAG, 'Loading events for ${forcusedCal.month}/${forcusedCal.year}');
-    String yearMonth = datetime.year.toString() + datetime.month.toString().padLeft(2, '0');
-    // DLog.d(IssueCalendarPage.TAG, yearMonth);
-    _requestIssue02(yearMonth);
+    _focusedYearMonth = datetime.year.toString() + datetime.month.toString().padLeft(2, '0');
+    DLog.d(IssueCalendarPage.TAG, _focusedYearMonth);
+    _requestData(_focusedYearMonth);
   }
 
   Widget _setIssueDays(List<IssueDaily> events, String day) {
@@ -408,7 +457,10 @@ class IssueCalendarState extends State<IssueCalendarPage> {
     );
   }
 
-  void _requestIssue02(String yearMonth) {
+  void _requestData(String yearMonth) {
+    _issueList.clear();
+    pageNum = 0;
+
     _fetchPosts(
         TR.ISSUE02,
         jsonEncode(<String, String>{
@@ -417,14 +469,25 @@ class IssueCalendarState extends State<IssueCalendarPage> {
           'selectDiv': 'NEW',
           'issueSn': _issueSn,
         }));
-  }
 
-  void _requestIssue05() {
     _fetchPosts(
         TR.ISSUE05,
         jsonEncode(<String, String>{
           'userId': _userId,
           'issueSn': _issueSn,
+          'issueMonth': yearMonth,
+          'pageNo': pageNum.toString(),
+          'pageItemSize': '10',
+        }));
+  }
+
+  void _requestIssue05(String yearMonth) {
+    _fetchPosts(
+        TR.ISSUE05,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'issueSn': _issueSn,
+          'issueMonth': yearMonth,
           'pageNo': pageNum.toString(),
           'pageItemSize': '10',
         }));

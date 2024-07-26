@@ -129,6 +129,7 @@ class IssueInsightState extends State<IssueInsightPage> {
               // 한달동안 많이 발섕한 이슈
               _setMonthTopIssue,
               const SizedBox(height: 10),
+              _setMonthTopDesc,
               CommonView.setDivideLine,
               const SizedBox(height: 10),
 
@@ -219,6 +220,40 @@ class IssueInsightState extends State<IssueInsightPage> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget get _setMonthTopDesc {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: RichText(
+        text: TextSpan(
+          style: Theme.of(context).textTheme.bodyLarge,
+          children: const [
+            TextSpan(
+              text: '① 입력하신 매수 가격에 맞춰 회원님만을 위한 매도 알고리즘이 설정됩니다.\n',
+              style: TextStyle(
+                fontSize: 13,
+                color: RColor.greyMore_999999,
+              ),
+            ),
+            TextSpan(
+              text: '\n',
+              style: TextStyle(
+                fontSize: 5,
+                color: RColor.greyMore_999999,
+              ),
+            ),
+            TextSpan(
+              text: '② 매수가는 ‘현재가 기준 +9%’이내 가격으로만 등록이 가능합니다.\n',
+              style: TextStyle(
+                fontSize: 13,
+                color: RColor.greyMore_999999,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -394,7 +429,9 @@ class IssueInsightState extends State<IssueInsightPage> {
           ? const Center(child: CircularProgressIndicator())
           : SfCartesianChart(
               // margin: EdgeInsets.zero,
-              primaryXAxis: const CategoryAxis(),
+              primaryXAxis: const CategoryAxis(
+                  // labelRotation: 45,
+                  ),
               primaryYAxis: const NumericAxis(
                 axisLine: AxisLine(width: 0),
                 majorGridLines: MajorGridLines(width: 0),
@@ -489,8 +526,6 @@ class IssueInsightState extends State<IssueInsightPage> {
           'userId': _userId,
           'issueMonth': sYearMonth,
           'menuDiv': IssueDivType.OCCUR.name,
-          'pageNo': '0',
-          'pageItemSize': '10',
         }));
 
     //트랜드
@@ -511,6 +546,15 @@ class IssueInsightState extends State<IssueInsightPage> {
           'menuDiv': IssueDivType.UPDAY.name,
           'pageNo': '0',
           'pageItemSize': '10',
+        }));
+
+    //월별 상승 랭킹
+    _fetchPosts(
+        TR.ISSUE11,
+        jsonEncode(<String, String>{
+          'userId': _userId,
+          'issueMonth': sYearMonth,
+          'menuDiv': IssueDivType.UPMON.name,
         }));
 
     //월별 신규 등록된 이슈
@@ -549,7 +593,7 @@ class IssueInsightState extends State<IssueInsightPage> {
       final TrIssue11 resData = TrIssue11.fromJson(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Issue11 item = resData.retData;
-        DLog.d(IssueInsightPage.TAG, item.menuDiv);
+        // DLog.d(IssueInsightPage.TAG, item.menuDiv);
 
         if (item.menuDiv == IssueDivType.OCCUR.name) {
           _monthDesc = item.content1;
