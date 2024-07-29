@@ -47,6 +47,8 @@ class IssueInsightState extends State<IssueInsightPage> {
   List<IssueTopDay> _issDayTopList = [];
   List<NewIssue> _newIssueList = [];
   List<IssueTrendCount> _listStackedColumn = [];
+  List<KospiIndex> _listKospiData = [];
+  List<KosdaqIndex> _listKosdaqData = [];
 
   String _trendTitle1 = '';
   String _trendTitle2 = '';
@@ -408,15 +410,6 @@ class IssueInsightState extends State<IssueInsightPage> {
             _trendContent2,
             style: TStyle.defaultContent,
           ),
-
-          // ListView.builder(
-          //   physics: const ScrollPhysics(),
-          //   shrinkWrap: true,
-          //   itemCount: _issMonthTopList.length > 10 ? 10 : _issMonthTopList.length,
-          //   itemBuilder: (context, index) {
-          //     return TileMonthTopIssue(_issMonthTopList[index], index);
-          //   },
-          // ),
         ],
       ),
     );
@@ -428,30 +421,80 @@ class IssueInsightState extends State<IssueInsightPage> {
       child: _listStackedColumn.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : SfCartesianChart(
-              // margin: EdgeInsets.zero,
-              primaryXAxis: const CategoryAxis(
-                  // labelRotation: 45,
-                  ),
+              margin: EdgeInsets.zero,
+              // tooltipBehavior: TooltipBehavior(enable: true),
+              primaryXAxis: CategoryAxis(
+                  edgeLabelPlacement: EdgeLabelPlacement.shift,
+                  labelPlacement: LabelPlacement.onTicks,
+                  interval: 1,
+                  majorGridLines: const MajorGridLines(width: 0),
+                  plotOffset: 10,
+                  axisLabelFormatter: (axisLabelRenderArgs) {
+                    return ChartAxisLabel(
+                      TStyle.getDateDivFormat(axisLabelRenderArgs.text),
+                      const TextStyle(
+                        fontSize: 10,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    );
+                  }),
               primaryYAxis: const NumericAxis(
                 axisLine: AxisLine(width: 0),
                 majorGridLines: MajorGridLines(width: 0),
                 labelStyle: TextStyle(color: Colors.transparent),
                 isVisible: false,
               ),
+              axes: const <ChartAxis>[
+                NumericAxis(
+                  name: 'KospiIndex',
+                  opposedPosition: true,
+                  interval: 50,
+                  isVisible: false,
+                ),
+                NumericAxis(
+                  name: 'KosdaqIndex',
+                  opposedPosition: true,
+                  interval: 50,
+                  isVisible: false,
+                ),
+              ],
               series: <CartesianSeries>[
                 StackedColumn100Series<IssueTrendCount, String>(
+                  name: '상승이슈',
                   dataSource: _listStackedColumn,
                   xValueMapper: (IssueTrendCount data, _) => data.issueDate,
                   yValueMapper: (IssueTrendCount data, _) => double.parse(data.upCount),
                   color: RColor.bubbleChartRed,
                 ),
                 StackedColumn100Series<IssueTrendCount, String>(
+                  name: '하락이슈',
                   dataSource: _listStackedColumn,
                   xValueMapper: (IssueTrendCount data, _) => data.issueDate,
                   yValueMapper: (IssueTrendCount data, _) => double.parse(data.downCount),
                   color: RColor.bubbleChartBlue,
                 ),
+                LineSeries<KospiIndex, String>(
+                  name: '코스피',
+                  dataSource: _listKospiData,
+                  xValueMapper: (KospiIndex data, _) => data.tradeDate,
+                  yValueMapper: (KospiIndex data, _) => double.parse(data.priceIndex),
+                  color: RColor.chartTradePriceColor,
+                  width: 1.2,
+                  markerSettings: const MarkerSettings(isVisible: false),
+                  yAxisName: 'KospiIndex',
+                ),
+                LineSeries<KosdaqIndex, String>(
+                  name: '코스닥',
+                  dataSource: _listKosdaqData,
+                  xValueMapper: (KosdaqIndex data, _) => data.tradeDate,
+                  yValueMapper: (KosdaqIndex data, _) => double.parse(data.priceIndex),
+                  color: Colors.green,
+                  width: 2,
+                  markerSettings: const MarkerSettings(isVisible: false),
+                  yAxisName: 'KosdaqIndex',
+                ),
               ],
+              legend: const Legend(isVisible: true),
             ),
     );
   }
@@ -519,6 +562,8 @@ class IssueInsightState extends State<IssueInsightPage> {
     _issDayTopList.clear();
     _newIssueList.clear();
     _listStackedColumn.clear();
+    _listKospiData.clear();
+    _listKosdaqData.clear();
 
     _fetchPosts(
         TR.ISSUE11,
@@ -607,6 +652,8 @@ class IssueInsightState extends State<IssueInsightPage> {
           _upCountTrend = item.upMaxDate;
           _dnCountTrend = item.dnMaxDate;
           _listStackedColumn = item.listIssueCount;
+          _listKospiData = item.listKospiIndex;
+          _listKosdaqData = item.listKosdaqIndex;
           // for (IssueTrendCount tt in _listStackedColumn) {
           //   DLog.w(tt.toString());
           // }

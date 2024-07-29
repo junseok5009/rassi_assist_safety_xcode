@@ -46,6 +46,8 @@ class Issue11 {
   final String upMaxDate;
   final String dnMaxDate;
   final List<IssueTrendCount> listIssueCount;
+  final List<KospiIndex> listKospiIndex;
+  final List<KosdaqIndex> listKosdaqIndex;
 
   // [UPDAY]
   final String totalPageSize;
@@ -64,6 +66,8 @@ class Issue11 {
     this.upMaxDate = '',
     this.dnMaxDate = '',
     this.listIssueCount = const [],
+    this.listKospiIndex = const [],
+    this.listKosdaqIndex = const [],
 
     this.totalPageSize = '',
     this.totalItemSize = '',
@@ -73,6 +77,8 @@ class Issue11 {
 
   factory Issue11.fromJson(Map<String, dynamic> json) {
     var jsonList = json['list_Issue'];
+    var jsonKospi = json['list_Kospi'];
+    var jsonKosdaq = json['list_Kosdaq'];
     return Issue11(
       menuDiv: json['menuDiv'] ?? '',
       content1: json['content1'] ?? '',
@@ -86,6 +92,8 @@ class Issue11 {
       currentPageNo: json['currentPageNo'] ?? '',
       listGenMonth: jsonList == null ? [] : (jsonList as List).map((i) => IssueGenMonth.fromJson(i)).toList(),
       listIssueCount: jsonList == null ? [] : (jsonList as List).map((i) => IssueTrendCount.fromJson(i)).toList(),
+      listKospiIndex: jsonKospi == null ? [] : (jsonKospi as List).map((i) => KospiIndex.fromJson(i)).toList(),
+      listKosdaqIndex: jsonKosdaq == null ? [] : (jsonKosdaq as List).map((i) => KosdaqIndex.fromJson(i)).toList(),
       listDayTop: jsonList == null ? [] : (jsonList as List).map((i) => IssueTopDay.fromJson(i)).toList(),
     );
   }
@@ -136,6 +144,65 @@ class IssueTrendCount {
     return '$issueDate | $upCount | $downCount | $occurCount';
   }
 }
+
+//  [TREND - kospi]
+class KospiIndex {
+  final String priceIndex;
+  final String indexFluctuation;
+  final String fluctuationRate;
+  final String tradeDate;
+
+  KospiIndex({
+    this.priceIndex = '',
+    this.indexFluctuation = '',
+    this.fluctuationRate = '',
+    this.tradeDate = '',
+  });
+
+  factory KospiIndex.fromJson(Map<String, dynamic> json) {
+    return KospiIndex(
+      priceIndex: json['priceIndex'] ?? '',
+      indexFluctuation: json['indexFluctuation'] ?? '',
+      fluctuationRate: json['fluctuationRate'] ?? '',
+      tradeDate: json['tradeDate'] ?? '',
+    );
+  }
+
+  @override
+  String toString() {
+    return '$priceIndex | $indexFluctuation | $fluctuationRate | $tradeDate';
+  }
+}
+
+//  [TREND - kosdaq]
+class KosdaqIndex {
+  final String priceIndex;
+  final String indexFluctuation;
+  final String fluctuationRate;
+  final String tradeDate;
+
+  KosdaqIndex({
+    this.priceIndex = '',
+    this.indexFluctuation = '',
+    this.fluctuationRate = '',
+    this.tradeDate = '',
+  });
+
+  factory KosdaqIndex.fromJson(Map<String, dynamic> json) {
+    return KosdaqIndex(
+      priceIndex: json['priceIndex'] ?? '',
+      indexFluctuation: json['indexFluctuation'] ?? '',
+      fluctuationRate: json['fluctuationRate'] ?? '',
+      tradeDate: json['tradeDate'] ?? '',
+    );
+  }
+
+  @override
+  String toString() {
+    return '$priceIndex | $indexFluctuation | $fluctuationRate | $tradeDate';
+  }
+}
+
 
 // 하루 많이 상승한 이슈 [UPDAY]
 class IssueTopDay {

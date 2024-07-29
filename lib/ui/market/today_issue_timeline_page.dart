@@ -31,6 +31,7 @@ import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleNode.dart';
 import 'package:rassi_assist/ui/custom/custom_bubble/CustomBubbleRoot.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
+import 'package:rassi_assist/ui/market/issue_insight_page.dart';
 import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -373,6 +374,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            _setBtnIssueInsight,
                             const SizedBox(
                               height: 10,
                             ),
@@ -566,6 +568,51 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget get _setBtnIssueInsight {
+    return Visibility(
+      visible: false,
+      child: InkWell(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RichText(
+                text: const TextSpan(
+                  text: '시장 이슈를 분석하는  ',
+                  style: TStyle.content15,
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: '이슈 인사이트',
+                      style: TextStyle(
+                        color: RColor.mainColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      // recognizer: TapGestureRecognizer()
+                      //   ..onTap = () {
+                      //     // open desired screen
+                      //   }
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 5),
+              const ImageIcon(
+                AssetImage('images/main_my_icon_arrow.png'),
+                size: 20,
+              )
+            ],
+          ),
+        ),
+        onTap: () {
+          basePageState.callPageRouteUP(const IssueInsightPage());
+        },
       ),
     );
   }
