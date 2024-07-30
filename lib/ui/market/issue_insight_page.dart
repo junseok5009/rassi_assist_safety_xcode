@@ -43,6 +43,7 @@ class IssueInsightState extends State<IssueInsightPage> {
   String dateTitle = '';
   String _monthDesc = '';
 
+  int _updateCounter = 0;
   List<IssueGenMonth> _issMonthTopList = [];
   List<IssueTopDay> _issDayTopList = [];
   List<NewIssue> _newIssueList = [];
@@ -154,7 +155,7 @@ class IssueInsightState extends State<IssueInsightPage> {
     );
   }
 
-  // 2024년 7월
+  // < 2024년 7월 >
   Widget get _setDateTitle {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -266,151 +267,158 @@ class IssueInsightState extends State<IssueInsightPage> {
       height: 330,
       child: _issMonthTopList.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : SfTreemap(
-              dataCount: _issMonthTopList.length > 23 ? 23 : _issMonthTopList.length,
-              weightValueMapper: (int index) {
-                return double.parse(_issMonthTopList[index].occurCount);
-              },
-              levels: <TreemapLevel>[
-                TreemapLevel(
-                  groupMapper: (int index) {
-                    return _issMonthTopList[index].keyword;
-                  },
-                  labelBuilder: (BuildContext context, TreemapTile tile) {
-                    return Padding(
-                      padding: const EdgeInsets.all(2.5),
-                      child: Text(
-                        tile.group,
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                    );
-                  },
-                  tooltipBuilder: (BuildContext context, TreemapTile tile) {
-                    return Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Text('''theme  : ${tile.group}\n횟수 : ${tile.weight}회''',
-                          style: const TextStyle(color: Colors.black)),
-                    );
-                  },
-                ),
-              ],
+          : AnimatedSwitcher(
+              duration: const Duration(microseconds: 500),
+              child: SfTreemap(
+                key: ValueKey<int>(_updateCounter),
+                dataCount: _issMonthTopList.length > 23 ? 23 : _issMonthTopList.length,
+                weightValueMapper: (int index) {
+                  return double.parse(_issMonthTopList[index].occurCount);
+                },
+                levels: <TreemapLevel>[
+                  TreemapLevel(
+                    groupMapper: (int index) {
+                      return _issMonthTopList[index].keyword;
+                    },
+                    labelBuilder: (BuildContext context, TreemapTile tile) {
+                      return Padding(
+                        padding: const EdgeInsets.all(2.5),
+                        child: Text(
+                          tile.group,
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                      );
+                    },
+                    tooltipBuilder: (BuildContext context, TreemapTile tile) {
+                      return Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text('''theme  : ${tile.group}\n횟수 : ${tile.weight}회''',
+                            style: const TextStyle(color: Colors.black)),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
     );
   }
 
   // 한달동안 이슈 트랜드
   Widget get _setMonthTrend {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '한달동안의 이슈 트랜드는?',
-            style: TStyle.defaultTitle,
-          ),
-          const SizedBox(height: 15),
-          const Text('매월 1일부터 말일까지 발생된 이슈의 트랜드와 지수의 흐름도 함께 비교해 보세요'),
-          const SizedBox(height: 15),
-
-          //chart
-          _setStackedColumn100,
-          const SizedBox(height: 15),
-
-          //상승/하락 이슈가 많았던 날
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-            decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
-            child: Row(
-              children: [
-                Expanded(
-                    child: Column(
-                  children: [
-                    const Text(
-                      '상승 이슈가\n많았던 날',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      height: 73,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: RColor.sigBuy,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$_upCountTrend일',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20,
-                            color: RColor.sigBuy,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )),
-                Expanded(
-                    child: Column(
-                  children: [
-                    const Text(
-                      '하락 이슈가\n많았던 날',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      height: 73,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: RColor.sigSell,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$_dnCountTrend일',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20,
-                            color: RColor.sigSell,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )),
-              ],
+    return Visibility(
+      visible: _listStackedColumn.isNotEmpty,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '한달동안의 이슈 트랜드는?',
+              style: TStyle.defaultTitle,
             ),
-          ),
-          const SizedBox(height: 25),
+            const SizedBox(height: 15),
+            const Text('매월 1일부터 말일까지 발생된 이슈의 트랜드와 지수의 흐름도 함께 비교해 보세요'),
+            const SizedBox(height: 15),
 
-          Text(
-            _trendTitle1,
-            style: TStyle.defaultTitle,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            _trendContent1,
-            style: TStyle.defaultContent,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            _trendTitle2,
-            style: TStyle.defaultTitle,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            _trendContent2,
-            style: TStyle.defaultContent,
-          ),
-        ],
+            //chart
+            _setStackedColumn100,
+            const SizedBox(height: 15),
+
+            //상승/하락 이슈가 많았던 날
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Column(
+                    children: [
+                      const Text(
+                        '상승 이슈가\n많았던 날',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 73,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: RColor.sigBuy,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$_upCountTrend일',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 20,
+                              color: RColor.sigBuy,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+                  Expanded(
+                      child: Column(
+                    children: [
+                      const Text(
+                        '하락 이슈가\n많았던 날',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 73,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: RColor.sigSell,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$_dnCountTrend일',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 20,
+                              color: RColor.sigSell,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
+
+            Text(
+              _trendTitle1,
+              style: TStyle.defaultTitle,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              _trendContent1,
+              style: TStyle.defaultContent,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _trendTitle2,
+              style: TStyle.defaultTitle,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              _trendContent2,
+              style: TStyle.defaultContent,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -558,6 +566,7 @@ class IssueInsightState extends State<IssueInsightPage> {
   void _requestData(String sYearMonth) {
     dateTitle = TStyle.getDateLongYmKorFormat(sYearMonth);
     _monthDesc = '';
+    _updateCounter = _updateCounter + 1;
     _issMonthTopList.clear();
     _issDayTopList.clear();
     _newIssueList.clear();
@@ -673,7 +682,7 @@ class IssueInsightState extends State<IssueInsightPage> {
         if (item != null) {
           _newIssueList = item.issueList;
 
-          setState(() {});
+          // setState(() {});
         }
       }
     }

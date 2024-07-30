@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/stock/stock.dart';
@@ -21,7 +20,7 @@ class TrIssue10 {
     return TrIssue10(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData: Issue10.fromJson(json['retData']),
+      retData: json['retData'] == null ? Issue10() : Issue10.fromJson(json['retData']),
     );
   }
 }
@@ -102,9 +101,21 @@ class TileNewIssue extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              item.keyword,
-              style: TStyle.defaultTitle,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  item.keyword,
+                  style: TStyle.defaultTitle,
+                ),
+                Text(
+                  TStyle.getDateDivFormat(item.issueDate),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: RColor.new_basic_text_color_grey,
+                  ),
+                )
+              ],
             ),
             const SizedBox(height: 10),
             Container(
@@ -143,7 +154,7 @@ class TileNewIssue extends StatelessWidget {
         alignment: WrapAlignment.start,
         children: List.generate(
           listStk.length,
-              (index) => InkWell(
+          (index) => InkWell(
             child: Container(
               padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
               // decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),

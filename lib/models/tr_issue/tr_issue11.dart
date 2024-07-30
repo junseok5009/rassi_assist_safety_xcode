@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rassi_assist/common/const.dart';
-import 'package:rassi_assist/common/custom_nv_route_class.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/common/ui_style.dart';
-import 'package:rassi_assist/models/none_tr/stock/stock.dart';
+import 'package:rassi_assist/models/none_tr/stock/stock_data.dart';
 import 'package:rassi_assist/models/pg_data.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
@@ -59,7 +58,6 @@ class Issue11 {
     this.menuDiv = '',
     this.content1 = '',
     this.listGenMonth = const [],
-
     this.title1 = '',
     this.title2 = '',
     this.content2 = '',
@@ -68,7 +66,6 @@ class Issue11 {
     this.listIssueCount = const [],
     this.listKospiIndex = const [],
     this.listKosdaqIndex = const [],
-
     this.totalPageSize = '',
     this.totalItemSize = '',
     this.currentPageNo = '',
@@ -203,32 +200,40 @@ class KosdaqIndex {
   }
 }
 
-
 // 하루 많이 상승한 이슈 [UPDAY]
 class IssueTopDay {
+  final String newsSn;
   final String issueSn;
   final String issueDate;
   final String keyword;
+  final String title;
   final String avgFluctRate;
+  List<StockData> stockList;
 
   IssueTopDay({
+    this.newsSn = '',
     this.issueSn = '',
     this.issueDate = '',
     this.keyword = '',
+    this.title = '',
     this.avgFluctRate = '',
+    this.stockList = const [],
   });
 
   factory IssueTopDay.fromJson(Map<String, dynamic> json) {
+    var list = json['list_Stock'] == null ? [] : (json['list_Stock'] as List);
+    List<StockData> rtList = list.map((i) => StockData.fromJson(i)).toList();
     return IssueTopDay(
+      newsSn: json['newsSn'] ?? '',
       issueSn: json['issueSn'] ?? '',
       issueDate: json['issueDate'] ?? '',
       keyword: json['keyword'] ?? '',
+      title: json['title'] ?? '',
       avgFluctRate: json['avgFluctRate'] ?? '',
+      stockList: rtList,
     );
   }
 }
-
-
 
 // Tile 한달동안 많이 발섕한 이슈
 class TileMonthTopIssue extends StatelessWidget {
@@ -279,7 +284,7 @@ class TileMonthTopIssue extends StatelessWidget {
   }
 }
 
-// Tile 하루 많이 상승한 이슈
+// Tile 하루 많이 상승한 이슈 [UPDAY]
 class TileDayTopIssue extends StatelessWidget {
   final IssueTopDay item;
 
@@ -296,13 +301,45 @@ class TileDayTopIssue extends StatelessWidget {
         child: Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  item.keyword,
-                  style: TStyle.defaultContent,
+                  '${TStyle.getDateDivFormat(item.issueDate)}  ${TStyle.getWeekdayKor(item.issueDate)}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: RColor.new_basic_text_color_grey,
+                  ),
                 ),
+                Row(
+                  children: [
+                    Text(
+                      item.keyword,
+                      style: TStyle.defaultContent,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      TStyle.getPercentString(item.avgFluctRate),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: TStyle.getMinusPlusFlucColor(item.avgFluctRate),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              decoration: UIStyle.boxRoundFullColor6c(RColor.greyBox_f5f5f5),
+              child: Text(
+                item.title,
+                style: TStyle.defaultContent,
+              ),
+            ),
+            const SizedBox(height: 10),
+            _setStockList(context, item.stockList),
           ],
         ),
       ),
@@ -319,8 +356,9 @@ class TileDayTopIssue extends StatelessWidget {
     );
   }
 
-  Widget _setStockList(BuildContext context, List<Stock> listStk) {
-    return SizedBox(
+  Widget _setStockList(BuildContext context, List<StockData> listStk) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 0),
       width: double.infinity,
       child: Wrap(
         spacing: 7.0,
@@ -328,13 +366,28 @@ class TileDayTopIssue extends StatelessWidget {
         children: List.generate(
           listStk.length,
           (index) => InkWell(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
-              // decoration: UIStyle.boxRoundFullColor25c(RColor.bgWeakGrey),
-              child: Text(
-                TStyle.getLimitString(listStk[index].stockName, 7),
-                style: TStyle.contentGrey14,
-              ),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  TStyle.getLimitString(listStk[index].stockName, 7),
+                  style: const TextStyle(
+                    color: RColor.greyMore_999999,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  TStyle.getPercentString(TStyle.getFixedNum(listStk[index].fluctuationRate)),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: TStyle.getMinusPlusColor(
+                      listStk[index].fluctuationRate,
+                    ),
+                  ),
+                ),
+              ],
             ),
             onTap: () {
               //종목홈으로 이동
