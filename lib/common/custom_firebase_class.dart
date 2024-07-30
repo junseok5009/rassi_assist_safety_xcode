@@ -122,7 +122,7 @@ class CustomFirebaseClass{
   }
 
   // 홈_홈 화면 라씨데스크[땡정보] 클릭 이벤트
-  static Future<void> logEvtDdInfo(String time,) async {
+  static Future<void> logEvtDdInfo({required String time}) async {
     await FirebaseAnalytics.instance.logEvent(
       name: 'click_ddinfo',
       parameters: <String, dynamic>{
@@ -137,6 +137,16 @@ class CustomFirebaseClass{
       name: 'click_today_issue',
       parameters: <String, dynamic>{
         'keyword': keyword,
+      },
+    );
+  }
+
+  // 오늘의 이슈 타임라인 타임랩스 바 이동 시 이벤트
+  static Future<void> logEvtTodayIssueTimelapse({required String time}) async {
+    await FirebaseAnalytics.instance.logEvent(
+      name: 'click_today_issue_time_lapse',
+      parameters: <String, dynamic>{
+        'time': time,
       },
     );
   }

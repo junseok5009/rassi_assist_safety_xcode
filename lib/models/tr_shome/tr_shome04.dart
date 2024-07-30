@@ -28,20 +28,12 @@ class Shome04 {
     this.listShome04Issue,
   });
 
-/*  Shome04.empty(){
-    shome04stock = defShome04Stock;
-    shome04price = Shome04Price.empty();
-    listShome04Issue = [];
-  }*/
-
   factory Shome04.fromJson(Map<String, dynamic> json) {
-    var list = json['list_Issue'] as List;
-    List<Shome04Issue> listData =
-    list == null ? [] : list.map((e) => Shome04Issue.fromJson(e)).toList();
+    var jsonList = json['list_Issue'];
     return Shome04(
-      shome04stock: Shome04Stock.fromJson(json['struct_Stock']) ?? defShome04Stock,
-      shome04price: Shome04Price.fromJson(json['struct_Price']) ?? defShome04Price,
-      listShome04Issue: listData,
+      shome04stock: Shome04Stock.fromJson(json['struct_Stock']),
+      shome04price: Shome04Price.fromJson(json['struct_Price']),
+      listShome04Issue: jsonList == null ? [] : (jsonList as List).map((e) => Shome04Issue.fromJson(e)).toList(),
     );
   }
 }

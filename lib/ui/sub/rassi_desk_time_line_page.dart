@@ -274,6 +274,7 @@ class _RassiDeskTimeLinePageState extends State<RassiDeskTimeLinePage> with Tick
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           onTap: () {
+            CustomFirebaseClass.logEvtDdInfo(time: item.displayTime);
             if (!isOn) {
               CommonPopup.instance.showDialogMsg(context, '정보 발생 전 입니다.');
             } else {

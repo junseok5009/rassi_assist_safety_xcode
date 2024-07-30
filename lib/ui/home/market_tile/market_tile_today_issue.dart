@@ -7,6 +7,7 @@ import 'package:rassi_assist/common/common_class.dart';
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/custom_nv_route_class.dart';
+import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
 import 'package:rassi_assist/models/pg_data.dart';
@@ -44,26 +45,16 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
   @override
   void initState() {
     super.initState();
-    _selectTimeLapseIndex = widget.issue09.listData.indexWhere((element) => element.lastDataYn == 'Y');
-    _timeLapselastDataIndex = _selectTimeLapseIndex;
-    if (_selectTimeLapseIndex == -1) {
-      _selectTimeLapseIndex = 0;
-      _timeLapselastDataIndex = _selectTimeLapseIndex = 0;
-    }
-    if (widget.issue09.listData.isNotEmpty) {
-      _setBubbleNode().then((value) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
-            _isStartBubbleAnimation = true;
-            _bubbleChartAniStart().then(
-              (_) async {
-                _isStartBubbleAnimation = false;
-                //await _disposeAniControllerList();
-              },
-            );
-          }
-        });
-      });
+    //DLog.e('MarketTileTodayIssue : initState()');
+    init();
+  }
+
+
+  @override
+  void didUpdateWidget(MarketTileTodayIssue  oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.issue09 != widget.issue09) {
+      init();
     }
   }
 
@@ -159,9 +150,10 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
               onChanged: (dynamic newValue) async {
                 //DLog.e('newValue : $newValue');
                 if (newValue > _timeLapselastDataIndex) {
-                  //commonShowToast('미래 데이터 입니다.');
+                  //미래 데이터
                 } else {
                   _selectTimeLapseIndex = (newValue as double).toInt();
+                  CustomFirebaseClass.logEvtTodayIssueTimelapse(time: widget.issue09.listData[_selectTimeLapseIndex].timeLapse);
                   await _setBubbleNode();
                   setState(() {});
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -204,6 +196,31 @@ class MarketTileTodayIssueState extends State<MarketTileTodayIssue> with TickerP
   }
 
   /// make function
+
+  Future<void> init() async{
+    _selectTimeLapseIndex = widget.issue09.listData.indexWhere((element) => element.lastDataYn == 'Y');
+    _timeLapselastDataIndex = _selectTimeLapseIndex;
+    if (_selectTimeLapseIndex == -1) {
+      _selectTimeLapseIndex = 0;
+      _timeLapselastDataIndex = _selectTimeLapseIndex = 0;
+    }
+    if (widget.issue09.listData.isNotEmpty) {
+      _setBubbleNode().then((value) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!_isStartBubbleAnimation && _bubbleWidgetList.isNotEmpty) {
+            _isStartBubbleAnimation = true;
+            _bubbleChartAniStart().then(
+                  (_) async {
+                _isStartBubbleAnimation = false;
+                //await _disposeAniControllerList();
+              },
+            );
+          }
+        });
+      });
+    }
+  }
+
   Future<void> _setBubbleNode() async {
     for (var element in _bubbleChartAniControllerList) {
       element.dispose();

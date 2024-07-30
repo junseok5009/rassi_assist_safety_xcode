@@ -18,6 +18,7 @@ import 'package:rassi_assist/models/tr_search/tr_search10.dart';
 import 'package:rassi_assist/models/tr_shome/tr_shome05.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/common/common_swiper_pagination.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/result_analyze_page.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -163,7 +164,8 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
                       (_divIndex == 0 && _listDivIndexIsNoData[0]) ||
                       (_divIndex == 1 && _listDivIndexIsNoData[1]) ||
                       (_divIndex == 2 && _listDivIndexIsNoData[2])
-                  ? _setNoDataView()
+                  ?
+                  CommonView.setNoDataView(150, _isQuart ? '실적분석 내용이 없습니다.' : '최근 5년 실적 정보가 없습니다.',)
                   : _listData.isEmpty
                       ? const SizedBox(
                           height: 500,
@@ -241,14 +243,11 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
                               height: 15,
                             ),
                             _setInfoViewSwiper(),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            _setNewsView(),
+                            //_setNewsView(),
                           ],
                         ),
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
               const Text(
                 '주요지표',
@@ -291,49 +290,6 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
           height: 15.0,
         ),
       ],
-    );
-  }
-
-  Widget _setNoDataView() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      margin: const EdgeInsets.only(
-        top: 20,
-      ),
-      decoration: UIStyle.boxRoundLine6(),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                width: 1,
-                color: RColor.new_basic_text_color_grey,
-              ),
-              color: Colors.transparent,
-            ),
-            child: const Center(
-              child: Text(
-                '!',
-                style: TextStyle(fontSize: 18, color: RColor.new_basic_text_color_grey),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Text(
-            _isQuart ? '실적분석 내용이 없습니다.' : '최근 5년 실적 정보가 없습니다.',
-            style: const TextStyle(
-              fontSize: 14,
-              color: RColor.new_basic_text_color_grey,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -758,9 +714,9 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
   }
 
   Widget _setInfoViewSwiper() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      height: _listBarData.length < 2 ? 182 : 210,
+      height: _listBarData.length < 2 ? 180 : 210,
       child: Swiper(
         controller: _swiperController,
         scale: 0.9,
@@ -782,7 +738,7 @@ class StockHomeHomeTileResultAnalyzeState extends State<StockHomeHomeTileResultA
             padding: const EdgeInsets.all(20),
             margin: EdgeInsets.only(
                 //left: 5, right: 5,
-                bottom: _listBarData.length < 2 ? 0 : 28),
+                bottom: _listBarData.length < 2 ? 0 : 29),
             decoration: UIStyle.boxNewBasicGrey10(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

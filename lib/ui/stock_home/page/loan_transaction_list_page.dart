@@ -7,19 +7,19 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/tstyle.dart';
-import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../common/const.dart';
 import '../../../common/net.dart';
-import '../../common/common_popup.dart';
-import '../../../custom_lib/sticky_header/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart';
 import '../../../custom_lib/sticky_header/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart'
-as custom_class_scroller;
+    as custom_class_scroller;
+import '../../../custom_lib/sticky_header/custom_table_sticky_header_basic/custom_table_sticky_header_basic.dart';
 import '../../../models/tr_invest/tr_invest21.dart';
 import '../../../models/tr_invest/tr_invest22.dart';
 import '../../../models/tr_invest/tr_invest23.dart';
+import '../../common/common_popup.dart';
 
 /// 23.03.20 HJS
 /// 종목홈_대차거래/공매_일자별 현황_리스트 화면
@@ -27,14 +27,14 @@ import '../../../models/tr_invest/tr_invest23.dart';
 // /// 신용융자 추가
 class LoanTransactionListPage extends StatefulWidget {
   static const String TAG_NAME = '일자별_현황';
+
   const LoanTransactionListPage({Key? key}) : super(key: key);
+
   @override
-  State<LoanTransactionListPage> createState() =>
-      _LoanTransactionListPageState();
+  State<LoanTransactionListPage> createState() => _LoanTransactionListPageState();
 }
 
-class _LoanTransactionListPageState
-    extends State<LoanTransactionListPage> {
+class _LoanTransactionListPageState extends State<LoanTransactionListPage> {
   late SharedPreferences _prefs;
   String _userId = "";
   String _stockCode = '';
@@ -68,7 +68,7 @@ class _LoanTransactionListPageState
     );
     _stockCode = AppGlobal().stkCode;
     _loadPrefData().then(
-          (_) => {
+      (_) => {
         _requestTrInvest21(),
       },
     );
@@ -76,16 +76,13 @@ class _LoanTransactionListPageState
       if (_controller.position.atEdge) {
         bool isTop = _controller.position.pixels == 0;
         if (!isTop) {
-          if (_selectDiv == 0 &&
-              _lendingPageNo < _lendingTotalPageSize) {
+          if (_selectDiv == 0 && _lendingPageNo < _lendingTotalPageSize) {
             _lendingPageNo++;
             _requestTrInvest21();
-          } else if (_selectDiv == 1 &&
-              _sellingPageNo < _sellingTotalPageSize) {
+          } else if (_selectDiv == 1 && _sellingPageNo < _sellingTotalPageSize) {
             _sellingPageNo++;
             _requestTrInvest22();
-          } else if (_selectDiv == 2 &&
-              _loanPageNo < _loanTotalPageSize) {
+          } else if (_selectDiv == 2 && _loanPageNo < _loanTotalPageSize) {
             _loanPageNo++;
             _requestTrInvest23();
           }
@@ -96,7 +93,7 @@ class _LoanTransactionListPageState
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -152,10 +149,20 @@ class _LoanTransactionListPageState
               ),
               _setDivButtons(),
               (_selectDiv == 0 && _lendingListData.isNotEmpty) ||
-                  (_selectDiv == 1 && _sellingListData.isNotEmpty) ||
-                  (_selectDiv == 2 && _loanListData.isNotEmpty)
+                      (_selectDiv == 1 && _sellingListData.isNotEmpty) ||
+                      (_selectDiv == 2 && _loanListData.isNotEmpty)
                   ? _setDataView()
-                  : _setNoDataView(),
+                  : Container(
+                      margin: const EdgeInsets.only(top: 20),
+                      child: CommonView.setNoDataView(
+                        150,
+                        _selectDiv == 0
+                            ? '대차거래 내역이 없습니다.'
+                            : _selectDiv == 1
+                                ? '공매도 내역이 없습니다.'
+                                : '신용융자 내역이 없습니다.',
+                      ),
+                    ),
             ],
           ),
         ),
@@ -163,215 +170,164 @@ class _LoanTransactionListPageState
     );
   }
 
-  Widget _setNoDataView() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      margin: const EdgeInsets.only(
-        top: 20,
-      ),
-      decoration: UIStyle.boxRoundLine6(),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                width: 1,
-                color: RColor.new_basic_text_color_grey,
-              ),
-              color: Colors.transparent,
-            ),
-            child: const Center(
-              child: Text(
-                '!',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: RColor.new_basic_text_color_grey,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Text(
-            _selectDiv == 0
-                ? '대차거래 내역이 없습니다.'
-                : _selectDiv == 1
-                ? '공매도 내역이 없습니다.'
-                : '신용융자 내역이 없습니다.',
-            style: const TextStyle(
-              fontSize: 14,
-              color: RColor.new_basic_text_color_grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _setDataView() {
     return _selectDiv == 0 || _selectDiv == 1
         ? Expanded(
-      child: Column(
-        children: [
-          const SizedBox(
-            height: 10,
-          ),
-          Container(
-            width: double.infinity,
-            alignment: Alignment.centerRight,
-            child: const Text(
-              '잔고금 : 백만',
-              style: TextStyle(
-                color: RColor.bgTableTextGrey,
-                fontSize: 13,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Expanded(
-            child: ListView(
-              controller: _controller,
+            child: Column(
               children: [
-                Table(
-                  /*  border: TableBorder.symmetric(
+                const SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  width: double.infinity,
+                  alignment: Alignment.centerRight,
+                  child: const Text(
+                    '잔고금 : 백만',
+                    style: TextStyle(
+                      color: RColor.bgTableTextGrey,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Expanded(
+                  child: ListView(
+                    controller: _controller,
+                    children: [
+                      Table(
+                        /*  border: TableBorder.symmetric(
                       outside: BorderSide(color: Colors.redAccent, width: 1, style: BorderStyle.solid, strokeAlign: 10,),
                       inside:  BorderSide(color: Colors.blueAccent, width: 2, style: BorderStyle.solid, strokeAlign:5,),
                     ),*/
-                  children: List.generate(
-                    _selectDiv == 0
-                        ? _lendingListData.length + 1
-                        : _sellingListData.length + 1,
-                        (index) => _setTableRow(index),
+                        children: List.generate(
+                          _selectDiv == 0 ? _lendingListData.length + 1 : _sellingListData.length + 1,
+                          (index) => _setTableRow(index),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    )
+          )
         : Expanded(
-      child: Column(
-        children: [
-          const SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: CustomStickyHeadersTableBasic(
-              columnsLength: _loanListTitle.length,
-              rowsLength: _loanListData.length,
-              columnsTitleBuilder: (columnIndex) => Container(
-                height: 32,
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      width: 1.0,
-                      color: RColor.bgTableTextGrey,
-                    ),
-                  ),
-                  color: RColor.bgTableGrey,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 10,
                 ),
-                child: Text(
-                  _loanListTitle[columnIndex],
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: RColor.bgTableTextGrey,
-                  ),
-                ),
-              ),
-              rowsTitleBuilder: (rowIndex) {
-                return Container(
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        width: 1.0,
-                        color: RColor.lineGrey,
+                Expanded(
+                  child: CustomStickyHeadersTableBasic(
+                    columnsLength: _loanListTitle.length,
+                    rowsLength: _loanListData.length,
+                    columnsTitleBuilder: (columnIndex) => Container(
+                      height: 32,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            width: 1.0,
+                            color: RColor.bgTableTextGrey,
+                          ),
+                        ),
+                        color: RColor.bgTableGrey,
+                      ),
+                      child: Text(
+                        _loanListTitle[columnIndex],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: RColor.bgTableTextGrey,
+                        ),
                       ),
                     ),
-                    //color: RColor.bgTableGrey,
-                  ),
-                  child: Center(
-                    child: Text(
-                      TStyle.getDateDivFormat(
-                          _loanListData[rowIndex].tradeDate),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: RColor.bgTableTextGrey,
+                    rowsTitleBuilder: (rowIndex) {
+                      return Container(
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              width: 1.0,
+                              color: RColor.lineGrey,
+                            ),
+                          ),
+                          //color: RColor.bgTableGrey,
+                        ),
+                        child: Center(
+                          child: Text(
+                            TStyle.getDateDivFormat(_loanListData[rowIndex].tradeDate),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: RColor.bgTableTextGrey,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    legendCell: Container(
+                      height: 32,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            width: 1.0,
+                            color: RColor.bgTableTextGrey,
+                          ),
+                        ),
+                        color: RColor.bgTableGrey,
+                      ),
+                      child: const Text(
+                        '일자',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: RColor.bgTableTextGrey,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-              legendCell: Container(
-                height: 32,
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      width: 1.0,
-                      color: RColor.bgTableTextGrey,
+                    contentCellBuilder: (columnIndex, rowIndex) {
+                      return Container(
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              width: 1.0,
+                              color: RColor.lineGrey,
+                            ),
+                          ),
+                          //color: RColor.bgTableGrey,
+                        ),
+                        child: Center(
+                          child: Text(
+                            columnIndex == 0
+                                ? TStyle.getMoneyPoint(
+                                    _loanListData[rowIndex].volumeNew,
+                                  )
+                                : columnIndex == 1
+                                    ? TStyle.getMoneyPoint(_loanListData[rowIndex].volumeRepay)
+                                    : columnIndex == 2
+                                        ? TStyle.getMoneyPoint(_loanListData[rowIndex].volumeBalance)
+                                        : columnIndex == 3
+                                            ? '${_loanListData[rowIndex].creditRate}%'
+                                            : columnIndex == 4
+                                                ? '${_loanListData[rowIndex].balanceRate}%'
+                                                : '데이터 없음',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: RColor.bgTableTextGrey,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    scrollControllers: custom_class_scroller.ScrollControllers(
+                      verticalBodyController: _controller,
                     ),
                   ),
-                  color: RColor.bgTableGrey,
                 ),
-                child: const Text(
-                  '일자',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: RColor.bgTableTextGrey,
-                  ),
-                ),
-              ),
-              contentCellBuilder: (columnIndex, rowIndex) {
-                return Container(
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        width: 1.0,
-                        color: RColor.lineGrey,
-                      ),
-                    ),
-                    //color: RColor.bgTableGrey,
-                  ),
-                  child: Center(
-                    child: Text(
-                      columnIndex == 0
-                          ? TStyle.getMoneyPoint(_loanListData[rowIndex].volumeNew,)
-                          : columnIndex == 1
-                          ? TStyle.getMoneyPoint(_loanListData[rowIndex].volumeRepay)
-                          : columnIndex == 2
-                          ? TStyle.getMoneyPoint(_loanListData[rowIndex].volumeBalance)
-                          : columnIndex == 3
-                          ? '${_loanListData[rowIndex].creditRate}%'
-                          : columnIndex == 4
-                          ? '${_loanListData[rowIndex].balanceRate}%'
-                          : '데이터 없음',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: RColor.bgTableTextGrey,
-                      ),
-                    ),
-                  ),
-                );
-              },
-              scrollControllers: custom_class_scroller.ScrollControllers(
-                verticalBodyController: _controller,
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
+          );
   }
 
   Widget _setDivButtons() {
@@ -398,9 +354,7 @@ class _LoanTransactionListPageState
               child: Center(
                 child: Text(
                   '대차거래',
-                  style: _selectDiv == 0
-                      ? TStyle.commonTitle15
-                      : const TextStyle(fontSize: 15, color: RColor.lineGrey),
+                  style: _selectDiv == 0 ? TStyle.commonTitle15 : const TextStyle(fontSize: 15, color: RColor.lineGrey),
                 ),
               ),
             ),
@@ -432,9 +386,9 @@ class _LoanTransactionListPageState
                   style: _selectDiv == 1
                       ? TStyle.commonTitle15
                       : const TextStyle(
-                    fontSize: 15,
-                    color: RColor.lineGrey,
-                  ),
+                          fontSize: 15,
+                          color: RColor.lineGrey,
+                        ),
                 ),
               ),
             ),
@@ -473,9 +427,9 @@ class _LoanTransactionListPageState
                   style: _selectDiv == 2
                       ? TStyle.commonTitle15
                       : const TextStyle(
-                    fontSize: 15,
-                    color: RColor.lineGrey,
-                  ),
+                          fontSize: 15,
+                          color: RColor.lineGrey,
+                        ),
                 ),
               ),
             ),
@@ -499,7 +453,7 @@ class _LoanTransactionListPageState
     return TableRow(
       children: List.generate(
         5,
-            (index) => _setTableView(row, index),
+        (index) => _setTableView(row, index),
       ),
     );
   }
@@ -515,15 +469,10 @@ class _LoanTransactionListPageState
         ),
         row == 0
             ? Container(
-            color: RColor.bgTableGrey,
-            height: 32,
-            alignment: Alignment.center,
-            child: _setTitleView(column))
+                color: RColor.bgTableGrey, height: 32, alignment: Alignment.center, child: _setTitleView(column))
             : _setValueView(row - 1, column),
         Visibility(
-          visible: _selectDiv == 0
-              ? _lendingListData.length == row
-              : _sellingListData.length == row,
+          visible: _selectDiv == 0 ? _lendingListData.length == row : _sellingListData.length == row,
           child: Container(
             height: 1,
             color: RColor.bgTableTextGrey,
@@ -546,25 +495,15 @@ class _LoanTransactionListPageState
   _setValueView(int row, int column) {
     String value = '';
     if (column == 0) {
-      value = TStyle.getDateDivFormat(_selectDiv == 0
-          ? _lendingListData[row].td
-          : _sellingListData[row].td);
+      value = TStyle.getDateDivFormat(_selectDiv == 0 ? _lendingListData[row].td : _sellingListData[row].td);
     } else if (column == 1) {
-      value = TStyle.getMoneyPoint(_selectDiv == 0
-          ? _lendingListData[row].tv
-          : _sellingListData[row].tv);
+      value = TStyle.getMoneyPoint(_selectDiv == 0 ? _lendingListData[row].tv : _sellingListData[row].tv);
     } else if (column == 2) {
-      value = TStyle.getMoneyPoint(_selectDiv == 0
-          ? _lendingListData[row].rv
-          : _sellingListData[row].sv);
+      value = TStyle.getMoneyPoint(_selectDiv == 0 ? _lendingListData[row].rv : _sellingListData[row].sv);
     } else if (column == 3) {
-      value = TStyle.getMoneyPoint(_selectDiv == 0
-          ? _lendingListData[row].bl
-          : _sellingListData[row].sr);
+      value = TStyle.getMoneyPoint(_selectDiv == 0 ? _lendingListData[row].bl : _sellingListData[row].sr);
     } else if (column == 4) {
-      value = TStyle.getMoneyPoint(_selectDiv == 0
-          ? _lendingListData[row].ba
-          : _sellingListData[row].sa);
+      value = TStyle.getMoneyPoint(_selectDiv == 0 ? _lendingListData[row].ba : _sellingListData[row].sa);
     }
     return SizedBox(
       height: 40,
@@ -645,8 +584,7 @@ class _LoanTransactionListPageState
     DLog.w(trStr + response.body);
     // NOTE 대차거래
     if (trStr == TR.INVEST21) {
-      final TrInvest21 resData =
-      TrInvest21.fromJsonWithIndex(jsonDecode(response.body));
+      final TrInvest21 resData = TrInvest21.fromJsonWithIndex(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Invest21 invest21 = resData.retData;
         _lendingTotalPageSize = int.parse(invest21.totalPageSize);
@@ -658,17 +596,14 @@ class _LoanTransactionListPageState
           );
         } else {}
       } else {
-        if (_selectDiv == 0 &&
-            _lendingPageNo == 0 &&
-            _lendingTotalPageSize == 0) {}
+        if (_selectDiv == 0 && _lendingPageNo == 0 && _lendingTotalPageSize == 0) {}
       }
       setState(() {});
     }
 
     // NOTE 공매도
     else if (trStr == TR.INVEST22) {
-      final TrInvest22 resData =
-      TrInvest22.fromJsonWithIndex(jsonDecode(response.body));
+      final TrInvest22 resData = TrInvest22.fromJsonWithIndex(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Invest22 invest22 = resData.retData;
         _sellingTotalPageSize = int.parse(invest22.totalPageSize);
@@ -684,8 +619,7 @@ class _LoanTransactionListPageState
 
     // NOTE 신용융자
     else if (trStr == TR.INVEST23) {
-      final TrInvest23 resData =
-      TrInvest23.fromJsonWithIndex(jsonDecode(response.body));
+      final TrInvest23 resData = TrInvest23.fromJsonWithIndex(jsonDecode(response.body));
       if (resData.retCode == RT.SUCCESS) {
         Invest23 invest23 = resData.retData;
         _loanTotalPageSize = int.parse(invest23.totalPageSize);

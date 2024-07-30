@@ -3,15 +3,15 @@
 class TrRassi04 {
   final String retCode;
   final String retMsg;
-  final Rassi04? resData;
+  final Rassi04 resData;
 
-  TrRassi04({this.retCode = '', this.retMsg = '', this.resData});
+  TrRassi04({this.retCode = '', this.retMsg = '', this.resData = const Rassi04()});
 
   factory TrRassi04.fromJson(Map<String, dynamic> json) {
     return TrRassi04(
       retCode: json['retCode'] ?? '',
       retMsg: json['retMsg'] ?? '',
-      resData: json['retData'] == null ? null : Rassi04.fromJson(json['retData']),
+      resData: json['retData'] == null ? const Rassi04() : Rassi04.fromJson(json['retData']),
     );
   }
 }
@@ -23,7 +23,7 @@ class Rassi04 {
   final String monthNewsCount;
   final List<Rassi04News> rassi04NewsList;
 
-  Rassi04({
+  const Rassi04({
     this.content = '',
     this.todayNewsCount = '',
     this.monthNewsCount = '',
@@ -31,18 +31,12 @@ class Rassi04 {
   });
 
   factory Rassi04.fromJson(Map<String, dynamic> json) {
-    var jsonList = json['list_Rassiro'] as List<dynamic>?;
-    List<Rassi04News> list;
-    if (jsonList != null) {
-      list = jsonList.map((i) => Rassi04News.fromJson(i)).toList();
-    } else {
-      list = [];
-    }
+    var jsonList = json['list_Rassiro'];
     return Rassi04(
       content: json['content'] ?? '',
       todayNewsCount: json['todayNewsCount'] ?? '',
       monthNewsCount: json['monthNewsCount'] ?? '',
-      rassi04NewsList: list,
+      rassi04NewsList: jsonList == null ? [] : (jsonList as List).map((i) => Rassi04News.fromJson(i)).toList(),
     );
   }
 }
@@ -51,7 +45,7 @@ class Rassi04 {
 class Rassi04News {
   final String newsDiv; // DSC : 공시, SCR : 잠정 실적, RPT : 증권사 리포트
   final String title;
-  Rassi04News({
+  const Rassi04News({
     this.newsDiv = '',
     this.title = '',
   });

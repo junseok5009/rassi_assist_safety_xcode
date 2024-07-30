@@ -274,13 +274,13 @@ class IssueCalendarState extends State<IssueCalendarPage> {
               _requestData(_focusedYearMonth);
             }
           } else {
-            setState(() {
-              _focusedDay = DateTime.now();
-            });
-            String result = await CommonPopup.instance.showDialogPremium(context);
-            if (result == CustomNvRouteResult.landPremiumPage) {
-              basePageState.navigateAndGetResultPayPremiumPage();
+            if(_focusedDay.month != focusedDay.month){
+              String result = await CommonPopup.instance.showDialogPremiumBasic(context);
+              if (result == CustomNvRouteResult.landPremiumPage) {
+                basePageState.navigateAndGetResultPayPremiumPage();
+              }
             }
+
           }
 
         },

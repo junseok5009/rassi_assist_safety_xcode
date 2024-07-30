@@ -764,7 +764,7 @@ class IssueNewViewerState extends State<IssueNewViewer> {
           },
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
             margin: const EdgeInsets.symmetric(
               horizontal: 15,
               //vertical: 10,
@@ -780,16 +780,16 @@ class IssueNewViewerState extends State<IssueNewViewer> {
                   'images/icon_volume_white.png',
                   width: 16,
                 ),
-                const SizedBox(width: 5,),
+                const SizedBox(width: 10,),
                 Expanded(
-                  child: AutoSizeText(
-                    '${_issue04.issueInfo.keyword} 관련 종목의 AI매매신호 한번에 보기',
+                  child: Text(
+                    '${_issue04.issueInfo.keyword} 관련 종목 AI매매신호 모두 보기',
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
                       height: 1.2,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                   ),
                 ),
               ],

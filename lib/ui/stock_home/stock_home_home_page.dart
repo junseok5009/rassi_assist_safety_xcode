@@ -29,7 +29,6 @@ import 'package:rassi_assist/provider/stock_home/stock_home_tab_name_provider.da
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
-import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_ai_breaking_news_list_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_company_overview_page.dart';
 import 'package:rassi_assist/ui/stock_home/page/stock_info_page.dart';
@@ -1930,13 +1929,13 @@ class StockHomeHomePageState extends State<StockHomeHomePage> {
       _listRassi04News.clear();
       _stkBriefing = '';
       if (resData.retCode == RT.SUCCESS) {
-        if (resData.resData?.content != null) {
-          _stkBriefing = resData.resData!.content.replaceAll('<br>', '\n');
+        if (resData.resData.content.isNotEmpty) {
+          _stkBriefing = resData.resData.content.replaceAll('<br>', '\n');
+          _stkBriefing = _stkBriefing.replaceRange(0, 1, '⦁');
+          _stkBriefing = _stkBriefing.replaceAll('\n-', '\n⦁');
         }
-        _stkBriefing = _stkBriefing.replaceRange(0, 1, '⦁');
-        _stkBriefing = _stkBriefing.replaceAll('\n-', '\n⦁');
-        rassiCnt = resData.resData!.todayNewsCount;
-        rassiCnt30 = resData.resData!.monthNewsCount;
+        rassiCnt = resData.resData.todayNewsCount;
+        rassiCnt30 = resData.resData.monthNewsCount;
         // 23.11.20 오늘의 요약 롤링 삭제
         /*if (resData.resData.rassi04NewsList.isNotEmpty) {
           _listRassi04News.addAll(resData.resData.rassi04NewsList);

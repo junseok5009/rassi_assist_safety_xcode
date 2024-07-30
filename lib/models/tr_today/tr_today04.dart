@@ -6,7 +6,6 @@ import 'package:rassi_assist/models/pg_news.dart';
 import 'package:rassi_assist/ui/main/base_page.dart';
 import 'package:rassi_assist/ui/market/issue_new_viewer.dart';
 import 'package:rassi_assist/ui/news/issue_list_page.dart';
-import 'package:rassi_assist/ui/news/issue_viewer.dart';
 import 'package:rassi_assist/ui/news/news_tag_page.dart';
 import 'package:rassi_assist/ui/news/news_tag_sum_page.dart';
 import 'package:rassi_assist/ui/sub/rassi_desk_page.dart';
@@ -19,14 +18,13 @@ class TrToday04 {
   final String retMsg;
   final Today04? retData;
 
-  TrToday04({this.retCode='', this.retMsg='', this.retData});
+  TrToday04({this.retCode = '', this.retMsg = '', this.retData});
 
   factory TrToday04.fromJson(Map<String, dynamic> json) {
     return TrToday04(
       retCode: json['retCode'],
       retMsg: json['retMsg'],
-      retData:
-          json['retData'] == null ? null : Today04.fromJson(json['retData']),
+      retData: json['retData'] == null ? null : Today04.fromJson(json['retData']),
     );
   }
 }
@@ -36,8 +34,8 @@ class Item {
   final String itemCode;
 
   Item({
-    this.itemName='',
-    this.itemCode='',
+    this.itemName = '',
+    this.itemCode = '',
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
@@ -49,17 +47,17 @@ class Item {
 }
 
 class Today04 {
-  String contentDiv='';
-  String displayTime='';
-  String displayTitle='';
-  String linkUrl=''; // contentDiv == BRF // 금요일 오후 9시 주간 브리핑때만 있음
+  String contentDiv = '';
+  String displayTime = '';
+  String displayTitle = '';
+  String linkUrl = ''; // contentDiv == BRF // 금요일 오후 9시 주간 브리핑때만 있음
   List<Item> listItem = [];
 
   Today04({
-    this.contentDiv='',
-    this.displayTime='',
-    this.displayTitle='',
-    this.linkUrl='',
+    this.contentDiv = '',
+    this.displayTime = '',
+    this.displayTitle = '',
+    this.linkUrl = '',
     this.listItem = const [],
   });
 
@@ -85,9 +83,7 @@ class Today04 {
       displayTime: json['displayTime'] ?? '',
       displayTitle: json['displayTitle'] ?? '',
       linkUrl: json['linkUrl'] ?? '',
-      listItem: json['list_Item'] == null
-          ? []
-          : (json['list_Item'] as List).map((i) => Item.fromJson(i)).toList(),
+      listItem: json['list_Item'] == null ? [] : (json['list_Item'] as List).map((i) => Item.fromJson(i)).toList(),
     );
   }
 }
@@ -141,13 +137,12 @@ class TileToday04 extends StatelessWidget {
     return InkWell(
       onTap: () {
         CustomFirebaseClass.logEvtDdInfo(
-          item.displayTime,
+          time: item.displayTime,
         );
         switch (item.contentDiv) {
           case 'MKT2': // 08:30
           case 'MKT': // 16시
-            basePageState.callPageRouteNews(
-                const NewsTagSumPage(), PgNews(tagCode: '', tagName: ''));
+            basePageState.callPageRouteNews(const NewsTagSumPage(), PgNews(tagCode: '', tagName: ''));
             break;
           case 'ISS': // 9시
             Navigator.push(
@@ -172,12 +167,10 @@ class TileToday04 extends StatelessWidget {
             );
             break;*/
           case 'STK': // 10시
-            basePageState.callPageRouteNews(
-                NewsTagPage(), PgNews(tagCode: 'USRTAG', tagName: '실시간특징주'));
+            basePageState.callPageRouteNews(NewsTagPage(), PgNews(tagCode: 'USRTAG', tagName: '실시간특징주'));
             break;
           case 'SNS': // 14시
-            Navigator.pushNamed(context, SocialListPage.routeName,
-                arguments: PgData(pgSn: ''));
+            Navigator.pushNamed(context, SocialListPage.routeName, arguments: PgData(pgSn: ''));
             break;
           /*  case 'TPC': // 17시
             basePageState.callPageRoute(CatchListPage());

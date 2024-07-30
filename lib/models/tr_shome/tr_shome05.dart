@@ -43,13 +43,6 @@ class Shome05StructPrice {
     this.pbr='',
     this.eps='',
   });
-/*  Shome05StructPrice.empty(){
-    stockCode = '';
-    stockName = '';
-    per = '';
-    pbr = '';
-    eps = '';
-  }*/
   bool isEmpty(){
     if(per.isEmpty && pbr.isEmpty && eps.isEmpty){
       return true;

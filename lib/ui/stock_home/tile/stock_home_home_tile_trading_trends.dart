@@ -11,6 +11,7 @@ import 'package:rassi_assist/common/ui_style.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest01.dart';
 import 'package:rassi_assist/models/tr_invest/tr_invest02.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:rassi_assist/ui/custom/CustomBoxShadow.dart';
 import 'package:rassi_assist/ui/stock_home/page/trading_trends_by_date_page.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -537,207 +538,216 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
         const SizedBox(
           height: 15,
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            _isRightYAxisUpUnit ? '단위:천주' : '단위:주',
-            style: const TextStyle(
-              fontSize: 11,
-              color: RColor.new_basic_text_color_grey,
-            ),
-          ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          height: 240,
-          child: SfCartesianChart(
-            plotAreaBorderWidth: 0,
-            enableMultiSelection: false,
-            primaryXAxis: CategoryAxis(
-              axisLine: const AxisLine(
-                width: 1.2,
-                color: RColor.chartGreyColor,
-              ),
-              majorGridLines: const MajorGridLines(
-                width: 0,
-              ),
-              majorTickLines: const MajorTickLines(
-                width: 0,
-              ),
-              desiredIntervals: 4,
-              //labelPlacement: LabelPlacement.onTicks,
-              axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
-                TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
-                const TextStyle(
-                  fontSize: 12,
-                  color: RColor.greyBasic_8c8c8c,
+        if(_trendsListData.isEmpty)
+          CommonView.setNoDataView(150, '매매동향 '
+              '${_isTrendsDiv == 0 ? '외국인' : _isTrendsDiv == 1 ? '기관' : '개인'} '
+              '내용이 없습니다.')
+        else
+          Column(
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  _isRightYAxisUpUnit ? '단위:천주' : '단위:주',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: RColor.new_basic_text_color_grey,
+                  ),
                 ),
               ),
-              //desiredIntervals: 4,
-            ),
-            primaryYAxis: const NumericAxis(
-              rangePadding: ChartRangePadding.round,
-              isVisible: false,
-              axisLine: AxisLine(
-                width: 0,
-              ),
-              majorGridLines: MajorGridLines(
-                width: 0,
-              ),
-              majorTickLines: MajorTickLines(
-                width: 0,
-              ),
-            ),
-            trackballBehavior: _trendsTrackballBehavior,
-            axes: <ChartAxis>[
-              const CategoryAxis(
-                name: 'xAxis',
-                isVisible: false,
-                opposedPosition: true,
-                //labelPlacement: LabelPlacement.onTicks,
-              ),
-              NumericAxis(
-                name: 'yAxis',
-                opposedPosition: true,
-                anchorRangeToVisiblePoints: true,
-                rangePadding: ChartRangePadding.round,
-                //edgeLabelPlacement: EdgeLabelPlacement.shift,
-                //labelPlacement: LabelPlacement.onTicks,
-                axisLine: const AxisLine(
-                  width: 0,
-                ),
-                majorGridLines: const MajorGridLines(
-                  color: RColor.chartGreyColor,
-                  width: 0.6,
-                  dashArray: [2, 2],
-                ),
-                majorTickLines: const MajorTickLines(
-                  width: 0,
-                ),
-                axisLabelFormatter: (axisLabelRenderArgs) {
-                  String value = axisLabelRenderArgs.text;
-                  if (_isRightYAxisUpUnit) {
-                    value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 1000).round().toString());
-                  } else {
-                    value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
-                  }
-                  return ChartAxisLabel(
-                    value,
-                    const TextStyle(
-                      fontSize: 12,
-                      color: RColor.greyBasic_8c8c8c,
+              SizedBox(
+                width: double.infinity,
+                height: 240,
+                child: SfCartesianChart(
+                  plotAreaBorderWidth: 0,
+                  enableMultiSelection: false,
+                  primaryXAxis: CategoryAxis(
+                    axisLine: const AxisLine(
+                      width: 1.2,
+                      color: RColor.chartGreyColor,
                     ),
-                  );
-                },
-              )
-            ],
-            selectionType: SelectionType.point,
-            series: [
-              ColumnSeries<Invest01ChartData, String>(
-                dataSource: _trendsListData,
-                xValueMapper: (Invest01ChartData data, index) => data.td,
-                yValueMapper: (Invest01ChartData data, index) {
-                  return _isTrendsDiv == 0
-                      ? int.parse(data.fv)
-                      : _isTrendsDiv == 1
-                          ? int.parse(data.ov)
-                          : int.parse(data.pv);
-                },
-                pointColorMapper: (Invest01ChartData data, index) {
-                  if (_isTrendsDiv == 0) {
-                    if (int.parse(data.fv) > 0) {
-                      return RColor.chartRed1;
-                    } else {
-                      return RColor.lightBlue_5886fe;
-                    }
-                  } else if (_isTrendsDiv == 1) {
-                    if (int.parse(data.ov) > 0) {
-                      return RColor.chartRed1;
-                    } else {
-                      return RColor.lightBlue_5886fe;
-                    }
-                  } else {
-                    if (int.parse(data.pv) > 0) {
-                      return RColor.chartRed1;
-                    } else {
-                      return RColor.lightBlue_5886fe;
-                    }
-                  }
-                },
-                yAxisName: 'yAxis',
-                width: 0.4,
-                enableTooltip: true,
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(1),
+                    majorGridLines: const MajorGridLines(
+                      width: 0,
+                    ),
+                    majorTickLines: const MajorTickLines(
+                      width: 0,
+                    ),
+                    desiredIntervals: 4,
+                    //labelPlacement: LabelPlacement.onTicks,
+                    axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                      TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
+                      const TextStyle(
+                        fontSize: 12,
+                        color: RColor.greyBasic_8c8c8c,
+                      ),
+                    ),
+                    //desiredIntervals: 4,
+                  ),
+                  primaryYAxis: const NumericAxis(
+                    rangePadding: ChartRangePadding.round,
+                    isVisible: false,
+                    axisLine: AxisLine(
+                      width: 0,
+                    ),
+                    majorGridLines: MajorGridLines(
+                      width: 0,
+                    ),
+                    majorTickLines: MajorTickLines(
+                      width: 0,
+                    ),
+                  ),
+                  trackballBehavior: _trendsTrackballBehavior,
+                  axes: <ChartAxis>[
+                    const CategoryAxis(
+                      name: 'xAxis',
+                      isVisible: false,
+                      opposedPosition: true,
+                      //labelPlacement: LabelPlacement.onTicks,
+                    ),
+                    NumericAxis(
+                      name: 'yAxis',
+                      opposedPosition: true,
+                      anchorRangeToVisiblePoints: true,
+                      rangePadding: ChartRangePadding.round,
+                      //edgeLabelPlacement: EdgeLabelPlacement.shift,
+                      //labelPlacement: LabelPlacement.onTicks,
+                      axisLine: const AxisLine(
+                        width: 0,
+                      ),
+                      majorGridLines: const MajorGridLines(
+                        color: RColor.chartGreyColor,
+                        width: 0.6,
+                        dashArray: [2, 2],
+                      ),
+                      majorTickLines: const MajorTickLines(
+                        width: 0,
+                      ),
+                      axisLabelFormatter: (axisLabelRenderArgs) {
+                        String value = axisLabelRenderArgs.text;
+                        if (_isRightYAxisUpUnit) {
+                          value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 1000).round().toString());
+                        } else {
+                          value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
+                        }
+                        return ChartAxisLabel(
+                          value,
+                          const TextStyle(
+                            fontSize: 12,
+                            color: RColor.greyBasic_8c8c8c,
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                  selectionType: SelectionType.point,
+                  series: [
+                    ColumnSeries<Invest01ChartData, String>(
+                      dataSource: _trendsListData,
+                      xValueMapper: (Invest01ChartData data, index) => data.td,
+                      yValueMapper: (Invest01ChartData data, index) {
+                        return _isTrendsDiv == 0
+                            ? int.parse(data.fv)
+                            : _isTrendsDiv == 1
+                            ? int.parse(data.ov)
+                            : int.parse(data.pv);
+                      },
+                      pointColorMapper: (Invest01ChartData data, index) {
+                        if (_isTrendsDiv == 0) {
+                          if (int.parse(data.fv) > 0) {
+                            return RColor.chartRed1;
+                          } else {
+                            return RColor.lightBlue_5886fe;
+                          }
+                        } else if (_isTrendsDiv == 1) {
+                          if (int.parse(data.ov) > 0) {
+                            return RColor.chartRed1;
+                          } else {
+                            return RColor.lightBlue_5886fe;
+                          }
+                        } else {
+                          if (int.parse(data.pv) > 0) {
+                            return RColor.chartRed1;
+                          } else {
+                            return RColor.lightBlue_5886fe;
+                          }
+                        }
+                      },
+                      yAxisName: 'yAxis',
+                      width: 0.4,
+                      enableTooltip: true,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(1),
+                      ),
+                      //onRendererCreated: (controller) => _chartTrendsController = controller,
+                    ),
+                    LineSeries<Invest01ChartData, String>(
+                      dataSource: _trendsListData,
+                      xValueMapper: (item, index) => index.toString(),
+                      yValueMapper: (item, index) => int.parse(item.tp),
+                      color: RColor.chartTradePriceColor,
+                      width: 1.4,
+                      enableTooltip: false,
+                      //selectionBehavior: _selectionBehavior,
+                      //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
+                      xAxisName: 'xAxis',
+                    ),
+                  ],
                 ),
-                //onRendererCreated: (controller) => _chartTrendsController = controller,
               ),
-              LineSeries<Invest01ChartData, String>(
-                dataSource: _trendsListData,
-                xValueMapper: (item, index) => index.toString(),
-                yValueMapper: (item, index) => int.parse(item.tp),
-                color: RColor.chartTradePriceColor,
-                width: 1.4,
-                enableTooltip: false,
-                //selectionBehavior: _selectionBehavior,
-                //initialSelectedDataIndexes: <int>[_initSelectBarIndex],
-                xAxisName: 'xAxis',
+              const SizedBox(
+                height: 16,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 7,
+                    height: 7,
+                    //color: Color(0xffFF5050),
+                    decoration: const BoxDecoration(
+                      color: Color(0xffFF5050),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const Text(
+                    '  매수',
+                    style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: const BoxDecoration(
+                      color: Color(0xff5886FE),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const Text(
+                    '  매도',
+                    style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: const BoxDecoration(
+                      color: RColor.chartTradePriceColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const Text(
+                    '  주가',
+                    style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
+                  ),
+                ],
               ),
             ],
           ),
-        ),
-        const SizedBox(
-          height: 16,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 7,
-              height: 7,
-              //color: Color(0xffFF5050),
-              decoration: const BoxDecoration(
-                color: Color(0xffFF5050),
-                shape: BoxShape.circle,
-              ),
-            ),
-            const Text(
-              '  매수',
-              style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Container(
-              width: 7,
-              height: 7,
-              decoration: const BoxDecoration(
-                color: Color(0xff5886FE),
-                shape: BoxShape.circle,
-              ),
-            ),
-            const Text(
-              '  매도',
-              style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Container(
-              width: 7,
-              height: 7,
-              decoration: const BoxDecoration(
-                color: RColor.chartTradePriceColor,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const Text(
-              '  주가',
-              style: TextStyle(fontSize: 11, color: RColor.new_basic_text_color_grey),
-            ),
-          ],
-        ),
       ],
     );
   }
@@ -746,245 +756,240 @@ class StockHomeHomeTileTradingTrendsState extends State<StockHomeHomeTileTrading
     return Column(
       children: [
         const SizedBox(
-          height: 10,
+          height: 5,
         ),
         _setSumDateView(),
         const SizedBox(
           height: 5,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        if(_sumListData.isEmpty)
+          CommonView.setNoDataView(150, '누적매매 ${sumDateDiveTitleList[_sumDateClickIndex]} 내용이 없습니다.')
+        else Column(
           children: [
-            const Text(
-              '외국인 ',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              TStyle.getMoneyPoint(_accFrnVol),
-              style: TextStyle(
-                fontSize: 16,
-                color: TStyle.getMinusPlusColor(_accFrnVol),
-                fontWeight: FontWeight.w500,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  '외국인 ',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  TStyle.getMoneyPoint(_accFrnVol),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: TStyle.getMinusPlusColor(_accFrnVol),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                const Text(
+                  ' 기관 ',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  TStyle.getMoneyPoint(_accOrgVol),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: TStyle.getMinusPlusColor(_accOrgVol),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(
-              width: 10,
+              height: 5,
             ),
-            const Text(
-              ' 기관 ',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              TStyle.getMoneyPoint(_accOrgVol),
-              style: TextStyle(
-                fontSize: 16,
-                color: TStyle.getMinusPlusColor(_accOrgVol),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            _isRightYAxisUpUnit ? '단위:천주' : '단위:주',
-            style: const TextStyle(
-              fontSize: 11,
-              color: RColor.new_basic_text_color_grey,
-            ),
-          ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          height: 240,
-          child: SfCartesianChart(
-            plotAreaBorderWidth: 0,
-            enableAxisAnimation: false,
-            primaryXAxis: CategoryAxis(
-              axisBorderType: AxisBorderType.withoutTopAndBottom,
-              axisLine: const AxisLine(
-                width: 1.2,
-                color: RColor.chartGreyColor,
-              ),
-              majorGridLines: const MajorGridLines(
-                width: 0,
-              ),
-              majorTickLines: const MajorTickLines(
-                width: 0,
-              ),
-              desiredIntervals: 4,
-              labelPlacement: LabelPlacement.onTicks,
-              axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
-                TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
-                const TextStyle(
-                  fontSize: 12,
-                  color: RColor.greyBasic_8c8c8c,
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                _isRightYAxisUpUnit ? '단위:천주' : '단위:주',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: RColor.new_basic_text_color_grey,
                 ),
               ),
             ),
-            primaryYAxis: const NumericAxis(
-              rangePadding: ChartRangePadding.round,
-              isVisible: false,
-            ),
-            axes: <ChartAxis>[
-              NumericAxis(
-                name: 'yAxis',
-                opposedPosition: true,
-                anchorRangeToVisiblePoints: true,
-                rangePadding: ChartRangePadding.round,
-                axisLine: const AxisLine(
-                  width: 0,
-                ),
-                majorGridLines: const MajorGridLines(
-                  color: RColor.chartGreyColor,
-                  width: 0.6,
-                  dashArray: [2, 2],
-                ),
-                majorTickLines: const MajorTickLines(
-                  width: 0,
-                ),
-                axisLabelFormatter: (axisLabelRenderArgs) {
-                  String value = axisLabelRenderArgs.text;
-                  if (_isRightYAxisUpUnit) {
-                    value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 1000).round().toString());
-                  } else {
-                    value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
-                  }
-                  return ChartAxisLabel(
-                    value,
+            SizedBox(
+              width: double.infinity,
+              height: 240,
+              child: SfCartesianChart(
+                plotAreaBorderWidth: 0,
+                enableAxisAnimation: true,
+                primaryXAxis: CategoryAxis(
+                  axisBorderType: AxisBorderType.withoutTopAndBottom,
+                  axisLine: const AxisLine(
+                    width: 1.2,
+                    color: RColor.chartGreyColor,
+                  ),
+                  majorGridLines: const MajorGridLines(
+                    width: 0,
+                  ),
+                  majorTickLines: const MajorTickLines(
+                    width: 0,
+                  ),
+                  desiredIntervals: 4,
+                  labelPlacement: LabelPlacement.onTicks,
+                  axisLabelFormatter: (axisLabelRenderArgs) => ChartAxisLabel(
+                    TStyle.getDateSlashFormat3(axisLabelRenderArgs.text),
                     const TextStyle(
                       fontSize: 12,
                       color: RColor.greyBasic_8c8c8c,
                     ),
-                  );
-                },
-                numberFormat: NumberFormat.decimalPattern(), // 라벨의 형식 지정
-                // numberFormat: NumberFormat.simpleCurrency(locale: 'ko_KR', decimalDigits: 0,),
-                //rangePadding: ChartRangePadding.additional,
-                //maximumLabels: 4,
-                /* minimum: double.parse(_listChartData
-                    .reduce((curr, next) =>
-                        int.parse(curr.tp) < int.parse(next.tp) ? curr : next)
-                    .tp),*/
-                /*maximum: double.parse(_listChartData
-                    .reduce((curr, next) =>
-                        int.parse(curr.tp) > int.parse(next.tp) ? curr : next)
-                    .tp),*/
-                /*axisLabelFormatter: (axisLabelRenderArgs) {
-                  DLog.e('axisLabelRenderArgs.value : ${axisLabelRenderArgs.value}');
-                  return ChartAxisLabel('ddd', TextStyle(),);
-                },*/
-              )
-            ],
-            trackballBehavior: _sumTrackballBehavior,
-            tooltipBehavior: TooltipBehavior(),
-            series: [
-              //SplineRangeAreaSeries
-              // 외국인
-              AreaSeries<Invest02ChartData, String>(
-                dataSource: _sumListData,
-                xValueMapper: (item, index) => item.td,
-                yValueMapper: (item, index) => int.parse(item.afv),
-                yAxisName: 'yAxis',
-                color: RColor.chartYellow.withOpacity(0.08),
-                borderWidth: 1.5,
-                borderColor: RColor.chartYellow,
-                enableTooltip: true,
-                animationDuration: 1500,
-              ),
-              AreaSeries<Invest02ChartData, String>(
-                dataSource: _sumListData,
-                xValueMapper: (item, index) => item.td,
-                yValueMapper: (item, index) => int.parse(item.aov),
-                yAxisName: 'yAxis',
-                color: RColor.chartGreen.withOpacity(0.08),
-                borderWidth: 1.5,
-                borderColor: RColor.chartGreen,
-                enableTooltip: true,
-                animationDuration: 1500,
-              ),
-              LineSeries<Invest02ChartData, String>(
-                dataSource: _sumListData,
-                xValueMapper: (item, index) => item.td,
-                yValueMapper: (item, index) => int.parse(item.tp),
-                color: RColor.chartTradePriceColor,
-                width: 1.4,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(
-          height: 16,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 7,
-              height: 7,
-              //color: Color(0xffFF5050),
-              decoration: const BoxDecoration(
-                color: Color(0xffFBD240),
-                shape: BoxShape.circle,
-              ),
-            ),
-            //const SizedBox(width: 4,),
-            const Text(
-              '  외국인',
-              style: TextStyle(
-                fontSize: 11,
-                color: RColor.new_basic_text_color_grey,
-              ),
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Container(
-              width: 7,
-              height: 7,
-              decoration: const BoxDecoration(
-                color: Color(0xff5DD68D),
-                shape: BoxShape.circle,
-              ),
-            ),
-            const Text(
-              '  기관',
-              style: TextStyle(
-                fontSize: 11,
-                color: RColor.new_basic_text_color_grey,
+                  ),
+                ),
+                primaryYAxis: const NumericAxis(
+                  rangePadding: ChartRangePadding.round,
+                  isVisible: false,
+                ),
+                axes: <ChartAxis>[
+                  NumericAxis(
+                    name: 'yAxis',
+                    opposedPosition: true,
+                    anchorRangeToVisiblePoints: true,
+                    rangePadding: ChartRangePadding.round,
+                    axisLine: const AxisLine(
+                      width: 0,
+                    ),
+                    majorGridLines: const MajorGridLines(
+                      color: RColor.chartGreyColor,
+                      width: 0.6,
+                      dashArray: [2, 2],
+                    ),
+                    majorTickLines: const MajorTickLines(
+                      width: 0,
+                    ),
+                    axisLabelFormatter: (axisLabelRenderArgs) {
+                      String value = axisLabelRenderArgs.text;
+                      if (_isRightYAxisUpUnit) {
+                        value = TStyle.getMoneyPoint((axisLabelRenderArgs.value / 1000).round().toString());
+                      } else {
+                        value = TStyle.getMoneyPoint(axisLabelRenderArgs.value.round().toString());
+                      }
+                      return ChartAxisLabel(
+                        value,
+                        const TextStyle(
+                          fontSize: 12,
+                          color: RColor.greyBasic_8c8c8c,
+                        ),
+                      );
+                    },
+                    numberFormat: NumberFormat.decimalPattern(), // 라벨의 형식 지정
+                    // numberFormat: NumberFormat.simpleCurrency(locale: 'ko_KR', decimalDigits: 0,),
+                    //rangePadding: ChartRangePadding.additional,
+                    //maximumLabels: 4,
+                  )
+                ],
+                trackballBehavior: _sumTrackballBehavior,
+                tooltipBehavior: TooltipBehavior(),
+                series: [
+                  AreaSeries<Invest02ChartData, String>(
+                    dataSource: _sumListData,
+                    xValueMapper: (item, index) => item.td,
+                    yValueMapper: (item, index) => int.parse(item.afv),
+                    yAxisName: 'yAxis',
+                    color: RColor.chartYellow.withOpacity(0.08),
+                    borderWidth: 1.5,
+                    borderColor: RColor.chartYellow,
+                    enableTooltip: true,
+                    animationDuration: 1500,
+                    animationDelay: 0,
+                  ),
+                  AreaSeries<Invest02ChartData, String>(
+                    dataSource: _sumListData,
+                    xValueMapper: (item, index) => item.td,
+                    yValueMapper: (item, index) => int.parse(item.aov),
+                    yAxisName: 'yAxis',
+                    color: RColor.chartGreen.withOpacity(0.08),
+                    borderWidth: 1.5,
+                    borderColor: RColor.chartGreen,
+                    enableTooltip: true,
+                    animationDuration: 1500,
+                  ),
+                  LineSeries<Invest02ChartData, String>(
+                    dataSource: _sumListData,
+                    xValueMapper: (item, index) => item.td,
+                    yValueMapper: (item, index) => int.parse(item.tp),
+                    color: RColor.chartTradePriceColor,
+                    animationDuration: 1500,
+                    width: 1.4,
+                  ),
+                ],
               ),
             ),
             const SizedBox(
-              width: 20,
+              height: 5,
             ),
-            Container(
-              width: 7,
-              height: 7,
-              //color: Color(0xff6565FF),
-              decoration: const BoxDecoration(
-                color: RColor.chartTradePriceColor,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const Text(
-              '  주가',
-              style: TextStyle(
-                fontSize: 11,
-                color: RColor.new_basic_text_color_grey,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 7,
+                  height: 7,
+                  //color: Color(0xffFF5050),
+                  decoration: const BoxDecoration(
+                    color: Color(0xffFBD240),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                //const SizedBox(width: 4,),
+                const Text(
+                  '  외국인',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: RColor.new_basic_text_color_grey,
+                  ),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: const BoxDecoration(
+                    color: Color(0xff5DD68D),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const Text(
+                  '  기관',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: RColor.new_basic_text_color_grey,
+                  ),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                Container(
+                  width: 7,
+                  height: 7,
+                  //color: Color(0xff6565FF),
+                  decoration: const BoxDecoration(
+                    color: RColor.chartTradePriceColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const Text(
+                  '  주가',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: RColor.new_basic_text_color_grey,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+
       ],
     );
   }

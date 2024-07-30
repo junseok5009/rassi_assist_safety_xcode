@@ -323,34 +323,26 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                         ),
                         child: Column(
                           children: [
-                            const Expanded(flex: 1, child: SizedBox()),
                             Expanded(
-                              flex: 5,
-                              child: Row(
-                                children: [
-                                  const Expanded(
-                                    flex: 3,
-                                    child: SizedBox(),
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: FractionallySizedBox(
+                                  heightFactor: 0.3,
+                                  child: Image.asset(
+                                    'images/icon_issue_timelapse_nodata.png',
                                   ),
-                                  Expanded(
-                                    flex: 7,
-                                    child: FractionallySizedBox(
-                                      heightFactor: 0.6,
-                                      child: Image.asset(
-                                        'images/icon_issue_timelapse_nodata.png',
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
-                            const Expanded(
-                                flex: 4,
-                                child: Text(
-                                  '선택하신 날짜에는 데이터가 없습니다.\n다른 날짜를 선택해 보세요.',
-                                  style: TextStyle(fontSize: 16),
-                                  textAlign: TextAlign.center,
-                                ))
+                            const SizedBox(height: 25,),
+                            Expanded(
+                              child: Text(
+                                '선택하신 날짜에는 데이터가 없습니다.\n다른 날짜를 선택해 보세요.',
+                                style: TextStyle(fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
                           ],
                         ),
                       )
@@ -902,12 +894,13 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
               onChanged: (dynamic newValue) async {
                 //DLog.e('newValue : $newValue');
                 if (newValue > _timeLapselastDataIndex) {
+                  //미래 데이터
                 } else {
                   _selectTimeLapseIndex = (newValue as double).toInt();
                   if (_bubbleTimeLapseList[_selectTimeLapseIndex].listData.isEmpty) {
-                    //commonShowToastCenter('_bubbleTimeLapseList[_selectTimeLapseIndex].listData : ${_bubbleTimeLapseList[_selectTimeLapseIndex].listData.length}');
                   } else {
-                    //commonShowToastCenter('_bubbleTimeLapseList[_selectTimeLapseIndex].listData.length : ${_bubbleTimeLapseList[_selectTimeLapseIndex].listData.length}');
+                    CustomFirebaseClass.logEvtTodayIssueTimelapse(
+                        time: _bubbleTimeLapseList[_selectTimeLapseIndex].timeLapse);
                     await _setBubbleNode();
                     setState(() {});
                     WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -7,14 +7,16 @@ import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/models/none_tr/app_global.dart';
+import 'package:rassi_assist/ui/common/common_appbar.dart';
+import 'package:rassi_assist/ui/common/common_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../common/custom_firebase_class.dart';
 import '../../../common/net.dart';
 import '../../../common/tstyle.dart';
-import '../../../custom_lib/sticky_header/custom_stock_home_sticky_header/custom_stock_home_sticky_headers_table.dart';
 import '../../../custom_lib/sticky_header/custom_stock_home_sticky_header/custom_stock_home_sticky_headers_table.dart'
     as custom_class_scroller;
+import '../../../custom_lib/sticky_header/custom_stock_home_sticky_header/custom_stock_home_sticky_headers_table.dart';
 import '../../../models/tr_invest/tr_invest01.dart';
 import '../../common/common_popup.dart';
 
@@ -23,10 +25,11 @@ import '../../common/common_popup.dart';
 class TradingTrendsByDatePage extends StatefulWidget {
   static const String TAG = "[TradingTrendsByDatePage]";
   static const String TAG_NAME = '일자별_매매동향';
+
   const TradingTrendsByDatePage({Key? key}) : super(key: key);
+
   @override
-  State<TradingTrendsByDatePage> createState() =>
-      _TradingTrendsByDatePageState();
+  State<TradingTrendsByDatePage> createState() => _TradingTrendsByDatePageState();
 }
 
 class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
@@ -51,7 +54,7 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
 
   @override
   void setState(VoidCallback fn) {
-    if(mounted){
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -96,301 +99,276 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              '일자별 매매동향',
-              style: TStyle.title18T,
-            ),
-            IconButton(
-              padding: const EdgeInsets.symmetric(
-                vertical: 0,
-                //horizontal: 10,
-              ), // 패딩 설정
-              constraints: const BoxConstraints(), // constraints
-              onPressed: () {
-                Navigator.of(context).pop(null);
-              },
-              icon: const Icon(
-                Icons.close,
-                color: Colors.black,
-                size: 26,
-              ),
-            ),
-          ],
-        ),
-        //iconTheme: IconThemeData(color: Colors.black),
-        centerTitle: false,
-        leadingWidth: 0,
-        elevation: 1,
-      ),
+      appBar: CommonAppbar.simpleWithExit(context, '일자별 매매동향', Colors.black, Colors.white, Colors.black),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                width: double.infinity,
-                alignment: Alignment.centerRight,
-                child: const Text(
-                  '단위 : 주',
-                  style: TextStyle(
-                    color: RColor.bgTableTextGrey,
-                    fontSize: 13,
+          child: _trendsListData.isEmpty
+              ? Container(
+                  margin: const EdgeInsets.only(top: 20),
+                  child: CommonView.setNoDataView(
+                    150,
+                    '매매동향 내용이 없습니다.',
                   ),
-                ),
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              Expanded(
-                child: CustomStockHomeStickyHeadersTable(
-                  showVerticalScrollbar: false,
-                  showHorizontalScrollbar: false,
-                  scrollControllers: custom_class_scroller.ScrollControllers(
-                    verticalBodyController: _controller,
-                  ),
-                  columnsLength: 6,
-                  rowsLength: _trendsListData.length,
-                  columnsTitleBuilder: (columnIndex) {
-                    return Container(
-                      alignment: Alignment.bottomCenter,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: RColor.bgTableGrey,
-                        border: Border(
-                          top: BorderSide(
-                            width: 1.0,
-                            color: RColor.bgTableTextGrey,
-                          ),
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          _columnTitleList[columnIndex],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: RColor.bgTableTextGrey,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  rowsTitleBuilder: (i) => Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          width: 1.0,
-                          color: RColor.lineGrey,
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      width: double.infinity,
+                      alignment: Alignment.centerRight,
+                      child: const Text(
+                        '단위 : 주',
+                        style: TextStyle(
+                          color: RColor.bgTableTextGrey,
+                          fontSize: 13,
                         ),
                       ),
                     ),
-                    child: Container(
-                      color: RColor.bgTableGrey,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 40,
-                            child: Center(
-                              //color: Colors.yellow,
-                              child: Text(
-                                TStyle.getDateDivFormat(_trendsListData[i].td),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 14,
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Expanded(
+                      child: CustomStockHomeStickyHeadersTable(
+                        showVerticalScrollbar: false,
+                        showHorizontalScrollbar: false,
+                        scrollControllers: custom_class_scroller.ScrollControllers(
+                          verticalBodyController: _controller,
+                        ),
+                        columnsLength: 6,
+                        rowsLength: _trendsListData.length,
+                        columnsTitleBuilder: (columnIndex) {
+                          return Container(
+                            alignment: Alignment.bottomCenter,
+                            height: 32,
+                            decoration: const BoxDecoration(
+                              color: RColor.bgTableGrey,
+                              border: Border(
+                                top: BorderSide(
+                                  width: 1.0,
                                   color: RColor.bgTableTextGrey,
                                 ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            flex: 60,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      TStyle.getMoneyPoint(
-                                          _trendsListData[i].tp),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: TStyle.getMinusPlusColor(
-                                            _trendsListData[i].fa),
-                                      ),
-                                    ),
-                                    Text(
-                                      TStyle.getTriangleStringWithMoneyPoint(
-                                          _trendsListData[i].fa),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: TStyle.getMinusPlusColor(
-                                          _trendsListData[i].fa,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                            child: Center(
+                              child: Text(
+                                _columnTitleList[columnIndex],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: RColor.bgTableTextGrey,
                                 ),
-                                const SizedBox(
-                                  width: 15,
+                              ),
+                            ),
+                          );
+                        },
+                        rowsTitleBuilder: (i) => Container(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                width: 1.0,
+                                color: RColor.lineGrey,
+                              ),
+                            ),
+                          ),
+                          child: Container(
+                            color: RColor.bgTableGrey,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  flex: 40,
+                                  child: Center(
+                                    //color: Colors.yellow,
+                                    child: Text(
+                                      TStyle.getDateDivFormat(_trendsListData[i].td),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: RColor.bgTableTextGrey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 60,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            TStyle.getMoneyPoint(_trendsListData[i].tp),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: TStyle.getMinusPlusColor(_trendsListData[i].fa),
+                                            ),
+                                          ),
+                                          Text(
+                                            TStyle.getTriangleStringWithMoneyPoint(_trendsListData[i].fa),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: TStyle.getMinusPlusColor(
+                                                _trendsListData[i].fa,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        width: 15,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  contentCellBuilder: (columnIndex, rowIndex) {
-                    String value = '';
-                    Color color = Colors.black;
-                    switch (columnIndex) {
-                      case 0:
-                        {
-                          value = _trendsListData[rowIndex].fv;
-                          break;
-                        }
-                      case 1:
-                        {
-                          value = _trendsListData[rowIndex].ov;
-                          break;
-                        }
-                      case 2:
-                        {
-                          value = _trendsListData[rowIndex].pv;
-                          break;
-                        }
-                      case 3:
-                        {
-                          value = _trendsListData[rowIndex].itv;
-                          break;
-                        }
-                      case 4:
-                        {
-                          value = _trendsListData[rowIndex].rpv;
-                          break;
-                        }
-                      case 5:
-                        {
-                          value = _trendsListData[rowIndex].pev;
-                          break;
-                        }
-                    }
-                    color = TStyle.getMinusPlusColor(value);
-                    value = TStyle.getMoneyPoint(value);
-                    if (columnIndex == 0) {
-                      return Container(
-                        width: 100,
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              width: 1.0,
-                              color: RColor.lineGrey,
-                            ),
-                            //bottom: BorderSide(width: 1.0, color: Colors.brown),
-                          ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              value,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: color,
+                        contentCellBuilder: (columnIndex, rowIndex) {
+                          String value = '';
+                          Color color = Colors.black;
+                          switch (columnIndex) {
+                            case 0:
+                              {
+                                value = _trendsListData[rowIndex].fv;
+                                break;
+                              }
+                            case 1:
+                              {
+                                value = _trendsListData[rowIndex].ov;
+                                break;
+                              }
+                            case 2:
+                              {
+                                value = _trendsListData[rowIndex].pv;
+                                break;
+                              }
+                            case 3:
+                              {
+                                value = _trendsListData[rowIndex].itv;
+                                break;
+                              }
+                            case 4:
+                              {
+                                value = _trendsListData[rowIndex].rpv;
+                                break;
+                              }
+                            case 5:
+                              {
+                                value = _trendsListData[rowIndex].pev;
+                                break;
+                              }
+                          }
+                          color = TStyle.getMinusPlusColor(value);
+                          value = TStyle.getMoneyPoint(value);
+                          if (columnIndex == 0) {
+                            return Container(
+                              width: 100,
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(
+                                    width: 1.0,
+                                    color: RColor.lineGrey,
+                                  ),
+                                  //bottom: BorderSide(width: 1.0, color: Colors.brown),
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    value,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: color,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${_trendsListData[rowIndex].fh}%',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: color,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            return Container(
+                              width: 100,
+                              alignment: Alignment.centerRight,
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(
+                                    width: 1.0,
+                                    color: RColor.lineGrey,
+                                  ),
+                                  //bottom: BorderSide(width: 1.0, color: Colors.brown),
+                                ),
+                              ),
+                              child: Text(
+                                value,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: color,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        legendCell: Container(
+                          height: 32,
+                          decoration: const BoxDecoration(
+                            color: RColor.bgTableGrey,
+                            border: Border(
+                              top: BorderSide(
+                                width: 1.0,
+                                color: RColor.bgTableTextGrey,
                               ),
                             ),
-                            Text(
-                              '${_trendsListData[rowIndex].fh}%',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: color,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Expanded(
+                                flex: 40,
+                                child: Text(
+                                  '날짜',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: RColor.bgTableTextGrey,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return Container(
-                        width: 100,
-                        alignment: Alignment.centerRight,
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              width: 1.0,
-                              color: RColor.lineGrey,
-                            ),
-                            //bottom: BorderSide(width: 1.0, color: Colors.brown),
+                              Expanded(
+                                flex: 60,
+                                child: Text(
+                                  '종가',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: RColor.bgTableTextGrey,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: color,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  legendCell: Container(
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      color: RColor.bgTableGrey,
-                      border: Border(
-                        top: BorderSide(
-                          width: 1.0,
-                          color: RColor.bgTableTextGrey,
                         ),
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Expanded(
-                          flex: 40,
-                          child: Text(
-                            '날짜',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: RColor.bgTableTextGrey,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 60,
-                          child: Text(
-                            '종가',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: RColor.bgTableTextGrey,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -440,9 +418,7 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
         Invest01 invest01 = resData.retData;
         _totalPageSize = int.parse(invest01.totalPageSize);
         if (invest01.listChartData.isNotEmpty) {
-          setState(() {
-            _trendsListData.addAll(invest01.listChartData);
-          });
+          _trendsListData.addAll(invest01.listChartData);
         } else {
           if (_pageNo == 0 && _totalPageSize == 0) {
             //_isNoData = 'Y';
@@ -453,6 +429,7 @@ class _TradingTrendsByDatePageState extends State<TradingTrendsByDatePage> {
           //_isNoData = 'Y';
         }
       }
+      setState(() {});
     }
   }
 }

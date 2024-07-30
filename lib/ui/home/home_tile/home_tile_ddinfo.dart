@@ -4,6 +4,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:rassi_assist/common/const.dart';
+import 'package:rassi_assist/common/custom_firebase_class.dart';
 import 'package:rassi_assist/common/d_log.dart';
 import 'package:rassi_assist/common/net.dart';
 import 'package:rassi_assist/common/tstyle.dart';
@@ -114,6 +115,7 @@ class HomeTileDdinfo extends StatelessWidget {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
+        CustomFirebaseClass.logEvtDdInfo(time: item.displayTime);
         if (item.displayYn == 'N') {
           CommonPopup.instance.showDialogTitleMsg(
               context, '알림', '발생 전 입니다.\n정보 발생 시간에 확인해 주세요.');

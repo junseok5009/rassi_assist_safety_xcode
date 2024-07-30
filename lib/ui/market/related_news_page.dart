@@ -16,13 +16,13 @@ import 'package:rassi_assist/ui/common/common_appbar.dart';
 import 'package:rassi_assist/ui/common/common_popup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 /// 2024.06
 /// 관련 속보와 종목 모두 보기 (장중 투자자 동향 / 큰손 매매 / 시장 핫종목)
 class RelatedNewsPage extends StatefulWidget {
   static const routeName = '/page_related_news';
   static const String TAG = "[RelatedNewsPage]";
-  static const String TAG_NAME = '';
+
+  //static const String TAG_NAME = '';
   static final GlobalKey<RelatedNewsPageState> globalKey = GlobalKey();
 
   RelatedNewsPage({Key? key}) : super(key: globalKey);
@@ -32,6 +32,7 @@ class RelatedNewsPage extends StatefulWidget {
 }
 
 class RelatedNewsPageState extends State<RelatedNewsPage> {
+  String _tagName = '';
   late SharedPreferences _prefs;
   String _userId = "";
   bool _bYetDispose = true; //true: 아직 화면이 사라지기 전
@@ -55,7 +56,7 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
   @override
   void initState() {
     super.initState();
-    CustomFirebaseClass.logEvtScreenView(RelatedNewsPage.TAG_NAME);
+
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
 
@@ -66,10 +67,21 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
       }
       args = ModalRoute.of(context)!.settings.arguments as PgData;
       selectType = args.pgData;
-      if (selectType == 'INVESTOR') typeTitle = '장중 투자자 동향';
-      if (selectType == 'AGENCY') typeTitle = '큰손 매매';
-      if (selectType == 'HOT_STOCK') typeTitle = '시장 핫종목';
-
+      if (selectType == 'INVESTOR') {
+        typeTitle = '장중 투자자 동향';
+        _tagName = '장중_투자자_동향';
+      }
+      else if (selectType == 'AGENCY'){
+        typeTitle = '큰손 매매';
+        _tagName = '큰손_매매';
+      }
+      else if (selectType == 'HOT_STOCK'){
+        typeTitle = '시장 핫종목';
+        _tagName = '시장_핫종목';
+      } else{
+        Navigator.pop(context);
+      }
+      CustomFirebaseClass.logEvtScreenView(_tagName);
       _requestData();
     });
   }
@@ -129,7 +141,10 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('관련 태그', style: TStyle.content15,),
+                  const Text(
+                    '관련 태그',
+                    style: TStyle.content15,
+                  ),
                   const SizedBox(height: 3),
                   SizedBox(
                     width: double.infinity,
@@ -138,7 +153,7 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
                       alignment: WrapAlignment.start,
                       children: List.generate(
                         _recomTagList.length,
-                            (index) => TileTag14(
+                        (index) => TileTag14(
                           _recomTagList[index],
                         ),
                       ),
@@ -195,11 +210,13 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
     DLog.d(RelatedNewsPage.TAG, '$trStr $json');
     var url = Uri.parse(Net.TR_BASE + trStr);
     try {
-      final http.Response response = await http.post(
+      final http.Response response = await http
+          .post(
             url,
             body: json,
             headers: Net.headers,
-          ).timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
+          )
+          .timeout(const Duration(seconds: Net.NET_TIMEOUT_SEC));
 
       if (_bYetDispose) _parseTrData(trStr, response);
     } on TimeoutException catch (_) {
@@ -228,6 +245,5 @@ class RelatedNewsPageState extends State<RelatedNewsPage> {
       }
       setState(() {});
     }
-
   }
 }
