@@ -335,29 +335,14 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                               ),
                             ),
                             const SizedBox(height: 25,),
-                            Expanded(
+                            const Expanded(
                               child: Text(
                                 '선택하신 날짜에는 데이터가 없습니다.\n다른 날짜를 선택해 보세요.',
                                 style: TextStyle(fontSize: 16),
                                 textAlign: TextAlign.center,
                               ),
                             ),
-
                           ],
-                        ),
-                      )
-                    else if (_isNetworkDo)
-                      Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        color: Colors.grey.withOpacity(0.1),
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.only(
-                          bottom: 100,
-                        ),
-                        child: Image.asset(
-                          'images/gif_ios_loading_large.gif',
-                          height: 20,
                         ),
                       )
                     else
@@ -487,6 +472,20 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
                           ],
                         ),
                       ),
+                    if (_isNetworkDo)
+                      Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: Colors.grey.withOpacity(0.1),
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.only(
+                          bottom: 100,
+                        ),
+                        child: Image.asset(
+                          'images/gif_ios_loading_large.gif',
+                          height: 20,
+                        ),
+                      )
                   ],
                 ),
               ),
@@ -1297,7 +1296,6 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
           });
         } else {
           //_getDaysOfMonth(standardDate: _listDate[_selectDateIndex].yyyyMMdd);
-
           _bubbleTimeLapseList.addAll(resData.retData.listData);
           if (_listDate[_selectDateIndex].yyyyMMdd == _todayStrYyyyMmDd) {
             _selectTimeLapseIndex = _bubbleTimeLapseList.indexWhere((element) => element.lastDataYn == 'Y');
@@ -1313,6 +1311,7 @@ class _TodayIssueTimelinePageState extends State<TodayIssueTimelinePage> with Ti
           if (_bubbleTimeLapseList.isNotEmpty) {
             await _setBubbleNode();
           }
+          _rassiroListScrollController.animateTo(0, duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn);
           _fetchPosts(
               TR.INDEX02,
               jsonEncode(<String, String>{
